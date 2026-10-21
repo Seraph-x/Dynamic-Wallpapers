@@ -1,0 +1,22 @@
+<!doctype html><meta charset="utf-8"><title>CEF trusted audio fixture</title>
+<style>body{background:#174969;color:white}canvas{border:4px solid white}</style>
+<h1>CEF: no click / real paint / PCM</h1><canvas width="320" height="100"></canvas>
+<audio src="../../../.build/dependencies/cef/fixture.wav" autoplay loop></audio>
+<video src="../../../.build/dependencies/cef/fixture.webm" autoplay loop width="320"></video>
+<iframe src="child.html"></iframe>
+<script>
+const canvas=document.querySelector('canvas'), ctx=canvas.getContext('2d');
+let tick=0;setInterval(()=>{ctx.fillStyle=`hsl(${tick++%360},90%,50%)`;ctx.fillRect(0,0,320,100)},50);
+const audio=new AudioContext(), oscillator=audio.createOscillator(), gain=audio.createGain();
+gain.gain.value=.08;oscillator.frequency.value=440;
+oscillator.connect(gain).connect(audio.destination);oscillator.start();
+console.log('context-initial-state='+audio.state);
+audio.resume().then(()=>console.log('context-resumed='+audio.state)).catch(e=>console.error(e));
+console.log('codecs='+JSON.stringify({vp9:document.createElement('video').canPlayType('video/webm; codecs="vp9"'),h264:document.createElement('video').canPlayType('video/mp4; codecs="avc1.42E01E"'),aac:document.createElement('audio').canPlayType('audio/mp4; codecs="mp4a.40.2"')}));
+for(const media of document.querySelectorAll('audio,video')) {
+  media.volume=.15;
+  media.play().then(()=>console.log(media.tagName+'-autoplay-playing')).catch(e=>console.error(media.tagName+'-'+e));
+  media.addEventListener('error',()=>console.error(media.tagName+'-media-error='+media.error?.message));
+}
+setTimeout(()=>{const a=new AudioContext(),o=a.createOscillator(),g=a.createGain();g.gain.value=.03;o.frequency.value=550;o.connect(g).connect(a.destination);o.start();console.log('dynamic-context='+a.state)},5000);
+</script>

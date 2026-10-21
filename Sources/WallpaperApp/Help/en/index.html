@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self'; base-uri 'none'; form-action 'none'">
+<title>Dynamic Wallpaper help</title>
+<link rel="stylesheet" href="../help.css">
+<script src="../help.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header>
+<div class="brand">Dynamic Wallpaper</div>
+<nav class="languages" aria-label="Guide language">
+<span>Guide language</span>
+<a href="../zh-Hans/index.html" lang="zh-Hans" hreflang="zh-Hans" data-help-language="zh-Hans">简体中文</a>
+<a href="../en/index.html" lang="en" hreflang="en" data-help-language="en" aria-current="page">English</a>
+<a href="../ja/index.html" lang="ja" hreflang="ja" data-help-language="ja">日本語</a>
+<a href="../fr/index.html" lang="fr" hreflang="fr" data-help-language="fr">Français</a>
+<a href="../es/index.html" lang="es" hreflang="es" data-help-language="es">Español</a>
+</nav>
+</header>
+<main id="main">
+<h1>Dynamic Wallpaper help</h1>
+<p><strong>v0.3.0 · Build 3 · Offline user guide</strong></p>
+<p>Open <strong>User Guide</strong> from the app’s Help menu or its menu bar icon. The guide opens in the current app interface language. The links above change only the guide, not the app’s settings. Help is included with the app and can be read offline.</p>
+<h2 id="contents">Contents</h2>
+<ol>
+<li><a href="#introduction">About the app</a></li>
+<li><a href="#quick-start">Quick start</a></li>
+<li><a href="#features">Using the features</a></li>
+<li><a href="#settings">Settings reference</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+<li><a href="#performance">Performance and power use</a></li>
+<li><a href="#shortcuts">Keyboard shortcuts and gestures</a></li>
+<li><a href="#version">Version information</a></li>
+<li><a href="#appendix">Reference</a></li>
+</ol>
+<h2 id="introduction">1. About the app</h2>
+<p>Dynamic Wallpaper manages local wallpapers on macOS, bringing videos, animations, pictures, and local web projects to your desktop, individually or in rotating playlists.</p>
+<p>Use it to keep your desktop lively, organize themed collections, or give each display its own content. You can apply a single wallpaper immediately or customize a playlist’s order, timing, transitions, and individual audio levels. The interface is available in Simplified Chinese, English, Japanese, French, and Spanish.</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Horizontally scrollable table"><table>
+<thead>
+<tr>
+<th scope="col">Your goal</th>
+<th scope="col">Start here</th>
+<th scope="col">Saved as an active setup?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>See how it looks</td>
+<td><strong>Play Preview</strong> in media details</td>
+<td>No; stopping the preview restores the previous wallpaper</td>
+</tr>
+<tr>
+<td>Set the desktop</td>
+<td><strong>Apply Wallpaper</strong> in media details, or <strong>Apply Playlist</strong></td>
+<td>Yes; it keeps running after you close the main window</td>
+</tr>
+<tr>
+<td>Set the macOS screen saver</td>
+<td>Publish from <strong>Screen Saver</strong>, then select it in macOS System Settings</td>
+<td>Saved separately from desktop wallpapers</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="quick-start">2. Quick start</h2>
+<ol>
+<li>Open Dynamic Wallpaper. Click <strong>Import Wallpaper</strong> (the plus button) in the toolbar, or press <code>⌘O</code>.</li>
+<li>Select <strong>Media Files</strong>, click <strong>Choose Files…</strong>, select one or more videos, animations, or pictures, and confirm the import.</li>
+<li>Click an item in <strong>All Wallpapers</strong> to open <strong>Wallpaper Details</strong> on the right.</li>
+<li>Choose the target display. The default, <strong>All Displays · Synchronized</strong>, applies the same source to every display. Select an individual display first if you want to change only that screen.</li>
+<li>Choose <strong>Fill</strong> or <strong>Fit</strong>, then click <strong>Apply Wallpaper</strong>. A single wallpaper does not need a playlist.</li>
+<li>For video sound, turn off <strong>Mute All</strong>, then adjust <strong>Mute This Item</strong> and <strong>Volume</strong> in the details before applying the wallpaper.</li>
+<li>Closing the main window leaves the applied wallpaper running. Use the menu bar icon to pause, resume, switch playlists, open settings, or reopen the main window.</li>
+</ol>
+<blockquote>
+<p>💡 <strong>Tip:</strong> <strong>Play Preview</strong> temporarily previews the item in both the details panel and the selected desktop. Click <strong>Apply Wallpaper</strong> afterward to save it as the display’s wallpaper.</p>
+</blockquote>
+<h2 id="features">3. Using the features</h2>
+<h3 id="library">3.1 Import, find, and organize media</h3>
+<p>The library keeps media records and independent copies of new imports so you can reuse them.</p>
+<ol>
+<li>Click <strong>Import Wallpaper</strong> to add files, or drag videos, animations, or pictures into the main window.</li>
+<li>Enter part of a name in <strong>Search wallpapers</strong> to narrow the results.</li>
+<li>Select an item and click <strong>Favorite</strong> to make it easy to find in <strong>Favorites</strong>.</li>
+<li>Click <strong>Show in Finder</strong> to locate the managed copy used by the app.</li>
+</ol>
+<p>Importing while viewing a playlist also adds the new media to that playlist. Removing media from the library removes its entries from all playlists and deletes its managed copy. Removing an entry from one playlist affects only that playlist, not the copy. Neither action deletes the original file.</p>
+<h3 id="playlists">3.2 Create and play a playlist</h3>
+<p>A playlist groups media for themed rotation or timed changes to your desktop.</p>
+<ol>
+<li>Click <strong>New Playlist</strong> in the sidebar.</li>
+<li>Enter a name, then click <strong>Rename</strong> or press Return.</li>
+<li>Use <strong>Add Wallpaper</strong> to choose library items, or use <strong>Add to Playlist</strong> in an item’s details.</li>
+<li>Drag entries, or use their up and down arrows, to change the order.</li>
+<li>Choose a playback mode, transition, fit option, and display, then click <strong>Apply Playlist</strong>.</li>
+</ol>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Horizontally scrollable table"><table>
+<thead>
+<tr>
+<th scope="col">Option</th>
+<th scope="col">Values and default</th>
+<th scope="col">Effect and when to use it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Playback mode</td>
+<td>In Order (default); Shuffle Without Repeats; Repeat One</td>
+<td>Use In Order for a planned sequence, shuffle for variety, or Repeat One to stay on the current entry</td>
+</tr>
+<tr>
+<td>Transition</td>
+<td>Instant; Fade · 0.3 s (default); Fade · 0.8 s</td>
+<td>Fades affect both picture and sound. Instant changes are sharper and reduce overlapping work during transitions</td>
+</tr>
+<tr>
+<td>Display Duration</td>
+<td>Fixed Duration (30 seconds by default); Play Once in Full; Repeat a Set Number of Times (initially 1)</td>
+<td>Select an entry, change its timing in the details, then click Save Duration</td>
+</tr>
+</tbody>
+</table></div>
+<p>For a fixed duration, enter a value and choose s (seconds), m (minutes), or h (hours); for example, 1.5 m is 90 seconds. Full playback and repeats use a video’s or animation’s own duration. For a still image, full playback uses the chosen duration; repeated display lasts “duration × repeats.” Web wallpapers support fixed duration only. Duration must be greater than 0, and repeats must be a positive whole number.</p>
+<p>Shuffle Without Repeats works by playlist entry: adding the same media twice creates two entries. With Repeat One selected, <strong>Next Wallpaper</strong> still selects the current entry; change the playback mode to move to another item. If the next entry cannot be prepared, the current picture stays visible and an error is shown. The failing entry is not skipped automatically.</p>
+<p>The menu bar’s <strong>Playlists</strong> submenu is a quick way to apply a playlist to all displays using <strong>Fill</strong>.</p>
+<h3 id="displays">3.3 Set up multiple displays</h3>
+<p>Use independent settings when your main and secondary displays serve different purposes. Use synchronization when you want the same source across displays.</p>
+<ol>
+<li>Before applying an item or playlist, select one display to change only that screen.</li>
+<li>Choose <strong>All Displays · Synchronized</strong> for shared playback.</li>
+<li>Open <strong>Displays</strong> in the sidebar to check each screen’s source and playback status.</li>
+<li>In a display card, choose a playlist and fit option, then click the corresponding apply button. To choose a different single wallpaper, return to the library.</li>
+<li>Click <strong>Restore System Wallpaper</strong> on a display to stop the app’s wallpaper on that screen.</li>
+</ol>
+<p><strong>Fill</strong> preserves proportions and crops anything outside the display area. <strong>Fit</strong> keeps the entire picture visible and fills unused space with black. Displays in a synchronized group share their source and related audio settings.</p>
+<blockquote>
+<p>⚠️ <strong>Important:</strong> <strong>Restore System Wallpaper</strong> stops the app’s desktop layer. If <strong>Sync System Wallpaper</strong> was enabled, macOS still uses the latest synchronized still image. See <a href="#system-wallpaper">system wallpaper synchronization</a>.</p>
+</blockquote>
+<h3 id="preview-audio">3.4 Linked preview and audio</h3>
+<p>Linked preview lets you check framing on the actual desktop without saving a display assignment.</p>
+<ol>
+<li>Select media or a playlist entry, then choose the display and fit option.</li>
+<li>Click <strong>Play Preview</strong>. Applied playback is temporarily suspended; if the target belongs to a synchronized group, the whole group is suspended together.</li>
+<li>Click <strong>Stop Preview</strong>, select another item, or close the window that owns the preview to restore the previous wallpaper.</li>
+</ol>
+<p>Only the details panel produces preview sound; desktop copies stay muted. The details and desktop previews are not guaranteed to be frame-synchronized.</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Horizontally scrollable table"><table>
+<thead>
+<tr>
+<th scope="col">Where you change audio</th>
+<th scope="col">What it affects and saves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Item Audio in library details</td>
+<td>Used for the current preview; saved to the target display when you click Apply Wallpaper. It does not change playlist audio</td>
+</tr>
+<tr>
+<td>Item Audio in a playlist entry’s details</td>
+<td>Saved to that entry and used for that entry and its preview only</td>
+</tr>
+<tr>
+<td>Audio for an applied single wallpaper on the Displays page</td>
+<td>Updates the current wallpaper immediately. Synchronized displays share the change; playlists are unaffected</td>
+</tr>
+<tr>
+<td>Mute All</td>
+<td>Takes precedence over individual settings and mutes previews too</td>
+</tr>
+</tbody>
+</table></div>
+<p>Videos and web wallpapers have individual audio controls. <strong>Mute This Item</strong> is off by default, and <strong>Volume</strong> starts at 100%. Volume ranges from 0–100% in 1% steps. Use Mute All for a quiet desktop, then adjust individual levels when some media is louder than others.</p>
+<h3 id="batch">3.5 Work with multiple items</h3>
+<ol>
+<li>Click <strong>Select Multiple</strong> and select items. <strong>Select All Results</strong> selects the current filtered results.</li>
+<li>In the library, you can favorite, unfavorite, add to a playlist, or remove selected items together.</li>
+<li>In a playlist, click <strong>Batch Edit…</strong>. Enable <strong>Change Duration</strong>, <strong>Change Mute Setting</strong>, or <strong>Change Volume</strong>, enter the values, then click <strong>Save Changes</strong>.</li>
+<li>Click <strong>Done</strong> to leave multiple-selection mode.</li>
+</ol>
+<p>All three change switches start off. Fields you do not enable keep their existing values. The editor starts with 30 seconds, 1 repeat, mute off, and 100% volume; these are initial editing values, not a summary of the selected entries. If web entries are selected, batch timing supports fixed duration only. Audio changes apply only to videos and web wallpapers.</p>
+<h3 id="web">3.6 Local web wallpapers and interaction</h3>
+<p>A local web project is useful for desktop content made with HTML, stylesheets, and scripts.</p>
+<ol>
+<li>Click <strong>Import Wallpaper</strong> and select <strong>Web Project</strong>.</li>
+<li>Click <strong>Choose Folder…</strong> and select the folder containing the page and its resources.</li>
+<li>Set <strong>Entry file (HTML)</strong>. It defaults to <code>index.html</code>; use <strong>Choose Entry File…</strong> or enter a relative path such as <code>pages/index.html</code>.</li>
+<li>Click <strong>Import Web Project</strong>, then apply it from the library.</li>
+</ol>
+<p>Importing copies the entire project folder, preserves relative paths, and materializes symbolic links within the project as independent files or folders. Links outside the project, cyclic links, and special files cause the import to fail. Later changes to the original project are not synchronized to the copy. Keep HTML, images, stylesheets, and scripts inside the project; access to outside files and the external network remains restricted. Pausing preserves the picture; resuming reloads the page rather than preserving its internal progress.</p>
+<p>To interact with a page, open the menu bar icon and enable <strong>Web Interaction</strong> (off by default). Follow the prompts to allow <strong>Accessibility</strong> and <strong>Input Monitoring</strong> in macOS System Settings, then return to the menu and enable Web Interaction again. Revoking permission turns interaction off. It forwards left-clicks on empty Finder desktop space, rather than providing a full browser’s interaction model.</p>
+<h3 id="transcoding">3.7 Convert a video for compatibility</h3>
+<p><strong>Transcode…</strong> appears when the details panel’s compatibility check finds that the video is eligible. It creates a more compatible file; the check determines whether the action is available.</p>
+<ol>
+<li>Click <strong>Transcode…</strong> and wait for the video inspection to finish.</li>
+<li>Choose <strong>Original Size · Original Frame Rate</strong> (default) or <strong>Fit 1080p · Up to ~30 fps</strong>.</li>
+<li>Check the output folder and filename. The defaults are the original import source folder and <code>original-name-h264.mp4</code>. Output cannot be written into the app’s <code>Media</code> folder or its subfolders.</li>
+<li>Click <strong>Add to Transcoding Queue</strong>. When conversion finishes, click <strong>Import to Library</strong> on the completed job to create a separate managed copy while keeping the output file. Replace playlist entries if needed.</li>
+</ol>
+<p>If you close the window, reopen it through <strong>Transcoding Jobs</strong> in the menu bar to check progress.</p>
+<p>The output is an MP4 with H.264 video and AAC audio, encoded with VideoToolbox hardware encoding. Re-encoding is not lossless. The original-size option pads odd dimensions to even values; the 1080p option scales down proportionally without enlarging and limits the frame rate to approximately 30 fps. Only the first video track and first audio track are kept; subtitles and chapters are not retained. A silent input remains silent. App mute and volume settings do not affect the output’s audio.</p>
+<p>Existing files are never overwritten. Jobs run one at a time and continue if you close the transcoding window. Quitting the app asks you to confirm cancellation of unfinished jobs; completed files remain. Hardware-encoding failures are reported, without automatically switching to software encoding.</p>
+<h3 id="system-wallpaper">3.8 Synchronize the system wallpaper</h3>
+<p><strong>Sync System Wallpaper</strong> freezes the applied wallpaper into a PNG and sets it as that display’s macOS wallpaper. This leaves a similar background when the dynamic layer stops.</p>
+<ol>
+<li>Open <strong>Settings → General</strong> and enable <strong>Sync System Wallpaper</strong>.</li>
+<li>Apply a wallpaper and check the synchronization status for each display.</li>
+<li>If synchronization fails, read the error, address the cause, and click <strong>Retry Sync</strong>.</li>
+</ol>
+<p>This is a still image, not a system wallpaper updated every frame. Temporary previews do not write a system wallpaper.</p>
+<blockquote>
+<p>⚠️ <strong>Important:</strong> Turning synchronization off, stopping playback, or quitting the app leaves the last synchronized image in place. None of these actions restores the system wallpaper from before synchronization. To choose another image, use <strong>Wallpaper</strong> in macOS System Settings.</p>
+</blockquote>
+<h3 id="appearance">3.9 Appearance and full-screen backgrounds</h3>
+<p>On macOS 26 and later, including macOS 27, the interface uses Liquid Glass. On macOS 14 and 15, it uses compatible native materials. In <strong>Settings → Appearance</strong>, adjust the color scheme, transparency, and blur to balance background visibility with readable text.</p>
+<p>The main window can show the wallpaper behind its interface when it occupies the active full-screen space. Normal windows and background spaces do not continuously capture this full-screen background. Without an app wallpaper, the app uses a still image from the system wallpaper, which may not match the current time-of-day image of a macOS dynamic wallpaper.</p>
+<h3 id="screensaver">3.10 Set up the native screen saver</h3>
+<p>The <strong>Screen Saver</strong> sidebar page manages system screen saver content independently of desktop wallpaper. Choose a native video, still image, animation, or a playlist containing them. <strong>Import Screen Saver Media…</strong> adds local files. Web items and media using the extended player are excluded. After importing or choosing a source, the review dialog centers included items; when exclusions exist, included and excluded items appear side by side. Confirm exclusions before publishing. The original playlist stays unchanged, and newly excluded entries require confirmation again.</p>
+<p>The app copies published media to <code>DynamicWallpaper/ScreenSaverExport</code> in its Application Support folder. The page shows whether usable content is published. A failed sync reports an error and keeps the last successful copy. Related playlist edits sync automatically; <strong>Sync Now</strong> requests another publication. New content takes effect the <strong>next time the screen saver starts</strong> or when you reopen the in-app preview. A running instance keeps its starting version. Removing source media does not immediately remove a published copy. <strong>Clear Published Screen Saver Content…</strong> affects only screen saver content; older copies are reclaimed after active instances finish.</p>
+<p>For first use, click <strong>Install or Update Screen Saver…</strong> on that page and follow the macOS installer. Select <strong>Dynamic Wallpaper Screen Saver</strong> yourself in System Settings. You can then use <strong>Recheck Installation Status</strong>; installation alone does not mean the system selected it. In the screen saver's system configuration panel, authorize the publication folder shown in the app. This separate authorization lets the screen saver read published content after the app quits. A moved folder, expired permission, or missing publication produces an explicit error. The in-app preview shows published content; confirm actual system playback in macOS.</p>
+<h2 id="settings">4. Settings reference</h2>
+<p>These defaults apply to a new library; existing preferences are preserved. Ordinary preferences are saved and applied immediately. Editors with a save button, such as duration controls, require you to click it.</p>
+<h3 id="general-settings">4.1 General</h3>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Horizontally scrollable table"><table>
+<thead>
+<tr>
+<th scope="col">Setting</th>
+<th scope="col">Values / default</th>
+<th scope="col">Effect and recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Interface language</td>
+<td>Follow System (default); 简体中文, English, 日本語, Français, Español</td>
+<td>Chooses the app’s interface language; see the language section below</td>
+</tr>
+<tr>
+<td>Launch at login</td>
+<td>On / off; a new installation does not register it by default</td>
+<td>Runs the app after you log in to macOS. If approval is needed, use Open System Login Items… to confirm it</td>
+</tr>
+<tr>
+<td>Show app icon in Dock</td>
+<td>On / off; on by default</td>
+<td>When off, opening a management window temporarily shows the Dock icon and app menus; the icon hides after all management windows close. Minimizing or hiding a window does not close it. The saved preference is unchanged. This does not stop playback and is not a power-saving setting</td>
+</tr>
+<tr>
+<td>Sync System Wallpaper</td>
+<td>On / off; off by default</td>
+<td>Saves a frozen image of the applied wallpaper as the system wallpaper. It generates images and writes files; leave off if you do not need it</td>
+</tr>
+<tr>
+<td>Mute All</td>
+<td>On / off; on by default</td>
+<td>Mutes all video, web, and preview audio without setting individual volume levels to zero</td>
+</tr>
+<tr>
+<td>Pause in Low Power Mode</td>
+<td>On / off; off by default</td>
+<td>Responds to macOS Low Power Mode, not a particular battery percentage. Useful when working on battery</td>
+</tr>
+<tr>
+<td>Pause when the device is hot</td>
+<td>On / off; on by default</td>
+<td>Pauses when macOS reports a serious or critical thermal condition. Keeping this enabled is recommended</td>
+</tr>
+</tbody>
+</table></div>
+<p>Playback automatically pauses when the screen is locked, the system or display sleeps, or the user session is inactive. No setting is needed. Playback resumes only after all automatic pause reasons have cleared; a manual pause needs a manual resume. Check the menu bar for pause reasons.</p>
+<h3 id="appearance-settings">4.2 Appearance</h3>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Horizontally scrollable table"><table>
+<thead>
+<tr>
+<th scope="col">Setting</th>
+<th scope="col">Values / default</th>
+<th scope="col">Effect and trade-off</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Appearance mode</td>
+<td>Follow System (default), Light, Dark</td>
+<td>Changes the interface, not the wallpaper file. Choose what is comfortable for your surroundings</td>
+</tr>
+<tr>
+<td>Background transparency</td>
+<td>0–100%; 75% by default</td>
+<td>100% is fully transparent without blur; 0% is opaque. Reduce transparency to make text easier to read over busy backgrounds</td>
+</tr>
+<tr>
+<td>Blur style</td>
+<td>Clear, Frosted (default)</td>
+<td>Used below 100% transparency. Frosted gives foreground content more separation</td>
+</tr>
+<tr>
+<td>Full-screen background frame rate</td>
+<td>30 Hz (default), 60 Hz</td>
+<td>Sets the app’s full-screen background capture frequency, not the desktop video frame-rate limit. 60 Hz is smoother but requires more processing</td>
+</tr>
+</tbody>
+</table></div>
+<p>The macOS <strong>Reduce transparency</strong> preference takes priority for readability. It does not overwrite the transparency or blur values saved in the app.</p>
+<h3 id="other-settings">4.3 Storage, Advanced, and About</h3>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Horizontally scrollable table"><table>
+<thead>
+<tr>
+<th scope="col">Panel</th>
+<th scope="col">Contents</th>
+<th scope="col">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Storage</td>
+<td>Independent-copy explanation, library backup and clearing, latest configuration backup, and pending cleanup count</td>
+<td>Manages media and cleanup status without changing originals or app settings</td>
+</tr>
+<tr>
+<td>Advanced</td>
+<td>Configuration filename, library format version, full path, and Show in Finder</td>
+<td>Read-only information for locating and backing up the configuration</td>
+</tr>
+<tr>
+<td>About</td>
+<td>App name, version, and description</td>
+<td>Confirms the version you are using</td>
+</tr>
+</tbody>
+</table></div>
+<p>To start with an empty library:</p>
+<ol>
+<li>Open <strong>Settings → Storage</strong> and click <strong>Back Up and Clear Library…</strong>. Clearing is unavailable while an import is running.</li>
+<li>Confirm removal of media, including favorites, playlists, and display assignments. App settings, original files, and synchronized system images remain unchanged.</li>
+<li>Only after a successful backup does the app clear records and delete managed copies. Under <strong>Latest Configuration Backup</strong>, view the path or show the backup in Finder.</li>
+</ol>
+<p>The backup contains only JSON, not media, and cannot restore deleted copies. If a related transcoding job still holds the media, wait for it to finish, or cancel it and wait for resource release before retrying; unrelated jobs are unaffected. Cleanup failures display an error and remain in the pending cleanup records for retry at the next launch.</p>
+<p>If media has disappeared from the library but its file remains on disk, check the pending cleanup count and error details in <strong>Storage</strong>. The managed folder may have been replaced or may no longer match the app’s record, so deletion is refused; this does not mean the original file was deleted. Confirm which copy is affected before handling an orphaned copy. Do not clear the entire media folder.</p>
+<h3 id="language-settings">4.4 Language and regional formatting</h3>
+<ol>
+<li>Open <strong>Settings → General → Interface language</strong>.</li>
+<li>Choose <strong>Follow System</strong> or one of the five languages.</li>
+<li>Once the setting saves successfully, the app’s own interface updates immediately. No restart is required, and wallpaper playback is not restarted.</li>
+</ol>
+<p>Follow System uses the first supported language in your macOS preferred-language order, or English if none matches. Number formatting follows the current interface locale. Filenames, media names, and custom playlist names are not translated. System-owned menus and file pickers may still use the macOS language.</p>
+<p>Opening <strong>User Guide</strong> again from the app returns to the current app language. Choosing a language at the top of the guide changes only the document you are reading.</p>
+<h2 id="troubleshooting">5. Troubleshooting</h2>
+<p>First identify whether the problem affects the applied desktop wallpaper, a temporary preview, or the app window’s background. Start with the simplest checks below. If an error offers <strong>View Details…</strong>, keep the text to help identify the affected media or operation.</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Horizontally scrollable table"><table>
+<thead>
+<tr>
+<th scope="col">Symptom</th>
+<th scope="col">Possible causes</th>
+<th scope="col">Checks and fixes</th>
+<th scope="col">Temporary workaround</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Wallpaper is missing or black</td>
+<td>Not applied; wrong display; unavailable file; decoding error; playback still paused</td>
+<td>① Select the media and display, then apply again. ② Use Show in Finder to confirm the file actually in use is readable. ③ Check menu bar pause reasons. ④ Try a readable still image. ⑤ Read that media’s inspection error</td>
+<td>Use an image that displays correctly, or stop the app’s wallpaper on that screen</td>
+</tr>
+<tr>
+<td>Video stutters, drops frames, or uses too much power</td>
+<td>High resolution or frame rate; multiple independent sources; previews or conversion running; heat</td>
+<td>① Stop previews. ② Wait for conversion to finish or cancel an unwanted job. ③ Reduce independent animated displays. ④ Set the full-screen background to 30 Hz. ⑤ Where Transcode is available, make a 1080p / approximately 30 fps version</td>
+<td>Pause wallpaper playback or use a still image; enable power-saving pause</td>
+</tr>
+<tr>
+<td>Volume changes seem ineffective</td>
+<td>Mute All enabled; wrong entry or temporary preview setting changed; no audio track; wrong macOS output</td>
+<td>① Check global mute, item mute, and volume. ② Confirm the current entry or display. ③ Reapply after changing library-detail audio. ④ Check the source video and macOS sound output</td>
+<td>Test with a video known to have audio; keep Mute All enabled when silence is needed</td>
+</tr>
+<tr>
+<td>Multiple displays change together</td>
+<td>All Displays · Synchronized was used; an old target is selected; display connections changed</td>
+<td>① Check connected screens in Displays. ② Apply a source to each screen separately. ③ Reselect targets after reconnecting. ④ Check for a shared synchronization group</td>
+<td>Configure one screen first, then the others in turn</td>
+</tr>
+<tr>
+<td>Local web project will not load</td>
+<td>Wrong project folder or entry file; resources moved; network dependency; script error</td>
+<td>① Confirm the HTML/HTM file is inside the selected folder. ② Check the relative path. ③ Restore project resources. ④ Compare with a simple page using only local resources. ⑤ Read the error details</td>
+<td>Use a self-contained local project or other media</td>
+</tr>
+<tr>
+<td>Web wallpaper does not respond to clicks</td>
+<td>Interaction off; missing or revoked permission; clicks are not on empty Finder desktop space</td>
+<td>① Enable Web Interaction from the menu bar. ② Check Accessibility and Input Monitoring as prompted. ③ Enable interaction again after authorization. ④ Test a left-click on empty desktop space</td>
+<td>Use it as a noninteractive wallpaper</td>
+</tr>
+<tr>
+<td>Playlist does not advance or behaves unexpectedly</td>
+<td>Repeat One selected; duration too long or unsaved; empty list; next entry cannot be prepared</td>
+<td>① Check playback mode. ② Check and save duration, unit, and repeats. ③ Confirm there are entries. ④ Check the file actually used by the next entry. ⑤ Reapply the list after fixing the cause</td>
+<td>Use In Order with a shorter fixed duration; manually remove the problematic entry</td>
+</tr>
+<tr>
+<td>App is unresponsive or crashes</td>
+<td>Heavy or faulty media or web page; conversion load; unreadable configuration</td>
+<td>① Allow time for active work. ② If possible, pause playback, quit normally, and reopen. ③ If unresponsive, force quit through macOS and reopen. ④ Test with a simple image. ⑤ Consider reset below only for an explicit library-reading error</td>
+<td>Avoid the triggering media; force quitting interrupts unfinished conversions</td>
+</tr>
+<tr>
+<td>macOS reports a missing permission</td>
+<td>Web interaction authorization missing; inaccessible media or output folder; system restriction on full-screen capture</td>
+<td>① Identify the operation named in the error. ② For web interaction, check Accessibility and Input Monitoring. ③ Reselect readable media or a writable output folder. ④ If an earlier macOS 14 version requests Screen Recording for a full-screen background, check that permission and retry</td>
+<td>Disable interaction or leave the app’s full-screen mode; use ordinary wallpaper playback</td>
+</tr>
+<tr>
+<td>Wrong language, untranslated text, or no visible language change</td>
+<td>Follow System selected; saving failed; text is a media name; some errors are not fully localized</td>
+<td>① Explicitly select the desired interface language. ② Check for a save error. ③ Reopen the affected window or help. ④ Distinguish system text and filenames from app labels</td>
+<td>Temporarily use another available language. Custom playlist names can be renamed. A new library’s initial playlist may still be named “我的播放列表”</td>
+</tr>
+<tr>
+<td>System wallpaper does not sync, or remains after stopping</td>
+<td>Sync off or waiting for an applied wallpaper; sync failure; latest still image intentionally retained</td>
+<td>① Check the switch and each display’s status. ② Apply a wallpaper. ③ Fix file or display problems, then Retry Sync. ④ Choose a different image in macOS Wallpaper settings if needed</td>
+<td>Turn synchronization off and choose a system wallpaper yourself. Disabling sync alone does not restore an older image</td>
+</tr>
+<tr>
+<td>Media has left the library, but a local copy remains</td>
+<td>Cleanup is pending, or the folder no longer matches the app’s record</td>
+<td>① Check pending cleanup in <strong>Settings → Storage</strong>. ② Keep the error details and confirm the target is an unneeded managed copy. ③ Relaunch to retry cleanup. ④ If it still fails, handle only the confirmed orphaned copy</td>
+<td>Leave the file in place meanwhile; do not delete the whole media folder</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Back Up &amp; Reset for an unreadable library</strong></p>
+<p>Use this only when the app explicitly reports that it cannot read the library. It backs up the existing configuration, then clears media records, playlists, display assignments, and library settings. Original media files are not deleted. You will need to import and configure them again. If settings are accessible, first use <strong>Advanced</strong> to locate and separately copy the configuration. Reset should not be your first response to a black screen or stuttering video.</p>
+<h2 id="performance">6. Performance and power use</h2>
+<ul>
+<li><strong>Prioritize battery life:</strong> Enable Pause in Low Power Mode and keep thermal pausing enabled. Pause manually from the menu bar when you do not need animation.</li>
+<li><strong>Reduce CPU and GPU work:</strong> The CPU handles general processing; the GPU handles graphics. Choose resolution and frame rate appropriate for your displays. When conversion is available, the 1080p option can help reduce playback demands.</li>
+<li><strong>Assign displays by purpose:</strong> Video on the main display and a picture on a secondary display generally cost less than separate high-resolution videos everywhere. Synchronization shares content, but resource use still depends on screen count and size.</li>
+<li><strong>Avoid overlapping work:</strong> Stop previews when finished. Pause wallpapers if conversion causes stuttering. Fades briefly process both entries; choose Instant to reduce that overlap.</li>
+<li><strong>Set full-screen backgrounds as needed:</strong> Start with 30 Hz. Choose 60 Hz only when smoother full-screen app backgrounds are useful. This setting does not cap the desktop video’s own frame rate.</li>
+<li><strong>Keep media available:</strong> Use a reliably connected drive and local web resources. Leave still-image system synchronization off when you do not need it.</li>
+</ul>
+<h2 id="shortcuts">7. Keyboard shortcuts and gestures</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Horizontally scrollable table"><table>
+<thead>
+<tr>
+<th scope="col">Action</th>
+<th scope="col">Shortcut or gesture</th>
+<th scope="col">Where it applies</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Import wallpaper</td>
+<td><code>⌘O</code></td>
+<td>App menu</td>
+</tr>
+<tr>
+<td>Show or hide sidebar</td>
+<td><code>⌃⌘S</code></td>
+<td>Main window</td>
+</tr>
+<tr>
+<td>Quit app</td>
+<td><code>⌘Q</code></td>
+<td>App menu; unfinished conversions require confirmation</td>
+</tr>
+<tr>
+<td>Perform the default action</td>
+<td>Return</td>
+<td>Dialogs with a default button</td>
+</tr>
+<tr>
+<td>Cancel or close a help popover</td>
+<td>Esc</td>
+<td>Applicable dialogs and question-mark help popovers</td>
+</tr>
+<tr>
+<td>Open a control’s explanation</td>
+<td>Focus its help button and press Space or Return, or click it</td>
+<td>Controls with a help button</td>
+</tr>
+<tr>
+<td>Reorder a playlist</td>
+<td>Drag entries or click up/down arrows</td>
+<td>Playlist, outside multiple-selection mode</td>
+</tr>
+<tr>
+<td>Import media</td>
+<td>Drag files into the window</td>
+<td>Main window</td>
+</tr>
+<tr>
+<td>Open a context menu</td>
+<td>Right-click or two-finger click</td>
+<td>Media or playlists</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>⌘</code> means Command and <code>⌃</code> means Control. Playback, pause, and next-wallpaper controls are available from the menu bar.</p>
+<h2 id="version">8. Version information</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Horizontally scrollable table"><table>
+<thead>
+<tr>
+<th scope="col">Item</th>
+<th scope="col">Information</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>App</td>
+<td>Dynamic Wallpaper</td>
+</tr>
+<tr>
+<td>Version</td>
+<td>v0.3.0, build 3</td>
+</tr>
+<tr>
+<td>Guide scope</td>
+<td>Current user-facing tasks, settings, data consequences, and troubleshooting</td>
+</tr>
+</tbody>
+</table></div>
+<p>Check <strong>Settings → About</strong> for the installed app version. This guide is included with the app for offline use.</p>
+<h2 id="appendix">9. Reference</h2>
+<h3 id="glossary">9.1 Glossary</h3>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Horizontally scrollable table"><table>
+<thead>
+<tr>
+<th scope="col">Term</th>
+<th scope="col">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Library</td>
+<td>Media records and independent copies saved on import</td>
+</tr>
+<tr>
+<td>Playlist entry</td>
+<td>One addition to a playlist; the same media can have multiple independent entries</td>
+</tr>
+<tr>
+<td>Synchronized group</td>
+<td>Displays sharing a playback source and playback state</td>
+</tr>
+<tr>
+<td>Applied wallpaper / linked preview</td>
+<td>The first is saved as a display setting; the second is temporary and restores the previous wallpaper when it ends</td>
+</tr>
+<tr>
+<td>System wallpaper</td>
+<td>The macOS wallpaper image beneath the app’s dynamic layer</td>
+</tr>
+<tr>
+<td>Transcoding</td>
+<td>Re-encoding video into another format to create a new file</td>
+</tr>
+<tr>
+<td>Entry file</td>
+<td>The HTML file opened first in a local web project</td>
+</tr>
+<tr>
+<td>Liquid Glass</td>
+<td>The glass-like interface material provided by macOS 26</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="formats">9.2 Supported file formats</h3>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Horizontally scrollable table"><table>
+<thead>
+<tr>
+<th scope="col">Type</th>
+<th scope="col">Extensions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Video</td>
+<td>MP4, MOV, M4V, MKV, WebM, AVI</td>
+</tr>
+<tr>
+<td>Still image</td>
+<td>JPEG/JPG, PNG, HEIC, HEIF</td>
+</tr>
+<tr>
+<td>Animation</td>
+<td>GIF, APNG</td>
+</tr>
+<tr>
+<td>Local web</td>
+<td>HTML, HTM; imported through a web project folder</td>
+</tr>
+</tbody>
+</table></div>
+<p>An extension identifies a file type, not a guarantee that every codec inside it will play. Use the app’s inspection result for the specific file. Renaming an extension does not change video encoding.</p>
+<h3 id="requirements">9.3 System and languages</h3>
+<ul>
+<li>System: macOS 14.0 or later.</li>
+<li>Processor: Apple Silicon (arm64).</li>
+<li>Resource needs depend on media dimensions, frame rate, page complexity, and display count. Choose media to suit the workload.</li>
+<li>Languages: 简体中文, English, 日本語, Français, Español.</li>
+</ul>
+<h3 id="data">9.4 Data locations and what is saved</h3>
+<p>To locate the configuration, open <strong>Settings → Advanced</strong> and use <strong>Show in Finder</strong>. Do not move or replace app-managed media folders manually. The app also stores synchronized system images separately.</p>
+<p>Media records, favorites, playlists, display assignments, preferences, and pending cleanup records are saved. Searches, multiple selections, temporary previews, manual pause state, and unfinished transcoding queues are not kept across restarts. A configuration backup contains no media and cannot restore deleted copies; keep your originals or separately back up managed media.</p>
+</main>
+<footer><a href="#contents">Back to contents</a></footer>
+</body>
+</html>

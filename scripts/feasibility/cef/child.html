@@ -1,0 +1,6 @@
+<!doctype html><meta charset="utf-8"><p>Local subframe tone</p>
+<script>
+const a=new AudioContext(),o=a.createOscillator(),g=a.createGain();
+o.frequency.value=330;g.gain.value=.03;o.connect(g).connect(a.destination);o.start();
+console.log('subframe-context='+a.state);
+</script>

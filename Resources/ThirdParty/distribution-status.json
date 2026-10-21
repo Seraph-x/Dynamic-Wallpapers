@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "complete": false,
+  "scope": "Source materials and local candidate only; no complete third-party binary redistribution claim",
+  "components": {
+    "cef": {
+      "version": "152.0.6+g708dc14+chromium-152.0.7977.83",
+      "license": "CEF BSD-3-Clause plus Chromium third-party notices",
+      "complete": true,
+      "scope": "Original binary-distribution notices and pinned source references retained; no source rebuild claim",
+      "license_files": [
+        "CEF/LICENSE.txt",
+        "CEF/CREDITS.html"
+      ],
+      "source_record": "CEF/SOURCE.md"
+    },
+    "ffmpeg": {
+      "version": "9.0.1 (n9.0.1)",
+      "license": "LGPL-2.1-or-later",
+      "complete": false,
+      "scope": "Pinned unmodified source archive, original notices and portable recipe retained; each local build requires renewed configuration and license review",
+      "license_files": [
+        "FFmpeg/LICENSE.md",
+        "FFmpeg/COPYING.LGPLv2.1"
+      ],
+      "source_record": "FFmpeg/SOURCE.md"
+    },
+    "mpv": {
+      "version": "IINA 1.4.0 / runtime mpv v0.38.0",
+      "license": "GPL-enabled; embedded FFmpeg GPL-3.0-or-later; remaining component notices incomplete",
+      "complete": false,
+      "scope": "69 exact binary inputs pinned; corresponding source/patch/license records incomplete",
+      "license_files": [
+        "MPV/COPYING.GPLv2",
+        "MPV/COPYING.GPLv3",
+        "MPV/client.h",
+        "MPV/render.h"
+      ],
+      "source_record": "MPV/SOURCE-STATUS.md"
+    }
+  },
+  "unresolved": [
+    "Locally rebuilt FFmpeg configuration and resulting binary license must be reviewed for each distribution build.",
+    "Exact corresponding sources, patches and per-project copyright/license notices for the 69-library IINA mpv closure are incomplete."
+  ],
+  "files": [
+    {
+      "path": "CEF/CREDITS.html",
+      "sha256": "c8563b78af9d71ccd5b9ecf0f56e789d3e3fb426e1389f82771a05c75c0188ea",
+      "size": 19815473
+    },
+    {
+      "path": "CEF/LICENSE.txt",
+      "sha256": "058c3827ffb827ff3edda471ae7e1bb1d1aa5931985f0126043ccd33409e792f",
+      "size": 1662
+    },
+    {
+      "path": "CEF/SOURCE.md",
+      "sha256": "741b0cc47ffb97b6487b663cfa7f4963da8a58f1c5eda1c4cc890b279e7f62a0",
+      "size": 1151
+    },
+    {
+      "path": "FFmpeg/COPYING.GPLv2",
+      "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643",
+      "size": 18092
+    },
+    {
+      "path": "FFmpeg/COPYING.GPLv3",
+      "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+      "size": 35147
+    },
+    {
+      "path": "FFmpeg/COPYING.LGPLv2.1",
+      "sha256": "246041b6ecf9bc32d718a62c57877c78b5eb397b6467e74ed7ae2626ab189c30",
+      "size": 26517
+    },
+    {
+      "path": "FFmpeg/COPYING.LGPLv3",
+      "sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768",
+      "size": 7651
+    },
+    {
+      "path": "FFmpeg/LICENSE.md",
+      "sha256": "2e1d16c72fd74e12063776371da757322f8b77589386532f4fd8634bde7de1af",
+      "size": 4346
+    },
+    {
+      "path": "FFmpeg/SOURCE.md",
+      "sha256": "476dadc39c36c0526667d328adce139efa7e14fd08b13e3649a80857753bff5a",
+      "size": 1980
+    },
+    {
+      "path": "FFmpeg/build.sh",
+      "sha256": "95b59360e67fee82f98c4d3d7a60b9914357e0b14cfae173db9687ac9192c274",
+      "size": 2043
+    },
+    {
+      "path": "FFmpeg/ffmpeg-n9.0.1-source.tar.gz",
+      "sha256": "195d54bebe1a27f84d77f4b989d193466f305b355da92292766a69f16880b18a",
+      "size": 17306989
+    },
+    {
+      "path": "MPV/COPYING.GPLv2",
+      "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643",
+      "size": 18092
+    },
+    {
+      "path": "MPV/COPYING.GPLv3",
+      "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+      "size": 35147
+    },
+    {
+      "path": "MPV/COPYING.LGPLv2.1",
+      "sha256": "246041b6ecf9bc32d718a62c57877c78b5eb397b6467e74ed7ae2626ab189c30",
+      "size": 26517
+    },
+    {
+      "path": "MPV/COPYING.LGPLv3",
+      "sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768",
+      "size": 7651
+    },
+    {
+      "path": "MPV/SOURCE-STATUS.md",
+      "sha256": "83f1542f876c2920c3b547e698bd924703e422ffb50500ca9dcb937506033678",
+      "size": 2199
+    },
+    {
+      "path": "MPV/binary-manifest.json",
+      "sha256": "79adb842cadf0eb844bfb60b4836a8232245cb64f7493568f03da75916d54f76",
+      "size": 17223
+    },
+    {
+      "path": "MPV/client.h",
+      "sha256": "c34c436b54201ba84655dcbb6226f937b53d04fa0abcceaa08886565a569bd88",
+      "size": 85973
+    },
+    {
+      "path": "MPV/render.h",
+      "sha256": "f00a31d46896c691922196c932c94140d206cb4c16cfa4bb6bdf3a9d0d3d4a29",
+      "size": 34253
+    },
+    {
+      "path": "README.md",
+      "sha256": "67d972f658d2d4baa5b53556327dd6d348012a56a0e6b05ab61f42eec8487fd8",
+      "size": 1955
+    }
+  ]
+}

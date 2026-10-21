@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "version": "0.3.0",
+  "build": "3",
+  "target": {
+    "architecture": "arm64",
+    "minimum_macos": "14.0",
+    "swift_language_mode": "5"
+  },
+  "localizations": [
+    "zh-Hans",
+    "en",
+    "ja",
+    "fr",
+    "es"
+  ],
+  "development_localization": "en",
+  "application": {
+    "bundle_identifier": "local.dynamicwallpaper.app",
+    "display_name": "Dynamic Wallpaper",
+    "bundle_name": "Dynamic Wallpaper.app",
+    "executable": "DynamicWallpaper",
+    "swiftpm_product": "DynamicWallpaper"
+  },
+  "screen_saver": {
+    "bundle_identifier": "local.dynamicwallpaper.screensaver",
+    "display_name": "Dynamic Wallpaper Screen Saver",
+    "bundle_name": "Dynamic Wallpaper Screen Saver.saver",
+    "executable": "DynamicWallpaperScreenSaver",
+    "principal_class": "DynamicWallpaperScreenSaverView"
+  },
+  "cef_helpers": [
+    {
+      "role": "main",
+      "suffix": "",
+      "bundle_identifier": "local.dynamicwallpaper.cef.helper.main"
+    },
+    {
+      "role": "gpu",
+      "suffix": " (GPU)",
+      "bundle_identifier": "local.dynamicwallpaper.cef.helper.gpu"
+    },
+    {
+      "role": "renderer",
+      "suffix": " (Renderer)",
+      "bundle_identifier": "local.dynamicwallpaper.cef.helper.renderer"
+    },
+    {
+      "role": "alerts",
+      "suffix": " (Alerts)",
+      "bundle_identifier": "local.dynamicwallpaper.cef.helper.alerts"
+    },
+    {
+      "role": "plugin",
+      "suffix": " (Plugin)",
+      "bundle_identifier": "local.dynamicwallpaper.cef.helper.plugin"
+    }
+  ],
+  "screen_saver_targets": [
+    {
+      "name": "WallpaperCore",
+      "kind": "target",
+      "path": "Sources/WallpaperCore",
+      "root": false,
+      "dependencies": []
+    },
+    {
+      "name": "WallpaperNative",
+      "kind": "target",
+      "path": "Sources/WallpaperNative",
+      "root": false,
+      "dependencies": [
+        "WallpaperCore"
+      ]
+    },
+    {
+      "name": "ScreenSaverCore",
+      "kind": "target",
+      "path": "Sources/ScreenSaverCore",
+      "root": false,
+      "dependencies": [
+        "WallpaperCore"
+      ]
+    },
+    {
+      "name": "ScreenSaverRuntime",
+      "kind": "target",
+      "path": "Sources/ScreenSaverRuntime",
+      "root": false,
+      "dependencies": [
+        "ScreenSaverCore",
+        "WallpaperCore",
+        "WallpaperNative"
+      ]
+    },
+    {
+      "name": "WallpaperScreenSaver",
+      "kind": "target",
+      "path": "Sources/WallpaperScreenSaver",
+      "root": true,
+      "dependencies": [
+        "ScreenSaverRuntime",
+        "ScreenSaverCore",
+        "WallpaperCore",
+        "WallpaperNative"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,485 @@
+[
+  {
+    "file": "libarchive.13.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libarchive.13.dylib",
+    "sha256": "6d9ce28acc36e0daa173b09bd33ee5dc793e46dda826694cae6042ddce149926",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libass.9.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libass.9.dylib",
+    "sha256": "1eeb229698117d404cf4c017da8e441bd3d7de9bec694ed71942455c64f9abed",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libavcodec.61.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libavcodec.61.dylib",
+    "sha256": "a0c4b51b01e4fcac4f485a7d40e651282a7abdbb660cc69dac08ad16849466e0",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libavdevice.61.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libavdevice.61.dylib",
+    "sha256": "7b4d81d86748ef34d678f7c75c1d4837d6a8408b9b2faffcd0ab01c45845b379",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libavfilter.10.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libavfilter.10.dylib",
+    "sha256": "c0754ffb494e53155ec6d5f21c23ca934dfba827b9991e2b87563274681342f2",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libavformat.61.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libavformat.61.dylib",
+    "sha256": "62741798d8b2cfe5cd1efb6dff7cc366e783c7da1b14d076b4c3d3d6b561d80c",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libavutil.59.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libavutil.59.dylib",
+    "sha256": "8e6ad72044b21ce2e0dbf0de98c146bc42450496e8283fbee49dcd6719c97a0f",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libb2.1.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libb2.1.dylib",
+    "sha256": "ff9fb113b8ac3d8d1e2f63f637ceb45be2c79768a4aa65e670ec856e8e9ae513",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libbluray.2.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libbluray.2.dylib",
+    "sha256": "5eb9c502cc556b7cf559f5fb2aa074be08c829555ec93db1b552523533287c7f",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libbrotlicommon.1.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libbrotlicommon.1.dylib",
+    "sha256": "7827b9108f5b6b5909f2744ca22daf09a98684068c0cfb3b6e694f170a58fa13",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libbrotlidec.1.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libbrotlidec.1.dylib",
+    "sha256": "bc90047c8cd2bb7327bec85b07033988ee636c4c7bc85df9cc09f3dd6888df53",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libbrotlienc.1.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libbrotlienc.1.dylib",
+    "sha256": "79a5d13756a851f2617f5e0c3d392e04d862046142020c58f9c90f31ec71c3af",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libdav1d.7.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libdav1d.7.dylib",
+    "sha256": "b113ab35f211a187c0f56ccc2ebf02bfe339ba0f64f6812b8841384e0835766c",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libfontconfig.1.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libfontconfig.1.dylib",
+    "sha256": "05ea6aeae1ad2d095c8c5ad87034cd7dd41c735309d99465234162b8af6c47b3",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libfreetype.6.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libfreetype.6.dylib",
+    "sha256": "ec2a06876e1e2deccaafdc8d76449df6ee1c69c92a8d19a4b2912a2badc164cd",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libfribidi.0.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libfribidi.0.dylib",
+    "sha256": "02d1f22dcd187815b34fec3ffa3a3f1f474eef0258f03407f6ea030d79fecb42",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libglib-2.0.0.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libglib-2.0.0.dylib",
+    "sha256": "1f066b6d2ec8df234228d95328e94aecd8f5c098b7bed44d2cacf97418052ad4",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libgmp.10.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libgmp.10.dylib",
+    "sha256": "bd33d431cc5ec0543f038e1605f9067fb5c7f15ba506c4dd1819af95d3283504",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libgnutls.30.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libgnutls.30.dylib",
+    "sha256": "ba788a8ab4b4fb69246bf7966a680573552a10e781c003911efe028d4fe4e100",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libgraphite2.3.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libgraphite2.3.dylib",
+    "sha256": "77b789dfcddd0335427e0998db434e8659a5db2c3f57fdc22877dc9bbb3952ba",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libharfbuzz.0.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libharfbuzz.0.dylib",
+    "sha256": "7d387df7fd1e30a9f74818072e4410805589470732c6227bcd120a35d8d07f3a",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libhogweed.6.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libhogweed.6.dylib",
+    "sha256": "949f17e1a0fe707e6eff387ff277f9e07eb21d34f81eb8d419c3b8fb4d9941b7",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libhwy.1.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libhwy.1.dylib",
+    "sha256": "e14b0b42212a8501525dd3898fef63910d35814494b9a55e3eb928e8bdd359ef",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libidn2.0.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libidn2.0.dylib",
+    "sha256": "aa94ea5869e3e4c0214f3c0259612a53695139b3b5387d90002c38a4a2592f3b",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libintl.8.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libintl.8.dylib",
+    "sha256": "d949c527f89ddf576cf569f8c85e8d1f107df84fe186f9e170b868dfbd6b12c6",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libjpeg.8.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libjpeg.8.dylib",
+    "sha256": "e23cb1e5f45fc5cca8c5bbe08b5b5069fd53df042b8cf40e09452b8b132efa6b",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libjxl.0.10.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libjxl.0.10.dylib",
+    "sha256": "ec0de01f9494689dac6b998a648cdef80202e53e936b8aa4176850e98a29a7fe",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libjxl_cms.0.10.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libjxl_cms.0.10.dylib",
+    "sha256": "96b6f876da2f1d72fd1ef0099abb8ed54ee32b24c14e3f37e681a157142f624a",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libjxl_threads.0.10.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libjxl_threads.0.10.dylib",
+    "sha256": "4213c8c9746720c5d7e213097ff0064ebae3f181b75067ba38d63e9e30e7800a",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "liblcms2.2.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/liblcms2.2.dylib",
+    "sha256": "b33f39df474592d289dc228188fe78877ff07cd933d262a77fe9beb571b9e060",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libluajit-5.1.2.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libluajit-5.1.2.dylib",
+    "sha256": "ee75d98cf71a3d2368249ea41a12f86d3b5e41d153f78538180892a178585d8c",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "liblz4.1.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/liblz4.1.dylib",
+    "sha256": "09fcb8f8b1cbf9ff86c60c9f874de939e481ff0cbd689eea4536baad5d02fd04",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "liblzma.5.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/liblzma.5.dylib",
+    "sha256": "54865f2f026a69fea3798b9d047246cc80a19c37f567ca4cfb2ca69a535e3f30",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libmpv.2.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libmpv.2.dylib",
+    "sha256": "f28cafa240d1c871cb71882e51405ec175c94ce4f228fe24c383a0baab6665d9",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libmujs.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libmujs.dylib",
+    "sha256": "e917e804133b05c2e53d94a562e778f4ffc84159e34acc0b96cd70cb4b6fe434",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libnettle.8.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libnettle.8.dylib",
+    "sha256": "f7bbecaf266a5acc5141a4367f8b925a76ac0d004f4e0771caa45e69c90f2626",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libp11-kit.0.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libp11-kit.0.dylib",
+    "sha256": "7b80603bb5b6f499e6211280317233e704ecd7784ac3c77e060dbf5bb1ff1422",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libpcre2-8.0.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libpcre2-8.0.dylib",
+    "sha256": "09428aafba2df66a2b89c09b07dd813f7e7e1894a2684909cb17ac45b3bb7fb3",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libplacebo.338.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libplacebo.338.dylib",
+    "sha256": "548335c99e44398e8812db1b9114c52e0940f7dcb494d98419e35635dfe20a9d",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libpng16.16.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libpng16.16.dylib",
+    "sha256": "50962e2701b692dee03543603d01eca3067ba86d9fa625254cdf7f80af52a846",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libpostproc.58.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libpostproc.58.dylib",
+    "sha256": "0f165f1cfbf4d8d447f8ba94a92ef363de16154c55720850923c1a75d4e387e4",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "librubberband.2.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/librubberband.2.dylib",
+    "sha256": "49482c70577f4bd73c6b0ba478c8a43cb34ad626a63f22193ac467abc9851114",
+    "architecture": "arm64",
+    "minimum_macos": "11.0"
+  },
+  {
+    "file": "libsamplerate.0.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libsamplerate.0.dylib",
+    "sha256": "a12ff30bb913d23543ec99c601b6ed9c9e6fffaeceb975606847e4a7e2b88106",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libshaderc_shared.1.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libshaderc_shared.1.dylib",
+    "sha256": "35383aec9e2d83a57796f7af578f522c9cf47bea1c7cf60b1a0e5ee5329577fc",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libsharpyuv.0.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libsharpyuv.0.dylib",
+    "sha256": "ad92a81b9ce532adec7d6a32f5f9b47c850780263968431fc27547008525acbe",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libsnappy.1.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libsnappy.1.dylib",
+    "sha256": "21fe8895585a6bdae2f4ea8b74278c99fa5e9dcd64a1544c9dbdc73ef88b3838",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libsodium.26.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libsodium.26.dylib",
+    "sha256": "f756921332dd1853501213cc0cc217f502605bbbfd5964d85bb3bc20a03c07ce",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libsoxr.0.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libsoxr.0.dylib",
+    "sha256": "3a3bc4f30244a0fd61839e0018965764f2b0d02684dea4398f772b1902d0f3d0",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libspeex.1.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libspeex.1.dylib",
+    "sha256": "ccf8a2575760d5425046381713d324595ee84b70f76028c7376729848fde35d5",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libswresample.5.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libswresample.5.dylib",
+    "sha256": "10a616c47bd28dd12ab52400119018870fcf158a5fac2ebb23f145f9c236af08",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libswscale.8.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libswscale.8.dylib",
+    "sha256": "ed5581e37b73f2b560a3aa9b846a61fda61c9d30d87b64d995348ebb8c741dae",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libtasn1.6.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libtasn1.6.dylib",
+    "sha256": "211306cdbed6ef27ddc2d32eb9b45577d644a5d63817d4bb076e5a0f0c6efe44",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libuchardet.0.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libuchardet.0.dylib",
+    "sha256": "f73545f9ebd9a9a3a856d4b4e15e1563da01fe3b26230077829033ea547b0968",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libunibreak.6.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libunibreak.6.dylib",
+    "sha256": "67b95a16f7e7e9c82fb0a7176f4ca48df27d70e2340f4ce851d7f9ca1e9b2c9c",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libunistring.5.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libunistring.5.dylib",
+    "sha256": "1c8c5967a82e5246f0ca7b15980397cde5ae70862f1b845d80797cddd06dccba",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libvidstab.1.2.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libvidstab.1.2.dylib",
+    "sha256": "310cb473d2f2658ec686beea694a1d8c1e3eb3c6bebc3a226dd5ddfd116a56ce",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libvulkan.1.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libvulkan.1.dylib",
+    "sha256": "d1f27c2f5b48d34ceb3432fc7a5447fa6e2f311367b34b413769643509dea12e",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libwebp.7.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libwebp.7.dylib",
+    "sha256": "a148fd2b4a7f8457f0d73836d065c7fa43fbbdd4cc674095800ef6e0ec6eb52b",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libwebpmux.3.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libwebpmux.3.dylib",
+    "sha256": "35b1d0c6c7988a625642691f190b5ce8889359f156a7ed7f17c4782871cde16a",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libX11.6.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libX11.6.dylib",
+    "sha256": "4f5e284b892eaff9d67f627e65b96ac59c6ae2ef6ab0f6120c86796172098c0f",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libXau.6.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libXau.6.dylib",
+    "sha256": "2bdeec50aef726294b2f42cab507aff7acc7a208b79c1d287fb39f0441580cbc",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libxcb.1.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libxcb.1.dylib",
+    "sha256": "d07bf0117dcf3900a0cd680c35b7b1405afa1b6f5e2767e08848d9e0d8ddccca",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libxcb-shape.0.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libxcb-shape.0.dylib",
+    "sha256": "be3b1b86f24220cf588356259036dcbad60f31b6a23c1ad58844c4f5f992505e",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libxcb-shm.0.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libxcb-shm.0.dylib",
+    "sha256": "83de6c2bcd8774930f04405ddd823267c037927caa429d777152aee42d8c250f",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libxcb-xfixes.0.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libxcb-xfixes.0.dylib",
+    "sha256": "72816d39459aac6b7a4fb7b792f5178c32fec72925dba3595d164adfe9e15aba",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libXdmcp.6.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libXdmcp.6.dylib",
+    "sha256": "fef11e3c4ef753b3bc035f6bb4b568c95e2997c5280175915e29c133aed966d5",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libzimg.2.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libzimg.2.dylib",
+    "sha256": "b1428dc8e6d9cb4644696ed6488835a93798950c4eeb1aceb85d327437ad1c3c",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libzmq.5.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libzmq.5.dylib",
+    "sha256": "12328dbe40f45c9e1b111ee6f542517287a38e4c088c9643c3ad382f016e95f8",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  },
+  {
+    "file": "libzstd.1.dylib",
+    "url": "https://iina.io/dylibs/1.4.0/arm64/libzstd.1.dylib",
+    "sha256": "e3dbd54637caef21bcc9568ccd06a8c7ca9484150cce8151f5dbcb56caa0dd22",
+    "architecture": "arm64",
+    "minimum_macos": "12.0"
+  }
+]

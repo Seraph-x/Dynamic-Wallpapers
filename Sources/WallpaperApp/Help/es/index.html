@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self'; base-uri 'none'; form-action 'none'">
+<title>Ayuda de Dynamic Wallpaper</title>
+<link rel="stylesheet" href="../help.css">
+<script src="../help.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Ir al contenido</a>
+<header>
+<div class="brand">Dynamic Wallpaper</div>
+<nav class="languages" aria-label="Idioma de la guía">
+<span>Idioma de la guía</span>
+<a href="../zh-Hans/index.html" lang="zh-Hans" hreflang="zh-Hans" data-help-language="zh-Hans">简体中文</a>
+<a href="../en/index.html" lang="en" hreflang="en" data-help-language="en">English</a>
+<a href="../ja/index.html" lang="ja" hreflang="ja" data-help-language="ja">日本語</a>
+<a href="../fr/index.html" lang="fr" hreflang="fr" data-help-language="fr">Français</a>
+<a href="../es/index.html" lang="es" hreflang="es" data-help-language="es" aria-current="page">Español</a>
+</nav>
+</header>
+<main id="main">
+<h1>Ayuda de Dynamic Wallpaper</h1>
+<p><strong>v0.3.0 · Compilación 3 · Guía sin conexión</strong></p>
+<p>Abre la <strong>Guía de uso</strong> desde el menú Ayuda de la app o desde su icono en la barra de menús. Se abrirá en el idioma actual de la interfaz. Los enlaces de arriba solo cambian el idioma de la guía, no los ajustes de la app. La ayuda está incluida en la aplicación y se puede leer sin conexión.</p>
+<h2 id="contents">Índice</h2>
+<ol>
+<li><a href="#introduction">Acerca de la app</a></li>
+<li><a href="#quick-start">Primeros pasos</a></li>
+<li><a href="#features">Cómo usar las funciones</a></li>
+<li><a href="#settings">Referencia de ajustes</a></li>
+<li><a href="#troubleshooting">Solución de problemas</a></li>
+<li><a href="#performance">Rendimiento y consumo</a></li>
+<li><a href="#shortcuts">Atajos y gestos</a></li>
+<li><a href="#version">Información de versión</a></li>
+<li><a href="#appendix">Apéndice</a></li>
+</ol>
+<h2 id="introduction">1. Acerca de la app</h2>
+<p>Dynamic Wallpaper organiza fondos locales en macOS y permite mostrar vídeos, animaciones, imágenes y proyectos web en el escritorio, de forma individual o mediante listas de reproducción.</p>
+<p>Es útil para dar movimiento al escritorio, agrupar contenidos por temas o dedicar un fondo distinto a cada pantalla. Puedes aplicar un único fondo directamente o ajustar el orden, la duración, las transiciones y el volumen de cada elemento de una lista. La interfaz está disponible en chino simplificado, inglés, japonés, francés y español.</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Tabla con desplazamiento horizontal"><table>
+<thead>
+<tr>
+<th scope="col">Lo que quieres hacer</th>
+<th scope="col">Empieza aquí</th>
+<th scope="col">¿Se guarda como configuración activa?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ver el resultado</td>
+<td><strong>Reproducir vista previa</strong> en los detalles del contenido</td>
+<td>No; al terminar vuelve el fondo anterior</td>
+</tr>
+<tr>
+<td>Configurar el escritorio</td>
+<td><strong>Aplicar fondo</strong> o <strong>Aplicar lista</strong></td>
+<td>Sí; continúa tras cerrar la ventana principal</td>
+</tr>
+<tr>
+<td>Configurar el salvapantallas de macOS</td>
+<td>Publica en <strong>Salvapantallas</strong> y selecciónalo en Ajustes del Sistema</td>
+<td>Se guarda por separado del fondo del escritorio</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="quick-start">2. Primeros pasos</h2>
+<ol>
+<li>Abre Dynamic Wallpaper y haz clic en <strong>Importar fondo</strong> (el botón de suma) de la barra de herramientas, o pulsa <code>⌘O</code>.</li>
+<li>Selecciona <strong>Archivos multimedia</strong>, haz clic en <strong>Elegir archivos…</strong>, selecciona uno o varios vídeos, animaciones o imágenes y confirma la importación.</li>
+<li>Haz clic en un elemento de <strong>Todos los fondos</strong> para abrir <strong>Detalles del fondo</strong> a la derecha.</li>
+<li>Elige la pantalla de destino. La opción predeterminada, <strong>Todas las pantallas · Sincronizadas</strong>, aplica la misma fuente a todas. Si solo quieres cambiar una pantalla, selecciónala primero.</li>
+<li>Elige <strong>Rellenar</strong> o <strong>Ajustar</strong> y haz clic en <strong>Aplicar fondo</strong>. Un fondo individual no necesita una lista.</li>
+<li>Para escuchar el vídeo, desactiva <strong>Silenciar todo</strong> y ajusta <strong>Silenciar este elemento</strong> y <strong>Volumen</strong> en los detalles antes de aplicar el fondo.</li>
+<li>Al cerrar la ventana principal, el fondo aplicado sigue funcionando. Desde el icono de la barra de menús puedes pausar, reanudar, cambiar de lista, abrir los ajustes o volver a la ventana principal.</li>
+</ol>
+<blockquote>
+<p>💡 <strong>Consejo:</strong> <strong>Reproducir vista previa</strong> muestra temporalmente el contenido en los detalles y en el escritorio elegido. Después, pulsa <strong>Aplicar fondo</strong> para guardar esa configuración.</p>
+</blockquote>
+<h2 id="features">3. Cómo usar las funciones</h2>
+<h3 id="library">3.1 Importar, buscar y organizar contenidos</h3>
+<p>La biblioteca guarda registros de los contenidos y copias independientes de las nuevas importaciones para que puedas reutilizarlos.</p>
+<ol>
+<li>Haz clic en <strong>Importar fondo</strong> o arrastra vídeos, animaciones o imágenes a la ventana principal.</li>
+<li>Escribe parte del nombre en <strong>Buscar fondos</strong> para filtrar los resultados.</li>
+<li>Selecciona un elemento y pulsa <strong>Añadir a favoritos</strong> para encontrarlo fácilmente en <strong>Favoritos</strong>.</li>
+<li>Pulsa <strong>Mostrar en Finder</strong> para localizar la copia gestionada que usa la app.</li>
+</ol>
+<p>Si importas mientras estás en una lista, los nuevos contenidos también se añaden a ella. Quitar un contenido de la biblioteca retira sus elementos de todas las listas y elimina su copia gestionada. Quitar un elemento de una lista concreta solo afecta a esa lista, sin eliminar la copia. Ninguna de estas acciones elimina el archivo original.</p>
+<h3 id="playlists">3.2 Crear y reproducir una lista</h3>
+<p>Las listas agrupan contenidos para alternar fondos por temas o cambiarlos a intervalos.</p>
+<ol>
+<li>Haz clic en <strong>Nueva lista</strong> en la barra lateral.</li>
+<li>Escribe un nombre y pulsa <strong>Renombrar</strong> o la tecla Retorno.</li>
+<li>Usa <strong>Añadir fondo</strong> para elegir contenidos de la biblioteca, o <strong>Añadir a lista</strong> en los detalles de un elemento.</li>
+<li>Arrastra los elementos o utiliza sus flechas de subir y bajar para ordenarlos.</li>
+<li>Elige el modo de reproducción, la transición, el ajuste de imagen y la pantalla; después pulsa <strong>Aplicar lista</strong>.</li>
+</ol>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Tabla con desplazamiento horizontal"><table>
+<thead>
+<tr>
+<th scope="col">Opción</th>
+<th scope="col">Valores y valor predeterminado</th>
+<th scope="col">Efecto y uso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Modo de reproducción</td>
+<td>En orden (predeterminado), Aleatorio sin repetir, Repetir uno</td>
+<td>En orden sirve para secuencias preparadas; el modo aleatorio aporta variedad; Repetir uno mantiene el elemento actual</td>
+</tr>
+<tr>
+<td>Transición</td>
+<td>Instantánea, Fundido · 0,3 s (predeterminado), Fundido · 0,8 s</td>
+<td>El fundido afecta a imagen y sonido. La transición instantánea marca un cambio directo y reduce el procesamiento simultáneo de dos elementos</td>
+</tr>
+<tr>
+<td>Duración de visualización</td>
+<td>Duración fija (30 segundos de forma predeterminada), Reproducir una vez completa, Número de repeticiones (inicialmente 1)</td>
+<td>Selecciona un elemento, modifica el tiempo en sus detalles y pulsa Guardar duración</td>
+</tr>
+</tbody>
+</table></div>
+<p>Para una duración fija, introduce un valor y elige s (segundos), m (minutos) o h (horas); por ejemplo, 1.5 m equivale a 90 segundos. La reproducción completa y las repeticiones de vídeos y animaciones se calculan con su duración original. En imágenes fijas, una reproducción completa utiliza la duración elegida; el tiempo total con repeticiones es «duración × repeticiones». Los fondos web solo admiten duración fija. La duración debe ser mayor que 0 y las repeticiones deben ser un número entero positivo.</p>
+<p>Aleatorio sin repetir distingue los elementos de la lista: añadir dos veces el mismo contenido crea dos elementos. Con <strong>Repetir uno</strong>, <strong>Siguiente fondo</strong> vuelve a seleccionar el elemento actual; cambia de modo para avanzar a otro. Si no se puede preparar el siguiente, se mantiene la imagen actual y se muestra un error. No se omite automáticamente el elemento que falla.</p>
+<p>El submenú <strong>Listas de reproducción</strong> de la barra de menús permite aplicar rápidamente una lista a todas las pantallas con <strong>Rellenar</strong>.</p>
+<h3 id="displays">3.3 Configurar varias pantallas</h3>
+<p>Usa configuraciones independientes si las pantallas tienen funciones distintas, o sincronízalas para compartir una misma fuente.</p>
+<ol>
+<li>Antes de aplicar un contenido o una lista, selecciona una pantalla para cambiar solo esa.</li>
+<li>Elige <strong>Todas las pantallas · Sincronizadas</strong> para una reproducción compartida.</li>
+<li>Abre <strong>Pantallas</strong> en la barra lateral y revisa la fuente y el estado de cada una.</li>
+<li>En la tarjeta de una pantalla, elige una lista y el ajuste de imagen, y pulsa el botón de aplicar correspondiente. Para elegir otro fondo individual, vuelve a la biblioteca.</li>
+<li>Pulsa <strong>Restaurar fondo del sistema</strong> para detener el fondo de la app en esa pantalla.</li>
+</ol>
+<p><strong>Rellenar</strong> conserva las proporciones y recorta lo que sobresale. <strong>Ajustar</strong> muestra la imagen completa y deja en negro las zonas sobrantes. Las pantallas de un grupo sincronizado comparten la fuente y los ajustes de audio relacionados.</p>
+<blockquote>
+<p>⚠️ <strong>Importante:</strong> <strong>Restaurar fondo del sistema</strong> detiene la capa de escritorio de la app. Si se había activado la sincronización del fondo del sistema, macOS conserva la última imagen fija sincronizada. Consulta <a href="#system-wallpaper">Sincronizar el fondo del sistema</a>.</p>
+</blockquote>
+<h3 id="preview-audio">3.4 Vista previa vinculada y audio</h3>
+<p>La vista previa vinculada permite comprobar el encuadre en el escritorio real sin guardar una asignación de pantalla.</p>
+<ol>
+<li>Selecciona un contenido o un elemento de lista y elige pantalla y ajuste de imagen.</li>
+<li>Pulsa <strong>Reproducir vista previa</strong>. La reproducción aplicada se suspende temporalmente; si el destino pertenece a un grupo sincronizado, se suspende todo el grupo.</li>
+<li>Pulsa <strong>Detener vista previa</strong>, selecciona otro elemento o cierra la ventana que inició la vista previa para recuperar el fondo anterior.</li>
+</ol>
+<p>Solo los detalles emiten el audio de la vista previa; las copias del escritorio permanecen silenciadas. No se garantiza que ambas imágenes coincidan fotograma a fotograma.</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Tabla con desplazamiento horizontal"><table>
+<thead>
+<tr>
+<th scope="col">Dónde cambias el audio</th>
+<th scope="col">Qué afecta y dónde se guarda</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Audio del elemento en los detalles de la biblioteca</td>
+<td>Se usa en la vista previa actual y se guarda en la pantalla de destino al pulsar Aplicar fondo. No cambia las listas</td>
+</tr>
+<tr>
+<td>Audio del elemento en los detalles de una lista</td>
+<td>Se guarda en ese elemento y solo afecta a su reproducción y vista previa</td>
+</tr>
+<tr>
+<td>Audio de un fondo individual aplicado, en Pantallas</td>
+<td>Actualiza el fondo inmediatamente. El grupo sincronizado comparte el cambio; las listas no se modifican</td>
+</tr>
+<tr>
+<td>Silenciar todo</td>
+<td>Tiene prioridad sobre los ajustes individuales y también silencia las vistas previas</td>
+</tr>
+</tbody>
+</table></div>
+<p>Los vídeos y fondos web tienen controles de audio individuales. <strong>Silenciar este elemento</strong> está desactivado de forma predeterminada y el volumen inicial es del 100 %. El intervalo es de 0–100 %, en pasos del 1 %. Usa Silenciar todo para un escritorio silencioso y ajusta cada elemento si sus niveles son diferentes.</p>
+<h3 id="batch">3.5 Operaciones con varios elementos</h3>
+<ol>
+<li>Pulsa <strong>Selección múltiple</strong> y marca los elementos. <strong>Seleccionar todos los resultados</strong> selecciona los resultados del filtro actual.</li>
+<li>En la biblioteca puedes añadir o quitar favoritos, añadir contenidos a una lista o quitarlos en conjunto.</li>
+<li>En una lista, pulsa <strong>Editar selección…</strong>. Activa <strong>Cambiar duración</strong>, <strong>Cambiar silencio</strong> o <strong>Cambiar volumen</strong>, introduce los valores y pulsa <strong>Guardar cambios</strong>.</li>
+<li>Pulsa <strong>Listo</strong> para salir de la selección múltiple.</li>
+</ol>
+<p>Los tres interruptores de cambio empiezan desactivados. Los campos que no actives conservan su valor. El editor comienza con 30 segundos, 1 repetición, sonido sin silenciar y volumen del 100 %; no representa los valores comunes de la selección. Si hay elementos web, el cambio de duración en grupo solo admite tiempo fijo. Los cambios de audio solo se aplican a vídeos y fondos web.</p>
+<h3 id="web">3.6 Fondos web locales e interacción</h3>
+<p>Un proyecto web local permite utilizar contenido de escritorio creado con HTML, estilos y scripts.</p>
+<ol>
+<li>Pulsa <strong>Importar fondo</strong> y selecciona <strong>Proyecto web</strong>.</li>
+<li>Pulsa <strong>Elegir carpeta…</strong> y selecciona la carpeta que contiene la página y sus recursos.</li>
+<li>Indica el <strong>Archivo de entrada (HTML)</strong>. El valor inicial es <code>index.html</code>; usa <strong>Elegir archivo de entrada…</strong> o escribe una ruta relativa, como <code>pages/index.html</code>.</li>
+<li>Pulsa <strong>Importar proyecto web</strong> y aplícalo desde la biblioteca.</li>
+</ol>
+<p>La importación copia toda la carpeta del proyecto, conserva las rutas relativas y convierte los enlaces simbólicos internos en archivos o carpetas independientes. Los enlaces externos, los enlaces cíclicos y los archivos especiales hacen que falle la importación. Los cambios posteriores en el proyecto original no se sincronizan con la copia. Mantén HTML, imágenes, estilos y scripts dentro del proyecto; el acceso a archivos externos y a la red externa sigue restringido. Al pausar se conserva la imagen; al reanudar se recarga la página sin conservar su progreso interno.</p>
+<p>Para interactuar, activa <strong>Interacción web</strong> desde la barra de menús (desactivada inicialmente). Sigue las indicaciones para permitir <strong>Accesibilidad</strong> y <strong>Monitorización de entrada</strong> en los Ajustes del Sistema de macOS y vuelve a activar Interacción web en el menú. Si se retira un permiso, la interacción se desactiva. La función reenvía clics izquierdos en zonas vacías del escritorio de Finder; no ofrece todas las interacciones de un navegador.</p>
+<h3 id="transcoding">3.7 Convertir vídeo para mejorar la compatibilidad</h3>
+<p><strong>Convertir…</strong> aparece cuando la comprobación de compatibilidad de los detalles confirma que el vídeo es apto. Sirve para generar un archivo más compatible; el resultado de la comprobación determina si está disponible.</p>
+<ol>
+<li>Pulsa <strong>Convertir…</strong> y espera a que termine el análisis del vídeo.</li>
+<li>Elige <strong>Tamaño y frecuencia originales</strong> (predeterminado) o <strong>Ajustar a 1080p · Hasta ~30 fps</strong>.</li>
+<li>Comprueba la carpeta y el nombre de salida. Inicialmente se usa la carpeta de la fuente importada originalmente y el nombre <code>nombre-original-h264.mp4</code>. No se permite escribir la salida en la carpeta <code>Media</code> de la app ni en sus subcarpetas.</li>
+<li>Pulsa <strong>Añadir a la cola de conversión</strong>. Cuando termine, pulsa <strong>Importar a la biblioteca</strong> para crear una copia gestionada independiente y conservar el archivo de salida. Sustituye los elementos de lista que quieras.</li>
+</ol>
+<p>Si cierras la ventana, vuelve a abrirla desde <strong>Tareas de conversión</strong> en la barra de menús para consultar el progreso.</p>
+<p>El resultado es un MP4 con vídeo H.264 y audio AAC, generado mediante codificación por hardware de VideoToolbox. Recodificar no es una copia sin pérdida. El perfil de tamaño original añade borde para convertir dimensiones impares en pares; el perfil 1080p reduce proporcionalmente, sin ampliar, y limita la frecuencia a unos 30 fps. Solo conserva la primera pista de vídeo y la primera de audio, sin subtítulos ni capítulos. Si el original no tiene audio, el resultado tampoco. Los ajustes de silencio y volumen de la app no cambian el sonido del archivo generado.</p>
+<p>No se sobrescriben archivos existentes. Las tareas se ejecutan de una en una y continúan al cerrar la ventana de conversión. Al salir de la app, se pide confirmar la cancelación de las tareas pendientes; los archivos terminados se conservan. Si falla la codificación por hardware, se muestra el error sin pasar automáticamente a codificación por software.</p>
+<h3 id="system-wallpaper">3.8 Sincronizar el fondo del sistema</h3>
+<p><strong>Sincronizar fondo del sistema</strong> guarda una imagen fija PNG del fondo aplicado y la establece como fondo de macOS en esa pantalla. Así queda un fondo parecido cuando se detiene la capa animada.</p>
+<ol>
+<li>Abre <strong>Ajustes → General</strong> y activa <strong>Sincronizar fondo del sistema</strong>.</li>
+<li>Aplica un fondo y consulta el estado de sincronización de cada pantalla.</li>
+<li>Si falla, revisa la causa, corrígela y pulsa <strong>Reintentar sincronización</strong>.</li>
+</ol>
+<p>Es una imagen fija, no un fondo del sistema actualizado en cada fotograma. Las vistas previas temporales no modifican el fondo del sistema.</p>
+<blockquote>
+<p>⚠️ <strong>Importante:</strong> desactivar la sincronización, detener el fondo o salir de la app conserva la última imagen sincronizada. Ninguna de estas acciones recupera el fondo anterior a la sincronización. Para elegir otra imagen, abre <strong>Fondo de pantalla</strong> en los Ajustes del Sistema de macOS.</p>
+</blockquote>
+<h3 id="appearance">3.9 Apariencia y fondo a pantalla completa</h3>
+<p>La interfaz usa Liquid Glass en macOS 26 y posteriores, incluido macOS 27, y materiales nativos compatibles en macOS 14 y 15. En <strong>Ajustes → Apariencia</strong> puedes ajustar el tema, la transparencia y el desenfoque para equilibrar la visibilidad del fondo con la lectura del texto.</p>
+<p>La ventana principal puede mostrar el fondo detrás de su interfaz mientras ocupa el espacio activo a pantalla completa. Las ventanas normales y los espacios en segundo plano no mantienen esa captura continua. Si no hay un fondo de la app, se utiliza una imagen fija del fondo del sistema, que puede no coincidir con la imagen de la hora actual de un fondo dinámico de macOS.</p>
+<h3 id="screensaver">3.10 Configurar el salvapantallas nativo</h3>
+<p>La página <strong>Salvapantallas</strong> de la barra lateral gestiona su contenido por separado del fondo del escritorio. Elige un vídeo nativo, una imagen fija, una animación o una lista que los contenga. <strong>Importar contenido para el salvapantallas…</strong> añade archivos locales. Se excluyen los elementos web y los del reproductor ampliado. Tras importar o elegir un origen, el cuadro de confirmación muestra centrados los elementos incluidos; si hay exclusiones, incluidos y excluidos aparecen en dos columnas. Confirma las exclusiones antes de publicar. La lista original no cambia y cualquier nueva exclusión requiere otra confirmación.</p>
+<p>La app copia el contenido publicado en <code>DynamicWallpaper/ScreenSaverExport</code>, dentro de Application Support. La página solo indica si hay contenido utilizable publicado. Si falla la sincronización, muestra el error y conserva la última copia válida. Los cambios pertinentes de la lista se sincronizan automáticamente; <strong>Sincronizar ahora</strong> solicita otra publicación. El contenido nuevo se aplica en el <strong>siguiente inicio del salvapantallas</strong> o al volver a abrir la vista previa de la app. Una instancia activa conserva su versión inicial. Borrar el archivo de origen no elimina de inmediato la copia publicada. <strong>Borrar contenido publicado…</strong> solo afecta al salvapantallas; las copias antiguas se recuperan cuando terminan las instancias activas.</p>
+<p>La primera vez, pulsa <strong>Instalar o actualizar salvapantallas…</strong> y sigue los pasos de macOS. Después selecciona personalmente <strong>Dynamic Wallpaper Screen Saver</strong> en Ajustes del Sistema. <strong>Volver a comprobar instalación</strong> verifica el resultado, pero estar instalado no significa estar seleccionado. En el panel de configuración del salvapantallas, autoriza la carpeta de publicación que muestra la app. Este permiso independiente permite leer el contenido después de cerrar la app. Una carpeta movida, un permiso caducado o la falta de contenido publicado generan un error explícito. La vista previa de la app muestra el contenido publicado; comprueba por separado la reproducción real en macOS.</p>
+<h2 id="settings">4. Referencia de ajustes</h2>
+<p>Estos valores predeterminados corresponden a una biblioteca nueva. Las preferencias existentes se conservan. Los ajustes habituales se guardan y aplican inmediatamente. Los editores con un botón de guardar, como el de duración, requieren pulsarlo.</p>
+<h3 id="general-settings">4.1 General</h3>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Tabla con desplazamiento horizontal"><table>
+<thead>
+<tr>
+<th scope="col">Ajuste</th>
+<th scope="col">Opciones / valor predeterminado</th>
+<th scope="col">Efecto y recomendación</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Idioma de la interfaz</td>
+<td>Seguir el sistema (predeterminado), 简体中文, English, 日本語, Français, Español</td>
+<td>Elige el idioma de la app; consulta el apartado de idiomas</td>
+</tr>
+<tr>
+<td>Abrir al iniciar sesión</td>
+<td>Activado / desactivado; una instalación nueva no lo registra inicialmente</td>
+<td>Ejecuta la app al iniciar sesión en macOS. Si necesita aprobación, usa Abrir ítems de inicio del sistema…</td>
+</tr>
+<tr>
+<td>Mostrar el icono en el Dock</td>
+<td>Activado / desactivado; activado inicialmente</td>
+<td>Si está desactivado, abrir una ventana de gestión muestra temporalmente el icono del Dock y los menús de la app. El icono se oculta al cerrar todas esas ventanas; minimizarlas u ocultarlas no las cierra. La preferencia guardada no cambia. No detiene la reproducción ni es un ajuste de ahorro</td>
+</tr>
+<tr>
+<td>Sincronizar fondo del sistema</td>
+<td>Activado / desactivado; desactivado inicialmente</td>
+<td>Genera una imagen fija del fondo aplicado y la escribe como fondo del sistema. Déjalo desactivado si no necesitas esa generación y escritura de imágenes</td>
+</tr>
+<tr>
+<td>Silenciar todo</td>
+<td>Activado / desactivado; activado inicialmente</td>
+<td>Silencia vídeo, web y vistas previas sin poner a cero los volúmenes individuales</td>
+</tr>
+<tr>
+<td>Pausar en modo de bajo consumo</td>
+<td>Activado / desactivado; desactivado inicialmente</td>
+<td>Responde al modo de bajo consumo de macOS, no a un porcentaje concreto de batería. Útil al trabajar sin cargador</td>
+</tr>
+<tr>
+<td>Pausar si el dispositivo se calienta</td>
+<td>Activado / desactivado; activado inicialmente</td>
+<td>Pausa cuando macOS informa de un estado térmico grave o crítico. Se recomienda mantenerlo activado</td>
+</tr>
+</tbody>
+</table></div>
+<p>La reproducción se pausa automáticamente al bloquear la pantalla, al entrar en reposo el sistema o la pantalla, o cuando la sesión de usuario está inactiva. No hace falta configurarlo. Solo se reanuda cuando desaparecen todas las causas automáticas; una pausa manual requiere reanudar manualmente. Consulta las causas en la barra de menús.</p>
+<h3 id="appearance-settings">4.2 Apariencia</h3>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Tabla con desplazamiento horizontal"><table>
+<thead>
+<tr>
+<th scope="col">Ajuste</th>
+<th scope="col">Opciones / valor predeterminado</th>
+<th scope="col">Efecto y equilibrio</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Modo de apariencia</td>
+<td>Seguir el sistema (predeterminado), Claro, Oscuro</td>
+<td>Cambia la interfaz, no el archivo de fondo. Elige según la iluminación del entorno</td>
+</tr>
+<tr>
+<td>Transparencia del fondo</td>
+<td>0–100 %; 75 % inicialmente</td>
+<td>El 100 % es transparente sin desenfoque; el 0 % es opaco. Reducirla facilita leer sobre fondos complejos</td>
+</tr>
+<tr>
+<td>Estilo de desenfoque</td>
+<td>Transparente, Esmerilado (predeterminado)</td>
+<td>Se usa por debajo del 100 % de transparencia. Esmerilado separa mejor el contenido del primer plano</td>
+</tr>
+<tr>
+<td>Frecuencia del fondo en pantalla completa</td>
+<td>30 Hz (predeterminado), 60 Hz</td>
+<td>Controla la captura del fondo de la app a pantalla completa, no el límite de fps del vídeo del escritorio. 60 Hz es más fluido, pero necesita más procesamiento</td>
+</tr>
+</tbody>
+</table></div>
+<p>La opción <strong>Reducir transparencia</strong> de macOS tiene prioridad para facilitar la lectura. No sobrescribe los valores de transparencia y desenfoque guardados en la app.</p>
+<h3 id="other-settings">4.3 Archivos, Avanzado y Acerca de</h3>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Tabla con desplazamiento horizontal"><table>
+<thead>
+<tr>
+<th scope="col">Panel</th>
+<th scope="col">Contenido</th>
+<th scope="col">Utilidad</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Archivos</td>
+<td>Explicación de las copias independientes, respaldo y vaciado de la biblioteca, última copia de la configuración y cantidad de limpiezas pendientes</td>
+<td>Gestiona contenidos y su limpieza sin cambiar los originales ni los ajustes de la app</td>
+</tr>
+<tr>
+<td>Avanzado</td>
+<td>Nombre del archivo de configuración, versión del formato, ruta completa y Mostrar en Finder</td>
+<td>Información de solo lectura para localizar y respaldar la configuración</td>
+</tr>
+<tr>
+<td>Acerca de</td>
+<td>Nombre, versión y descripción de la app</td>
+<td>Permite comprobar la versión utilizada</td>
+</tr>
+</tbody>
+</table></div>
+<p>Para empezar con una biblioteca vacía:</p>
+<ol>
+<li>Abre <strong>Ajustes → Archivos</strong> y pulsa <strong>Respaldar y vaciar la biblioteca…</strong>. No se puede vaciar durante una importación.</li>
+<li>Confirma la eliminación de contenidos, incluidos los favoritos, listas y asignaciones de pantalla. Los ajustes de la app, los originales y las imágenes del sistema sincronizadas no cambian.</li>
+<li>Solo después de crear el respaldo se vacían los registros y se eliminan las copias gestionadas. En <strong>Última copia de la configuración</strong>, consulta la ruta o muestra la copia en Finder.</li>
+</ol>
+<p>El respaldo solo contiene JSON, no contenidos, y no puede restaurar copias eliminadas. Si una conversión relacionada sigue usando el contenido, espera a que termine, o cancélala y espera a que libere los recursos antes de intentarlo de nuevo; las tareas no relacionadas no se ven afectadas. Los fallos de limpieza muestran un error y conservan un registro pendiente para reintentarlo en el siguiente inicio.</p>
+<p>Si un contenido desaparece de la biblioteca pero su archivo sigue en el disco, revisa la cantidad de limpiezas pendientes y los detalles del error en <strong>Archivos</strong>. Es posible que la carpeta gestionada se haya sustituido o ya no coincida con el registro de la app, por lo que se rechaza su eliminación. Eso no significa que se haya borrado el original. Identifica la copia restante antes de actuar; no vacíes toda la carpeta de contenidos.</p>
+<h3 id="language-settings">4.4 Idioma y formato regional</h3>
+<ol>
+<li>Abre <strong>Ajustes → General → Idioma de la interfaz</strong>.</li>
+<li>Elige <strong>Seguir el sistema</strong> o uno de los cinco idiomas.</li>
+<li>Cuando el ajuste se guarde correctamente, la interfaz propia de la app cambiará inmediatamente. No hace falta reiniciar ni se reinicia la reproducción del fondo.</li>
+</ol>
+<p>Seguir el sistema elige el primer idioma compatible según el orden de preferencias de macOS, o inglés si ninguno coincide. Los números usan el formato regional del idioma actual. Los nombres de archivos, contenidos y listas personalizadas no se traducen. Los menús y selectores de archivos proporcionados por el sistema pueden seguir usando el idioma de macOS.</p>
+<p>Al volver a abrir la <strong>Guía de uso</strong> desde la app, se usa de nuevo el idioma actual de la interfaz. Elegir un idioma en la parte superior de la guía solo cambia el documento que estás leyendo.</p>
+<h2 id="troubleshooting">5. Solución de problemas</h2>
+<p>Primero identifica si el problema ocurre en el fondo aplicado, en una vista previa temporal o en el fondo de la ventana de la app. Empieza por las comprobaciones sencillas. Si un error ofrece <strong>Ver detalles…</strong>, conserva el texto para identificar el contenido o la operación afectados.</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Tabla con desplazamiento horizontal"><table>
+<thead>
+<tr>
+<th scope="col">Síntoma</th>
+<th scope="col">Posibles causas</th>
+<th scope="col">Comprobaciones y soluciones</th>
+<th scope="col">Alternativa temporal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>No aparece el fondo o se ve negro</td>
+<td>Sin aplicar, pantalla incorrecta, archivo inaccesible, error de decodificación, pausa activa</td>
+<td>① Selecciona contenido y pantalla y vuelve a aplicar. ② Usa Mostrar en Finder para comprobar el archivo que realmente se usa. ③ Revisa las causas de pausa del menú. ④ Prueba una imagen que se pueda leer. ⑤ Consulta el error de análisis del contenido</td>
+<td>Usa una imagen que funcione o detén el fondo de la app en esa pantalla</td>
+</tr>
+<tr>
+<td>Vídeo entrecortado, pérdida de fotogramas o alto consumo</td>
+<td>Resolución/fps elevados, varias fuentes independientes, vista previa o conversión simultánea, calor</td>
+<td>① Detén las vistas previas. ② Espera a la conversión o cancela una tarea innecesaria. ③ Reduce las pantallas animadas independientes. ④ Ajusta el fondo a pantalla completa a 30 Hz. ⑤ Si se ofrece Convertir, crea una versión 1080p / unos 30 fps</td>
+<td>Pausa el fondo o usa una imagen fija y activa la pausa de ahorro</td>
+</tr>
+<tr>
+<td>Cambiar el volumen no tiene efecto</td>
+<td>Silencio global, ajuste de otro elemento o de vista previa, archivo sin audio, salida del sistema incorrecta</td>
+<td>① Revisa silencio global, individual y volumen. ② Confirma el elemento o pantalla actual. ③ Vuelve a aplicar tras cambiar el audio desde la biblioteca. ④ Comprueba el vídeo original y la salida de sonido de macOS</td>
+<td>Prueba un vídeo que sepas que tiene sonido; usa Silenciar todo si necesitas silencio</td>
+</tr>
+<tr>
+<td>Varias pantallas cambian juntas</td>
+<td>Se aplicó Todas las pantallas · Sincronizadas, destino antiguo, cambio de conexiones</td>
+<td>① Revisa las pantallas conectadas. ② Aplica una fuente por separado a cada una. ③ Vuelve a elegir el destino tras reconectar. ④ Comprueba el grupo sincronizado</td>
+<td>Configura una pantalla primero y después las demás</td>
+</tr>
+<tr>
+<td>No carga el proyecto web</td>
+<td>Carpeta o entrada incorrecta, recursos movidos, dependencia de red, error de script</td>
+<td>① Confirma que HTML/HTM está dentro de la carpeta. ② Revisa la ruta relativa. ③ Restaura los recursos. ④ Compara con una página sencilla totalmente local. ⑤ Consulta los detalles del error</td>
+<td>Usa un proyecto con todas sus dependencias locales u otro contenido</td>
+</tr>
+<tr>
+<td>El fondo web no responde a clics</td>
+<td>Interacción desactivada, permisos ausentes o retirados, clic fuera del escritorio vacío de Finder</td>
+<td>① Activa Interacción web. ② Revisa Accesibilidad y Monitorización de entrada. ③ Vuelve a activar tras autorizar. ④ Prueba un clic izquierdo en una zona vacía</td>
+<td>Reprodúcelo sin interacción</td>
+</tr>
+<tr>
+<td>La lista no avanza o cambia de forma inesperada</td>
+<td>Repetir uno, duración excesiva o sin guardar, lista vacía, siguiente elemento no disponible</td>
+<td>① Revisa el modo. ② Comprueba y guarda duración, unidad y repeticiones. ③ Confirma que haya elementos. ④ Comprueba el archivo realmente usado por el siguiente elemento. ⑤ Vuelve a aplicar tras corregirlo</td>
+<td>Usa En orden y una duración fija más corta; retira manualmente el elemento problemático</td>
+</tr>
+<tr>
+<td>La app no responde o se cierra</td>
+<td>Contenido o web pesado/defectuoso, carga de conversión, configuración ilegible</td>
+<td>① Espera un momento si hay trabajo activo. ② Si responde, pausa, sal normalmente y vuelve a abrir. ③ Si no, fuerza la salida desde macOS y abre de nuevo. ④ Prueba una imagen sencilla. ⑤ Considera el restablecimiento de abajo solo ante un error explícito de lectura de biblioteca</td>
+<td>Evita el contenido desencadenante. Forzar la salida interrumpe las conversiones pendientes</td>
+</tr>
+<tr>
+<td>macOS informa de falta de permisos</td>
+<td>Web sin autorizar, contenido o carpeta de salida inaccesibles, restricciones de captura a pantalla completa</td>
+<td>① Identifica la función del error. ② Para web, revisa Accesibilidad y Monitorización de entrada. ③ Vuelve a elegir un archivo legible o una carpeta con escritura. ④ Si una versión temprana de macOS 14 pide grabación de pantalla para el fondo a pantalla completa, revisa el permiso y reintenta</td>
+<td>Desactiva la interacción o sal de la pantalla completa de la app y usa la reproducción normal</td>
+</tr>
+<tr>
+<td>Idioma incorrecto, texto sin traducir o cambio sin efecto</td>
+<td>Seguir el sistema, guardado fallido, nombre de contenido, algunos errores aún no localizados</td>
+<td>① Elige explícitamente el idioma. ② Revisa errores al guardar. ③ Abre de nuevo la ventana o ayuda. ④ Distingue texto del sistema, nombres y etiquetas de la app</td>
+<td>Usa temporalmente otro idioma disponible. Puedes renombrar listas; la lista inicial de una biblioteca nueva puede conservar el nombre «我的播放列表»</td>
+</tr>
+<tr>
+<td>El fondo del sistema no se sincroniza o permanece al detener</td>
+<td>Sincronización desactivada o esperando aplicación, error, conservación de la última imagen</td>
+<td>① Revisa el interruptor y cada pantalla. ② Aplica un fondo. ③ Corrige problemas de archivos/pantallas y reintenta. ④ Para cambiar la imagen, elige otra en macOS</td>
+<td>Desactiva la sincronización y elige el fondo del sistema. Desactivarla por sí sola no restaura la imagen anterior</td>
+</tr>
+<tr>
+<td>El contenido ya no aparece en la biblioteca, pero queda una copia local</td>
+<td>Limpieza pendiente o carpeta que no coincide con el registro de la app</td>
+<td>① Revisa las limpiezas pendientes en <strong>Ajustes → Archivos</strong>. ② Conserva el error y confirma que es una copia gestionada que no necesitas. ③ Reinicia la app para reintentar. ④ Si sigue fallando, trata solo la copia residual identificada</td>
+<td>Conserva el archivo mientras tanto; no borres toda la carpeta de contenidos</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Respaldar y restablecer una biblioteca que no se puede leer</strong></p>
+<p>Usa esta acción únicamente si la app indica expresamente que no puede leer la biblioteca. Primero respalda la configuración existente y después borra los registros de contenidos, las listas, las asignaciones de pantalla y los ajustes de biblioteca. No elimina los archivos originales. Tendrás que importar y configurar de nuevo. Si puedes abrir los ajustes, localiza y copia antes la configuración desde <strong>Avanzado</strong>. Restablecer no debe ser el primer paso ante una pantalla negra o un vídeo entrecortado.</p>
+<h2 id="performance">6. Rendimiento y consumo</h2>
+<ul>
+<li><strong>Prioriza la batería:</strong> activa la pausa en modo de bajo consumo y conserva la pausa por temperatura. Pausa manualmente desde el menú cuando no necesites animación.</li>
+<li><strong>Reduce trabajo de CPU y GPU:</strong> la CPU realiza cálculos generales y la GPU procesa gráficos. Elige resolución y fps adecuados para tus pantallas. Cuando la conversión esté disponible, el perfil 1080p puede reducir la carga de reproducción.</li>
+<li><strong>Asigna contenido según la pantalla:</strong> un vídeo en la principal y una imagen en la secundaria suelen consumir menos que varios vídeos independientes de alta resolución. La sincronización comparte contenido, pero el número y tamaño de las pantallas siguen influyendo.</li>
+<li><strong>Evita superponer tareas:</strong> detén las vistas previas al terminar. Pausa fondos si la conversión provoca tirones. Los fundidos procesan brevemente dos elementos; usa Instantánea para reducir ese solapamiento.</li>
+<li><strong>Ajusta el fondo a pantalla completa según el uso:</strong> empieza con 30 Hz y elige 60 Hz solo si necesitas más fluidez en la app. No limita los fps propios del vídeo del escritorio.</li>
+<li><strong>Mantén los archivos accesibles:</strong> usa una unidad conectada de forma estable y recursos web locales. Deja desactivada la sincronización de imágenes del sistema si no la necesitas.</li>
+</ul>
+<h2 id="shortcuts">7. Atajos y gestos</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Tabla con desplazamiento horizontal"><table>
+<thead>
+<tr>
+<th scope="col">Acción</th>
+<th scope="col">Atajo o gesto</th>
+<th scope="col">Dónde se usa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Importar fondo</td>
+<td><code>⌘O</code></td>
+<td>Menú de la app</td>
+</tr>
+<tr>
+<td>Mostrar u ocultar barra lateral</td>
+<td><code>⌃⌘S</code></td>
+<td>Ventana principal</td>
+</tr>
+<tr>
+<td>Salir de la app</td>
+<td><code>⌘Q</code></td>
+<td>Menú; confirma si quedan conversiones sin terminar</td>
+</tr>
+<tr>
+<td>Ejecutar la acción predeterminada</td>
+<td>Retorno</td>
+<td>Diálogos con botón predeterminado</td>
+</tr>
+<tr>
+<td>Cancelar o cerrar una explicación</td>
+<td>Esc</td>
+<td>Diálogos correspondientes y ayudas con interrogación</td>
+</tr>
+<tr>
+<td>Abrir la explicación de un control</td>
+<td>Enfoca el botón de ayuda y pulsa Espacio o Retorno, o haz clic</td>
+<td>Controles con botón de ayuda</td>
+</tr>
+<tr>
+<td>Reordenar lista</td>
+<td>Arrastrar elementos o pulsar flechas de subir/bajar</td>
+<td>Lista, fuera de selección múltiple</td>
+</tr>
+<tr>
+<td>Importar contenido</td>
+<td>Arrastrar archivos</td>
+<td>Ventana principal</td>
+</tr>
+<tr>
+<td>Abrir menú contextual</td>
+<td>Clic derecho o clic con dos dedos</td>
+<td>Contenidos o listas</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>⌘</code> significa Comando y <code>⌃</code> significa Control. Puedes reproducir, pausar y pasar al siguiente fondo desde la barra de menús.</p>
+<h2 id="version">8. Información de versión</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Tabla con desplazamiento horizontal"><table>
+<thead>
+<tr>
+<th scope="col">Elemento</th>
+<th scope="col">Información</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>App</td>
+<td>Dynamic Wallpaper</td>
+</tr>
+<tr>
+<td>Versión</td>
+<td>v0.3.0, compilación 3</td>
+</tr>
+<tr>
+<td>Alcance de la guía</td>
+<td>Operaciones, ajustes, efectos sobre los datos y solución de problemas de la app actual</td>
+</tr>
+</tbody>
+</table></div>
+<p>Consulta <strong>Ajustes → Acerca de</strong> para comprobar la versión instalada. Esta guía se incluye en la app y funciona sin conexión.</p>
+<h2 id="appendix">9. Apéndice</h2>
+<h3 id="glossary">9.1 Glosario</h3>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Tabla con desplazamiento horizontal"><table>
+<thead>
+<tr>
+<th scope="col">Término</th>
+<th scope="col">Significado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Biblioteca</td>
+<td>Registros y copias independientes guardadas al importar</td>
+</tr>
+<tr>
+<td>Elemento de lista</td>
+<td>Una incorporación a la lista; el mismo contenido puede tener varios elementos independientes</td>
+</tr>
+<tr>
+<td>Grupo sincronizado</td>
+<td>Pantallas que comparten fuente y estado de reproducción</td>
+</tr>
+<tr>
+<td>Fondo aplicado / vista previa vinculada</td>
+<td>El primero se guarda como ajuste de pantalla; la segunda es temporal y recupera el fondo anterior al terminar</td>
+</tr>
+<tr>
+<td>Fondo del sistema</td>
+<td>Imagen de macOS situada bajo la capa animada de la app</td>
+</tr>
+<tr>
+<td>Conversión o transcodificación</td>
+<td>Recodificar vídeo en otro formato y crear un archivo nuevo</td>
+</tr>
+<tr>
+<td>Archivo de entrada</td>
+<td>Primer archivo HTML que se abre en un proyecto web local</td>
+</tr>
+<tr>
+<td>Liquid Glass</td>
+<td>Material de interfaz con aspecto de cristal de macOS 26</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="formats">9.2 Formatos compatibles</h3>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Tabla con desplazamiento horizontal"><table>
+<thead>
+<tr>
+<th scope="col">Tipo</th>
+<th scope="col">Extensiones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Vídeo</td>
+<td>MP4, MOV, M4V, MKV, WebM, AVI</td>
+</tr>
+<tr>
+<td>Imagen fija</td>
+<td>JPEG/JPG, PNG, HEIC, HEIF</td>
+</tr>
+<tr>
+<td>Animación</td>
+<td>GIF, APNG</td>
+</tr>
+<tr>
+<td>Web local</td>
+<td>HTML, HTM; importados mediante la carpeta de un proyecto web</td>
+</tr>
+</tbody>
+</table></div>
+<p>La extensión indica el tipo de archivo, pero no garantiza que se reproduzcan todos los códecs que pueda contener. Usa el resultado del análisis de la app para el archivo concreto. Cambiar la extensión no cambia la codificación del vídeo.</p>
+<h3 id="requirements">9.3 Sistema e idiomas</h3>
+<ul>
+<li>Sistema: macOS 14.0 o posterior.</li>
+<li>Procesador: Apple Silicon (arm64).</li>
+<li>Las necesidades dependen de las dimensiones, los fps, la complejidad de la página y el número de pantallas. Elige contenidos acordes con la carga.</li>
+<li>Idiomas: 简体中文, English, 日本語, Français, Español.</li>
+</ul>
+<h3 id="data">9.4 Ubicaciones y datos guardados</h3>
+<p>Para localizar la configuración, abre <strong>Ajustes → Avanzado</strong> y usa <strong>Mostrar en Finder</strong>. No muevas ni sustituyas manualmente las carpetas de contenidos gestionadas por la app. Las imágenes del sistema sincronizadas también se guardan por separado.</p>
+<p>Se guardan los registros de contenidos, favoritos, listas, asignaciones de pantalla, preferencias y limpiezas pendientes. Las búsquedas, selecciones múltiples, vistas previas temporales, pausas manuales y colas de conversión sin terminar no se conservan tras reiniciar. Una copia de configuración no incluye contenidos ni permite recuperar copias eliminadas; conserva los originales o respalda por separado los contenidos gestionados.</p>
+</main>
+<footer><a href="#contents">Volver al índice</a></footer>
+</body>
+</html>

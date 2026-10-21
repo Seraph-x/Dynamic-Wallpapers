@@ -1,0 +1,2 @@
+# Used only to regenerate the checked-in offline help HTML, not at app runtime.
+Markdown==3.8.2

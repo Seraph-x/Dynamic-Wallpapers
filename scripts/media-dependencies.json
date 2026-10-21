@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "verification_scope": "Pinned input-cache bytes only; built products and runtime behavior are separate checks.",
+  "modules": {
+    "cef": {
+      "version": "152.0.6+g708dc14+chromium-152.0.7977.83",
+      "architecture": "arm64",
+      "minimum_macos": "13.0",
+      "source": "https://cef-builds.spotifycdn.com/index.json",
+      "license_status": "LICENSE.txt and CREDITS.html in archive; distribution review incomplete",
+      "artifacts": [
+        {
+          "path": "cef/cef_binary_152.0.6_macosarm64_minimal.tar.bz2",
+          "url": "https://cef-builds.spotifycdn.com/cef_binary_152.0.6%2Bg708dc14%2Bchromium-152.0.7977.83_macosarm64_minimal.tar.bz2",
+          "sha256": "b0f277f1025dcedd690f59dfe3d1ec5e2f7f90564d0e5de997e6fc3c1febfa48",
+          "size": 131064528
+        }
+      ]
+    },
+    "mpv": {
+      "version": "IINA 1.4.0 / runtime mpv v0.38.0",
+      "architecture": "arm64",
+      "minimum_macos": "12.0",
+      "source": "https://iina.io/dylibs/1.4.0/arm64/",
+      "license_status": "GPL-enabled binaries; precise source/patch and license records for all 69 libraries incomplete",
+      "manifest": {
+        "path": "scripts/feasibility/mpv/libraries.json",
+        "sha256": "79adb842cadf0eb844bfb60b4836a8232245cb64f7493568f03da75916d54f76",
+        "cache_prefix": "mpv/lib"
+      },
+      "artifacts": [
+        {
+          "path": "mpv/include/mpv/client.h",
+          "url": "https://raw.githubusercontent.com/mpv-player/mpv/v0.38.0/libmpv/client.h",
+          "sha256": "c34c436b54201ba84655dcbb6226f937b53d04fa0abcceaa08886565a569bd88"
+        },
+        {
+          "path": "mpv/include/mpv/render.h",
+          "url": "https://raw.githubusercontent.com/mpv-player/mpv/v0.38.0/libmpv/render.h",
+          "sha256": "f00a31d46896c691922196c932c94140d206cb4c16cfa4bb6bdf3a9d0d3d4a29"
+        }
+      ]
+    },
+    "ffmpeg": {
+      "version": "9.0.1 (n9.0.1)",
+      "architecture": "arm64",
+      "minimum_macos": "14.0",
+      "source": "https://codeload.github.com/FFmpeg/FFmpeg/tar.gz/refs/tags/n9.0.1",
+      "license_status": "Measured build LGPL-2.1-or-later; distribution source/license bundle incomplete",
+      "artifacts": [
+        {
+          "path": "ffmpeg/ffmpeg-n9.0.1.tar.gz",
+          "url": "https://codeload.github.com/FFmpeg/FFmpeg/tar.gz/refs/tags/n9.0.1",
+          "sha256": "195d54bebe1a27f84d77f4b989d193466f305b355da92292766a69f16880b18a"
+        }
+      ]
+    }
+  }
+}

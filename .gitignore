@@ -1,0 +1,14 @@
+.build/
+dist/
+.DS_Store
+.swiftpm/
+
+# Python bytecode caches
+__pycache__/
+*.py[cod]
+
+# Local isolated worktrees
+.worktrees/
+
+# Local tooling state is never part of source snapshots
+.serena/
