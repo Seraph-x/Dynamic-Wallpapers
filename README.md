@@ -2,7 +2,7 @@
 
 A local-first macOS app for turning your own videos, animated images, pictures, and web projects into desktop wallpapers.
 
-This repository contains source code and build instructions, not a prebuilt app. Dynamic Wallpaper is for Apple Silicon Macs and has a macOS 14 deployment target.
+This repository contains the source code and build instructions. A prebuilt release is attached to the [v0.3.0 release](https://github.com/Seraph-x/Dynamic-Wallpapers/releases/tag/v0.3.0); building from source is still the supported path for development. Dynamic Wallpaper is for Apple Silicon Macs and has a macOS 14 deployment target.
 
 ## Overview
 
@@ -17,13 +17,29 @@ The app and its offline guide are available in English, Simplified Chinese, Japa
 - Apple Silicon Mac with a full Xcode installation that includes the macOS 26 SDK or newer. The build host must meet that Xcode version's macOS requirements; the app's macOS 14 deployment target is not the build-host minimum.
 - Python 3.11 or newer, CMake, make, curl, network access, and disk space for CEF, mpv, FFmpeg, SwiftPM outputs, and the app bundle.
 
+## Download a prebuilt build
+
+The [v0.3.0 release](https://github.com/Seraph-x/Dynamic-Wallpapers/releases/tag/v0.3.0) provides `DynamicWallpaper-0.3.0-arm64.dmg` (Apple Silicon, macOS 14 or later). Verify the download before installing:
+
+```sh
+shasum -a 256 -c SHA256SUMS.txt
+```
+
+The published build is ad-hoc signed and not notarized by Apple, so macOS blocks the first launch. Allow it once with Control-click → **Open**, or run:
+
+```sh
+xattr -dr com.apple.quarantine "/Applications/Dynamic Wallpaper.app"
+```
+
+Install notes ship inside the DMG in English, Simplified Chinese, Japanese, French, and Spanish.
+
 ## Build from source
 
 Clone the repository, then build a local app bundle:
 
 ```sh
 git clone https://github.com/Seraph-x/Dynamic-Wallpapers.git
-cd Dynamic-Wallpaper
+cd Dynamic-Wallpapers
 python3 scripts/prepare-public-build.py
 bash scripts/build-app.sh --output dist/DynamicWallpaper-source-build.app
 ```
