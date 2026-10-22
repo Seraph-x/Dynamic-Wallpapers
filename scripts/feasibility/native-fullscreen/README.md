@@ -1,14 +1,14 @@
-# 主窗口原生全屏回归
+# Main Window Native Full Screen Regression
 
-验证真实 SwiftUI 主窗口，而不是给 XCTest 创建的窗口手动添加 `.fullScreenPrimary`。
-判据是系统的进入/退出通知和 `.fullScreen` 标志，窗口最大化不算通过。
+Verifies the real SwiftUI main window, instead of manually adding `.fullScreenPrimary` to a window created by XCTest.
+The criteria are the system's enter/exit notifications and the `.fullScreen` flag; a maximized window does not count as a pass.
 
-管理窗口打开期间，两种 Dock 偏好都应采用 `.regular` 以显示原生应用菜单；
-临时显示图标不改写保存的偏好。隐藏偏好只在全部管理窗口关闭后生效。
+While a management window is open, both Dock preferences should use `.regular` so the native app menu is shown;
+temporarily showing the icon does not rewrite the saved preference. The hidden preference only takes effect after all management windows are closed.
 
-需要可用的 macOS 图形会话和 Swift/Clang 工具链。与其他 GUI 测试串行运行。
-以下命令只启动独立身份的验证副本；两种 Dock 设置各用全新素材库，不注册登录项，
-不启用系统底图同步，也不操作 Magnet 或正在使用的正式应用。
+Requires a working macOS graphical session and the Swift/Clang toolchain. Runs serially with the other GUI tests.
+The commands below only launch an isolated-identity validation copy; each of the two Dock settings uses a fresh library, no login item is registered,
+system wallpaper sync is not enabled, and neither Magnet nor the release app in use is touched.
 
 ```sh
 set -euo pipefail
@@ -39,16 +39,16 @@ for mode in hide show; do
 done
 ```
 
-探针只观察窗口并调用 `toggleFullScreen(_:)`，**不修改窗口样式或全屏资格**。
-每次原生过渡限时 6 秒；启动准备限时 10 秒；正常退出限时 5 秒。
-超时和被迫清理都会写入 `failures.json` 并返回非零，不作为通过。
-`window.json` 保留前后激活策略、窗口标志、sheet 状态及原生通知序列。
+The probe only observes windows and calls `toggleFullScreen(_:)`; it **does not modify window style or full-screen eligibility**.
+Each native transition is capped at 6 seconds; launch preparation is capped at 10 seconds; a normal quit is capped at 5 seconds.
+Timeouts and forced cleanup are written to `failures.json` and return non-zero; they do not count as a pass.
+`window.json` keeps the activation policy before and after, the window flags, the sheet state, and the native notification sequence.
 
-Swift 定向测试另行运行：
+Swift targeted tests run separately:
 
 ```sh
 python3 scripts/test.py --filter NativeFullScreenWindowTests
 ```
 
-该测试覆盖 macOS 14 AppKit 兼容实现的资格设置、标志保留、重挂载及固定尺寸窗口排除；
-在新系统运行这些单元测试不代表已经完成 macOS 14 真机验收。
+These tests cover eligibility setup, flag preservation, remounting, and exclusion of fixed-size windows in the macOS 14 AppKit compatibility implementation;
+running these unit tests on a newer system does not mean macOS 14 on real hardware has been accepted.

@@ -1,14 +1,14 @@
-# 原生应用菜单回归
+# Native App Menu Regression
 
-验证隐藏 Dock 偏好下的真实应用：后台登录不弹窗，打开管理窗口后进入 `.regular`，
-原生菜单实际归属该进程且有非零显示尺寸；最小化、隐藏、打开设置／转码／帮助、
-逐个关闭窗口及重新打开均经过真实 AppKit / Accessibility 操作。
-关闭最后一个管理窗口应恢复 `.accessory`，隔离素材库的文件内容必须保持不变。
-传入 `--show-dock` 可用独立证据目录验证显示 Dock 偏好，此时关闭全部窗口后仍为 `.regular`。
-传入 `--cold-start` 验证手动冷启动；默认验证后台登录后重开。两种启动路径和两种偏好均需覆盖。
+Verifies the real app under the hidden Dock preference: background login shows no window, and after a management window opens the app enters `.regular`,
+the native menu actually belongs to that process and has a non-zero display size; minimizing, hiding, opening settings / transcoding / help,
+closing the windows one by one, and reopening them all go through real AppKit / Accessibility operations.
+Closing the last management window should restore `.accessory`, and the isolated library's file contents must stay unchanged.
+Passing `--show-dock` verifies the visible Dock preference with a separate evidence directory; in that case the app stays `.regular` after all windows are closed.
+Passing `--cold-start` verifies a manual cold start; by default it verifies reopening after background login. Both startup paths and both preferences must be covered.
 
-需要本机图形会话、Swift 工具链及终端已有的辅助功能权限。与 GUI XCTest 串行运行。
-不需要屏幕录制权限，不修改正式应用、用户素材库、登录项或系统壁纸。
+Requires a local graphical session, the Swift toolchain, and accessibility permission already granted to the terminal. Runs serially with GUI XCTest.
+No screen recording permission is needed, and it does not modify the release app, the user's library, login items, or the system wallpaper.
 
 ```sh
 set -euo pipefail
@@ -31,17 +31,17 @@ swiftc scripts/feasibility/management-menu/VerifyManagementMenu.swift -o "$RUN_D
 "$RUN_DIR/VerifyManagementMenu" "$VALIDATION_APP" "$RUN_DIR/cold-show" --cold-start --show-dock
 ```
 
-探针以 `CFFIXED_USER_HOME` 指向全新素材库，仅对独立验证身份操作；其进程使用英文菜单。
-原生菜单存在于 AX 树并不足以通过，必须同时拥有系统菜单栏且菜单项目有可见尺寸。
-所有就绪等待限时 10 秒，错误记录在各轮目录的 `menus.json`，失败返回非零；不伪造点击或跳过断言。
+The probe points `CFFIXED_USER_HOME` at a fresh library and only acts on the isolated validation identity; its process uses English menus.
+A native menu existing in the AX tree is not enough to pass: the process must also own the system menu bar and the menu items must have a visible size.
+All readiness waits are capped at 10 seconds; errors are recorded in `menus.json` in each round's directory, and failures return non-zero; clicks are not faked and assertions are not skipped.
 
-## 激活时序回归
+## Activation Timing Regression
 
-已激活的 `.accessory` 应用切为 `.regular` 后，可能仍不拥有系统菜单栏。
-产品只在这次模式切换需要交接时，把激活交给系统 Dock，等真实失活事件处理完成后重新激活。
-用户切换到其他应用、隐藏、关闭全部管理窗口或退出会取消当前交接；没有固定延时或自动重试。
-Dock 不可用、拒绝请求或 5 秒内未取得菜单归属时，错误通过现有运行模式提示显示；再次手动打开可以重试。
-单元测试覆盖事件顺序、重复请求合并、取消、拒绝、超时和手动重试：
+An already-active `.accessory` app may still not own the system menu bar after switching to `.regular`.
+The product hands activation to the system Dock only when this mode switch needs a handoff, waits for the real deactivation event to be processed, and then re-activates.
+Switching to another app, hiding, closing all management windows, or quitting cancels the current handoff; there is no fixed delay or automatic retry.
+When the Dock is unavailable, rejects the request, or does not grant menu ownership within 5 seconds, the error is shown through the existing runtime mode prompt; opening the window manually again retries.
+Unit tests cover event order, duplicate request coalescing, cancellation, rejection, timeout, and manual retry:
 
 ```sh
 python3 scripts/test.py --filter 'NativeMenuActivationTests|ApplicationMenuLifecycleTests|ApplicationPresentationTests'

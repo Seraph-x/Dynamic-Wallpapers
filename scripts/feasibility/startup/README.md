@@ -1,12 +1,12 @@
-# 重放登录与窗口生命周期验证
+# Replay Login and Window Lifecycle Verification
 
-这些探针不进入产品包。它们只接受指定的独立验证身份，不操作 `local.dynamicwallpaper.app` 的登录项。待验证应用本身不改身份；窗口验收使用另一个副本和全新临时素材库。
+These probes are not shipped in the product bundle. They only accept the designated isolated validation identity and do not touch the `local.dynamicwallpaper.app` login item. The app under validation keeps its own identity; window acceptance uses another copy and a fresh temporary library.
 
-需要 Apple Silicon、Swift 工具链、可用的图形会话，以及终端已有的屏幕录制权限。`VerifyCandidate` 缺少权限时直接失败，不自动申请或伪造结果。所有命令从仓库根目录在同一个 shell 中执行；**GUI 探针与 XCTest 必须串行运行**。
+Requires Apple Silicon, the Swift toolchain, a working graphical session, and screen recording permission already granted to the terminal. `VerifyCandidate` fails immediately when that permission is missing; it never requests it automatically or fabricates a result. All commands run from the repository root in the same shell; **GUI probes and XCTest must run serially**.
 
-## 验证当前应用或独立候选
+## Verify the Current App or an Isolated Candidate
 
-默认使用已经部署的正式应用准备独立副本；原研发候选和旧验证包已按用户请求清理，日志与源码保留。要验证另一个候选，将 `CANDIDATE` 改为其路径。构建新候选的命令见检查点，输出必须是尚未存在的新路径，不能指定当前运行的应用。
+By default the already-deployed release app is used to prepare an isolated copy; the original development candidate and the old validation bundles were cleaned up at the user's request, while logs and sources are kept. To verify a different candidate, point `CANDIDATE` at its path. The command to build a new candidate is in the checkpoint; the output must be a new path that does not exist yet, and must not name the currently running app.
 
 ```sh
 set -euo pipefail
@@ -34,29 +34,29 @@ swift scripts/feasibility/startup/VerifyCandidate.swift \
   "$VALIDATION_APP" "$RUN_DIR/regular" show
 ```
 
-每轮创建自己的 `home/Library/Application Support/DynamicWallpaper/library-extended.json` 和 PNG，使用 `CFFIXED_USER_HOME` 启动。验证真实 bundle URL、保存的 Dock 策略和隔离壁纸已恢复；不会调用登录项注册。
+Each round creates its own `home/Library/Application Support/DynamicWallpaper/library-extended.json` and PNG, and launches with `CFFIXED_USER_HOME`. It verifies the real bundle URL, the saved Dock policy, and that the isolated wallpaper has been restored; it does not call login item registration.
 
-- 手动启动：一个主窗口，应用激活；窗口打开期间采用 `.regular`，即使保存的 Dock 偏好为隐藏也显示原生应用菜单。
-- 标准登录 Apple Event 启动：采样期间没有管理窗口、没有激活，正式桌面窗口存在；Dock 策略遵循保存的偏好。
-- 已运行时重开、重复重开：显示一个主窗口，复用同一 PID、桌面窗口和主窗口。
-- 结束时只终止独立验证应用；结果写入 `windows.json`、`failures.json`，失败退出码为 1。
+- Manual launch: one main window, app activated; `.regular` is used while the window is open, and the native app menu is shown even when the saved Dock preference is hidden.
+- Standard login Apple Event launch: no management window and no activation during sampling, the desktop window is present; the Dock policy follows the saved preference.
+- Reopen while already running, repeated reopen: one main window is shown, reusing the same PID, desktop window, and main window.
+- On exit only the isolated validation app is terminated; results are written to `windows.json` and `failures.json`, and failure exits with code 1.
 
-探针从请求发出开始采样，等待真实 `isFinishedLaunching` 后继续采样一秒，冷启动上限十秒。这是外部观察期限，不是产品的延时开关或“先弹窗再关闭”。不能用注入的 Apple Event 代替真实注销/重新登录验收。
+The probe starts sampling when the request is issued, waits for the real `isFinishedLaunching`, then keeps sampling for one second; cold start is capped at ten seconds. This is an external observation window, not a product delay switch or a “show a window first, then close it”. An injected Apple Event cannot replace real logout/login acceptance.
 
-### 单独复现外部隐藏失败
+### Reproduce the External Hide Failure Separately
 
-当前系统上 `NSRunningApplication.hide()` 在两个 Dock 模式均返回 `false`。以下命令保留这一失败，不能当作成功验收：
+On the current system `NSRunningApplication.hide()` returns `false` in both Dock modes. The command below preserves this failure and cannot be treated as a successful acceptance:
 
 ```sh
 swift scripts/feasibility/startup/VerifyCandidate.swift \
   "$VALIDATION_APP" "$RUN_DIR/external-hide" show --check-external-hide
 ```
 
-该跨进程方法不是 `⌘H` 调用的 `NSApplication.hide(_:)`。真实同进程隐藏、Dock 切换、关窗和播放器清理由 `ApplicationResidencyIntegrationTests` 验证；本轮未向候选应用实际注入 `⌘H` 按键。
+That cross-process method is not `NSApplication.hide(_:)` as invoked by `⌘H`. Real same-process hiding, Dock switching, window closing, and player cleanup are verified by `ApplicationResidencyIntegrationTests`; this round did not actually inject a `⌘H` key press into the candidate app.
 
-## 构建两个小型探针
+## Build the Two Small Probes
 
-以下命令继续使用上面的全新 `RUN_DIR`。`StartupProbe` 只观察 SwiftUI 的隐式场景行为，**不是最终产品的显式主窗口路由实现**；完整功能以 `VerifyCandidate` 为准。
+The commands below continue to use the fresh `RUN_DIR` from above. `StartupProbe` only observes SwiftUI's implicit scene behavior and **is not the explicit main-window routing implementation of the final product**; `VerifyCandidate` is the reference for full functionality.
 
 ```sh
 python3 - <<'PY'
@@ -87,7 +87,7 @@ codesign --force --sign - "$RUN_DIR/StartupProbe.app"
 codesign --force --sign - "$RUN_DIR/LoginRegistrationProbe.app"
 ```
 
-### 观察 SwiftUI 启动顺序
+### Observe the SwiftUI Launch Sequence
 
 ```sh
 swift scripts/feasibility/startup/ObserveLaunch.swift \
@@ -96,11 +96,11 @@ swift scripts/feasibility/startup/ObserveLaunch.swift \
   "$RUN_DIR/StartupProbe.app" "$RUN_DIR/login.trace" login regular
 ```
 
-输出 `willFinish`、`didFinish`、场景出现顺序、Apple Event marker、窗口和激活状态；三秒观察后退出该探针。trace 路径必须是新文件。`baseline` 表示不在回调中切换 activation policy，不是旧版本产品的完整回归。
+It outputs `willFinish`, `didFinish`, the scene appearance order, the Apple Event marker, and the window and activation state; the probe exits after a three-second observation. The trace path must be a new file. `baseline` means the activation policy is not switched in the callback; it is not a full regression of older product versions.
 
-### 验证真实注册及注销
+### Verify Real Registration and Deregistration
 
-此步骤**会短暂注册独立测试身份**，随后显式注销；不注册主候选或当前运行的产品身份。初始已经启用或等待允许时探针报错，不替用户撤销既有选择。不要并发运行同一身份。
+This step **briefly registers an isolated test identity** and then explicitly deregisters it; it does not register the main candidate or the currently running product identity. The probe errors out when the identity is already enabled or awaiting approval, and it does not revoke the user's existing choice. Do not run the same identity concurrently.
 
 ```sh
 open -W -n "$RUN_DIR/LoginRegistrationProbe.app" \
@@ -117,6 +117,6 @@ assert result['after'] == 0 and result['errors'] == [], result
 PY
 ```
 
-`SMAppService.Status` 的值为 `0 = notRegistered`、`1 = enabled`、`2 = requiresApproval`、`3 = notFound`。`open -W` 不可靠传播子应用的失败退出码，所以必须检查 JSON；`2` 只能称为等待允许，不能称为已正常启用。最终 `after != 0` 或出现错误时，清理未通过，不能忽略。
+`SMAppService.Status` values are `0 = notRegistered`, `1 = enabled`, `2 = requiresApproval`, `3 = notFound`. `open -W` does not reliably propagate the child app's failure exit code, so the JSON must be checked; `2` can only be described as awaiting approval, not as properly enabled. If the final `after != 0` or errors are present, cleanup did not pass and must not be ignored.
 
-产物保留在 `RUN_DIR`，不自动删除证据。当前完成情况、失败记录及未实测边界见[登录与菜单栏检查点](../../../docs/login-menubar-checkpoint.md)。
+Artifacts are kept in `RUN_DIR`; evidence is not deleted automatically. For the current completion status, failure records, and untested boundaries, see [login and menu bar checkpoint](../../../docs/login-menubar-checkpoint.md).
