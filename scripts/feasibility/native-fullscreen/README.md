@@ -12,7 +12,7 @@ system wallpaper sync is not enabled, and neither Magnet nor the release app in 
 
 ```sh
 set -euo pipefail
-export CANDIDATE="$PWD/dist/Dynamic Wallpaper.app" # 也可以指定新构建的候选包
+export CANDIDATE="$PWD/dist/Dynamic Wallpaper.app" # or point it at a freshly built candidate
 mkdir -p .build/verification
 export RUN_DIR="$(mktemp -d "$PWD/.build/verification/native-fullscreen-replay-XXXXXX")"
 export VALIDATION_APP="$RUN_DIR/Dynamic Wallpaper Validation.app"

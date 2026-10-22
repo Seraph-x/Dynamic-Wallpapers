@@ -12,7 +12,7 @@ No screen recording permission is needed, and it does not modify the release app
 
 ```sh
 set -euo pipefail
-export CANDIDATE="$PWD/dist/Dynamic Wallpaper.app" # 已部署版本；也可指定新候选
+export CANDIDATE="$PWD/dist/Dynamic Wallpaper.app" # the deployed build; point it at a new candidate instead
 export RUN_DIR="$(mktemp -d "$PWD/.build/verification/management-menu-replay-XXXXXX")"
 export VALIDATION_APP="$RUN_DIR/Validation.app"
 ditto "$CANDIDATE" "$VALIDATION_APP"
