@@ -212,7 +212,11 @@ final class PlaybackSession {
             return
         }
         cancelPreparation()
-        if let current = cursor.current, content.entries.contains(where: { $0.id == current }) { scheduleNext() }
+        if let current = cursor.current, content.entries.contains(where: { $0.id == current }) {
+            // Restored progress does not imply that the first frame has been displayed.
+            if hasDisplayedCurrent { scheduleNext() }
+            else if !paused { request(Request(entryID: current, automatic: false)) }
+        }
         else if !content.entries.isEmpty { request(Request(entryID: nil, automatic: false)) }
         else { onStatus("播放列表为空，保留当前画面") }
     }
