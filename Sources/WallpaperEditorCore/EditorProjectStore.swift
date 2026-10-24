@@ -30,7 +30,7 @@ public actor EditorProjectStore {
             throw error
         }
     }
-    public func importProject(root: URL) async throws -> EditorOwnedProject {
+    public func importProject(root: URL, expected: SceneProjectReference? = nil) async throws -> EditorOwnedProject {
         let source = EditorProjectFiles(root: root.deletingLastPathComponent().resolvingSymlinksInPath().appendingPathComponent(root.lastPathComponent))
         let metadataData = try source.read("project.json"), metadata = try EditorProjectDocument.object(metadataData)
         guard metadata["type"] as? String == "scene", let declared = metadata["file"] as? String else { throw WallpaperError("请选择 scene 工程目录。") }
@@ -45,6 +45,11 @@ public actor EditorProjectStore {
         case "json": representation = .loose
         case "pkg": representation = .package
         default: throw WallpaperError("场景入口必须是 JSON 或 PKG。")
+        }
+        if let expected {
+            try expected.validate()
+            guard expected.root.standardizedFileURL == root.standardizedFileURL,
+                  expected.entry == entry, expected.representation == representation else { throw WallpaperError("场景请求与工程元数据选择的入口不符。") }
         }
         let copy = try await media.stage(source: .scene(SceneProjectReference(root: root, entry: entry, representation: representation)))
         do {

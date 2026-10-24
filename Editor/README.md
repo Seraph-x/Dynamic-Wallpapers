@@ -34,10 +34,26 @@ cd Editor
 python3 ../scripts/swift_sdk.py build --disable-sandbox
 ```
 
-The application package must include its own CEF framework/helpers and SwiftPM
-resource bundle. Independent application packaging and the optional Main menu
-handoff are provided by the next integration PR. No Editor release is published
-by this source change.
+From the repository root, build an independent candidate with its own CEF
+framework/helpers, offline editor resources, legal notices and ZIP:
+
+```sh
+python3 scripts/build-editor-app.py --output 'dist/editor/Dynamic Wallpaper Editor.app' --zip
+```
+
+The output must be new; the script never replaces an installed app. It verifies
+the pinned CEF download, release executable SDK, all Mach-O dependencies, ad-hoc
+signatures, five localizations and the ZIP after extraction. The checksum file
+accompanies the ZIP. No Editor release is published by this command. See
+[installation/removal](../docs/editor-install.md) and [acceptance tests](../docs/testing/standalone-editor.md).
+
+The wallpaper menu-bar **Editor** action opens the installed application or
+offers **Download Editor / Cancel**. A handoff from Main offers read-only scene
+references; imports create Editor-owned copies. **File → Import from Dynamic
+Wallpaper** selects from those offers. **File → Open in Dynamic Wallpaper** saves
+an immutable standard scene snapshot and imports it into Main's library without
+applying it or adding it to a playlist. Each application keeps its own changes;
+no automatic file synchronization occurs. Both can run and quit independently.
 
 `DYNAMIC_WALLPAPER_EDITOR_DATA_ROOT` explicitly selects isolated data for native
 acceptance tests. Normal users do not need to configure it.

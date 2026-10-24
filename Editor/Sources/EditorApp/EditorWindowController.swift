@@ -117,6 +117,12 @@ import WebWallpaperBridge
             NSWorkspace.shared.activateFileViewerSelecting([destination])
         }
     }
+    func materializeSavedHandoff() async throws -> SceneProjectReference {
+        let handoffs = coordinator.dataRoot.appendingPathComponent("Handoffs")
+        try FileManager.default.createDirectory(at:handoffs,withIntermediateDirectories:true)
+        // Keep the immutable export after sending: Main imports asynchronously and owns its own copy.
+        return try await coordinator.store.exportLoose(workspace,to:handoffs.appendingPathComponent(UUID().uuidString))
+    }
     func windowShouldClose(_ sender: NSWindow) -> Bool {
         Task { do { _ = try await requestClose() } catch { coordinator.show(error,window: window) } }
         return false

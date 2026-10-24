@@ -123,6 +123,12 @@ def parse(document):
 
 
 class ProductConfigurationTests(unittest.TestCase):
+    def test_main_app_declares_only_its_versioned_editor_import_scheme(self):
+        metadata = load().application_metadata()
+        self.assertEqual(metadata['DWEditorExchangeAPI'], '1')
+        self.assertEqual(metadata['CFBundleURLTypes'][0]['CFBundleURLSchemes'], ['dynamic-wallpaper'])
+        self.assertNotIn('CFBundleURLTypes', load().screen_saver_metadata())
+
     def test_checked_in_document_loads_with_exact_values(self):
         configuration = load()
         self.assertEqual(CONFIGURATION_PATH, ROOT / "scripts/product-configuration.json")
@@ -514,6 +520,9 @@ class ProductConfigurationTests(unittest.TestCase):
             "CFBundleDevelopmentRegion": "en",
             "CFBundleLocalizations": ["zh-Hans", "en", "ja", "fr", "es"],
             "NSAudioCaptureUsageDescription": "Analyze system audio to animate scene wallpapers. Audio is not recorded or uploaded.",
+            "DWEditorExchangeAPI": "1",
+            "CFBundleURLTypes": [{"CFBundleURLName": "local.dynamicwallpaper.app.editor-exchange",
+                                   "CFBundleURLSchemes": ["dynamic-wallpaper"]}],
         })
         self.assertEqual(configuration.screen_saver_metadata(), {
             "CFBundleIdentifier": "local.dynamicwallpaper.screensaver",

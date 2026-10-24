@@ -21,8 +21,16 @@
 "chooseProject" = "project.json、workspace.json、またはプロジェクトフォルダを選択。";
 "busy" = "処理中です。お待ちください。";
 "preparing" = "プレビューを準備中…";
-"existing" = "Editor.app を選択";
 "cut" = "カット";
 "copy" = "コピー";
 "paste" = "ペースト";
 "selectAll" = "すべて選択";
+
+"openMain" = "壁紙アプリで開く";
+"importMain" = "壁紙アプリから読み込む…";
+"chooseScene" = "壁紙ライブラリのシーンを選択";
+"import" = "読み込む";
+"mainMissing" = "Dynamic Wallpaper がインストールされていないか見つかりません。";
+"downloadMain" = "Dynamic Wallpaper をダウンロード";
+"invalidMain" = "この壁紙アプリはファイル連携に対応していません。";
+"noSharedScenes" = "壁紙アプリの Editor メニューから開くと、シーンを共有できます。";

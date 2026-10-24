@@ -60,8 +60,8 @@ Editor still saves/exports normally and explains the missing integration only
 when that integration action is selected.
 
 Discover/focus a registered Editor application by its expected bundle identifier
-and targeted NSWorkspace opening. If absent, offer the official Editor download
-and optionally select an already downloaded Editor.app. Main does not grow its
+and targeted NSWorkspace opening. If absent, ask whether to install Editor, with only Download Editor and Cancel
+actions. Open the official download only after confirmation. Main does not grow its
 own app installer/updater, ZIP plugin store or background editor service. Users
 remove Editor like an ordinary macOS application.
 

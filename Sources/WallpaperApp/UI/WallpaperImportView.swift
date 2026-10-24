@@ -85,7 +85,7 @@ struct WallpaperImportView: View {
                     }
                 }
                 if kind == .scene {
-                    Text(l10n("支持本地 loose JSON 和 PKG 场景，按作者默认设置播放。系统音频频谱与场景编辑器暂不支持。"))
+                    Text(l10n("支持本地 loose JSON 和 PKG 场景，按作者默认设置播放。场景编辑请使用菜单栏的 Editor。"))
                         .font(.caption).foregroundStyle(.secondary)
                 }
             }

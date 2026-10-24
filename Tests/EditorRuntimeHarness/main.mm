@@ -78,6 +78,9 @@ int main(int argc,char**argv) { @autoreleasepool {
     fprintf(stderr,"Native keyboard snapshot title=%s\n",[snapshot[@"title"] UTF8String]);
     require([snapshot[@"title"] isEqual:@"Keyboard"],"Real CEF keyboard input did not update the project title");
     require([snapshot[@"scene"][@"objects"] count]==1 && dirty,"Actual text-layer UI action did not produce a dirty scene");
+    command(page,@{@"type":@"mark-saved",@"document":snapshot});
+    require(![command(page,@{@"type":@"freeze"})[@"dirty"] boolValue],"Native JSON save acknowledgement incorrectly remained dirty");
+    command(page,@{@"type":@"thaw"});
     command(page,@{@"type":@"undo"});
     require([command(page,@{@"type":@"snapshot"})[@"document"][@"scene"][@"objects"] count]==0,"Native undo did not change scene document");
     command(page,@{@"type":@"redo"});
@@ -88,7 +91,8 @@ int main(int argc,char**argv) { @autoreleasepool {
     waitUntil(^{return closed;},7,"Editor close timed out");require(!failure,"Editor close failed");
     require(runtime.activePageCount==0 && page.closed,"Editor resources remain owned after successful close");
     [window close];
-    if(argc==9) for(int index=7;index<=8;++index) {
+    // Match AppKit's event-loop lifetime for exported playback as well as Editor setup.
+    if(argc==9) for(int index=7;index<=8;++index) { @autoreleasepool {
       NSString* entry=index==7?@"scene.json":@"scene.pkg";
       DWWebPage* playback=[runtime scenePageWithProjectRoot:@(argv[index]) runtimeRoot:@(argv[6]) entry:entry
         representation:index==7?@"loose":@"package" sceneID:NSUUID.UUID.UUIDString generation:1 size:NSMakeSize(640,360) scale:1 error:&error];
@@ -110,7 +114,7 @@ int main(int argc,char**argv) { @autoreleasepool {
       __block BOOL released=NO;[playback closeWithCompletion:^(NSError* value){failure=value;released=YES;}];
       waitUntil(^{return released;},7,"Export playback close timed out");require(!failure,"Export playback close failed");
       fprintf(stderr,"Editor %s export rendered actual Main scene image/text pixels\n",index==7?"loose":"PKG");
-    }
+    } }
     require([runtime shutdownWithError:&error],error.localizedDescription.UTF8String ?: "CEF shutdown failed");
     require(runtime.shutdownCount==1,"Runtime shutdown not observed");
     puts("Native Editor: real first frame, attached CEF child, keyboard, edit/undo/redo, resize and full release passed");return 0;
