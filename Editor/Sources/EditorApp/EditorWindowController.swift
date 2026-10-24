@@ -38,6 +38,14 @@ import WebWallpaperBridge
             } catch { self.coordinator.show(error,window:self.window) } }
         }
         page.onEditorDirty = { [weak self] dirty in self?.dirty = dirty; self?.window?.isDocumentEdited = dirty }
+        page.onEditorResource = { [weak self] request in
+            guard let self else { return }
+            Task {
+                let result = await EditorResourceBridge.result(request, store: self.coordinator.store, id: self.workspace.id)
+                do { _ = try await self.command(["type":"resource-reply", "requestID":request["id"]!, "result":result]) }
+                catch { if !self.page.closed { self.coordinator.show(error, window:self.window) } }
+            }
+        }
         page.onError = { [weak self] error in
             guard let self else { return }; self.ready = false
             // A failed transport cannot prove the absence of unsent browser edits.
@@ -48,8 +56,10 @@ import WebWallpaperBridge
     required init?(coder: NSCoder) { fatalError("init(coder:) is unavailable") }
     func start() { page.start() }
     static func browserDocument(_ workspace: EditorProjectDocument) throws -> [String: Any] {
-        ["title": workspace.title, "entry": workspace.sceneEntry,
+        var result: [String:Any] = ["title": workspace.title, "entry": workspace.sceneEntry,
          "scene": try JSONSerialization.jsonObject(with: workspace.scene), "project": try JSONSerialization.jsonObject(with: workspace.project)]
+        if !workspace.resourceOverrides.isEmpty { result["resourceOverrides"] = workspace.resourceOverrides.mapValues(\.id) }
+        return result
     }
     func command(_ payload: [String: Any]) async throws -> [String: Any] {
         try await withCheckedThrowingContinuation { continuation in
@@ -72,8 +82,12 @@ import WebWallpaperBridge
         if state["dirty"] as? Bool == true { _ = try await self.snapshot() } // Surfaces invalid visible input before any write.
         guard let scene = snapshot["scene"] as? [String: Any], let metadata = snapshot["project"] as? [String: Any],
               let title = snapshot["title"] as? String, snapshot["entry"] as? String == workspace.sceneEntry else { throw WallpaperError("Invalid Editor snapshot") }
+        let overrides: [String:EditorResourceVersion]
+        if let raw = snapshot["resourceOverrides"] as? [String:String] { overrides = try raw.mapValues { try EditorResourceVersion(id:$0) } }
+        else if snapshot["resourceOverrides"] == nil { overrides = [:] }
+        else { throw WallpaperError("Invalid Editor resource overrides") }
         workspace = try await coordinator.store.save(workspace, scene: JSONSerialization.data(withJSONObject: scene),
-            project: JSONSerialization.data(withJSONObject: metadata), title: title)
+            project: JSONSerialization.data(withJSONObject: metadata), title: title, resourceOverrides:overrides)
         _ = try await command(["type":"mark-saved", "document":snapshot])
         window?.title = workspace.title
         if !closing { _ = try await command(["type":"thaw"]) }

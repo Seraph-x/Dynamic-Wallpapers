@@ -34,7 +34,7 @@ async function put(name,bytes) {
 }
 await put('editor-api.mjs',bundled.outputFiles[0].contents);
 await put('webwallgl.bundle.mjs',engine);
-for (const name of ['index.html','editor.css','app.mjs','document.mjs','runtime.mjs','localization.mjs','interface.mjs']) await put(name,await readFile(path.join(web,name)));
+for (const name of ['index.html','editor.css','app.mjs','document.mjs','runtime.mjs','localization.mjs','interface.mjs','resources.mjs']) await put(name,await readFile(path.join(web,name)));
 await mkdir(path.join(repo,'Editor/ThirdParty'),{recursive:true});
 if (!check) await copyFile(path.join(web,'.build/node_modules/@webwallgl/editor/LICENSE'),path.join(repo,'Editor/ThirdParty/WebWallGL-Editor-LICENSE'));
 const provenance={schema:1,packages:pins,editorEntrySHA256:hash(await readFile(entry)),engineSHA256:hash(engine),files};

@@ -12,6 +12,10 @@ play/pause; undo/redo; save/reopen; and loose/PKG export. Script, animation and
 property-bound fields remain read-only. Preview is muted with explicit zero
 system spectrum; exports preserve audio response for wallpaper playback.
 Advanced timelines, skeleton tools and a script IDE are outside this version.
+The advanced-authoring foundation adds immutable resource revisions: model,
+script and animation resource edits can participate in the same undo/save/export
+transaction as scene JSON. Their editing panels ship in subsequent PRs; the
+foundation alone does not expose timeline, rigging or code-editor controls.
 
 Use **File → New Project** or **Open Project**. Imports create complete owned
 copies. **Save** writes the Editor workspace; **Export** creates a standard scene
@@ -81,7 +85,8 @@ Under `~/Library/Application Support/DynamicWallpaperEditor/`:
 ```text
 Projects/<project ID>/
 ├── workspace.json     # Saved editable document and revision
-└── Project/           # Owned scene files and resources
+├── Project/           # Original owned scene files and resources
+└── Resources/         # Private immutable versions of edited resources
 Handoffs/              # Immutable standard scene exports for Main to import
 CEFCache/              # Editor-only browser data
 ```
@@ -93,6 +98,14 @@ uninstall while retaining projects.
 
 `DYNAMIC_WALLPAPER_EDITOR_DATA_ROOT` explicitly selects isolated data for native
 acceptance tests. Normal users do not need to configure it.
+
+Unedited legacy workspaces keep schema 1. Resource edits use schema 2, which
+requires this Editor or newer; opening a project does not migrate it. Standard
+loose/PKG exports materialize the selected revision at its original logical
+resource paths, so Main does not need the workspace or private blob directory.
+Immutable versions are retained for undo and revision safety; automatic blob
+garbage collection is not included. Reserved paths and ambiguous case/Unicode
+aliases fail explicitly rather than overwriting scene or project metadata.
 
 ## References and notices
 

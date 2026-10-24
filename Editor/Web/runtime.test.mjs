@@ -18,3 +18,11 @@ test('commands reject stale sessions, unknown commands and incomplete payloads',
   for (const patch of [{ session: 'other' }, { generation: 2 }, { type: 'exec' }, { id: '' }, { type: 'load' }, { extra: true }])
     assert.throws(() => validateEditorCommand({ ...command, ...patch }, config));
 });
+test('preview resolves versioned resources using the chosen snapshot', async () => {
+  const value = {...document,resourceOverrides:{'a.bin':'a'.repeat(64)}};
+  const source = createEditorSource(value,async () => new Uint8Array([0]),async version => {
+    assert.equal(version,'a'.repeat(64)); return new Uint8Array([9]);
+  });
+  value.resourceOverrides['a.bin'] = 'b'.repeat(64);
+  assert.deepEqual(await (await source.sceneDir()).read('a.bin'),new Uint8Array([9]));
+});

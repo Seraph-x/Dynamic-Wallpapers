@@ -1,6 +1,7 @@
 // Test-only access to the page's CEF instance, never a production JavaScript API.
 #import "../../Sources/WebWallpaperBridge/WebPage.mm"
 #include <cstdio>
+#include <CommonCrypto/CommonDigest.h>
 #include <stdexcept>
 static void require(bool value, const char* message) { if (!value) throw std::runtime_error(message); }
 static void waitUntil(BOOL (^predicate)(), double timeout, const char* message) {
@@ -18,6 +19,7 @@ static void runFor(double seconds) {
 - (void)editorTestScript:(NSString*)script;
 - (void)editorTestType:(NSString*)text;
 - (BOOL)editorTestNativeViewIsAttached;
+- (void)editorTestAwaitTitle:(NSString*)expected;
 @end
 @implementation DWWebPage (EditorAcceptance)
 - (void)editorTestScript:(NSString*)script {
@@ -36,6 +38,15 @@ static void runFor(double seconds) {
   }
   }
 }
+- (void)editorTestAwaitTitle:(NSString*)expected {
+  __block BOOL done=NO; __block NSError* failure=nil; NSString* identifier=NSUUID.UUID.UUIDString;
+  _editorCompletions[identifier]=^(NSDictionary* reply,NSError* error){failure=error;done=[reply[@"typed"] boolValue]||error!=nil;};
+  _editorDeadlines[identifier]=@(NSProcessInfo.processInfo.systemUptime+5);
+  NSDictionary* value=@{@"expected":expected,@"payload":@{@"type":@"reply",@"id":identifier,@"session":@(_resources->state->editor->session.c_str()),@"generation":@1,@"payload":@{@"typed":@YES}}};
+  NSString* json=[[NSString alloc]initWithData:[NSJSONSerialization dataWithJSONObject:value options:0 error:nil] encoding:NSUTF8StringEncoding];
+  [self editorTestScript:[NSString stringWithFormat:@"(()=>{const test=%@;const check=()=>{if(document.getElementById('project-title').value===test.expected)fetch('/__editor/event',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(test.payload)});else requestAnimationFrame(check);};check();})();",json]];
+  waitUntil(^{return done;},6,"Native keyboard input did not reach the renderer before blur"); require(!failure,"Keyboard input acknowledgement failed");
+}
 - (BOOL)editorTestNativeViewIsAttached {
   NSView* child=(__bridge NSView*)_resources->state->browser->GetHost()->GetWindowHandle();
   return child && child.superview == _view && child.window == _view.window;
@@ -48,6 +59,31 @@ static NSDictionary* command(DWWebPage* page, NSDictionary* payload) {
   require(!failure,failure.localizedDescription.UTF8String ?: "Editor command failed");
   require(reply && !reply[@"error"], [reply[@"error"] UTF8String] ?: "Editor returned no reply");return reply;
 }
+static NSString* resourceHash(NSData* data) {
+  unsigned char hash[CC_SHA256_DIGEST_LENGTH]; CC_SHA256(data.bytes,static_cast<CC_LONG>(data.length),hash);
+  NSMutableString* result=[NSMutableString string]; for(auto byte:hash)[result appendFormat:@"%02x",byte];return result;
+}
+static NSMutableDictionary* configureResources(DWWebPage* page, NSString* root, void (^onFailure)(NSError*)) {
+  NSError* error=nil;require([NSFileManager.defaultManager createDirectoryAtPath:root withIntermediateDirectories:YES attributes:nil error:&error],"Cannot create native resource test store");
+  NSMutableDictionary* stats=[@{@"beforeReady":@0} mutableCopy]; __weak DWWebPage* weakPage=page;
+  page.onEditorResource=^(NSDictionary<NSString*,id>* request){
+    DWWebPage* current=weakPage; require(current!=nil,"Resource request lost its page");
+    NSError* error=nil;NSDictionary* result;
+    if([request[@"action"] isEqual:@"stage"]) {
+      NSData* bytes=[[NSData alloc]initWithBase64EncodedString:request[@"data"] options:0];require(bytes!=nil,"Invalid test resource bytes");
+      NSString* version=resourceHash(bytes);BOOL written=[bytes writeToFile:[root stringByAppendingPathComponent:version] options:NSDataWritingAtomic error:&error];
+      result=written?@{@"version":version}:@{@"error":error.localizedDescription};
+    } else {
+      if(!current.ready) stats[@"beforeReady"]=@([stats[@"beforeReady"] unsignedIntegerValue]+1);
+      NSData* bytes=[NSData dataWithContentsOfFile:[root stringByAppendingPathComponent:request[@"version"]] options:0 error:&error];
+      if(bytes && [resourceHash(bytes) isEqual:request[@"version"]]) result=@{@"data":[bytes base64EncodedStringWithOptions:0]};
+      else result=@{@"error":error.localizedDescription ?: @"Corrupt test resource"};
+    }
+    [current requestEditorCommand:@{@"type":@"resource-reply",@"requestID":request[@"id"],@"result":result} completion:^(NSDictionary* reply,NSError* failure){
+      if(failure) onFailure(failure); else if(reply[@"error"]) onFailure([NSError errorWithDomain:@"EditorAcceptance" code:1 userInfo:@{NSLocalizedDescriptionKey:reply[@"error"]}]);
+    }];
+  };return stats;
+}
 int main(int argc,char**argv) { @autoreleasepool {
   if(argc!=6 && argc!=9){fprintf(stderr,"usage: EditorHarness FRAMEWORK HELPER CACHE RUNTIME PROJECT [MAIN_RUNTIME LOOSE_EXPORT PKG_EXPORT]\n");return 64;}
   DWWebCreateApplication(); [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory]; [NSApp finishLaunching];
@@ -55,23 +91,25 @@ int main(int argc,char**argv) { @autoreleasepool {
   NSError* error=nil;
   try {
     require([runtime startWithError:&error],error.localizedDescription.UTF8String ?: "CEF start failed");
-    DWWebPage* page=nil; NSWindow* window=nil; __block NSError* failure=nil;
+    DWWebPage* page=nil; NSWindow* window=nil; __block NSError* failure=nil; NSDictionary* resourceSnapshot=nil;
+    NSString* resourceRoot=[@(argv[3]) stringByAppendingPathComponent:@"NativeResources"];
     @autoreleasepool {
     NSDictionary* scene=@{@"general":@{@"orthogonalprojection":@{@"width":@640,@"height":@360},@"clearenabled":@YES,@"clearcolor":@"0.1 0.1 0.1"},@"objects":@[]};
     NSDictionary* configuration=@{@"language":@"en",@"document":@{@"title":@"Native",@"entry":@"scene.json",@"scene":scene,@"project":@{@"type":@"scene",@"file":@"scene.json"}}};
-    page=[runtime editorPageWithProjectRoot:@(argv[5]) runtimeRoot:@(argv[4]) configuration:configuration size:NSMakeSize(1180,760) error:&error];
+    page=[runtime editorPageWithProjectRoot:@(argc==9?argv[7]:argv[5]) runtimeRoot:@(argv[4]) configuration:configuration size:NSMakeSize(1180,760) error:&error];
     require(page!=nil,error.localizedDescription.UTF8String ?: "Editor page creation failed");
     window=[[NSWindow alloc]initWithContentRect:NSMakeRect(0,0,1180,760) styleMask:NSWindowStyleMaskTitled|NSWindowStyleMaskResizable backing:NSBackingStoreBuffered defer:NO];
     window.releasedWhenClosed=NO; page.view.frame=window.contentView.bounds;page.view.autoresizingMask=NSViewWidthSizable|NSViewHeightSizable;
     [window.contentView addSubview:page.view];[window makeKeyAndOrderFront:nil];[NSApp activateIgnoringOtherApps:YES];
     __block BOOL dirty=NO;
     page.onError=^(NSError* value){failure=value;};page.onEditorDirty=^(BOOL value){dirty=value;};
+    configureResources(page,resourceRoot,^(NSError* value){failure=value;});
     [page start];waitUntil(^{return page.ready||failure!=nil;},20,"No actual Editor first-frame readiness");
     require(!failure,failure.localizedDescription.UTF8String ?: "Editor readiness failed");
     require([page editorTestNativeViewIsAttached],"CEF child view is not attached to the native editor window");
     command(page,@{@"type":@"thaw"});
     [page editorTestScript:@"document.getElementById('project-title').focus(); document.getElementById('project-title').select();"];
-    runFor(.15);[page editorTestType:@"Keyboard"];
+    runFor(.15);[page editorTestType:@"Keyboard"];[page editorTestAwaitTitle:@"Keyboard"];
     [page editorTestScript:@"document.getElementById('project-title').blur(); document.getElementById('add-text').click();"];
     runFor(.5);
     NSDictionary* snapshot=command(page,@{@"type":@"snapshot"})[@"document"];
@@ -84,6 +122,15 @@ int main(int argc,char**argv) { @autoreleasepool {
     command(page,@{@"type":@"undo"});
     require([command(page,@{@"type":@"snapshot"})[@"document"][@"scene"][@"objects"] count]==0,"Native undo did not change scene document");
     command(page,@{@"type":@"redo"});
+    if(argc==9) {
+      NSData* model=[NSData dataWithContentsOfFile:[@(argv[7]) stringByAppendingPathComponent:@"models/editor/green.json"]]; require(model!=nil,"Resource model fixture missing");
+      command(page,@{@"type":@"replace-resource",@"path":@"models/editor/green.json",@"data":[model base64EncodedStringWithOptions:0]});
+      command(page,@{@"type":@"add-image",@"image":@{@"name":@"Resource image",@"model":@"models/editor/green.json",@"width":@80,@"height":@40}});
+      resourceSnapshot=command(page,@{@"type":@"freeze"})[@"document"];
+      require([resourceSnapshot[@"resourceOverrides"] count]==1,"Native resource transaction was not committed");
+      command(page,@{@"type":@"mark-saved",@"document":resourceSnapshot});
+      require(![command(page,@{@"type":@"freeze"})[@"dirty"] boolValue],"Resource save acknowledgement remained dirty");
+    }
     @autoreleasepool { [window setContentSize:NSMakeSize(1000,650)]; } runFor(.2);
     require(page.view.bounds.size.width==1000,"Native CEF container did not resize");
     }
@@ -91,6 +138,19 @@ int main(int argc,char**argv) { @autoreleasepool {
     waitUntil(^{return closed;},7,"Editor close timed out");require(!failure,"Editor close failed");
     require(runtime.activePageCount==0 && page.closed,"Editor resources remain owned after successful close");
     [window close];
+    if(resourceSnapshot) { @autoreleasepool {
+      DWWebPage* reopened=[runtime editorPageWithProjectRoot:@(argv[7]) runtimeRoot:@(argv[4]) configuration:@{@"language":@"en",@"document":resourceSnapshot} size:NSMakeSize(640,360) error:&error];
+      require(reopened!=nil,"Cannot reopen resource revision"); failure=nil;
+      reopened.onError=^(NSError* value){failure=value;};
+      NSMutableDictionary* stats=configureResources(reopened,resourceRoot,^(NSError* value){failure=value;});
+      NSWindow* host=[[NSWindow alloc]initWithContentRect:NSMakeRect(0,0,640,360) styleMask:NSWindowStyleMaskTitled backing:NSBackingStoreBuffered defer:NO];host.releasedWhenClosed=NO;
+      [host.contentView addSubview:reopened.view];[host makeKeyAndOrderFront:nil];
+      [reopened start];waitUntil(^{return reopened.ready||failure!=nil;},20,"Resource reopen initial rendering deadlocked");
+      require(!failure,"Resource reopen failed");require([stats[@"beforeReady"] unsignedIntegerValue]>0,"Initial rendering did not exercise pre-ready resource RPC");
+      __block BOOL released=NO;[reopened closeWithCompletion:^(NSError* value){failure=value;released=YES;}];
+      waitUntil(^{return released;},7,"Resource reopen close timed out");require(!failure,"Resource reopen close failed");[host close];
+      fprintf(stderr,"Native resource stage/read, save acknowledgement and pre-ready reopen passed\n");
+    } }
     // Match AppKit's event-loop lifetime for exported playback as well as Editor setup.
     if(argc==9) for(int index=7;index<=8;++index) { @autoreleasepool {
       NSString* entry=index==7?@"scene.json":@"scene.pkg";
@@ -101,16 +161,16 @@ int main(int argc,char**argv) { @autoreleasepool {
       require(!failure,failure.localizedDescription.UTF8String ?: "Exported scene failed");
       auto counts = ^NSArray* {
       CGImageRef image=(__bridge CGImageRef)playback.view.layer.contents;
-      if(!image) return @[@0,@0];
+      if(!image) return @[@0,@0,@0];
       CFDataRef data=CGDataProviderCopyData(CGImageGetDataProvider(image));require(data!=nullptr,"Export pixel read failed");
-      const UInt8* bytes=CFDataGetBytePtr(data);size_t green=0,red=0;
-      for(CFIndex p=0;p+3<CFDataGetLength(data);p+=4){if(bytes[p+1]>180&&bytes[p]<70&&bytes[p+2]<70)++green;if(bytes[p+2]>180&&bytes[p+1]<70&&bytes[p]<70)++red;}
-      CFRelease(data);return @[@(green),@(red)];
+      const UInt8* bytes=CFDataGetBytePtr(data);size_t green=0,red=0,blue=0;
+      for(CFIndex p=0;p+3<CFDataGetLength(data);p+=4){if(bytes[p+1]>180&&bytes[p]<70&&bytes[p+2]<70)++green;if(bytes[p+2]>180&&bytes[p+1]<70&&bytes[p]<70)++red;if(bytes[p]>180&&bytes[p+1]<70&&bytes[p+2]<70)++blue;}
+      CFRelease(data);return @[@(green),@(red),@(blue)];
       };
       // Image/font textures can upload after the engine's first drawable frame.
       // Require actual colored pixels, not merely an engine-ready notification.
-      waitUntil(^{NSArray* value=counts();return BOOL([value[0] unsignedLongValue]>100 && [value[1] unsignedLongValue]>20);},5,"Exported image/text pixels not preserved by Main scene renderer");
-      fprintf(stderr,"Main export pixels green=%lu red=%lu\n",[counts()[0] unsignedLongValue],[counts()[1] unsignedLongValue]);
+      waitUntil(^{NSArray* value=counts();return BOOL([value[0] unsignedLongValue]>100 && [value[1] unsignedLongValue]>20 && [value[2] unsignedLongValue]>100);},5,"Exported image/text pixels not preserved by Main scene renderer");
+      fprintf(stderr,"Main export pixels green=%lu red=%lu blue=%lu\n",[counts()[0] unsignedLongValue],[counts()[1] unsignedLongValue],[counts()[2] unsignedLongValue]);
       __block BOOL released=NO;[playback closeWithCompletion:^(NSError* value){failure=value;released=YES;}];
       waitUntil(^{return released;},7,"Export playback close timed out");require(!failure,"Export playback close failed");
       fprintf(stderr,"Editor %s export rendered actual Main scene image/text pixels\n",index==7?"loose":"PKG");

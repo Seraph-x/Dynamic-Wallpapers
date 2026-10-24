@@ -1,12 +1,31 @@
 import { createRequire } from 'node:module';
 import { createServer } from 'node:http';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 const web = path.dirname(fileURLToPath(import.meta.url)), repo = path.resolve(web,'../..');
 const require = createRequire(path.join(web,'.build/package.json')), {chromium} = require('playwright');
 const events = [], resources = new Map();
+let editorPage;
+const artifactRoot=process.env.EDITOR_TEST_ARTIFACTS??path.join(repo,'.build/verification/editor-browser');
+const blobRoot=path.join(artifactRoot,'PrivateResources');await mkdir(blobRoot,{recursive:true});
+async function resourceRequest(request) {
+  let result;
+  try {
+    if(request.action==='stage') {
+      const bytes=Buffer.from(request.data,'base64'),version=createHash('sha256').update(bytes).digest('hex');
+      await writeFile(path.join(blobRoot,version),bytes);result={version};
+    } else {
+      assert.match(request.version,/^[a-f0-9]{64}$/);
+      const bytes=await readFile(path.join(blobRoot,request.version));
+      assert.equal(createHash('sha256').update(bytes).digest('hex'),request.version);
+      result={data:bytes.toString('base64')};
+    }
+  } catch(error) {result={error:String(error)};}
+  await editorPage.evaluate(value=>window.__dynamicWallpaperEditor.command(value),{id:'resource-'+request.id,session:configuration.session,generation:1,type:'resource-reply',requestID:request.id,result});
+}
 const configuration = {version:1,session:'real-editor-test',generation:1,language:'en',document:{title:'Editor acceptance',entry:'scene.json',
   project:{type:'scene',file:'scene.json',future:{retained:true}},scene:{general:{orthogonalprojection:{width:640,height:360},clearcolor:'0.05 0.05 0.08',clearenabled:true,cameraparallax:false},objects:[]}}};
 const mime = {'.html':'text/html','.mjs':'text/javascript','.css':'text/css','.json':'application/json'};
@@ -14,7 +33,7 @@ const server = createServer(async (request,response) => {
   try {
     const url = new URL(request.url,'http://localhost');
     if (url.pathname === '/__editor/config') {response.setHeader('Content-Type','application/json');response.end(JSON.stringify(configuration));return;}
-    if (url.pathname === '/__editor/event' && request.method === 'POST') {let body='';for await (const chunk of request) body+=chunk;events.push(JSON.parse(body));response.end('{}');return;}
+    if (url.pathname === '/__editor/event' && request.method === 'POST') {let body='';for await (const chunk of request) body+=chunk;const event=JSON.parse(body);events.push(event);response.end('{}');if(event.type==='resource') await resourceRequest(event);return;}
     if (url.pathname.startsWith('/__project/')) {
       const key=decodeURIComponent(url.pathname.slice(11)); const bytes=resources.get(key);
       if(!bytes) {response.writeHead(404);response.end();return;} response.end(bytes);return;
@@ -30,6 +49,7 @@ let browser;
 try {
   browser=await chromium.launch({headless:true,...(process.env.SCENE_CHROMIUM_EXECUTABLE?{executablePath:process.env.SCENE_CHROMIUM_EXECUTABLE}:{})});
   const page=await browser.newPage({viewport:{width:1180,height:760}}),errors=[];
+  editorPage=page;
   page.on('pageerror',error=>errors.push(error.message));
   await page.goto(`http://127.0.0.1:${server.address().port}/__runtime/index.html`);
   await page.waitForFunction(()=>document.querySelector('#canvas canvas'));
@@ -67,6 +87,17 @@ try {
   const dragged=snapshot.scene.objects[1].origin;
   await command({type:'undo'});assert.equal((await command({type:'snapshot'})).document.scene.objects[1].origin,beforeDrag);
   await command({type:'redo'});assert.equal((await command({type:'snapshot'})).document.scene.objects[1].origin,dragged);
+  const originalImage=await canvas.screenshot();
+  const duotone=await page.evaluate(()=>{const c=document.createElement('canvas');c.width=80;c.height=40;const g=c.getContext('2d');g.fillStyle='#00ff00';g.fillRect(0,0,40,40);g.fillStyle='#0000ff';g.fillRect(40,0,40,40);return c.toDataURL('image/png').split(',')[1];});
+  await command({type:'replace-resource',path:'materials/editor/duotone.png',data:duotone});
+  const material={passes:[{blending:'translucent',cullmode:'nocull',depthtest:'disabled',depthwrite:'disabled',shader:'genericimage2',textures:['editor/duotone']}]};
+  await command({type:'replace-resource',path:'materials/editor/green.json',data:Buffer.from(JSON.stringify(material)).toString('base64')});
+  const revisedImage=await canvas.screenshot();assert.notDeepEqual(revisedImage,originalImage,'Resource revision did not change actual pixels');
+  await command({type:'undo'});assert.deepEqual(await canvas.screenshot(),originalImage,'Resource undo did not restore original texture');
+  await command({type:'undo'});assert.equal((await command({type:'snapshot'})).document.resourceOverrides,undefined);
+  await command({type:'redo'});await command({type:'redo'});
+  assert.deepEqual(await canvas.screenshot(),revisedImage,'Resource redo did not restore revised pixels');
+  snapshot=(await command({type:'snapshot'})).document;assert.equal(Object.keys(snapshot.resourceOverrides).length,2);
   const exported=await command({type:'export-pkg',paths:[...resources.keys()]});assert(Buffer.from(exported.pkg,'base64').includes(Buffer.from('PKGV0012')));
   await page.locator('#project-title').fill('Unblurred title');
   const frozen=await command({type:'freeze'});assert.equal(frozen.document.title,'Unblurred title');assert.equal(frozen.dirty,true);
@@ -79,7 +110,7 @@ try {
   assert.equal(await page.locator('#project-title').inputValue(),'Typed during preview completion','Async update erased focused input');
   assert.equal((await command({type:'freeze'})).document.title,'Typed during preview completion');
   await command({type:'thaw'});
-  const artifactRoot=process.env.EDITOR_TEST_ARTIFACTS??path.join(repo,'.build/verification/editor-browser');await mkdir(artifactRoot,{recursive:true});
+  await mkdir(artifactRoot,{recursive:true});
   await writeFile(path.join(artifactRoot,'scene.pkg'),Buffer.from(exported.pkg,'base64'));
   await writeFile(path.join(artifactRoot,'scene.json'),JSON.stringify(snapshot.scene));await writeFile(path.join(artifactRoot,'project.json'),JSON.stringify({...snapshot.project,title:snapshot.title,file:'scene.pkg'}));
   for (const form of ['Loose','Package']) {
@@ -88,7 +119,7 @@ try {
     if(form==='Package') await writeFile(path.join(directory,'scene.pkg'),Buffer.from(exported.pkg,'base64'));
     else {
       await writeFile(path.join(directory,'scene.json'),JSON.stringify(snapshot.scene));
-      for(const [name,data] of resources) {const target=path.join(directory,name);await mkdir(path.dirname(target),{recursive:true});await writeFile(target,data);}
+      for(const name of new Set([...resources.keys(),...Object.keys(snapshot.resourceOverrides??{})])) {const version=snapshot.resourceOverrides?.[name];const data=version?await readFile(path.join(blobRoot,version)):resources.get(name);const target=path.join(directory,name);await mkdir(path.dirname(target),{recursive:true});await writeFile(target,data);}
     }
   }
   await page.screenshot({path:path.join(artifactRoot,'editor.png')});

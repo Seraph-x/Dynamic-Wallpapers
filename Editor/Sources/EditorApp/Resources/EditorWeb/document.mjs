@@ -5,6 +5,7 @@ export function safePath(value) {
 export const controlled = value => value !== null && typeof value === 'object';
 const clone = value => structuredClone(value);
 const object = value => value && typeof value === 'object' && !Array.isArray(value);
+const pathKey = value => value.normalize('NFC').toLowerCase();
 // Native JSON dictionaries may reorder keys. Arrays retain meaningful scene/layer order.
 const equivalent = (left, right) => {
   if (left === right) return true;
@@ -15,12 +16,47 @@ const equivalent = (left, right) => {
 };
 
 export class SceneDocument {
-  #value; #saved; #undo = []; #redo = [];
-  constructor(value) {
+  #value; #saved; #undo = []; #redo = []; #sourcePackage;
+  constructor(value, sourcePackage) {
     if (!object(value) || !object(value.scene) || !object(value.project) || value.project.type !== 'scene' ||
         (value.scene.objects !== undefined && !Array.isArray(value.scene.objects)) || typeof value.title !== 'string' || !value.title.trim()) throw new Error('Invalid scene document');
     safePath(value.entry);
+    this.#sourcePackage = sourcePackage;
+    if (value.resourceOverrides !== undefined) {
+      if (!object(value.resourceOverrides)) throw new Error('Invalid resource overrides');
+      for (const [path,version] of Object.entries(value.resourceOverrides)) {
+        if (version === null) throw new Error('Invalid resource version');
+        this.#validateResource(value,path,version);
+      }
+      const paths = Object.keys(value.resourceOverrides);
+      if (new Set(paths.map(pathKey)).size !== paths.length) throw new Error('Ambiguous resource paths');
+    }
     this.#value = clone(value); this.#saved = clone(value);
+  }
+  #validateResource(value,path,version) {
+    safePath(path);
+    if (['project.json',value.entry,this.#sourcePackage].filter(Boolean).map(pathKey).includes(pathKey(path))) throw new Error('Reserved resource path');
+    if (Object.keys(value.resourceOverrides ?? {}).some(existing => existing !== path && pathKey(existing) === pathKey(path))) throw new Error('Ambiguous resource path');
+    if (version !== null && (typeof version !== 'string' || !/^[a-f0-9]{64}$/.test(version))) throw new Error('Invalid resource version');
+  }
+  resource(path,version) {
+    this.#change(value => {
+      this.#validateResource(value,path,version);
+      if (version === null) {
+        if (value.resourceOverrides) {
+          delete value.resourceOverrides[path];
+          if (!Object.keys(value.resourceOverrides).length) delete value.resourceOverrides;
+        }
+      } else { value.resourceOverrides = {...value.resourceOverrides,[path]:version}; }
+    });
+  }
+  transaction(operation) {
+    this.#change(value => {
+      const draft = new SceneDocument(value,this.#sourcePackage), result = operation(draft);
+      if (result?.then) throw new Error('Document transactions must be synchronous');
+      for (const key of Object.keys(value)) delete value[key];
+      Object.defineProperties(value,Object.getOwnPropertyDescriptors(draft.snapshot()));
+    });
   }
   snapshot() { return clone(this.#value); }
   get dirty() { return !equivalent(this.#value, this.#saved); }

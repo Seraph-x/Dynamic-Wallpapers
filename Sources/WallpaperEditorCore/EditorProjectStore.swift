@@ -80,10 +80,14 @@ public actor EditorProjectStore {
     }
     public func open(id: UUID) throws -> EditorOwnedProject {
         let root = directory.appendingPathComponent(id.uuidString)
-        let document = try EditorProjectDocument(data: EditorProjectFiles(root: directory, prefix: id.uuidString).read("workspace.json"))
-        guard document.id == id else { throw WallpaperError("工程身份与目录不符。") }
+        let document = try workspaceDocument(id: id)
         try validateResources(document)
         return EditorOwnedProject(document: document, resources: root.appendingPathComponent("Project"))
+    }
+    func workspaceDocument(id: UUID) throws -> EditorProjectDocument {
+        let document = try EditorProjectDocument(data: EditorProjectFiles(root: directory, prefix: id.uuidString).read("workspace.json"))
+        guard document.id == id else { throw WallpaperError("工程身份与目录不符。") }
+        return document
     }
     public func save(_ previous: EditorProjectDocument, scene: Data, project: Data, title: String,
                      resourceOverrides: [String: EditorResourceVersion]? = nil) throws -> EditorProjectDocument {

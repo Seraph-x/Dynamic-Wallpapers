@@ -18,6 +18,54 @@ cd Editor
 python3 ../scripts/swift_sdk.py build --disable-sandbox
 ```
 
+For resource-transaction coverage also run all Editor browser modules and the
+independent native host bridge test:
+
+```sh
+node --test Editor/Web/*.test.mjs scripts/test-scene-runtime.mjs scripts/test-scene-spectrum.mjs
+(cd Editor && python3 ../scripts/swift_sdk.py build --build-tests --disable-sandbox)
+(cd Editor && python3 ../scripts/test.py --skip-build --filter EditorResourceBridgeTests)
+```
+
+## Resource revision acceptance
+
+Schema-1 documents retain their format until resource edits need schema 2.
+Schema-2 revisions retain their version even after undo/removal leaves no
+overrides. Tests exercise content hashes, immutable deduplication, corrupt or
+missing blobs, workspace isolation, symlinks, revision conflicts, actual manifest
+write failure and exact saved bytes after failure. Case/Unicode aliases of
+reserved files, existing resource spellings and file/directory collisions are
+rejected before a revision is published. Single-resource reads verify the
+requested bytes without rehashing unrelated versions; reopen/save still verify
+the complete revision.
+
+The browser exercises adding a new texture and replacing an existing material,
+including exact rendered undo/redo and the same resolver in PKG export. Native
+CEF acceptance stages/reads a resource, acknowledges a save, then reopens the
+revision with a resource read before first-frame readiness. Resource replies
+bypass the rendering wait, so both an initial render and an in-progress native
+command can finish. The standalone Swift bridge test uses the actual store and
+checks malformed requests, cross-workspace denial and the empty-map saved
+snapshot representation.
+
+The updated authored export has a half-green/half-blue image and red text.
+Two fresh complete browser/native executions rendered 1,600 green, 16,327 red
+and 1,600 blue pixels in both loose and PKG form in Main's actual scene runtime.
+Each execution completed normal CEF closure and exactly one runtime shutdown.
+The focused checks passed 182 root Swift tests, one independent Editor host
+test, 24 JavaScript tests, three Editor product tests, 42 product configuration
+tests, 16 source-export tests and reproducibility of all ten offline resources.
+The owned-source privacy gate was clean.
+
+A prior native attempt failed because the harness blurred the input before the
+final native keyboard event reached CEF's renderer (the observed title was
+`Keyboar`). The harness now waits for actual DOM receipt, acknowledged through
+its test-only reply slot, before blur. The complete text assertion is unchanged;
+the failed attempt remains a failure, not a passing retry. An outer sandbox also
+prevented SwiftPM's manifest sandbox from starting during a product-config check;
+that check passed when run outside the outer sandbox. No product checks were
+disabled. These focused results do not establish a full application-suite pass.
+
 From the repository root, `python3 scripts/test-editor-native.py` builds an
 isolated application, verifies the typed protocol, exercises the real browser
 workbench, and then runs native CEF acceptance. `SCENE_CHROMIUM_EXECUTABLE`

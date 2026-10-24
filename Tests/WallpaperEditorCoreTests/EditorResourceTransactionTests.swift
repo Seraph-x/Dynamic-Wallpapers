@@ -21,7 +21,7 @@ final class EditorResourceTransactionTests: XCTestCase {
         XCTAssertEqual(document.resourceOverrides, ["models/body.mdl": version])
         XCTAssertEqual(document.schemaVersion, 2)
         XCTAssertEqual(try EditorProjectDocument(data: document.encoded()), document)
-        for path in ["../escape", "project.json", "scene.json", "a\\b", "/absolute"] {
+        for path in ["../escape", "project.json", "scene.json", "Project.JSON", "SCENE.JSON", "a\\b", "/absolute"] {
             json["resourceOverrides"] = [path:version.id]
             XCTAssertThrowsError(try EditorProjectDocument(data: EditorProjectDocument.encode(json)))
         }
@@ -30,6 +30,22 @@ final class EditorResourceTransactionTests: XCTestCase {
         }
         json["resourceOverrides"] = [:]; json["extra"] = true
         XCTAssertThrowsError(try EditorProjectDocument(data: EditorProjectDocument.encode(json)))
+        json.removeValue(forKey:"extra");json["sceneEntry"]="scènes.json"
+        json["resourceOverrides"]=["SCE\u{0300}NES.JSON":version.id]
+        XCTAssertThrowsError(try EditorProjectDocument(data:EditorProjectDocument.encode(json)))
+    }
+
+    func testAliasesAndFileDirectoryConflictsCannotReplaceProjectContent() async throws {
+        let store = store(), owned = try await store.create(title:"Aliases",width:10,height:10)
+        let version = try await store.stageResource(id:owned.document.id,data:Data([2]))
+        try FileManager.default.createDirectory(at:owned.resources.appendingPathComponent("models"),withIntermediateDirectories:true)
+        try Data([1]).write(to:owned.resources.appendingPathComponent("models/body.mdl"))
+        for path in ["Models/body.mdl","models/BODY.mdl","models","models/body.mdl/child"] {
+            do { _ = try await store.save(owned.document,scene:owned.document.scene,project:owned.document.project,title:"Invalid",resourceOverrides:[path:version]);XCTFail("Published conflicting resource path: \(path)") } catch {}
+        }
+        let valid = try await store.save(owned.document,scene:owned.document.scene,project:owned.document.project,title:"Valid",resourceOverrides:["models/body.mdl":version])
+        let exported = try await store.exportLoose(valid,to:temporary.appendingPathComponent("AliasExport"))
+        XCTAssertEqual(try Data(contentsOf:exported.root.appendingPathComponent("models/body.mdl")),Data([2]))
     }
 
     func testResourceRevisionSaveReopenAndExports() async throws {
@@ -95,5 +111,28 @@ final class EditorResourceTransactionTests: XCTestCase {
         let original = try await store.resource(id: saved.id, version: first)
         XCTAssertEqual(afterFailure.document, saved)
         XCTAssertEqual(original, Data([1]))
+    }
+    func testSingleResourceReadDoesNotRescanUnrelatedVersions() async throws {
+        let store=store(), owned=try await store.create(title:"Reads",width:10,height:10)
+        let first=try await store.stageResource(id:owned.document.id,data:Data([1]))
+        let second=try await store.stageResource(id:owned.document.id,data:Data([2]))
+        let saved=try await store.save(owned.document,scene:owned.document.scene,project:owned.document.project,title:"Saved",resourceOverrides:["a.bin":first,"b.bin":second])
+        try Data([3]).write(to:owned.resources.deletingLastPathComponent().appendingPathComponent("Resources/"+second.id))
+        let bytes=try await store.resource(id:saved.id,version:first)
+        XCTAssertEqual(bytes,Data([1]))
+        do { _ = try await store.open(id:saved.id);XCTFail("Reopen skipped full validation") } catch {}
+    }
+    func testManifestPublicationFailureLeavesSavedRevisionUnchanged() async throws {
+        let store=store(), owned=try await store.create(title:"Write failure",width:10,height:10)
+        let version=try await store.stageResource(id:owned.document.id,data:Data([1]))
+        let saved=try await store.save(owned.document,scene:owned.document.scene,project:owned.document.project,title:"Saved",resourceOverrides:["a.bin":version])
+        let root=owned.resources.deletingLastPathComponent(), manifest=root.appendingPathComponent("workspace.json")
+        let before=try Data(contentsOf:manifest)
+        try FileManager.default.setAttributes([.posixPermissions:0o500],ofItemAtPath:root.path)
+        defer { try? FileManager.default.setAttributes([.posixPermissions:0o700],ofItemAtPath:root.path) }
+        do { _ = try await store.save(saved,scene:saved.scene,project:saved.project,title:"Unpublished",resourceOverrides:[:]);XCTFail("Wrote into non-writable workspace directory") } catch {}
+        XCTAssertEqual(try Data(contentsOf:manifest),before)
+        let reopened=try await store.open(id:saved.id)
+        XCTAssertEqual(reopened.document,saved)
     }
 }

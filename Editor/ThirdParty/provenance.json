@@ -14,9 +14,10 @@
     "index.html": "394ce141c8cd4ffb32382e40fae5ee9eb7ae5b9f864ec5f87b0cf3b1926c6669",
     "editor.css": "8a1c828b216b5c9a237bba370b641097ae8dde13ff47e250d61bca5979fd1b6e",
     "app.mjs": "dbe4244102fe912c925c4b12a8b78cb9799ddab25f5d13dbecd0fe77139c5009",
-    "document.mjs": "413ee62256955abb09a889056e8793119052a6aa8afcab4534ce1e7e88ee01b5",
-    "runtime.mjs": "29694876755598bf5dd81dd1d2f2f9be9bbb6ced7d3f7ede9073cd59a72d3a27",
+    "document.mjs": "ecd5c12d1ce90bdacfadaf37102e44d79fcf5c6a8da213279063cba5f681cc66",
+    "runtime.mjs": "706fc5279679c4145ca4a0065806eef069007eaa1e97a9771e26fdeaae59524a",
     "localization.mjs": "9427a68c2791d0f13f7161ad37df2499da5495391d9d44db27065d71684225d4",
-    "interface.mjs": "3e26d871b5253ac2b1a31cfc847f358574b25db19d920cdaea3dd4583600ce7b"
+    "interface.mjs": "3e26d871b5253ac2b1a31cfc847f358574b25db19d920cdaea3dd4583600ce7b",
+    "resources.mjs": "0088828a0573d02b41f80c7c39d0332d4fa290fefc0c9066f78e0f7b6da746ed"
   }
 }
