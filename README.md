@@ -61,6 +61,23 @@ bash scripts/build-app.sh --output dist/DynamicWallpaper-source-build.app
 
 Preparation verifies pinned CEF/mpv inputs and builds FFmpeg from pinned source. The scene bundle is checked into source; Node is only needed to reproduce that bundle or run browser tests. Build commands create a new candidate and do not replace the installed app or alter its library. See [BUILDING.md](BUILDING.md) for verification and [release notes](docs/releases/1.0.0/RELEASE_NOTES.md) for release packaging.
 
+## References and acknowledgements
+
+The scene-wallpaper work draws on these projects:
+
+| Project | Role in Dynamic Wallpaper |
+| --- | --- |
+| [DSH Wallpaper Engine](https://github.com/elysia395/dsh-wallpaper-engine) | Design reference for hosting WebWallGL scene wallpapers and supplying audio spectrum and pointer input from the host application. |
+| [WebWallGL](https://github.com/oneincase/webwallgl) | The bundled scene renderer: parses local Wallpaper Engine projects and renders them with WebGL. The current playback integration pins version 3.0.0. Its editor is the upstream reference for the separately packaged scene-editor plugin. |
+| [Chromium Embedded Framework](https://github.com/chromiumembedded/cef) | The embedded Chromium runtime used for web and scene wallpaper playback. |
+| [mpv](https://github.com/mpv-player/mpv) and [FFmpeg](https://ffmpeg.org/) | Extended media playback, probing and transcoding. |
+| [Mediabunny](https://github.com/Vanilagy/mediabunny) | Media handling included in the pinned WebWallGL bundle. |
+
+WebWallGL's distribution also includes vendored code with a retained
+[WeScene MIT notice](Resources/ThirdParty/WebWallGL/WeScene-LICENSE). Exact pinned
+inputs, source URLs and license notices are recorded in the
+[dependency inventory](Resources/ThirdParty/README.md).
+
 ## License and third-party materials
 
 Project-authored code and documentation use [GPL-3.0-or-later](LICENSE). Dependencies retain their own licenses, including WebWallGL/WeScene (MIT) and Mediabunny (MPL-2.0). See the [dependency inventory](Resources/ThirdParty/README.md).
