@@ -9,7 +9,11 @@ enum MediaThumbnail {
         try await load(item, webPages: nil)
     }
 
-    static func load(_ item: MediaItem, webPages: (any WebPageMaking)?) async throws -> NSImage? {
+    static func load(_ item: MediaItem, webPages: (any WebPageMaking)?, scenePages: (any ScenePageMaking)? = nil) async throws -> NSImage? {
+        if item.kind == .scene {
+            guard let scenePages else { throw WallpaperError("场景缩略图需要应用运行时。") }
+            return try await sceneThumbnail(item, pages: scenePages)
+        }
         if item.kind == .web {
             guard let webPages else { return nil }
             return try await webThumbnail(item, webPages: webPages)
@@ -27,6 +31,24 @@ enum MediaThumbnail {
         }
         try Task.checkCancellation()
         return NSImage(cgImage: image, size: .zero)
+    }
+
+    private static func sceneThumbnail(_ item: MediaItem, pages: any ScenePageMaking) async throws -> NSImage {
+        let surface = SceneSurface(size: CGSize(width: 480, height: 270), fit: .fill, pageFactory: pages)
+        do {
+            try await surface.prepare(item: item, scale: 1, fit: .fill)
+            guard let contents = surface.subviews.first?.layer?.contents as AnyObject?,
+                  CFGetTypeID(contents) == CGImage.typeID else {
+                throw WallpaperError("场景没有生成可用的静态缩略图。")
+            }
+            let image = NSImage(cgImage: contents as! CGImage, size: CGSize(width: 480, height: 270))
+            try await surface.close()
+            return image
+        } catch {
+            do { try await surface.close() }
+            catch let closeError { throw WallpaperErrorGroup([error, closeError]) }
+            throw error
+        }
     }
 
     private static func webThumbnail(_ item: MediaItem, webPages: any WebPageMaking) async throws -> NSImage {

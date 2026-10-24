@@ -11,7 +11,7 @@ mkdir -p "$APP/Contents/MacOS"
 swiftc -sdk "$SDK" -Xclang-linker -isysroot -Xclang-linker "$SDK" -parse-as-library -swift-version 5 -target arm64-apple-macosx14.0 -module-name WebSwiftTests \
   "${SWIFT_HARNESS_IMPORTS[@]}" \
   Tests/WebRuntimeHarness/{swift-main,swift-mirror}.swift \
-  Sources/WallpaperApp/Media/{WebRuntimePaths,WebPageSession,WebSurface,CEFApplicationRuntime,CEFPageSession}.swift \
+  Sources/WallpaperApp/Media/{WebRuntimePaths,WebPageSession,WebSurface,CEFApplicationRuntime,CEFPageSession,ScenePageSession,CEFScenePageSession}.swift \
   Sources/WallpaperApp/Transcoding/TranscodeTools.swift \
   Sources/WallpaperApp/Playback/{PlaybackCloseBarrier,WallpaperMirrorStream,WallpaperMirrorFrameOutput,WallpaperScreenshotProducer}.swift \
   Sources/WallpaperApp/UI/WallpaperMirrorView.swift \

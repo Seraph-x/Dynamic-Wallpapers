@@ -72,10 +72,11 @@ enum AppCompositionRoot {
             bundleIdentifier: Bundle.main.bundleIdentifier ?? ProcessInfo.processInfo.processName)
         let presentation = overrides.presentation ?? SystemApplicationPresentation()
         let loginItems = overrides.loginItems ?? LoginItemController(service: SystemLoginItemService())
-        let webRuntime = CEFApplicationRuntime(cache: paths.cefCache)
-        let surfaceFactory = SurfaceFactory(webPages: webRuntime)
+        let webRuntime = CEFApplicationRuntime(cache: paths.cefCache,
+            sceneRuntimeRoot: Bundle.module.url(forResource: "SceneRuntime", withExtension: nil))
+        let surfaceFactory = SurfaceFactory(webPages: webRuntime, scenePages: webRuntime)
         let thumbnails = overrides.thumbnails ?? ThumbnailLifetime(load: { item in
-            try await MediaThumbnail.load(item, webPages: webRuntime)
+            try await MediaThumbnail.load(item, webPages: webRuntime, scenePages: webRuntime)
         })
         let inspectorMedia = overrides.inspectorMedia ?? InspectorMediaModel(inspect: { item in
             try await MediaCompatibility.inspect(item, thumbnail: { item in

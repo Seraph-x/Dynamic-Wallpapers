@@ -65,27 +65,37 @@ final class DesktopWindow: NSWindow, PlaybackEndpoint {
 
     func desktopClickTarget(screenID: String) -> FinderClickTarget? {
         guard !closed, !isPlaybackPaused, incoming == nil, closing.isEmpty, releaseFailure == nil,
-              isVisible, let current, current.ready, let surface = current.surface as? WebSurface,
-              surface.superview === contentView, surface.window === self, surface.alphaValue == 1,
+              isVisible, let current, current.ready, let surface = current.surface as? any DesktopInteractiveSurface,
+              surface.view.superview === contentView, surface.view.window === self, surface.view.alphaValue == 1,
               let pageID = surface.interactivePageID, let id = UInt32(exactly: windowNumber), id != 0 else { return nil }
         return FinderClickTarget(screenID: screenID, pageID: pageID, windowID: id,
                                  interactionGeneration: interactionGeneration)
     }
 
     func desktopClickPoint(atScreenPoint point: CGPoint) -> CGPoint? {
-        guard point.x.isFinite, point.y.isFinite, let surface = current?.surface as? WebSurface else { return nil }
-        let local = surface.convert(convertPoint(fromScreen: point), from: nil)
-        let topLeft = CGPoint(x: local.x - surface.bounds.minX,
-            y: surface.isFlipped ? local.y - surface.bounds.minY : surface.bounds.maxY - local.y)
-        return CGRect(origin: .zero, size: surface.bounds.size).contains(topLeft) ? topLeft : nil
+        guard point.x.isFinite, point.y.isFinite, let surface = current?.surface as? any DesktopInteractiveSurface else { return nil }
+        let local = surface.view.convert(convertPoint(fromScreen: point), from: nil)
+        let topLeft = CGPoint(x: local.x - surface.view.bounds.minX,
+            y: surface.view.isFlipped ? local.y - surface.view.bounds.minY : surface.view.bounds.maxY - local.y)
+        return CGRect(origin: .zero, size: surface.view.bounds.size).contains(topLeft) ? topLeft : nil
     }
 
     func sendDesktopClick(atScreenPoint point: CGPoint, clickCount: Int, target: FinderClickTarget) throws -> Bool {
         guard target == desktopClickTarget(screenID: target.screenID),
-              let surface = current?.surface as? WebSurface, let local = desktopClickPoint(atScreenPoint: point) else {
+              let surface = current?.surface as? any DesktopInteractiveSurface, let local = desktopClickPoint(atScreenPoint: point) else {
             throw WallpaperError("桌面网页已暂停、切换或位置发生变化，点击已取消。")
         }
         return try surface.sendClick(at: local, clickCount: clickCount, expectedPageID: target.pageID)
+    }
+
+    func sendDesktopPointer(atScreenPoint point: CGPoint, kind: String, target: FinderClickTarget) throws {
+        guard target == desktopClickTarget(screenID: target.screenID),
+              let surface = current?.surface as? SceneSurface else { return }
+        if kind == "leave" {
+            try surface.sendPointer(at: .zero, kind: kind, expectedPageID: target.pageID)
+        } else if let local = desktopClickPoint(atScreenPoint: point) {
+            try surface.sendPointer(at: local, kind: kind, expectedPageID: target.pageID)
+        }
     }
 
     private func invalidateDesktopClicks() {

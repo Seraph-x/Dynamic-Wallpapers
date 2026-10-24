@@ -11,7 +11,7 @@ mkdir -p "$APP/Contents/MacOS"
 swiftc -sdk "$SDK" -Xclang-linker -isysroot -Xclang-linker "$SDK" -parse-as-library -swift-version 5 -target arm64-apple-macosx14.0 -module-name WebAudioTests \
   "${SWIFT_HARNESS_IMPORTS[@]}" \
   Tests/WebRuntimeHarness/audio-main.swift Tests/WebRuntimeHarness/audio-pair.swift Tests/WebRuntimeHarness/authorization.swift Tests/WallpaperAppTests/SystemAudioEvidence.swift Tests/WallpaperAppTests/NativeRetirementAudioWindow.swift \
-  Sources/WallpaperApp/Media/{WebRuntimePaths,WebPageSession,WebSurface,CEFApplicationRuntime,CEFPageSession}.swift \
+  Sources/WallpaperApp/Media/{WebRuntimePaths,WebPageSession,WebSurface,CEFApplicationRuntime,CEFPageSession,ScenePageSession,CEFScenePageSession}.swift \
   Sources/WallpaperApp/Transcoding/TranscodeTools.swift Sources/WallpaperApp/Playback/PlaybackCloseBarrier.swift \
   "${SWIFT_CORE_OBJECTS[@]}" "${SWIFT_NATIVE_OBJECTS[@]}" "${SWIFT_WEB_OBJECTS[@]}" \
   .build/dependencies/cef/wrapper-make/libcef_dll_wrapper/libcef_dll_wrapper.a \

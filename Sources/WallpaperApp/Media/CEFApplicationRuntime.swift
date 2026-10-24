@@ -5,21 +5,24 @@ import Darwin
 
 /// Owns every page until its real close callback succeeds, including failed closes.
 @MainActor
-final class CEFApplicationRuntime: WebPageMaking {
+final class CEFApplicationRuntime: WebPageMaking, ScenePageMaking {
     private let paths: WebRuntimePaths
+    private let sceneRuntimeRoot: URL?
     private let cache: URL
     private var bridge: DWWebRuntime?
     private var sessions: [UUID: CEFPageSession] = [:]
+    private var sceneSessions: [UUID: CEFScenePageSession] = [:]
     private(set) var frameRate = WebWallpaperFrameRate.fps30
     private var shuttingDown = false
     private var shutdownTask: Task<Void, Error>?
 
     init(paths: WebRuntimePaths = .resolve(), cache: URL = ApplicationPaths.production(
-        bundleIdentifier: Bundle.main.bundleIdentifier ?? ProcessInfo.processInfo.processName).cefCache) {
-        self.paths = paths; self.cache = cache
+        bundleIdentifier: Bundle.main.bundleIdentifier ?? ProcessInfo.processInfo.processName).cefCache,
+         sceneRuntimeRoot: URL? = nil) {
+        self.paths = paths; self.cache = cache; self.sceneRuntimeRoot = sceneRuntimeRoot
     }
 
-    var activePageCount: Int { sessions.count }
+    var activePageCount: Int { sessions.count + sceneSessions.count }
 
     func makePage(size: CGSize) throws -> any WebPageSession {
         guard !shuttingDown else { throw WallpaperError("网页运行时正在退出，不能创建页面。") }
@@ -28,14 +31,30 @@ final class CEFApplicationRuntime: WebPageMaking {
         return session
     }
 
+    func makeScenePage(size: CGSize) throws -> any ScenePageSession {
+        guard !shuttingDown else { throw WallpaperError("场景运行时正在退出。") }
+        let session = CEFScenePageSession(owner: self, size: size, frameRate: frameRate)
+        sceneSessions[session.id] = session
+        return session
+    }
+
     func setFrameRate(_ value: WebWallpaperFrameRate) {
         frameRate = value
         sessions.values.forEach { $0.setFrameRate(value) }
+        sceneSessions.values.forEach { $0.setFrameRate(value) }
     }
 
     func createPage(project: WebProjectReference, size: CGSize, scale: CGFloat) throws -> DWWebPage {
         guard !shuttingDown else { throw CancellationError() }
         try project.validate()
+        let bridge = try startedBridge()
+        let page = try bridge.page(withProjectRoot: project.root.path, entry: project.entry, size: size, scale: scale)
+        try page.setFrameRate(UInt(frameRate.rawValue))
+        return page
+    }
+
+    private func startedBridge() throws -> DWWebRuntime {
+        guard !shuttingDown else { throw CancellationError() }
         if bridge == nil {
             try paths.validate()
             try FileManager.default.createDirectory(at: cache, withIntermediateDirectories: true)
@@ -55,10 +74,21 @@ final class CEFApplicationRuntime: WebPageMaking {
             }
             throw error
         }
-        let page = try bridge.page(withProjectRoot: project.root.path, entry: project.entry, size: size, scale: scale)
-        try page.setFrameRate(UInt(frameRate.rawValue))
-        return page
+        return bridge
     }
+
+    func createScenePage(project: SceneProjectReference, id: UUID, size: CGSize, scale: CGFloat) throws -> DWWebPage {
+        try project.validate()
+        guard let runtime = sceneRuntimeRoot,
+              FileManager.default.fileExists(atPath: runtime.appendingPathComponent("index.html").path) else {
+            throw WallpaperError("场景渲染资源缺失。")
+        }
+        return try startedBridge().scenePage(withProjectRoot: project.root.path, runtimeRoot: runtime.path,
+            entry: project.entry, representation: project.representation.rawValue, sceneID: id.uuidString,
+            generation: 1, size: size, scale: scale)
+    }
+
+    func retireScene(_ id: UUID) { sceneSessions.removeValue(forKey: id) }
 
     func retire(_ id: UUID) { sessions.removeValue(forKey: id) }
 
@@ -66,8 +96,10 @@ final class CEFApplicationRuntime: WebPageMaking {
         if let shutdownTask { try await shutdownTask.value; return }
         shuttingDown = true
         let pages = Array(sessions.values)
+        let scenes = Array(sceneSessions.values)
         let task = Task { @MainActor in
             let closing = pages.map { page in Task { @MainActor in try await page.close() } }
+                + scenes.map { page in Task { @MainActor in try await page.close() } }
             try await PlaybackCloseBarrier.wait(for: closing)
             try self.bridge?.shutdown()
             if FileManager.default.fileExists(atPath: self.cache.path) {
