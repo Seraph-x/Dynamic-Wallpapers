@@ -92,6 +92,50 @@ try {
     }
   }
   await page.screenshot({path:path.join(artifactRoot,'editor.png')});
+  await page.locator('#field-visible').uncheck();
+  assert.equal((await command({type:'snapshot'})).document.scene.objects[1].visible,false);
+  await page.getByRole('button',{name:'Green image (Hidden layer)',exact:true}).waitFor({state:'visible'});
+  assert.equal(await page.locator('#layers button[data-visible="false"]').evaluate(element=>getComputedStyle(element).opacity),'1','Hidden layers must retain readable text');
+  await page.locator('#field-visible').check(); await command({type:'snapshot'});
+  const beforeAppearance=(await command({type:'snapshot'})).document;
+  await page.emulateMedia({colorScheme:'light'});
+  await page.locator('#theme').selectOption('system');
+  const lightBackground=await page.evaluate(()=>getComputedStyle(document.documentElement).backgroundColor);
+  await page.emulateMedia({colorScheme:'dark'});
+  const darkBackground=await page.evaluate(()=>getComputedStyle(document.documentElement).backgroundColor);
+  assert.notEqual(lightBackground,darkBackground,'System appearance must follow OS changes');
+  await page.locator('#theme').selectOption('light');
+  assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).backgroundColor),lightBackground);
+  await page.locator('#theme').selectOption('dark');
+  await page.emulateMedia({colorScheme:'light'});
+  assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).backgroundColor),darkBackground,'Explicit theme must remain independent from OS');
+  assert.deepEqual((await command({type:'snapshot'})).document,beforeAppearance,'Appearance changed scene content');
+  await page.setViewportSize({width:850,height:540});
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'Minimum native window has horizontal overflow');
+  assert.equal(await page.locator('#theme').isVisible(),true);
+  assert.equal(await page.locator('#playback').isVisible(),true);
+  await page.screenshot({path:path.join(artifactRoot,'editor-dark-compact.png')});
+  await page.setViewportSize({width:1180,height:760});
+  await page.locator('#theme').selectOption('light');
+  await page.getByRole('button',{name:'Green image',exact:true}).click();
+  await page.screenshot({path:path.join(artifactRoot,'editor-light.png')});
+  configuration.document=beforeAppearance;
+  for (const language of ['en','zh-Hans','ja','fr','es']) {
+    configuration.language=language;
+    const ready=page.waitForRequest(request=>request.method()==='POST' && request.url().endsWith('/__editor/event') && request.postDataJSON().type==='ready');
+    await page.reload(); await ready; await command({type:'thaw'});
+    await page.setViewportSize({width:850,height:540});
+    const layout=await page.evaluate(()=>{
+      const box=selector=>document.querySelector(selector).getBoundingClientRect();
+      return {brand:box('.brand').right,title:box('.project-heading').left,titleRight:box('.project-heading').right,actions:box('.header-actions').left,
+        layers:box('.layers-panel').right,canvas:box('#preview').left,canvasRight:box('#preview').right,properties:box('.properties-panel').left,
+        undefinedLabels:[...document.querySelectorAll('[data-text],[data-label]')].some(element=>element.textContent==='undefined'||element.getAttribute('aria-label')==='undefined')};
+    });
+    assert(layout.brand<=layout.title && layout.titleRight<=layout.actions,`${language}: overlapping header controls`);
+    assert(layout.layers<=layout.canvas && layout.canvasRight<=layout.properties,`${language}: overlapping workspace panels`);
+    assert.equal(layout.undefinedLabels,false,`${language}: missing interface text`);
+    await page.locator('#theme').selectOption('dark'); await page.locator('#theme').selectOption('light');
+  }
   assert.equal((await page.locator('#diagnostics').textContent()),'');assert.deepEqual(errors,[]);
-  console.log('Real Editor: keyboard forms, text/image pixels, undo/redo, metadata preservation and PKG export passed');
+  console.log('Real Editor: edits, pixels, undo/redo, exports, hidden layers, appearance and five-language minimum-window layout passed');
 } finally {await browser?.close();await new Promise(resolve=>server.close(resolve));}

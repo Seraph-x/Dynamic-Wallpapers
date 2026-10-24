@@ -3,6 +3,7 @@ import { editorOf, buildScenePkg, checkWeCompat } from './editor-api.mjs';
 import { controlled } from './document.mjs';
 import { startEditor } from './runtime.mjs';
 import { messages } from './localization.mjs';
+import { initializeInterface, renderWorkspace, setPlaybackState } from './interface.mjs';
 
 const $ = id => document.getElementById(id);
 let editor, selected, drag, editFailure;
@@ -14,6 +15,7 @@ try {
   const config = await response.json(), t = messages(config.language);
   document.documentElement.lang = config.language ?? 'en';
   for (const element of document.querySelectorAll('[data-text]')) element.textContent = t[element.dataset.text];
+  initializeInterface(t);
   const report = async payload => {
     const response = await fetch('/__editor/event', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), redirect: 'error' });
     if (!response.ok) throw new Error(`Editor event: HTTP ${response.status}`);
@@ -24,38 +26,8 @@ try {
     return editor.change(operation).catch(error => { editFailure = error; showError(error); });
   };
   function update(doc) {
-    const snapshot = doc.snapshot(), layers = snapshot.scene.objects ?? [];
-    if (document.activeElement !== $('project-title')) $('project-title').value = snapshot.title;
-    $('saved').textContent = doc.dirty ? t.unsaved : t.saved;
-    $('undo').disabled = !doc.canUndo; $('redo').disabled = !doc.canRedo;
-    $('layers').replaceChildren();
-    for (const layer of [...layers].reverse()) {
-      const item = document.createElement('li'), button = document.createElement('button');
-      button.type = 'button'; button.textContent = String(layer.name ?? layer.id); button.dataset.layerId = layer.id;
-      button.setAttribute('aria-pressed', String(selected === layer.id));
-      button.addEventListener('click', () => { selected = layer.id; update(doc); }); item.append(button); $('layers').append(item);
-    }
-    const layer = layers.find(layer => layer.id === selected);
-    for (const id of ['duplicate','remove','up','down']) $(id).disabled = !layer;
-    if ($('inspector').dataset.layerId === String(selected) && $('inspector').contains(document.activeElement)) return;
-    $('inspector').dataset.layerId = String(selected); $('inspector').replaceChildren();
-    if (!layer) { $('inspector').textContent = t.empty; return; }
-    const defaults = { name:'',visible:true,origin:'0 0 0',scale:'1 1 1',angles:'0 0 0',color:'1 1 1',alpha:1,pointsize:32 };
-    const fields = ['name','visible','origin','scale','angles','color','alpha', ...(layer.text !== undefined ? ['text','pointsize'] : [])];
-    for (const key of fields) {
-      const label = document.createElement('label'), input = document.createElement(key === 'text' ? 'textarea' : 'input');
-      const value = layer[key] ?? defaults[key], bound = controlled(value);
-      input.id = `field-${key}`; label.htmlFor = input.id; label.textContent = t[key];
-      input.disabled = bound; if (bound) input.title = t.bound;
-      if (key === 'visible') { input.type = 'checkbox'; input.checked = bound ? Boolean(value.value) : value; }
-      else { input.value = bound ? String(value.value ?? '') : String(value); }
-      if (['alpha','pointsize'].includes(key)) { input.type = 'number'; input.step = 'any'; input.min = key === 'alpha' ? '0' : '1'; if (key === 'alpha') input.max = '1'; }
-      input.addEventListener('change', () => {
-        if (!input.reportValidity()) return;
-        void act(doc => doc.patch(selected, { [key]: key === 'visible' ? input.checked : ['alpha','pointsize'].includes(key) ? Number(input.value) : input.value }));
-      });
-      $('inspector').append(label, input);
-    }
+    renderWorkspace({doc,selected,t,onSelect:id => { selected = id; update(doc); },
+      onPatch:(id,patch) => void act(doc => doc.patch(id,patch))});
   }
   editor = startEditor(config, { createScene, editorOf, buildScenePkg, checkWeCompat, element:$('canvas'), report, onChange:update, onError:showError,
     setEditingEnabled: value => { document.body.inert = !value; }, snapshotError: () => editFailure });
@@ -75,10 +47,9 @@ try {
     }
     return editor.command(value);
   } });
-  $('playback').textContent = t.pause;
+  setPlaybackState(true,t);
   $('playback').addEventListener('click', () => {
-    editor.setPlaying(!editor.playing); $('playback').textContent = editor.playing ? t.pause : t.play;
-    $('playback').setAttribute('aria-pressed', String(editor.playing));
+    editor.setPlaying(!editor.playing); setPlaybackState(editor.playing,t);
   });
   $('project-title').addEventListener('change', event => void act(doc => doc.rename(event.target.value)));
   for (const [id, operation] of Object.entries({ undo:doc => doc.undo(),redo:doc => doc.redo(),
