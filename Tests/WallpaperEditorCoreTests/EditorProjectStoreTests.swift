@@ -12,6 +12,27 @@ final class EditorProjectStoreTests: XCTestCase {
     override func tearDownWithError() throws { try FileManager.default.removeItem(at: temporary) }
     private func store() -> EditorProjectStore { EditorProjectStore(directory: temporary.appendingPathComponent("Projects")) }
 
+    func testSharedImportRequiresExactlyTheRequestedSceneBeforeCopying() async throws {
+        let source = temporary.appendingPathComponent("Shared")
+        try FileManager.default.createDirectory(at:source,withIntermediateDirectories:true)
+        try Data(#"{"type":"scene","title":"Shared","file":"scene.json"}"#.utf8).write(to:source.appendingPathComponent("project.json"))
+        try Data(#"{"objects":[]}"#.utf8).write(to:source.appendingPathComponent("scene.json"))
+        let store = store()
+        let mismatches = [
+            SceneProjectReference(root:source,entry:"different.json",representation:.loose),
+            SceneProjectReference(root:source,entry:"scene.json",representation:.package),
+            SceneProjectReference(root:temporary,entry:"scene.json",representation:.loose)
+        ]
+        for expected in mismatches {
+            do { _ = try await store.importProject(root:source,expected:expected); XCTFail("Imported a scene different from the explicit request") } catch {}
+        }
+        XCTAssertFalse(FileManager.default.fileExists(atPath:store.directory.path))
+        let expected = SceneProjectReference(root:source,entry:"scene.json",representation:.loose)
+        let owned = try await store.importProject(root:source,expected:expected)
+        XCTAssertEqual(owned.document.title,"Shared")
+        XCTAssertNotEqual(owned.resources,source)
+    }
+
     func testNewSaveReopenAndRevisionConflict() async throws {
         let store = store()
         let created = try await store.create(title: "新 场景", width: 800, height: 600)

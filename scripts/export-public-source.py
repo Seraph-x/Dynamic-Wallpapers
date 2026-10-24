@@ -16,16 +16,17 @@ import tempfile
 
 
 ROOT_FILES = frozenset({'.gitignore', 'Package.swift', 'PUBLIC_README.md', 'BUILDING.md',
+                        'Editor/ThirdParty/WebWallGL-Editor-LICENSE', 'docs/editor-install.md',
                         'Resources/AppIcon.icns', 'Resources/Info.plist',
                         'Resources/ScreenSaver/Info.plist',
                         *(f'Resources/ScreenSaver/{language}.lproj/Localizable.strings'
                           for language in ('zh-Hans', 'en', 'ja', 'fr', 'es'))})
-SOURCE_TREES = ('Sources/', 'Tests/', 'scripts/', 'Resources/ThirdParty/', 'docs/help/')
+SOURCE_TREES = ('Sources/', 'Tests/', 'Editor/', 'scripts/', 'Resources/ThirdParty/', 'docs/help/')
 SOURCE_SUFFIXES = frozenset({'.swift', '.py', '.sh', '.mm', '.html', '.md', '.cpp',
                              '.js', '.json', '.hpp', '.h', '.strings', '.mjs',
                              '.css', '.plist', '.m', '.txt'})
 MATERIAL_SUFFIXES = frozenset({'.md', '.txt', '.json', '.sh', '.h', '.html', '.gz'})
-IGNORED_LOCAL_NAMES = frozenset({'__pycache__', '.DS_Store'})
+IGNORED_LOCAL_NAMES = frozenset({'__pycache__', '.DS_Store', '.build', '.swiftpm'})
 PERSONAL_PATHS = (
     re.compile(rb'/Users/[A-Za-z0-9._-]+/'),
     re.compile(rb'/home/[A-Za-z0-9._-]+/'),

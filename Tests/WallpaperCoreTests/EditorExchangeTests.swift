@@ -49,4 +49,19 @@ final class EditorExchangeTests: XCTestCase {
         XCTAssertThrowsError(try EditorExchange(hostBundleIdentifier: "local.app", scenes: [offer],
             renderer: SharedSceneRenderer(version: "3.0.0", module: URL(string: "https://example.com/renderer.mjs")!, sha256: renderer.sha256)))
     }
+    func testDescriptorFileReaderRejectsLinksSpecialFilesAndOversizedMetadata() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at:directory,withIntermediateDirectories:true)
+        defer { try? FileManager.default.removeItem(at:directory) }
+        let file = directory.appendingPathComponent("exchange.json")
+        let exchange = try EditorExchange(hostBundleIdentifier:"local.app",scenes:[],renderer:nil)
+        try exchange.encoded().write(to:file)
+        XCTAssertEqual(try EditorExchange.read(from:file),exchange)
+        let link = directory.appendingPathComponent("link.json")
+        try FileManager.default.createSymbolicLink(at:link,withDestinationURL:file)
+        XCTAssertThrowsError(try EditorExchange.read(from:link))
+        XCTAssertThrowsError(try EditorExchange.read(from:URL(fileURLWithPath:"/dev/zero")))
+        try Data(repeating:0,count:EditorExchange.maximumDescriptorBytes+1).write(to:file)
+        XCTAssertThrowsError(try EditorExchange.read(from:file))
+    }
 }

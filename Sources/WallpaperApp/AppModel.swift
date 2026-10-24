@@ -363,8 +363,8 @@ final class AppModel: ObservableObject {
     }
 
     @discardableResult
-    func importSceneProject(_ reference: SceneProjectReference) async -> Bool {
-        guard let task = beginImport([.scene(reference)], targetList: selectedPlaylist?.id) else { return false }
+    func importSceneProject(_ reference: SceneProjectReference, addingToSelectedPlaylist: Bool = true) async -> Bool {
+        guard let task = beginImport([.scene(reference)], targetList: addingToSelectedPlaylist ? selectedPlaylist?.id : nil) else { return false }
         return await withTaskCancellationHandler { await task.value } onCancel: { task.cancel() }
     }
 

@@ -21,8 +21,16 @@
 "chooseProject" = "Elige project.json, workspace.json o una carpeta de proyecto.";
 "busy" = "Hay una operación en curso. Espera.";
 "preparing" = "Preparando vista previa…";
-"existing" = "Selecciona Editor.app";
 "cut" = "Cortar";
 "copy" = "Copiar";
 "paste" = "Pegar";
 "selectAll" = "Seleccionar todo";
+
+"openMain" = "Abrir en Dynamic Wallpaper";
+"importMain" = "Importar de Dynamic Wallpaper…";
+"chooseScene" = "Elige una escena de la biblioteca";
+"import" = "Importar";
+"mainMissing" = "Dynamic Wallpaper no está instalado o no se encuentra.";
+"downloadMain" = "Descargar Dynamic Wallpaper";
+"invalidMain" = "Esta aplicación no admite la interfaz de archivos.";
+"noSharedScenes" = "Abre Editor desde el menú de Dynamic Wallpaper para compartir escenas.";

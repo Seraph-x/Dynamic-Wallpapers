@@ -70,26 +70,26 @@ Files: `Sources/WallpaperApp/Editor/{EditorLauncher,EditorExchangePublisher}.swi
 MenuContent/AppDelegate and five-language resources; Editor handoff handlers;
 `scripts/build-editor-app.py`, editor-native test runner, docs/help/credits.
 
-- [ ] Add tests proving Main startup/playback/quit never installs, downloads,
+- [x] Add tests proving Main startup/playback/quit never installs, downloads,
   looks up/hashes Editor or waits on Editor. Only its explicit Editor action does.
-- [ ] Add exactly one menu-bar Editor action. Discover/focus targeted independent
-  app; if absent, give on-demand download/select-existing/cancel guidance.
+- [x] Add exactly one menu-bar Editor action. Discover/focus targeted independent
+  app; if absent, give on-demand Download Editor/Cancel confirmation.
   Errors stay within this action and never enter wallpaper playback failure.
-- [ ] Main publishes a v1 read-only scene/resource descriptor only for handoff.
+- [x] Main publishes a v1 read-only scene/resource descriptor only for handoff.
   Editor imports an owned copy and may reuse only an exact pinned shared render
   module; always keep its identical bundled module for independent operation.
-- [ ] Editor Open in Main materializes a standard project and invokes targeted
+- [x] Editor Open in Main materializes a standard project and invokes targeted
   v1 import. Main uses its existing managed scene probe/import, selects the item,
   and does not change active wallpaper until user applies it.
-- [ ] Own Editor build/package derives product/helper ids and its independent CEF
+- [x] Own Editor build/package derives product/helper ids and its independent CEF
   cache correctly. Reuse CEF build/source inputs; package a complete standalone
   closure. Main default build contains no Editor app, UI or editor engine.
-- [ ] Native E2E: actual app build; open new/image/text/edit/undo/redo/save/reopen;
+- [x] Native E2E: actual app build; open new/image/text/edit/undo/redo/save/reopen;
   export loose+PKG and render both in Main. Test two apps simultaneously and
   Main quit/relaunch while unsaved Editor persists; repeated launch focuses it.
-- [ ] Remove Editor.app and confirm Main's existing playback still works and
+- [x] Remove Editor.app and confirm Main's existing playback still works and
   saved projects survive. Missing/invalid app and failed download are action-only.
-- [ ] Run targeted tests after building (60 s), core/scene/audio/product/package/
+- [x] Run targeted tests after building (60 s), core/scene/audio/product/package/
   localization/help regressions; inspect pins/notices, source export and signatures.
 - [ ] Create English PR 3 with dependencies/evidence. Independently downloadable
   Editor artifact is separate from Main releases; publish only when requested.

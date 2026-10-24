@@ -23,7 +23,12 @@ enum EditorApplication {
     private var runtime: DWWebRuntime?
     private var windows: [UUID: EditorWindowController] = [:]
     private var welcome: NSWindow?
-    private var terminating = false
+    private(set) var terminating = false
+    var sharedSceneOffers: [EditorSceneOffer] = []
+    var importedSources: [String: UUID] = [:]
+    var sharedHostIdentifier: String?
+    var pendingEditorURLs: [URL] = []
+    var receivingEditorURLs = false
     var active: EditorWindowController? { windows.values.first { $0.window?.isKeyWindow == true } }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -46,6 +51,7 @@ enum EditorApplication {
             }
             store = EditorProjectStore(directory: dataRoot.appendingPathComponent("Projects"))
             buildMenu(); showWelcome(); NSApp.activate(ignoringOtherApps: true)
+            receivePendingEditorURLs()
         } catch { show(error); NSApp.terminate(nil) }
     }
     func show(_ error: Error, window: NSWindow? = nil) {
@@ -77,13 +83,15 @@ enum EditorApplication {
         item(file,"new",#selector(newProject),"n"); item(file,"open",#selector(openProject),"o"); file.addItem(.separator())
         item(file,"addImage",#selector(addImage)); item(file,"save",#selector(save),"s")
         item(file,"exportLoose",#selector(exportLoose)); item(file,"exportPkg",#selector(exportPackage))
+        file.addItem(.separator()); item(file,"importMain",#selector(importSharedScene)); item(file,"openMain",#selector(openInWallpaper))
         let edit = submenu(text("edit"))
         for (key,action,shortcut) in [("cut","cut:","x"),("copy","copy:","c"),("paste","paste:","v"),("selectAll","selectAll:","a")] {
             edit.addItem(NSMenuItem(title: text(key), action: NSSelectorFromString(action), keyEquivalent: shortcut))
         }
     }
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
-        if [#selector(save),#selector(addImage),#selector(exportLoose),#selector(exportPackage)].contains(menuItem.action) {
+        if menuItem.action == #selector(importSharedScene) { return !sharedSceneOffers.isEmpty && !terminating }
+        if [#selector(save),#selector(addImage),#selector(exportLoose),#selector(exportPackage),#selector(openInWallpaper)].contains(menuItem.action) {
             return active?.ready == true && active?.busy == false
         }
         return !terminating
@@ -117,6 +125,7 @@ enum EditorApplication {
         } catch { show(error) } }
     }
     func present(_ owned: EditorOwnedProject) async throws {
+        guard !terminating else { throw WallpaperError("Editor is quitting") }
         if let existing = windows[owned.document.id] { existing.showWindow(nil); existing.window?.makeKeyAndOrderFront(nil); return }
         let controller = try EditorWindowController(project: owned, coordinator: self, runtime: startedRuntime())
         windows[owned.document.id] = controller; welcome?.orderOut(nil); controller.showWindow(nil); controller.window?.makeKeyAndOrderFront(nil)

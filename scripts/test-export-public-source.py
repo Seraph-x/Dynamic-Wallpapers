@@ -23,6 +23,24 @@ def load_module():
 
 
 class PublicSourceExportTests(unittest.TestCase):
+    def test_editor_sources_and_notices_are_exported_without_build_caches(self):
+        module = load_module()
+        files = {'Editor/Package.swift': b'// standalone package',
+                 'Editor/Sources/EditorApp/App.swift': b'// editor source',
+                 'docs/editor-install.md': b'# Independent Editor install notes',
+                 'Editor/ThirdParty/WebWallGL-Editor-LICENSE': b'MIT notice'}
+        for relative, contents in files.items():
+            target = self.root / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(contents)
+        self.tracked.update(files)
+        cache = self.root / 'Editor/Web/.build/node_modules/private/cache.txt'
+        cache.parent.mkdir(parents=True); cache.write_text('private build cache')
+        module.export(self.root, self.destination, tracked_paths=self.tracked)
+        for relative in files:
+            self.assertTrue((self.destination / relative).is_file())
+        self.assertFalse((self.destination / 'Editor/Web/.build').exists())
+
     def test_screen_saver_localizations_are_required_build_inputs(self):
         module = load_module()
         for language in ('zh-Hans', 'en', 'ja', 'fr', 'es'):
@@ -38,6 +56,8 @@ class PublicSourceExportTests(unittest.TestCase):
         files = {
             '.gitignore': b'.build/\n',
             'Package.swift': b'// package fixture\n',
+            'Editor/Package.swift': b'// standalone package\n',
+            'Editor/ThirdParty/WebWallGL-Editor-LICENSE': b'MIT notice',
             'PUBLIC_README.md': b'# Public source\n',
             'BUILDING.md': b'# Building\n',
             'Resources/AppIcon.icns': b'icns safe binary',
@@ -49,6 +69,7 @@ class PublicSourceExportTests(unittest.TestCase):
             'Tests/ExampleTests.swift': b'final class ExampleTests {}\n',
             'scripts/build-app.sh': b'#!/bin/bash\n',
             'docs/help/index.md': b'# Help\n',
+            'docs/editor-install.md': b'# Independent Editor install notes\n',
         }
         for language in ('zh-Hans', 'en', 'ja', 'fr', 'es'):
             files[f'Resources/ScreenSaver/{language}.lproj/Localizable.strings'] = b'"name" = "name";\n'

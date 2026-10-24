@@ -3,6 +3,7 @@ import Foundation
 import SwiftUI
 import WebWallpaperBridge
 import Darwin
+import WallpaperCore
 
 @main
 enum DynamicWallpaperMain {
@@ -126,12 +127,32 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
     weak var model: AppModel?
     private var termination: ApplicationTermination?
+    private var pendingEditorURLs: [URL] = []
+    private var receivingEditorURLs = false
     func applicationWillFinishLaunching(_ notification: Notification) {
         managementWindows.start()
     }
     func applicationDidFinishLaunching(_ notification: Notification) {
         quitPreparation.installQuitAppleEventHandler()
         model?.finishLaunching(event: NSAppleEventManager.shared().currentAppleEvent)
+        receivePendingEditorURLs()
+    }
+    func application(_ application: NSApplication, open urls: [URL]) {
+        pendingEditorURLs += urls; receivePendingEditorURLs()
+    }
+    private func receivePendingEditorURLs() {
+        guard let model, !pendingEditorURLs.isEmpty, !receivingEditorURLs else { return }
+        receivingEditorURLs = true
+        Task { @MainActor in
+            defer { receivingEditorURLs = false }
+            while !pendingEditorURLs.isEmpty {
+                let url = pendingEditorURLs.removeFirst()
+                do {
+                    if try await model.receiveEditorLink(url) { model.mainWindow.open() }
+                    else if let failure = model.failure { model.presentEditorFailure(failure) }
+                } catch { model.presentEditorFailure(error) }
+            }
+        }
     }
     func applicationDidBecomeActive(_ notification: Notification) {
         model?.loginItems.refresh()
@@ -249,6 +270,11 @@ struct MenuContent: View {
         Button(l10n("打开 \(product.displayName)")) {
             model.mainWindow.open()
         }
+        Button(l10n("Editor")) {
+            DispatchQueue.main.async {
+                Task { @MainActor in do { try await model.openEditor() } catch { model.presentEditorFailure(error) } }
+            }
+        }.disabled(model.isShuttingDown)
         Button(l10n("转码任务")) {
             openWindow(id: "transcode"); NSApplication.shared.activate(ignoringOtherApps: true)
         }

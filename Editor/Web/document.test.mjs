@@ -5,6 +5,22 @@ import { SceneDocument } from './document.mjs';
 const initial = () => ({ scene: { general: { orthogonalprojection: { width: 800, height: 600 } }, objects: [
   { id: 1, name: 'Bound', origin: { value: '0 0 0', script: 'export function update(v) {return v;}' }, future: { a: 1 } },
 ], future: [1, 2] }, project: { type: 'scene', file: 'nested.json', future: true }, entry: 'nested.json', title: 'Title' });
+test('native save acknowledgements may reorder object fields but not scene arrays', () => {
+  const reorder = value => Array.isArray(value) ? value.map(reorder) : value && typeof value === 'object'
+    ? Object.fromEntries(Object.entries(value).reverse().map(([key, value]) => [key, reorder(value)])) : value;
+  const doc = new SceneDocument(initial());
+  doc.patch(1, { name: 'Saved through native bridge' });
+  const acknowledgement = reorder(doc.snapshot());
+  doc.markSaved(acknowledgement);
+  assert.equal(doc.dirty, false);
+  acknowledgement.title = 'External mutation';
+  assert.equal(doc.dirty, false);
+  doc.undo(); assert.equal(doc.dirty, true);
+  doc.redo(); assert.equal(doc.dirty, false);
+  const wrongOrder = reorder(doc.snapshot());
+  wrongOrder.scene.future.reverse(); doc.markSaved(wrongOrder);
+  assert.equal(doc.dirty, true);
+});
 test('edits, undo and redo preserve unknown metadata and never mutate input', () => {
   const input = initial(), doc = new SceneDocument(input);
   doc.patch(1, { name: 'Renamed', visible: false, alpha: 0.5 });

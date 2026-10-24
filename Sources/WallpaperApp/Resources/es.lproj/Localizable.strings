@@ -641,7 +641,7 @@
 "导入场景项目" = "Importar proyecto de escena";
 "选择场景项目目录" = "Elegir carpeta del proyecto de escena";
 "选择包含 project.json 与场景资源的目录；整个项目将复制到应用目录。" = "Elige la carpeta con project.json y los recursos de la escena. Todo el proyecto se copiará a la biblioteca de la app.";
-"支持本地 loose JSON 和 PKG 场景，按作者默认设置播放。系统音频频谱与场景编辑器暂不支持。" = "Las escenas locales JSON y PKG usan los valores predeterminados del autor. El espectro de audio del sistema y la edición de escenas aún no son compatibles.";
+"支持本地 loose JSON 和 PKG 场景，按作者默认设置播放。场景编辑请使用菜单栏的 Editor。" = "Las escenas locales JSON y PKG usan los valores predeterminados del autor. Usa Editor en la barra de menús para editar escenas.";
 "暂停时保留场景，继续播放时从原位置恢复。" = "La pausa conserva la escena. La reproducción continúa desde la misma posición.";
 "包含网页或场景时，仅支持固定停留时长。" = "Las selecciones con páginas web o escenas solo admiten duraciones fijas.";
 "网页和场景壁纸仅支持固定停留时长。" = "Los fondos web y de escena solo admiten duraciones fijas.";
@@ -657,3 +657,14 @@
 "正在启动系统音频采集，请允许系统音频录制权限。" = "Iniciando la captura. Permite el acceso a la grabación de audio del sistema.";
 "正在分析系统音频。" = "Analizando el audio del sistema.";
 "系统音频响应已停止，请查看错误并重试。" = "La respuesta al audio se detuvo. Revisa el error y vuelve a intentarlo.";
+
+/* Optional standalone Editor. */
+"Editor" = "Editor";
+"是否安装 Editor？" = "¿Instalar Editor?";
+"Editor 是独立应用。是否前往下载并安装？壁纸功能不需要安装它。" = "Editor es una aplicación independiente. ¿Quieres descargarla e instalarla? Los fondos no la necesitan.";
+"下载 Editor" = "Descargar Editor";
+"无法打开 Editor 下载页面。" = "No se pudo abrir la página de descarga.";
+"所选应用不是兼容的 Editor。" = "La aplicación seleccionada no es un Editor compatible.";
+"应用正在退出，无法打开 Editor。" = "La aplicación se está cerrando y no puede abrir Editor.";
+"此链接不是 Editor 工程导入请求。" = "Este enlace no solicita importar un proyecto de Editor.";
+"无法打开 Editor" = "No se pudo abrir Editor";

@@ -5,6 +5,14 @@ export function safePath(value) {
 export const controlled = value => value !== null && typeof value === 'object';
 const clone = value => structuredClone(value);
 const object = value => value && typeof value === 'object' && !Array.isArray(value);
+// Native JSON dictionaries may reorder keys. Arrays retain meaningful scene/layer order.
+const equivalent = (left, right) => {
+  if (left === right) return true;
+  if (Array.isArray(left)) return Array.isArray(right) && left.length === right.length && left.every((value, index) => equivalent(value, right[index]));
+  if (!object(left) || !object(right)) return false;
+  const keys = Object.keys(left);
+  return keys.length === Object.keys(right).length && keys.every(key => Object.hasOwn(right, key) && equivalent(left[key], right[key]));
+};
 
 export class SceneDocument {
   #value; #saved; #undo = []; #redo = [];
@@ -12,18 +20,18 @@ export class SceneDocument {
     if (!object(value) || !object(value.scene) || !object(value.project) || value.project.type !== 'scene' ||
         (value.scene.objects !== undefined && !Array.isArray(value.scene.objects)) || typeof value.title !== 'string' || !value.title.trim()) throw new Error('Invalid scene document');
     safePath(value.entry);
-    this.#value = clone(value); this.#saved = JSON.stringify(this.#value);
+    this.#value = clone(value); this.#saved = clone(value);
   }
   snapshot() { return clone(this.#value); }
-  get dirty() { return JSON.stringify(this.#value) !== this.#saved; }
+  get dirty() { return !equivalent(this.#value, this.#saved); }
   get canUndo() { return this.#undo.length > 0; }
   get canRedo() { return this.#redo.length > 0; }
-  markSaved(snapshot = this.#value) { this.#saved = JSON.stringify(snapshot); }
+  markSaved(snapshot = this.#value) { this.#saved = clone(snapshot); }
   undo() { if (!this.canUndo) return; this.#redo.push(this.#value); this.#value = this.#undo.pop(); }
   redo() { if (!this.canRedo) return; this.#undo.push(this.#value); this.#value = this.#redo.pop(); }
   #change(operation) {
     const next = clone(this.#value); const result = operation(next);
-    if (JSON.stringify(next) !== JSON.stringify(this.#value)) { this.#undo.push(this.#value); this.#redo = []; this.#value = next; }
+    if (!equivalent(next, this.#value)) { this.#undo.push(this.#value); this.#redo = []; this.#value = next; }
     return result;
   }
   #layer(value, id) {

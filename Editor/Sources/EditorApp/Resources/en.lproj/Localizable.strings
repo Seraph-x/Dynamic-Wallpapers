@@ -21,8 +21,16 @@
 "chooseProject" = "Choose project.json, workspace.json, or a scene project folder.";
 "busy" = "An operation is in progress. Please wait.";
 "preparing" = "Preparing preview…";
-"existing" = "Select an existing Editor.app";
 "cut" = "Cut";
 "copy" = "Copy";
 "paste" = "Paste";
 "selectAll" = "Select All";
+
+"openMain" = "Open in Dynamic Wallpaper";
+"importMain" = "Import from Dynamic Wallpaper…";
+"chooseScene" = "Choose a scene from the wallpaper library";
+"import" = "Import";
+"mainMissing" = "Dynamic Wallpaper is not installed or could not be found.";
+"downloadMain" = "Download Dynamic Wallpaper";
+"invalidMain" = "This wallpaper application does not support the file interface.";
+"noSharedScenes" = "Open Editor from Dynamic Wallpaper’s menu to share scene projects.";

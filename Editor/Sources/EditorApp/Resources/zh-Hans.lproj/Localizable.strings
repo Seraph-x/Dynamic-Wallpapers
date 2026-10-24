@@ -21,8 +21,16 @@
 "chooseProject" = "选择 project.json、workspace.json 或场景工程目录。";
 "busy" = "正在执行操作，请稍候。";
 "preparing" = "正在准备预览…";
-"existing" = "选择已有的 Editor.app";
 "cut" = "剪切";
 "copy" = "复制";
 "paste" = "粘贴";
 "selectAll" = "全选";
+
+"openMain" = "在壁纸应用中打开";
+"importMain" = "从壁纸应用导入…";
+"chooseScene" = "选择壁纸素材库中的场景";
+"import" = "导入";
+"mainMissing" = "未安装或找不到 Dynamic Wallpaper。";
+"downloadMain" = "下载 Dynamic Wallpaper";
+"invalidMain" = "此壁纸应用不支持文件接口。";
+"noSharedScenes" = "从壁纸应用的 Editor 菜单打开，即可共享场景工程。";

@@ -127,6 +127,9 @@ class ProductConfiguration:
         )
         metadata['NSAudioCaptureUsageDescription'] = (
             'Analyze system audio to animate scene wallpapers. Audio is not recorded or uploaded.')
+        metadata['DWEditorExchangeAPI'] = '1'
+        metadata['CFBundleURLTypes'] = [{'CFBundleURLName': self.application.bundle_identifier + '.editor-exchange',
+                                         'CFBundleURLSchemes': ['dynamic-wallpaper']}]
         return metadata
 
     def screen_saver_metadata(self) -> dict[str, Any]:
