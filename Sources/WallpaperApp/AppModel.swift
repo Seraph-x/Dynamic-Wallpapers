@@ -14,6 +14,7 @@ final class AppModel: ObservableObject {
         didSet {
             mirrorFrameRate.value = library.settings.appearance.fullScreenFrameRate
             webRuntime.setFrameRate(library.settings.webWallpaperFrameRate)
+            webRuntime.systemAudioSpectrum.setEnabled(!loadFailed && library.settings.systemAudioSpectrumEnabled)
         }
     }
     @Published var section: SidebarSection? = .library {
@@ -119,6 +120,7 @@ final class AppModel: ObservableObject {
         do { library = try store.load() }
         catch { library = .empty; loadFailed = true; failure = PresentedFailure(error, context: .library) }
         webRuntime.setFrameRate(library.settings.webWallpaperFrameRate)
+        webRuntime.systemAudioSpectrum.setEnabled(!loadFailed && library.settings.systemAudioSpectrumEnabled)
         screenSaver?.attach(library: library, loaded: !loadFailed)
         mirrorFrameRate.value = library.settings.appearance.fullScreenFrameRate
         wallpaperSource.onChange = { [weak sync = systemWallpaperSync] in sync?.updateTargets($0) }

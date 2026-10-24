@@ -31,6 +31,7 @@ def verify_localizations(resources, configuration=CONFIG):
         if len(matches) != 1:
             raise ValueError(f'Missing or ambiguous localization resource: {language}.lproj')
         required.append(matches[0] / 'Localizable.strings')
+        required.append(matches[0] / 'InfoPlist.strings')
     for path in required:
         path = inside(path, resources)
         if not path.is_file() or path.stat().st_size == 0:
@@ -48,6 +49,12 @@ def prepare_localizations(binary, app, configuration=CONFIG):
     destination = app / 'Contents/Resources' / RESOURCE_BUNDLE
     shutil.copytree(source, destination, symlinks=True)
     verify_localizations(destination, configuration)
+    directory = bundle_resource_directory(destination)
+    for language in configuration.localizations:
+        localized = next(path for path in directory.iterdir() if path.name.casefold() == f'{language}.lproj'.casefold())
+        target = app / 'Contents/Resources' / f'{language}.lproj'
+        target.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(localized / 'InfoPlist.strings', target / 'InfoPlist.strings')
     return {str(path.relative_to(destination)): sha256(path)
             for path in sorted(destination.rglob('*')) if path.is_file()}
 
@@ -57,3 +64,6 @@ def verify_application_localizations(app, info, configuration=CONFIG):
             or info.get('CFBundleLocalizations') != list(configuration.localizations)):
         raise ValueError('Application localization metadata must match product configuration')
     verify_localizations(app / 'Contents/Resources' / RESOURCE_BUNDLE, configuration)
+    for language in configuration.localizations:
+        if not (app / 'Contents/Resources' / f'{language}.lproj/InfoPlist.strings').is_file():
+            raise ValueError(f'Missing audio permission localization: {language}')

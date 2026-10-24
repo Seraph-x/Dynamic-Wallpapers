@@ -1,12 +1,13 @@
 #pragma once
 #include <cstdint>
 #include <mutex>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
 namespace dw {
-enum class SceneMount { runtime, project, config, event };
+enum class SceneMount { runtime, project, config, event, spectrum };
 struct SceneRoute { SceneMount mount; std::string path; };
 struct SceneEvent { std::string type, message, commandID; };
 SceneRoute sceneRoute(const std::string& path, const std::string& method, bool mainFrame);
@@ -18,8 +19,11 @@ struct SceneSession final {
   std::mutex mutex;
   bool retired = false;
   std::vector<SceneEvent> events;
+  std::string spectrum;
   SceneSession(std::string id, uint64_t value, std::string json)
       : sceneID(std::move(id)), configuration(std::move(json)), generation(value) {}
+  bool replaceSpectrum(const std::vector<double>& left, const std::vector<double>& right);
+  std::optional<std::string> spectrumJSON();
   /// A valid in-flight event may finish after close cancelled its command.
   /// Return false so the caller records cancellation without reviving the page.
   bool receive(const std::string& body) {

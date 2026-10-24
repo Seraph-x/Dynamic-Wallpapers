@@ -120,11 +120,14 @@ class ProductConfiguration:
         return tuple(ordered)
 
     def application_metadata(self) -> dict[str, Any]:
-        return self._common_metadata(
+        metadata = self._common_metadata(
             self.application.bundle_identifier,
             self.application.display_name,
             self.application.executable,
         )
+        metadata['NSAudioCaptureUsageDescription'] = (
+            'Analyze system audio to animate scene wallpapers. Audio is not recorded or uploaded.')
+        return metadata
 
     def screen_saver_metadata(self) -> dict[str, Any]:
         metadata = self._common_metadata(

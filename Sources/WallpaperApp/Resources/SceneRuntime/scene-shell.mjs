@@ -1,10 +1,12 @@
 import { createScene } from './webwallgl.bundle.mjs';
 import { startSceneRuntime } from './scene-runtime.mjs';
+import { pollSpectrum } from './scene-spectrum.mjs';
 
 const response = await fetch('/__scene/config', { credentials: 'same-origin', redirect: 'error' });
 if (!response.ok) throw new Error(`Scene configuration: HTTP ${response.status}`);
 const runtime = startSceneRuntime(await response.json(), {
   createScene, element: document.getElementById('scene'),
+  startSpectrum: (source, onError) => pollSpectrum(source, { onError }),
   report: async event => {
     const result = await fetch('/__scene/event', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },

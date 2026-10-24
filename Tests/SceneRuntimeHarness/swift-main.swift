@@ -19,6 +19,7 @@ private final class ObservedScenePage: ScenePageSession {
         try await underlying.prepare(project: project, scale: scale, fit: fit)
     }
     func setGain(_ value: Double) throws { try underlying.setGain(value); gains.append(value) }
+    func setPlaybackIntent(_ value: Bool) { underlying.setPlaybackIntent(value) }
     func setPlaying(_ value: Bool) async throws { try await underlying.setPlaying(value) }
     func sendPointer(at point: CGPoint, kind: String) throws { try underlying.sendPointer(at: point, kind: kind) }
     func close() async throws { try await underlying.close(); closeCount += 1 }
@@ -162,7 +163,9 @@ struct SceneSwiftHarness {
     @MainActor
     static func run() async throws {
         let arguments = CommandLine.arguments
-        guard arguments.count == 5 else { throw WallpaperError("Expected runtime, loose project, package project and cache paths") }
+        guard arguments.count == 5 || (arguments.count == 6 && arguments[5] == "--system-audio") else {
+            throw WallpaperError("Expected runtime, loose project, package project, cache paths and optional --system-audio")
+        }
         let runtime = CEFApplicationRuntime(paths: .resolve(), cache: URL(fileURLWithPath: arguments[4]),
             sceneRuntimeRoot: URL(fileURLWithPath: arguments[1]))
         do {
@@ -170,6 +173,11 @@ struct SceneSwiftHarness {
                 entry: "scene.json", representation: .loose), runtime: runtime)
             try await exercise(project: SceneProjectReference(root: URL(fileURLWithPath: arguments[3]),
                 entry: "scene.pkg", representation: .package), runtime: runtime)
+            if arguments.count == 6 {
+                try await SystemSpectrumEvidence.run(project: SceneProjectReference(root: URL(fileURLWithPath: arguments[2]),
+                    entry: "scene.json", representation: .loose), runtime: runtime,
+                    directory: URL(fileURLWithPath: arguments[4]).deletingLastPathComponent())
+            }
             try await runtime.shutdown()
             print("SCENE_SWIFT SHUTDOWN activePages=0")
         } catch {

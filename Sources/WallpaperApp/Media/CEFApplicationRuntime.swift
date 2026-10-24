@@ -6,6 +6,8 @@ import Darwin
 /// Owns every page until its real close callback succeeds, including failed closes.
 @MainActor
 final class CEFApplicationRuntime: WebPageMaking, ScenePageMaking {
+    let systemAudioSpectrum = SystemAudioSpectrumController()
+    private var playingSceneIDs = Set<UUID>()
     private let paths: WebRuntimePaths
     private let sceneRuntimeRoot: URL?
     private let cache: URL
@@ -20,6 +22,12 @@ final class CEFApplicationRuntime: WebPageMaking, ScenePageMaking {
         bundleIdentifier: Bundle.main.bundleIdentifier ?? ProcessInfo.processInfo.processName).cefCache,
          sceneRuntimeRoot: URL? = nil) {
         self.paths = paths; self.cache = cache; self.sceneRuntimeRoot = sceneRuntimeRoot
+        systemAudioSpectrum.onSpectrum = { [weak self] value in
+            guard let self else { return }
+            for (id, session) in self.sceneSessions where value == .zero || self.playingSceneIDs.contains(id) {
+                session.updateSpectrum(value)
+            }
+        }
     }
 
     var activePageCount: Int { sessions.count + sceneSessions.count }
@@ -88,7 +96,17 @@ final class CEFApplicationRuntime: WebPageMaking, ScenePageMaking {
             generation: 1, size: size, scale: scale)
     }
 
-    func retireScene(_ id: UUID) { sceneSessions.removeValue(forKey: id) }
+    func setScenePlaying(_ id: UUID, _ playing: Bool) {
+        guard sceneSessions[id] != nil else { return }
+        if playing { playingSceneIDs.insert(id) }
+        else { playingSceneIDs.remove(id); sceneSessions[id]?.updateSpectrum(.zero) }
+        systemAudioSpectrum.setPlaying(id, playing)
+    }
+
+    func retireScene(_ id: UUID) {
+        setScenePlaying(id, false)
+        sceneSessions.removeValue(forKey: id)
+    }
 
     func retire(_ id: UUID) { sessions.removeValue(forKey: id) }
 
@@ -101,6 +119,7 @@ final class CEFApplicationRuntime: WebPageMaking, ScenePageMaking {
             let closing = pages.map { page in Task { @MainActor in try await page.close() } }
                 + scenes.map { page in Task { @MainActor in try await page.close() } }
             try await PlaybackCloseBarrier.wait(for: closing)
+            try await self.systemAudioSpectrum.shutdown()
             try self.bridge?.shutdown()
             if FileManager.default.fileExists(atPath: self.cache.path) {
                 try FileManager.default.removeItem(at: self.cache)

@@ -646,3 +646,14 @@
 "包含网页或场景时，仅支持固定停留时长。" = "Selections containing web pages or scenes support fixed durations only.";
 "网页和场景壁纸仅支持固定停留时长。" = "Web and scene wallpapers support fixed durations only.";
 "声音设置仅适用于所选视频、网页和场景，图片与动图不受影响。" = "Audio settings apply to selected videos, web pages and scenes. Images and animated images are unaffected.";
+
+/* Optional system audio spectrum. */
+"系统音频响应" = "System audio response";
+"仅在场景播放时分析系统声音，不录制文件、不上传、不使用麦克风。壁纸静音不影响音频响应。" = "Analyzes system sound only while scenes play. No audio files, uploads, or microphone access. Wallpaper mute does not affect audio response.";
+"重试系统音频响应" = "Retry system audio response";
+"系统音频响应需要 macOS 14.2 或更新版本。" = "System audio response requires macOS 14.2 or later.";
+"系统音频响应已关闭。" = "System audio response is off.";
+"等待场景播放，尚未采集系统音频。" = "Waiting for a scene to play. System audio is not being captured.";
+"正在启动系统音频采集，请允许系统音频录制权限。" = "Starting system audio capture. Please allow system audio recording access.";
+"正在分析系统音频。" = "Analyzing system audio.";
+"系统音频响应已停止，请查看错误并重试。" = "System audio response stopped. Review the error and retry.";

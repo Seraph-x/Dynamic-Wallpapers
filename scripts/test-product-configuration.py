@@ -513,6 +513,7 @@ class ProductConfigurationTests(unittest.TestCase):
             "LSMinimumSystemVersion": "14.0",
             "CFBundleDevelopmentRegion": "en",
             "CFBundleLocalizations": ["zh-Hans", "en", "ja", "fr", "es"],
+            "NSAudioCaptureUsageDescription": "Analyze system audio to animate scene wallpapers. Audio is not recorded or uploaded.",
         })
         self.assertEqual(configuration.screen_saver_metadata(), {
             "CFBundleIdentifier": "local.dynamicwallpaper.screensaver",

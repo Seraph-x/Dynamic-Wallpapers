@@ -77,6 +77,7 @@ private struct GeneralSettingsView: View {
             SystemWallpaperSettingsSection(model: model)
             Section(l10n("声音")) {
                 GlobalMuteToggle(model: model)
+                SystemAudioSpectrumSettingsSection(model: model)
             }
             Section(l10n("节能")) {
                 Toggle(l10n("低电量模式时暂停"), isOn: Binding(

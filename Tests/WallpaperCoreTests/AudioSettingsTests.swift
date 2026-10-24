@@ -2,6 +2,17 @@ import XCTest
 @testable import WallpaperCore
 
 final class AudioSettingsTests: XCTestCase {
+    func testSystemAudioSpectrumDefaultsOffAndRoundTrips() throws {
+        let data = Data(#"{"pauseOnLowPower":false,"pauseOnHighTemperature":true}"#.utf8)
+        var settings = try JSONDecoder().decode(AppSettings.self, from: data)
+        XCTAssertFalse(settings.systemAudioSpectrumEnabled)
+        settings.systemAudioSpectrumEnabled = true
+        XCTAssertTrue(try JSONDecoder().decode(AppSettings.self, from: JSONEncoder().encode(settings)).systemAudioSpectrumEnabled)
+        for invalid in ["null", "1", "\"true\""] {
+            let value = "{\"pauseOnLowPower\":false,\"pauseOnHighTemperature\":true,\"systemAudioSpectrumEnabled\":\(invalid)}"
+            XCTAssertThrowsError(try JSONDecoder().decode(AppSettings.self, from: Data(value.utf8)))
+        }
+    }
     func testLegacySettingsKeepGlobalMute() throws {
         let data = Data(#"{"pauseOnLowPower":false,"pauseOnHighTemperature":true}"#.utf8)
         let settings = try JSONDecoder().decode(AppSettings.self, from: data)

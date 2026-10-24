@@ -94,6 +94,7 @@ final class SceneSurface: NSView, PlaybackSurface {
     /// Serialize browser commands; revision checks prevent a late ack from
     /// applying an earlier intent or enabling audio after pause/close.
     private func enqueuePlaying(_ playing: Bool) {
+        page?.setPlaybackIntent(playing)
         revision += 1
         let request = revision
         let previous = commandTask
@@ -151,6 +152,7 @@ final class SceneSurface: NSView, PlaybackSurface {
         catch { fail(error) }
     }
     private func fail(_ error: Error) {
+        page?.setPlaybackIntent(false)
         state = .failed
         wantsPlayback = false
         guard reportedFailure == nil else { return }

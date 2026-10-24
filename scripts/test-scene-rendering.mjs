@@ -24,6 +24,12 @@ const server = createServer(async (request, response) => {
       let body = ''; for await (const chunk of request) body += chunk;
       events.push(JSON.parse(body)); response.end(''); return;
     }
+    if (pathname === '/__scene/spectrum') {
+      // This renderer-only fixture represents the default capture-disabled state.
+      response.setHeader('Content-Type', 'application/json');
+      response.end(JSON.stringify({ sceneID: 'render-test', generation: 1,
+        left: Array(64).fill(0), right: Array(64).fill(0) })); return;
+    }
     let directory, name;
     if (pathname.startsWith('/__runtime/')) { directory = 'Sources/WallpaperApp/Resources/SceneRuntime'; name = pathname.slice(11); }
     else if (pathname.startsWith('/__project/')) { directory = `Tests/Fixtures/SceneAnimated${representation === 'loose' ? 'Loose' : 'Package'}`; name = pathname.slice(11); }

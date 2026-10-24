@@ -141,6 +141,27 @@ std::string entryURL(const std::string& host, const char* entry) {
   if (![self setFrameRate:frameRate error:&error]) { completion(error); return; }
   [self sceneCommand:@{@"type": @"fps", @"fps": @(frameRate)} completion:completion];
 }
+- (BOOL)setSceneSpectrumLeft:(NSArray<NSNumber*>*)left right:(NSArray<NSNumber*>*)right error:(NSError**)error {
+  DWRequireWebMainThread();
+  auto state = _resources->state;
+  try {
+    if (!state->scene || !_ready || _closed || state->closing)
+      throw std::runtime_error("Scene spectrum is unavailable");
+    auto channel = [](NSArray* values) {
+      if (values.count != 64) throw std::runtime_error("Spectrum requires 64 bands");
+      std::vector<double> result; result.reserve(64);
+      for (id value in values) {
+        if (![value isKindOfClass:NSNumber.class] || CFGetTypeID((__bridge CFTypeRef)value) == CFBooleanGetTypeID())
+          throw std::runtime_error("Spectrum bands must be numbers");
+        result.push_back([value doubleValue]);
+      }
+      return result;
+    };
+    if (!state->scene->replaceSpectrum(channel(left), channel(right)))
+      throw std::runtime_error("Scene spectrum session has retired");
+    return YES;
+  } catch (const std::exception& failure) { if (error) *error = DWWebError(@(failure.what())); return NO; }
+}
 - (BOOL)sendScenePointerAtPoint:(NSPoint)point kind:(NSString*)kind error:(NSError**)error {
   DWRequireWebMainThread();
   if ((!([kind isEqual:@"move"] || [kind isEqual:@"leave"] || [kind isEqual:@"click"])) ||

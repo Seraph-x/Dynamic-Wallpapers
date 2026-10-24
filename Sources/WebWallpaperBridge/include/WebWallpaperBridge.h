@@ -54,6 +54,9 @@ NS_SWIFT_UI_ACTOR @interface DWWebPage : NSObject
 /// fit is exactly cover or contain.
 - (void)setSceneFit:(NSString *)fit completion:(void (^)(NSError * _Nullable error))completion;
 - (void)setSceneFrameRate:(NSUInteger)frameRate completion:(void (^)(NSError * _Nullable error))completion;
+/// Replace the latest stereo spectrum. Exactly 64 finite values in [0,1] per channel.
+- (BOOL)setSceneSpectrumLeft:(NSArray<NSNumber*>*)left right:(NSArray<NSNumber*>*)right
+                       error:(NSError * _Nullable * _Nullable)error;
 /// Normalized scene coordinates [0,1]; kind is move, leave, or click.
 - (BOOL)sendScenePointerAtPoint:(NSPoint)point kind:(NSString *)kind error:(NSError * _Nullable * _Nullable)error;
 /// Releases the page/context; the view keeps its last submitted frame.

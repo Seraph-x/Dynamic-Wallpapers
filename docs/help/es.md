@@ -186,7 +186,9 @@ Importa solo proyectos de confianza, ya que sus scripts pueden ejecutarse. Los m
 
 Usa duraciones fijas. La pausa conserva el reloj de la escena y reanuda la misma instancia. Se aplican los ajustes de volumen, silencio, encuadre y frecuencia web. Activa la interacción y sus permisos para movimientos del ratón y clics izquierdos en el escritorio vacío. La vista previa acepta el ratón directamente.
 
-Se usan las propiedades predeterminadas del autor. No se admiten el espectro de audio del sistema, la edición de escenas ni su uso en el salvapantallas nativo. La compatibilidad depende de la versión fijada de WebWallGL; los fallos de carga o renderizado muestran errores. Algunos efectos o scripts incompatibles pueden generar solo avisos, registrados en el log de CEF. No se sustituye la escena por una imagen o vídeo.
+Se usan las propiedades predeterminadas del autor. No se admiten la edición de escenas ni su uso en el salvapantallas nativo. La compatibilidad depende de la versión fijada de WebWallGL; los fallos de carga o renderizado muestran errores. Algunos efectos o scripts incompatibles pueden generar solo avisos, registrados en el log de CEF. No se sustituye la escena por una imagen o vídeo.
+
+Las versiones de desarrollo añaden « Respuesta al audio del sistema » en Ajustes → General → Sonido (macOS 14.2 o posterior; desactivada por defecto). Permite la grabación del audio del sistema cuando se solicite. Solo las escenas en reproducción comparten un servicio de captura; las miniaturas no lo inician. Silenciar el fondo no desactiva la respuesta. El audio se analiza en memoria, excluyendo el sonido de esta app, sin grabarlo, subirlo ni usar el micrófono. La captura se detiene al pausar o cerrar todas las escenas o desactivar el ajuste. Un error de captura o dispositivo borra el espectro y muestra el error sin detener la animación; reintenta tras resolverlo. El editor se prevé como un plugin que se puede descargar y eliminar por separado.
 
 ## 4. Referencia de ajustes {#settings}
 

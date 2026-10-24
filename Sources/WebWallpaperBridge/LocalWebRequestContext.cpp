@@ -152,6 +152,12 @@ class LocalRequestPolicy final : public CefResourceRequestHandler {
         auto route = sceneRoute(path, request->GetMethod(), frame && frame->IsMain());
         if (route.mount == SceneMount::config)
           return memoryResponse(200, "application/json", scene_->configuration);
+        if (route.mount == SceneMount::spectrum) {
+          auto spectrum = scene_->spectrumJSON();
+          if (spectrum) return memoryResponse(200, "application/json", *spectrum);
+          reporter_({"scene-spectrum-retired", request->GetURL(), "In-flight spectrum request cancelled after page close"});
+          return memoryResponse(410, "application/json", "{\"error\":\"Scene closed\"}");
+        }
         if (route.mount == SceneMount::event) {
           if (request->GetHeaderByName("Content-Type") != "application/json")
             throw std::runtime_error("Scene event requires application/json");
@@ -214,8 +220,9 @@ class LocalRequestPolicy final : public CefResourceRequestHandler {
     if (scene_) {
       auto path = localWebPath(request->GetURL(), host_);
       auto route = sceneRoute(path, request->GetMethod(), frame && frame->IsMain());
-      if (route.mount == SceneMount::event && localWebPath(frame->GetURL(), host_) != "__runtime/index.html")
-        throw std::runtime_error("Scene event source is not the trusted main frame");
+      if ((route.mount == SceneMount::event || route.mount == SceneMount::spectrum) &&
+          localWebPath(frame->GetURL(), host_) != "__runtime/index.html")
+        throw std::runtime_error("Scene data source is not the trusted main frame");
       return path;
     }
     if (request->GetMethod() != "GET" && request->GetMethod() != "HEAD")

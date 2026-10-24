@@ -13,6 +13,7 @@ swiftc -sdk "$SDK" -Xclang-linker -isysroot -Xclang-linker "$SDK" -parse-as-libr
   Tests/WebRuntimeHarness/{swift-main,swift-mirror}.swift \
   Sources/WallpaperApp/Media/{WebRuntimePaths,WebPageSession,WebSurface,CEFApplicationRuntime,CEFPageSession,ScenePageSession,CEFScenePageSession}.swift \
   Sources/WallpaperApp/Transcoding/TranscodeTools.swift \
+  Sources/WallpaperApp/Audio/*.swift \
   Sources/WallpaperApp/Playback/{PlaybackCloseBarrier,WallpaperMirrorStream,WallpaperMirrorFrameOutput,WallpaperScreenshotProducer}.swift \
   Sources/WallpaperApp/UI/WallpaperMirrorView.swift \
   "${SWIFT_CORE_OBJECTS[@]}" "${SWIFT_NATIVE_OBJECTS[@]}" "${SWIFT_WEB_OBJECTS[@]}" \
