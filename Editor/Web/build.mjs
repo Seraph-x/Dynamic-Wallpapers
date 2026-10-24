@@ -19,6 +19,10 @@ for (const [name,version] of Object.entries(pins)) {
   if (metadata.version !== version) throw new Error(`Unpinned ${name}`);
 }
 const mainProvenance = JSON.parse(await readFile(path.join(repo,'Resources/ThirdParty/WebWallGL/provenance.json')));
+const modelProvenance = JSON.parse(await readFile(path.join(repo,'Editor/ThirdParty/mdl-codec-provenance.json')));
+for(const [name,digest] of Object.entries(modelProvenance.files)) {
+  if(hash(await readFile(path.join(repo,name)))!==digest)throw new Error(`Pinned model codec differs: ${name}`);
+}
 const enginePath = 'Sources/WallpaperApp/Resources/SceneRuntime/webwallgl.bundle.mjs';
 const engine = await readFile(path.join(repo,enginePath));
 if (hash(engine) !== mainProvenance.files[enginePath]) throw new Error('Shared engine hash mismatch');
@@ -33,6 +37,8 @@ async function put(name,bytes) {
   else await writeFile(path.join(output,name),bytes);
 }
 await put('editor-api.mjs',bundled.outputFiles[0].contents);
+const model = await build({entryPoints:[path.join(web,'model.mjs')],outfile:'model-api.mjs',bundle:true,platform:'browser',format:'esm',target:'chrome120',minify:true,legalComments:'eof',write:false});
+await put('model-api.mjs',model.outputFiles[0].contents);
 await put('webwallgl.bundle.mjs',engine);
 for (const name of ['index.html','editor.css','app.mjs','document.mjs','runtime.mjs','localization.mjs','interface.mjs','resources.mjs','animation.mjs','timeline-clock.mjs','timeline-view.mjs','timeline.mjs','timeline-messages.mjs','timeline.css']) await put(name,await readFile(path.join(web,name)));
 await mkdir(path.join(repo,'Editor/ThirdParty'),{recursive:true});

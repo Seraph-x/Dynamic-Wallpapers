@@ -26,7 +26,8 @@ commands = [
                 str(frameworks / 'Chromium Embedded Framework.framework'),
                 str(frameworks / f'{helper}.app/Contents/MacOS' / helper), str(run / 'context'),
                 str(root / 'Editor/Sources/EditorApp/Resources/EditorWeb'), str(root / 'Tests/Fixtures/SceneAnimatedLoose'),
-                str(root / 'Sources/WallpaperApp/Resources/SceneRuntime'), str(run / 'browser-export/Loose'), str(run / 'browser-export/Package')], 60),
+                str(root / 'Sources/WallpaperApp/Resources/SceneRuntime'), str(run / 'browser-export/Loose'), str(run / 'browser-export/Package'),
+                str(run / 'browser-export/ModelLoose'), str(run / 'browser-export/ModelPackage')], 60),
 ]
 print(f'EDITOR_NATIVE artifacts={run}', flush=True)
 for name, command, budget in commands:

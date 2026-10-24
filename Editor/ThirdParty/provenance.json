@@ -10,6 +10,7 @@
   "engineSHA256": "17c85a29c11b1a783f79f4351df00497217b1af76c4b457ca9422c21dbae8fa3",
   "files": {
     "editor-api.mjs": "01ad2136319122edc3cf473322ee258df8adf49068e1228c6fcf6762969a4bd6",
+    "model-api.mjs": "89461ae4e2084d7302ad5e1694c4a32871b84d4356ea4395a862b876958b9ca5",
     "webwallgl.bundle.mjs": "17c85a29c11b1a783f79f4351df00497217b1af76c4b457ca9422c21dbae8fa3",
     "index.html": "40b7c7b6ccee9338abf976444c10edad48ff93da7a183e082c91a95bbf9197fc",
     "editor.css": "8a1c828b216b5c9a237bba370b641097ae8dde13ff47e250d61bca5979fd1b6e",

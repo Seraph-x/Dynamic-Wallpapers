@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "project": "WebWallGL",
+  "commit": "197abe54266c31d346cebc314e49a26b70c960cc",
+  "source": "https://github.com/oneincase/webwallgl/blob/197abe54266c31d346cebc314e49a26b70c960cc/renderer/vendor/we-scene/pkg/mdl-write.js",
+  "license": "MIT",
+  "files": {
+    "Editor/Web/vendor/mdl-codec.mjs": "77aba5615b703a05586640a76826dc7cd3859bdacc6ccc3034323a41a5c31ee3",
+    "Editor/ThirdParty/WebWallGL-MDL-LICENSE": "857432ca4f48930e6079aca25164c27b791576ee2a7d3e3c9d6a92a089fe4948"
+  }
+}

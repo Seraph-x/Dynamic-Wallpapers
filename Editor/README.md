@@ -15,6 +15,10 @@ system spectrum; exports preserve audio response for wallpaper playback.
 Skeleton tools and a script IDE remain separate roadmap features. Immutable
 resource revisions let subsequent model/script tools share the same
 undo/save/export transaction as scene JSON.
+The [model resource foundation](../docs/editor-model-resources.md) now supplies
+lossless skeleton reindexing and numeric skin-weight transactions. These are
+tested infrastructure APIs; interactive skeleton/import/brush tools remain
+pending and are not exposed as completed Editor features.
 
 Use **File → New Project** or **Open Project**. Imports create complete owned
 copies. **Save** writes the Editor workspace; **Export** creates a standard scene
@@ -154,6 +158,9 @@ aliases fail explicitly rather than overwriting scene or project metadata.
   layout, native property animation/tangent conventions and PKG builder inform
   this editor. Both are MIT licensed. Our native
   host and focused workbench are implemented in this repository.
+- WebWallGL's [lossless MDL codec](../docs/editor-model-resources.md#reused-source)
+  is vendored at a recorded commit for skeleton/resource transactions, with its
+  complete MIT license and source hashes in `ThirdParty/`.
 - [DSH Wallpaper Engine](https://github.com/elysia395/dsh-wallpaper-engine):
   scene-hosting design reference; no DSH application source is vendored here.
 - [CEF](https://bitbucket.org/chromiumembedded/cef/): native browser runtime.
