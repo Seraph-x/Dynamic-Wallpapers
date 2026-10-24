@@ -72,3 +72,19 @@ test('JSON and immutable resource versions commit as one transaction with exact 
   assert.deepEqual(doc.snapshot(),before); assert.equal(doc.canRedo,false);
   assert.throws(() => doc.transaction(draft => draft.resource('nested.json',version)));
 });
+test('transaction can remove the final override and restore it with undo', () => {
+  const version='a'.repeat(64), doc=new SceneDocument({...initial(),resourceOverrides:{'body.mdl':version}});
+  doc.transaction(draft => {draft.resource('body.mdl',null);draft.patch(1,{name:'Original resource'});});
+  assert.equal(doc.snapshot().resourceOverrides,undefined);
+  doc.undo(); assert.equal(doc.snapshot().resourceOverrides['body.mdl'],version);
+  doc.redo(); assert.equal(doc.snapshot().resourceOverrides,undefined);
+});
+test('resource edits reject reserved aliases, duplicate identities and malformed imported maps', () => {
+  const doc=new SceneDocument(initial()), version='a'.repeat(64);
+  for(const path of ['Project.JSON','NESTED.JSON']) assert.throws(()=>doc.resource(path,version));
+  assert.throws(()=>new SceneDocument({...initial(),resourceOverrides:{'a.bin':null}}));
+  assert.throws(()=>new SceneDocument({...initial(),resourceOverrides:{'a.bin':version,'A.bin':version}}));
+  doc.resource('__proto__',version);assert.equal(doc.snapshot().resourceOverrides.__proto__,version);
+  const unicode=new SceneDocument({...initial(),entry:'scènes.json'});
+  assert.throws(()=>unicode.resource('SCE\u0300NES.JSON',version));
+});

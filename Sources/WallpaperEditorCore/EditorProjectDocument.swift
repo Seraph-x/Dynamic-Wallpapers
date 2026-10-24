@@ -25,6 +25,7 @@ public struct EditorProjectDocument: Equatable, Sendable {
         let schema = schemaVersion ?? (resourceOverrides.isEmpty ? 1 : 2)
         guard [1,2].contains(schema), schema == 2 || resourceOverrides.isEmpty else { throw WallpaperError("Invalid resource workspace schema") }
         for path in resourceOverrides.keys { try Self.validateResourcePath(path, entry: sceneEntry, package: sourcePackage) }
+        guard Set(resourceOverrides.keys.map(Self.resourcePathKey)).count == resourceOverrides.count else { throw WallpaperError("Ambiguous Editor resource paths") }
         self.schemaVersion = schema; self.resourceOverrides = resourceOverrides
         self.id = id; self.revision = revision; self.title = title; self.sceneEntry = sceneEntry
         self.sourcePackage = sourcePackage; self.scene = try Self.encode(Self.object(scene)); self.project = try Self.encode(metadata)

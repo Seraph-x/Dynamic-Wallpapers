@@ -55,11 +55,15 @@ std::string entryURL(const std::string& host, const char* entry) {
   void (^_onReady)(void);
   void (^_onError)(NSError*);
   void (^_onEditorDirty)(BOOL);
+  void (^_onEditorResource)(NSDictionary<NSString*, id>*);
   NSMutableDictionary<NSString*, void (^)(NSDictionary*, NSError*)>* _editorCompletions;
   NSMutableDictionary<NSString*, NSNumber*>* _editorDeadlines;
+  NSMutableSet<NSString*>* _editorResourceRequests;
 }
 - (void (^)(BOOL))onEditorDirty { DWRequireWebMainThread(); return _onEditorDirty; }
 - (void)setOnEditorDirty:(void (^)(BOOL))callback { DWRequireWebMainThread(); _onEditorDirty = [callback copy]; }
+- (void (^)(NSDictionary<NSString*, id>*))onEditorResource { DWRequireWebMainThread(); return _onEditorResource; }
+- (void)setOnEditorResource:(void (^)(NSDictionary<NSString*, id>*))callback { DWRequireWebMainThread(); _onEditorResource = [callback copy]; }
 - (BOOL)configureEditorRuntimeRoot:(NSString*)root configuration:(NSDictionary*)configuration error:(NSError**)error {
   DWRequireWebMainThread();
   NSMutableDictionary* config = [configuration mutableCopy];
@@ -85,15 +89,20 @@ std::string entryURL(const std::string& host, const char* entry) {
     });
   };
   _editorCompletions = [NSMutableDictionary dictionary]; _editorDeadlines = [NSMutableDictionary dictionary];
+  _editorResourceRequests = [NSMutableSet set];
   return YES;
 }
 - (void)requestEditorCommand:(NSDictionary<NSString*, id>*)payload completion:(DWEditorCommandCompletion)completion {
   DWRequireWebMainThread();
   auto state = _resources->state;
-  if (!state->editor || !_ready || state->closing || !state->browser || !state->failure(false).empty()) {
+  BOOL resourceReply = [payload[@"type"] isEqual:@"resource-reply"];
+  if (resourceReply && (!payload[@"requestID"] || ![_editorResourceRequests containsObject:payload[@"requestID"]])) {
+    completion(nil, DWWebError(@"Unsolicited Editor resource reply")); return;
+  }
+  if (!state->editor || (!_ready && !resourceReply) || state->closing || !state->browser || !state->failure(false).empty()) {
     completion(nil, DWWebError(@"Editor is not ready")); return;
   }
-  if (![@[@"snapshot", @"freeze", @"thaw", @"load", @"mark-saved", @"add-image", @"export-pkg", @"undo", @"redo"] containsObject:payload[@"type"]]) {
+  if (![@[@"snapshot", @"freeze", @"thaw", @"load", @"mark-saved", @"add-image", @"export-pkg", @"undo", @"redo", @"resource-reply", @"replace-resource"] containsObject:payload[@"type"]]) {
     completion(nil, DWWebError(@"Unknown Editor command")); return;
   }
   NSString* identifier = NSUUID.UUID.UUIDString;
@@ -101,6 +110,7 @@ std::string entryURL(const std::string& host, const char* entry) {
   command[@"session"] = @(state->editor->session.c_str()); command[@"generation"] = @(state->editor->generation);
   NSError* error = nil; NSData* data = [NSJSONSerialization dataWithJSONObject:command options:0 error:&error];
   if (!data) { completion(nil, error); return; }
+  if (resourceReply) [_editorResourceRequests removeObject:payload[@"requestID"]];
   _editorCompletions[identifier] = [completion copy];
   _editorDeadlines[identifier] = @(NSProcessInfo.processInfo.systemUptime + 30);
   NSString* script = [NSString stringWithFormat:@"window.__dynamicWallpaperEditor.command(%@);", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]];
@@ -117,6 +127,14 @@ std::string entryURL(const std::string& host, const char* entry) {
       if (state->engineReady) { state->fail("Duplicate Editor ready"); break; }
       state->engineReady = true;
     } else if (event.type == "dirty") { if (_onEditorDirty) _onEditorDirty(event.dirty); }
+    else if (event.type == "resource") {
+      if (!_onEditorResource) { state->fail("Editor resource handler unavailable"); break; }
+      NSString* identifier = @(event.id.c_str());
+      if ([_editorResourceRequests containsObject:identifier]) { state->fail("Duplicate Editor resource request"); break; }
+      [_editorResourceRequests addObject:identifier];
+      NSData* bytes = [NSData dataWithBytes:event.payload.data() length:event.payload.size()];
+      _onEditorResource([NSJSONSerialization JSONObjectWithData:bytes options:0 error:nil]);
+    }
     else if (event.type == "reply") {
       NSString* identifier = @(event.id.c_str());
       void (^callback)(NSDictionary*, NSError*) = _editorCompletions[identifier];
@@ -131,6 +149,7 @@ std::string entryURL(const std::string& host, const char* entry) {
   if (!state->failure(false).empty()) [self failEditorCommands:DWWebError(@(state->failure(false).c_str()))];
 }
 - (void)failEditorCommands:(NSError*)error {
+  [_editorResourceRequests removeAllObjects];
   NSArray* callbacks = _editorCompletions.allValues; [_editorCompletions removeAllObjects]; [_editorDeadlines removeAllObjects];
   for (void (^callback)(NSDictionary*, NSError*) in callbacks) callback(nil, error);
 }

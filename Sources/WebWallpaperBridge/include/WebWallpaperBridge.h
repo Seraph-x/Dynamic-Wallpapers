@@ -49,6 +49,8 @@ NS_SWIFT_UI_ACTOR @interface DWWebPage : NSObject
 @property(nonatomic, copy, nullable) void (^onReady)(void);
 @property(nonatomic, copy, nullable) void (^onError)(NSError *error);
 @property(nonatomic, copy, nullable) void (^onEditorDirty)(BOOL dirty);
+/// Fixed workspace resource requests; the owning Editor supplies the storage implementation.
+@property(nonatomic, copy, nullable) void (^onEditorResource)(NSDictionary<NSString*, id>* request);
 /// Fixed data commands; replies are paired with unpredictable native request IDs.
 - (void)requestEditorCommand:(NSDictionary<NSString*, id>*)command
     completion:(DWEditorCommandCompletion)completion;

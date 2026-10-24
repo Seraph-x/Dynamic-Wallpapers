@@ -14,8 +14,12 @@ public struct EditorResourceVersion: Hashable, Sendable {
 }
 
 extension EditorProjectDocument {
+    static func resourcePathKey(_ path: String) -> String {
+        path.precomposedStringWithCanonicalMapping.folding(options:.caseInsensitive,locale:Locale(identifier:"en_US_POSIX"))
+    }
     static func validateResourcePath(_ path: String, entry: String, package: String?) throws {
         try SceneProjectReference.validateRelativePath(path)
-        guard path != entry, path != "project.json", path != package else { throw WallpaperError("Reserved Editor resource path") }
+        let key = resourcePathKey(path)
+        guard ![entry,"project.json",package].compactMap({$0}).map(resourcePathKey).contains(key) else { throw WallpaperError("Reserved Editor resource path") }
     }
 }

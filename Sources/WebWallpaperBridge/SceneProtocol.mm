@@ -114,6 +114,19 @@ bool EditorSession::receive(const std::string& body) { @autoreleasepool {
     [keys addObjectsFromArray:@[@"id", @"payload"]]; event.id = [object[@"id"] UTF8String];
     NSData* payload = [NSJSONSerialization dataWithJSONObject:object[@"payload"] options:0 error:nil];
     event.payload.assign(static_cast<const char*>(payload.bytes), payload.length);
+  } else if ([type isEqual:@"resource"] && text(object[@"id"], 128)) {
+    [keys addObjectsFromArray:@[@"id", @"action"]]; event.id = [object[@"id"] UTF8String];
+    if ([object[@"action"] isEqual:@"stage"] && [object[@"data"] isKindOfClass:NSString.class]) {
+      NSString* encoded = object[@"data"];
+      NSData* bytes = [[NSData alloc] initWithBase64EncodedString:encoded options:0];
+      if (!bytes || ![[bytes base64EncodedStringWithOptions:0] isEqual:encoded]) throw std::runtime_error("Invalid Editor resource base64");
+      [keys addObject:@"data"];
+    } else if ([object[@"action"] isEqual:@"read"] && [object[@"version"] isKindOfClass:NSString.class] && [object[@"version"] length] == 64 &&
+        [object[@"version"] rangeOfString:@"^[a-f0-9]{64}$" options:NSRegularExpressionSearch].location != NSNotFound) {
+      [keys addObject:@"version"];
+    } else throw std::runtime_error("Invalid Editor resource request");
+    NSData* payload = [NSJSONSerialization dataWithJSONObject:object options:0 error:nil];
+    event.payload.assign(static_cast<const char*>(payload.bytes), payload.length);
   } else if ([type isEqual:@"error"] && text(object[@"message"], 2048)) {
     [keys addObject:@"message"]; event.payload = [object[@"message"] UTF8String];
   } else throw std::runtime_error("Invalid Editor event payload");

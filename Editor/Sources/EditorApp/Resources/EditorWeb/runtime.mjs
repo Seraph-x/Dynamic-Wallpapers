@@ -1,6 +1,8 @@
 import { SceneDocument, safePath } from './document.mjs';
+import { createResourceClient, resourceReader, decodeResource } from './resources.mjs';
 
-export function createEditorSource(document, read) {
+export function createEditorSource(value, readOriginal, readVersion) {
+  const document = structuredClone(value), read = resourceReader(document,readOriginal,readVersion);
   const encode = value => new TextEncoder().encode(JSON.stringify(value));
   return {
     async project() { return { ...document.project, type: 'scene', file: document.entry }; },
@@ -17,16 +19,18 @@ export function validateEditorCommand(command, config) {
   if (!command || command.session !== config.session || command.generation !== config.generation ||
       typeof command.id !== 'string' || !command.id) throw new Error('Stale Editor command');
   const fields = { snapshot: [], load: ['document'], 'mark-saved': ['document'], 'add-image': ['image'],
-    'export-pkg': ['paths'], freeze: [], thaw: [], undo: [], redo: [] }[command.type];
+    'export-pkg': ['paths'], freeze: [], thaw: [], undo: [], redo: [],
+    'replace-resource':['path','data'], 'resource-reply':['requestID','result'] }[command.type];
   if (!fields || Object.keys(command).some(key => !['session', 'generation', 'id', 'type', ...fields].includes(key)) ||
       fields.some(key => command[key] === undefined)) throw new Error('Invalid Editor command');
 }
 
 export function startEditor(config, options) {
   if (config.version !== 1 || !config.session || !Number.isSafeInteger(config.generation) || config.generation < 1) throw new Error('Invalid Editor configuration');
-  let document = new SceneDocument(config.document), queue = Promise.resolve(), destroyed = false;
+  let document = new SceneDocument(config.document,config.sourcePackage), queue = Promise.resolve(), destroyed = false;
   let controls, instance, playing = true, frozen = true;
   const report = payload => options.report({ ...payload, session: config.session, generation: config.generation });
+  const resources = createResourceClient(report);
   const read = async path => {
     safePath(path);
     const response = await fetch(`/__project/${path.split('/').map(encodeURIComponent).join('/')}`, { redirect: 'error' });
@@ -48,7 +52,7 @@ export function startEditor(config, options) {
     instance?.destroy({ releasePkgCache: true }); controls = undefined;
     options.element.replaceChildren();
     instance = options.createScene(options.element, sceneOptions);
-    await instance.load(createEditorSource(document.snapshot(), read));
+    await instance.load(createEditorSource(document.snapshot(), read,resources.read));
     instance.setVolume(0); controls = options.editorOf(instance);
     if (!controls) throw new Error('The pinned engine did not expose Editor controls');
     controls.setTimeScale(playing ? 1 : 0); await controls.seek(time);
@@ -70,25 +74,40 @@ export function startEditor(config, options) {
   async function applyCommand(value) {
     try {
       validateEditorCommand(value, config);
+      // Initial rendering and an in-progress native command can both need a blob.
+      // Resolving a resource must never wait for that same render/command queue.
+      if (value.type === 'resource-reply') {
+        resources.reply(value);
+        await report({type:'reply',id:value.id,payload:{}}); return;
+      }
       await queue;
       let payload = {};
       switch (value.type) {
         case 'snapshot': if (options.snapshotError?.()) throw options.snapshotError(); payload = { document: document.snapshot() }; break;
         case 'freeze': frozen = true; options.setEditingEnabled(false); payload = { document:document.snapshot(), dirty:document.dirty || Boolean(options.snapshotError?.()) }; break;
         case 'thaw': frozen = false; options.setEditingEnabled(true); break;
-        case 'load': document = new SceneDocument(value.document); await render(); break;
+        case 'load': document = new SceneDocument(value.document,config.sourcePackage); await render(); break;
         case 'mark-saved': document.markSaved(value.document); options.onChange(document, controls); break;
         case 'add-image': await changed(doc => doc.addImage(value.image)); break;
         case 'undo': await changed(doc => doc.undo()); break;
         case 'redo': await changed(doc => doc.redo()); break;
+        case 'replace-resource': {
+          if (frozen) throw new Error('Editor is frozen for a native operation');
+          // Validate the target before staging any bytes on disk.
+          const draft = new SceneDocument(document.snapshot(),config.sourcePackage);
+          draft.resource(value.path,'0'.repeat(64));
+          const version = await resources.stage(decodeResource(value.data));
+          await changed(doc => doc.transaction(draft => draft.resource(value.path,version))); break;
+        }
         case 'export-pkg': {
           if (!Array.isArray(value.paths) || !value.paths.every(path => typeof path === 'string')) throw new Error('Invalid resource list');
           const snapshot = document.snapshot(), encode = object => new TextEncoder().encode(JSON.stringify(object));
+          const resolve = resourceReader(snapshot,read,resources.read);
           const files = [];
-          for (const path of value.paths) {
+          for (const path of new Set([...value.paths,...Object.keys(snapshot.resourceOverrides ?? {})])) {
             safePath(path);
             if (path === 'project.json' || path === snapshot.entry || path === config.sourcePackage) continue;
-            const bytes = await read(path); if (bytes === null) throw new Error(`Export resource disappeared: ${path}`);
+            const bytes = await resolve(path); if (bytes === null) throw new Error(`Export resource disappeared: ${path}`);
             files.push({ path, data: bytes });
           }
           files.push({ path: 'scene.json', data: encode(snapshot.scene) });
@@ -110,8 +129,12 @@ export function startEditor(config, options) {
     }
   }
   let commandQueue = Promise.resolve();
-  function command(value) { const result = commandQueue.then(() => applyCommand(value)); commandQueue = result.catch(options.onError); return result; }
+  function command(value) {
+    if (value?.type === 'resource-reply') return applyCommand(value);
+    const result = commandQueue.then(() => applyCommand(value)); commandQueue = result.catch(options.onError); return result;
+  }
   return { ready, command, change: changed, get controls() { return controls; }, get document() { return document; },
     get playing() { return playing; }, setPlaying(value) { playing = value; controls?.setTimeScale(value ? 1 : 0); },
-    destroy() { destroyed = true; instance?.destroy({ releasePkgCache: true }); } };
+    stageResource:resources.stage,
+    destroy() { destroyed = true; resources.dispose(); instance?.destroy({ releasePkgCache: true }); } };
 }
