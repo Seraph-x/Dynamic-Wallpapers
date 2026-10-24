@@ -91,5 +91,10 @@ MenuContent/AppDelegate and five-language resources; Editor handoff handlers;
   saved projects survive. Missing/invalid app and failed download are action-only.
 - [x] Run targeted tests after building (60 s), core/scene/audio/product/package/
   localization/help regressions; inspect pins/notices, source export and signatures.
-- [ ] Create English PR 3 with dependencies/evidence. Independently downloadable
+- [x] Create English PR 3 with dependencies/evidence. Independently downloadable
   Editor artifact is separate from Main releases; publish only when requested.
+
+Delivery: [PR #8](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/8) →
+[PR #9](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/9) →
+[PR #10](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/10).
+All three are submitted for review; no merge or Editor release is performed.
