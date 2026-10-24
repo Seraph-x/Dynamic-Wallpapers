@@ -1,0 +1,10 @@
+{
+  "name": "Dynamic Wallpaper Editor",
+  "executable": "DynamicWallpaperEditor",
+  "bundleIdentifier": "local.dynamicwallpaper.editor",
+  "version": "0.1.0",
+  "build": "1",
+  "minimumMacOS": "14.0",
+  "architecture": "arm64",
+  "urlScheme": "dynamic-wallpaper-editor"
+}

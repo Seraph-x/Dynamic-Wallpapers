@@ -66,6 +66,36 @@ struct EditorProjectFiles {
             guard unlinkat(parent, (path as NSString).lastPathComponent, 0) == 0 else { throw failure("移除旧容器") }
         }
     }
+    func paths() throws -> [String] {
+        try withDirectory { root in
+            func visit(_ descriptor: Int32, _ prefix: String) throws -> [String] {
+                let duplicate = dup(descriptor)
+                guard duplicate >= 0 else { throw failure("复制工程目录描述符") }
+                guard let stream = fdopendir(duplicate) else { close(duplicate); throw failure("枚举工程目录") }
+                defer { closedir(stream) }
+                var result: [String] = []
+                while true {
+                    errno = 0
+                    guard let entry = readdir(stream) else { if errno != 0 { throw failure("读取工程目录") }; break }
+                    var nameBytes = entry.pointee.d_name
+                    let name = withUnsafePointer(to: &nameBytes) { String(cString: UnsafeRawPointer($0).assumingMemoryBound(to: CChar.self)) }
+                    if name == "." || name == ".." { continue }
+                    let path = prefix + name; try SceneProjectReference.validateRelativePath(path)
+                    var info = stat()
+                    guard fstatat(descriptor, name, &info, AT_SYMLINK_NOFOLLOW) == 0 else { throw failure("检查工程资源") }
+                    if info.st_mode & S_IFMT == S_IFREG { result.append(path) }
+                    else if info.st_mode & S_IFMT == S_IFDIR {
+                        let child = openat(descriptor, name, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC)
+                        guard child >= 0 else { throw failure("打开工程资源目录") }
+                        defer { close(child) }
+                        result += try visit(child, path + "/")
+                    } else { throw WallpaperError("工程包含链接或非普通资源：\(path)。") }
+                }
+                return result
+            }
+            return try visit(root, "").sorted()
+        }
+    }
     func locked<T>(_ body: (Self) throws -> T) throws -> T {
         try withDirectory { parent in
             let descriptor = openat(parent, ".workspace-lock", O_RDWR | O_CREAT | O_NOFOLLOW | O_CLOEXEC, 0o600)

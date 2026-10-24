@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dynamic Wallpaper Editor</title><link rel="stylesheet" href="editor.css"><link rel="icon" href="data:,"></head>
+<body>
+<header><label for="project-title" data-text="title">Project title</label><input id="project-title" autocomplete="off"><span id="saved" role="status"></span></header>
+<nav aria-label="Edit"><button id="playback" aria-pressed="true">Pause</button><button id="undo" data-text="undo">Undo</button><button id="redo" data-text="redo">Redo</button><button id="add-text" data-text="addText">Add text</button><button id="duplicate" data-text="duplicate">Duplicate</button><button id="remove" data-text="remove">Delete</button><button id="up" data-text="up">Move up</button><button id="down" data-text="down">Move down</button></nav>
+<main><aside><h1 data-text="layers">Layers</h1><ol id="layers"></ol></aside><section id="preview" aria-label="Scene preview"><div id="canvas"></div></section><aside><h2 data-text="properties">Properties</h2><form id="inspector"></form><p id="binding" data-text="binding">Script, animation and property-controlled fields are read-only.</p></aside></main>
+<footer><output id="diagnostics" role="alert"></output><span data-text="previewMuted">Preview is muted. Audio response is preserved for wallpaper playback.</span></footer>
+<script type="module" src="app.mjs"></script>
+</body></html>

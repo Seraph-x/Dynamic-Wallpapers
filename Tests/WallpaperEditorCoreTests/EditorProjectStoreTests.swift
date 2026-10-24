@@ -78,4 +78,18 @@ final class EditorProjectStoreTests: XCTestCase {
         do { _ = try await store.save(created.document, scene: created.document.scene, project: created.document.project, title: "Overwrite"); XCTFail("Wrote through redirected root") } catch {}
         XCTAssertEqual(try Data(contentsOf: moved.appendingPathComponent(created.document.id.uuidString + "/workspace.json")), savedBytes)
     }
+    func testImageResourcesAndPackageExportReadBack() async throws {
+        let store = store(), created = try await store.create(title: "Export", width: 640, height: 360)
+        let image = try await store.addImage(id: created.document.id, data: Data([1,2,3]), extension: "png", width: 20, height: 10)
+        let paths = try await store.resourcePaths(id: created.document.id)
+        XCTAssertTrue(paths.contains(image.model)); XCTAssertTrue(paths.contains(image.texture))
+        let pkg = ScenePackageReaderTests.package([("scene.json", created.document.scene), ("a.bin", Data([9]))])
+        let output = try await store.exportPackage(created.document, package: pkg, to: temporary.appendingPathComponent("PKG"))
+        XCTAssertEqual(output.representation, .package)
+        XCTAssertEqual(try ScenePackageReader(data: Data(contentsOf: output.entryURL)).read("a.bin"), Data([9]))
+        let imported = try await store.importProject(root: output.root)
+        XCTAssertEqual(imported.document.title, "Export")
+        do { _ = try await store.exportPackage(created.document, package: Data([1]), to: temporary.appendingPathComponent("Bad")); XCTFail() } catch {}
+        XCTAssertFalse(FileManager.default.fileExists(atPath: temporary.appendingPathComponent("Bad").path))
+    }
 }

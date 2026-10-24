@@ -137,6 +137,7 @@ class LocalRequestPolicy final : public CefResourceRequestHandler {
       : files_(std::move(files)), runtime_(std::move(runtime)), scene_(std::move(scene)),
         host_(std::move(host)), reporter_(std::move(reporter)) {}
   void contextReady() { ready_.store(true); }
+  void setEditor(std::shared_ptr<EditorSession> editor) { editor_ = std::move(editor); }
   ReturnValue OnBeforeResourceLoad(CefRefPtr<CefBrowser>, CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request,
                                     CefRefPtr<CefCallback>) override {
     try { validate(request, frame); return RV_CONTINUE; }
@@ -148,10 +149,10 @@ class LocalRequestPolicy final : public CefResourceRequestHandler {
       auto path = validate(request, frame);
       auto files = files_;
       bool sceneProjectResource = false;
-      if (scene_) {
-        auto route = sceneRoute(path, request->GetMethod(), frame && frame->IsMain());
+      if (scene_ || editor_) {
+        auto route = dataRoute(path, request->GetMethod(), frame && frame->IsMain());
         if (route.mount == SceneMount::config)
-          return memoryResponse(200, "application/json", scene_->configuration);
+          return memoryResponse(200, "application/json", editor_ ? editor_->configuration : scene_->configuration);
         if (route.mount == SceneMount::spectrum) {
           auto spectrum = scene_->spectrumJSON();
           if (spectrum) return memoryResponse(200, "application/json", *spectrum);
@@ -166,12 +167,14 @@ class LocalRequestPolicy final : public CefResourceRequestHandler {
           CefPostData::ElementVector elements; data->GetElements(elements);
           std::string body;
           for (auto element : elements) {
-            if (element->GetType() != PDE_TYPE_BYTES || element->GetBytesCount() > 8192 - body.size())
+            if (element->GetType() != PDE_TYPE_BYTES || (!editor_ && element->GetBytesCount() > 8192 - body.size()))
               throw std::runtime_error("Invalid or oversized scene event body");
             std::string bytes(element->GetBytesCount(), '\0');
             element->GetBytes(bytes.size(), bytes.data()); body += bytes;
           }
-          if (!scene_->receive(body))
+          if (editor_ && !editor_->receive(body))
+            reporter_({"editor-event-retired", request->GetURL(), "Editor event cancelled after close"});
+          if (scene_ && !scene_->receive(body))
             reporter_({"scene-event-retired", request->GetURL(), "In-flight event delivered after page cancellation; not dispatched"});
           return memoryResponse(200, "application/json", "{}");
         }
@@ -196,7 +199,7 @@ class LocalRequestPolicy final : public CefResourceRequestHandler {
       if (!extension.empty()) extension.erase(0, 1);
       auto mime = (extension == "js" || extension == "mjs") ? CefString("text/javascript") : CefGetMimeType(extension);
       if (mime.empty()) mime = "application/octet-stream";
-      return new LocalFileResponse(files, std::move(*resource), request->GetURL(), mime, host_, reporter_, scene_ != nullptr);
+      return new LocalFileResponse(files, std::move(*resource), request->GetURL(), mime, host_, reporter_, scene_ != nullptr || editor_ != nullptr);
     } catch (const std::exception& error) {
       reporter_({"resource-denied", request->GetURL(), error.what()});
       // The error response is real HTTP failure, not successful placeholder content.
@@ -210,16 +213,24 @@ class LocalRequestPolicy final : public CefResourceRequestHandler {
     allow = false; reporter_({"protocol-denied", request->GetURL(), "OS protocol handlers are not available"});
   }
  private:
+  SceneRoute dataRoute(std::string path, const std::string& method, bool mainFrame) const {
+    if (editor_) {
+      if (path == "__editor/config") path = "__scene/config";
+      else if (path == "__editor/event") path = "__scene/event";
+      else if (path.starts_with("__scene/")) throw std::runtime_error("Scene API is not available to Editor");
+    }
+    return sceneRoute(path, method, mainFrame);
+  }
   CefRefPtr<CefResourceHandler> memoryResponse(int status, const std::string& mime, const std::string& body) const {
     // The read handler owns the response bytes through asynchronous completion.
     auto stream = CefStreamReader::CreateForHandler(new StringReader(body));
-    return new CefStreamResourceHandler(status, status == 200 ? "OK" : "Forbidden", mime, localHeaders(host_, scene_ != nullptr), stream);
+    return new CefStreamResourceHandler(status, status == 200 ? "OK" : "Forbidden", mime, localHeaders(host_, scene_ != nullptr || editor_ != nullptr), stream);
   }
   std::string validate(CefRefPtr<CefRequest> request, CefRefPtr<CefFrame> frame) const {
     if (!ready_.load()) throw std::runtime_error("Local project context has not passed initialization");
-    if (scene_) {
+    if (scene_ || editor_) {
       auto path = localWebPath(request->GetURL(), host_);
-      auto route = sceneRoute(path, request->GetMethod(), frame && frame->IsMain());
+      auto route = dataRoute(path, request->GetMethod(), frame && frame->IsMain());
       if ((route.mount == SceneMount::event || route.mount == SceneMount::spectrum) &&
           localWebPath(frame->GetURL(), host_) != "__runtime/index.html")
         throw std::runtime_error("Scene data source is not the trusted main frame");
@@ -231,6 +242,7 @@ class LocalRequestPolicy final : public CefResourceRequestHandler {
   }
   std::shared_ptr<ProjectFiles> files_, runtime_;
   std::shared_ptr<SceneSession> scene_;
+  std::shared_ptr<EditorSession> editor_;
   const std::string host_;
   WebResourceReporter reporter_;
   std::atomic<bool> ready_{false};
@@ -261,6 +273,7 @@ class LocalContext final : public CefRequestContextHandler {
       : host_(std::move(host)), policy_(new LocalRequestPolicy(std::move(project), std::move(runtime),
           std::move(scene), host_, reporter)), reporter_(std::move(reporter)) {}
   ~LocalContext() override { reporter_({"context-handler-destroyed", "https://" + host_, "handler released; backend-context lifetime not asserted"}); }
+  void setEditor(std::shared_ptr<EditorSession> editor) { policy_->setEditor(std::move(editor)); }
   void OnRequestContextInitialized(CefRefPtr<CefRequestContext> context) override {
     const auto origin = "https://" + host_;
     // CEF explicitly does not set an incognito default when both URLs are empty.
@@ -297,5 +310,12 @@ CefRefPtr<CefRequestContextHandler> makeSceneRequestContext(
     std::shared_ptr<ProjectFiles> project, std::shared_ptr<ProjectFiles> runtime,
     std::shared_ptr<SceneSession> scene, std::string host, WebResourceReporter reporter) {
   return new LocalContext(std::move(project), std::move(runtime), std::move(scene), std::move(host), std::move(reporter));
+}
+CefRefPtr<CefRequestContextHandler> makeEditorRequestContext(
+    std::shared_ptr<ProjectFiles> project, std::shared_ptr<ProjectFiles> runtime,
+    std::shared_ptr<EditorSession> editor, std::string host, WebResourceReporter reporter) {
+  CefRefPtr<LocalContext> context = new LocalContext(std::move(project), std::move(runtime),
+      std::shared_ptr<SceneSession>{}, std::move(host), std::move(reporter));
+  context->setEditor(std::move(editor)); return context;
 }
 }  // namespace dw

@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "packages": {
+    "@webwallgl/editor": "3.0.0",
+    "webwallgl": "3.0.0",
+    "mediabunny": "1.56.0",
+    "esbuild": "0.28.2"
+  },
+  "editorEntrySHA256": "7480ae1ad96f54cadffebef536f78352db6e84be9477bb2cda22ac1909881d84",
+  "engineSHA256": "17c85a29c11b1a783f79f4351df00497217b1af76c4b457ca9422c21dbae8fa3",
+  "files": {
+    "editor-api.mjs": "01ad2136319122edc3cf473322ee258df8adf49068e1228c6fcf6762969a4bd6",
+    "webwallgl.bundle.mjs": "17c85a29c11b1a783f79f4351df00497217b1af76c4b457ca9422c21dbae8fa3",
+    "index.html": "9143c059920ff54f1a84b71662b2dac8acf40da82499964b39d7283aa9fdd16f",
+    "editor.css": "81586e7e17fa3d24605f3e616cda7a02f325515a149dfe0af646fe65a4a12ebb",
+    "app.mjs": "b678b502c993b089c904ba08b7775cd4a79f9240059054143b8ed219fa306fd9",
+    "document.mjs": "ec6026013ad2af5fb8e2b72726cfd02f772696a6c09858d44b9372d39dc36069",
+    "runtime.mjs": "29694876755598bf5dd81dd1d2f2f9be9bbb6ced7d3f7ede9073cd59a72d3a27",
+    "localization.mjs": "b3ae571afd8c292327b23265dad2035826b684f60939fae1a61ab78b99c83707"
+  }
+}
