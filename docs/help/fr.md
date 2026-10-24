@@ -175,6 +175,14 @@ L’app copie les médias publiés dans `DynamicWallpaper/ScreenSaverExport`, so
 
 La première fois, cliquez sur **Installer ou mettre à jour l’économiseur…** et suivez macOS. Sélectionnez ensuite vous-même **Dynamic Wallpaper Screen Saver** dans Réglages Système. **Revérifier l’installation** vérifie le résultat, mais une installation ne signifie pas que l’économiseur est sélectionné. Dans sa configuration système, autorisez le dossier de publication affiché par l’app. Cette autorisation distincte permet la lecture après la fermeture de l’app. Un dossier déplacé, une autorisation expirée ou l’absence de publication produit une erreur explicite. L’aperçu dans l’app montre le contenu publié ; vérifiez séparément la lecture réelle dans macOS.
 
+### 3.11 Fonds de scène locaux {#scene}
+
+Choisissez **Importer un fond → Projet de scène**, puis le dossier contenant `project.json` et toutes les ressources. Les projets locaux JSON et PKG sont copiés dans la bibliothèque et affichés avec WebWallGL via le CEF fourni. Conservez toutes les ressources dans le dossier du projet.
+
+Utilisez une durée fixe. La pause conserve l’horloge de la scène et reprend la même instance. Les réglages de volume, de sourdine, de cadrage et de fréquence web s’appliquent. Activez l’interaction et ses autorisations pour les mouvements de souris et clics gauches sur le bureau vide. L’aperçu accepte directement la souris.
+
+Les propriétés par défaut de l’auteur sont utilisées. Le spectre audio du système, l’édition de scènes et l’économiseur d’écran natif ne sont pas pris en charge. La compatibilité dépend de la version figée de WebWallGL ; les échecs de chargement ou de rendu affichent une erreur. Certains effets ou scripts incompatibles peuvent uniquement produire un avertissement dans le journal CEF. La scène n’est pas remplacée par une image ou une vidéo.
+
 ## 4. Réglages {#settings}
 
 Les valeurs par défaut ci-dessous concernent une nouvelle bibliothèque. Les préférences existantes sont conservées. Les réglages ordinaires sont enregistrés et appliqués immédiatement. Les éditeurs dotés d’un bouton d’enregistrement, comme celui de la durée, nécessitent sa validation.

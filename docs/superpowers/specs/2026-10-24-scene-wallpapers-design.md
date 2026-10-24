@@ -75,7 +75,7 @@ launch. No localhost server or Node runtime is introduced.
 
 A trusted shell supplies a Source implementation over the project mount. Scene
 configuration crosses as serialized JSON data, not interpolated executable code.
-Allow only the commands/events needed for lifecycle, volume, fit, FPS, properties
+Allow only the commands/events needed for lifecycle, volume, fit, FPS
 and pointer input. Native resources validate method, route and bounded event
 shape; obsolete page/generation events cannot publish ready state.
 

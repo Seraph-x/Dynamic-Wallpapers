@@ -37,10 +37,10 @@ struct ThumbnailContent: View {
                     Image(systemName: "exclamationmark.triangle").foregroundStyle(.orange)
                         .help(error).accessibilityLabel(l10n("缩略图加载失败"))
                 }
-                else if item.kind == .web {
+                else if item.kind == .web || item.kind == .scene {
                     VStack(spacing: 8) {
-                        Image(systemName: "globe").font(.largeTitle)
-                        Text(l10n("网页项目")).font(.caption)
+                        Image(systemName: item.kind == .scene ? "cube.transparent" : "globe").font(.largeTitle)
+                        Text(l10n(item.kind == .scene ? "场景项目" : "网页项目")).font(.caption)
                     }.foregroundStyle(.secondary)
                 }
                 else { Image(systemName: item.kind == .video ? "film" : "photo").font(.title).foregroundStyle(.tertiary) }

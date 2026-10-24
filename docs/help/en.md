@@ -175,6 +175,14 @@ The app copies published media to `DynamicWallpaper/ScreenSaverExport` in its Ap
 
 For first use, click **Install or Update Screen Saver…** on that page and follow the macOS installer. Select **Dynamic Wallpaper Screen Saver** yourself in System Settings. You can then use **Recheck Installation Status**; installation alone does not mean the system selected it. In the screen saver's system configuration panel, authorize the publication folder shown in the app. This separate authorization lets the screen saver read published content after the app quits. A moved folder, expired permission, or missing publication produces an explicit error. The in-app preview shows published content; confirm actual system playback in macOS.
 
+### 3.11 Local scene wallpapers {#scene}
+
+Choose **Import Wallpaper → Scene Project** and select a directory containing `project.json` and all scene resources. Local loose JSON and PKG projects are copied into the library and rendered with WebWallGL through the bundled CEF runtime. Keep all referenced resources inside that directory.
+
+Use fixed playlist durations. Pause retains the scene clock; resume continues the same instance. Existing volume, mute, fit and web frame-rate settings also apply to scenes. Enable the existing interaction setting and its permissions for mouse movement and blank-desktop left clicks. Preview windows accept direct mouse input.
+
+Playback uses the author’s default properties. System audio spectrum capture, scene editing and native screen-saver playback are not supported. Compatibility is limited to the pinned WebWallGL engine; scene loading/rendering failures report errors, and some unsupported effects or scripts may produce engine warnings. These are recorded in the CEF log; no picture or video substitution is performed.
+
 ## 4. Settings reference {#settings}
 
 These defaults apply to a new library; existing preferences are preserved. Ordinary preferences are saved and applied immediately. Editors with a save button, such as duration controls, require you to click it.

@@ -16,7 +16,7 @@ struct BatchEntryDraft {
         var timing: EntryTiming?
         if changeTiming {
             guard !hasWeb || mode == .seconds else {
-                throw WallpaperError("包含网页时，仅支持固定停留时长。")
+                throw WallpaperError("包含网页或场景时，仅支持固定停留时长。")
             }
             guard let value = Double(durationValue.trimmingCharacters(in: .whitespacesAndNewlines)) else {
                 throw WallpaperError("时长必须是有效数字，例如 30 或 12.5。")
