@@ -31,7 +31,7 @@ def main():
     }
     compile_runtime = [*common, *[f'-D{key}={value}' for key, value in replacements.items()],
                        '-c', str(BRIDGE / 'WebRuntime.mm'), '-o', str(runtime_object)]
-    sources = ['WebPage.mm', 'WebClient.cpp', 'WebAudioOutput.mm', 'LocalProjectFiles.cpp', 'LocalWebRequestContext.cpp']
+    sources = ['WebPage.mm', 'WebClient.cpp', 'WebAudioOutput.mm', 'LocalProjectFiles.cpp', 'LocalWebRequestContext.cpp', 'SceneProtocol.mm']
     link = [*common, str(ROOT / 'Tests/WebRuntimeHarness/runtime-failure-tests.mm'),
             str(runtime_object), *[str(BRIDGE / source) for source in sources], str(WRAPPER),
             '-framework', 'AppKit', '-framework', 'QuartzCore', '-framework', 'AVFoundation',

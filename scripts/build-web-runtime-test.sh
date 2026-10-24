@@ -11,7 +11,7 @@ clang++ -std=c++20 -mmacosx-version-min=14.0 -fobjc-arc -frtti -Wall -Wextra -We
   -isystem "$CEF_ROOT" -I Sources/WebWallpaperBridge/include -I Sources/WebWallpaperBridge \
   Tests/WebRuntimeHarness/main.mm Tests/WebRuntimeHarness/page-contract-tests.mm Sources/WebWallpaperBridge/WebRuntime.mm \
   Sources/WebWallpaperBridge/WebPage.mm Sources/WebWallpaperBridge/WebClient.cpp Sources/WebWallpaperBridge/WebAudioOutput.mm \
-  Sources/WebWallpaperBridge/LocalProjectFiles.cpp Sources/WebWallpaperBridge/LocalWebRequestContext.cpp \
+  Sources/WebWallpaperBridge/LocalProjectFiles.cpp Sources/WebWallpaperBridge/LocalWebRequestContext.cpp Sources/WebWallpaperBridge/SceneProtocol.mm \
   "$WRAPPER" -framework AppKit -framework QuartzCore -framework AVFoundation -framework CoreAudio -o "$APP/Contents/MacOS/WebRuntimeTests"
 cp -R "$CEF_ROOT/Release/Chromium Embedded Framework.framework" "$APP/Contents/Frameworks/"
 python3 - "$APP" <<'PY'
