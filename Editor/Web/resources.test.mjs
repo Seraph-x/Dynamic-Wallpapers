@@ -1,22 +1,27 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { EventEmitter, once } from 'node:events';
 import { createResourceClient, resourceReader } from './resources.mjs';
 const hash = 'a12871fee210fb8619291eaea194581cbd2531e4b23759d225f6806923f63222'; // SHA-256([1,2])
 test('resource RPC stages real bytes, verifies read hashes and rejects close/failure', async () => {
-  const requests = [], client = createResourceClient(value => { requests.push(value); return Promise.resolve(); });
-  const stage = client.stage(new Uint8Array([1,2]));
-  await new Promise(resolve => setImmediate(resolve));
-  assert.equal(requests[0].data,'AQI=');
-  client.reply({requestID:requests[0].id,result:{version:hash}});
+  const reports = new EventEmitter(), client = createResourceClient(value => { reports.emit('request',value); return Promise.resolve(); });
+  async function request(operation) {
+    const reported = once(reports,'request'), result = operation();
+    const [sent] = await reported;
+    return {result,sent};
+  }
+  const {result:stage,sent:staged} = await request(() => client.stage(new Uint8Array([1,2])));
+  assert.equal(staged.data,'AQI=');
+  client.reply({requestID:staged.id,result:{version:hash}});
   assert.equal(await stage,hash);
-  const read = client.read(hash); await new Promise(resolve => setImmediate(resolve));
-  client.reply({requestID:requests[1].id,result:{data:'AQI='}});
+  const {result:read,sent:reading} = await request(() => client.read(hash));
+  client.reply({requestID:reading.id,result:{data:'AQI='}});
   assert.deepEqual(await read,new Uint8Array([1,2]));
-  const invalid = client.read(hash); await new Promise(resolve => setImmediate(resolve));
-  client.reply({requestID:requests[2].id,result:{data:'AQ=='}});
+  const {result:invalid,sent:corrupt} = await request(() => client.read(hash));
+  client.reply({requestID:corrupt.id,result:{data:'AQ=='}});
   await assert.rejects(invalid,/corrupt/i);
-  const failure = client.read(hash); await new Promise(resolve => setImmediate(resolve));
-  client.reply({requestID:requests[3].id,result:{error:'Disk failure'}});
+  const {result:failure,sent:failed} = await request(() => client.read(hash));
+  client.reply({requestID:failed.id,result:{error:'Disk failure'}});
   await assert.rejects(failure,/Disk failure/);
   assert.throws(() => client.reply({requestID:'unknown',result:{data:''}}),/Unsolicited/);
   const pending = client.read(hash); client.dispose(); await assert.rejects(pending,/closed/);
