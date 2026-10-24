@@ -52,7 +52,7 @@ Files: browser/native model acceptance helpers, `Tests/EditorRuntimeHarness/main
 - [x] Materialize loose/PKG forms and open them through Main's actual CEF runtime. Assert the asymmetric texture/orientation, bind geometry and authored motion; verify normal page/resource/runtime release.
 - [x] Exercise creation via the native Editor page using its real owned image files and confirm the resulting resource map/binding. Existing native Model keyboard/freeze/history checks remain required.
 - [x] Regenerate/check offline resources; run focused JS, relevant native/product/source-export checks, independent code review and changed-file privacy scan. Document exact scope, restrictions, upstream references and results without claiming unfinished roadmap features.
-- [ ] Commit with the configured real email; open an English PR against merged main. This new PR is not automatically merged or released by PR #16's merge request.
+- [x] Commit with the configured real email; open an English PR against merged main. This new PR is not automatically merged or released by PR #16's merge request.
 
 ## Verification record
 
@@ -69,3 +69,5 @@ Files: browser/native model acceptance helpers, `Tests/EditorRuntimeHarness/main
 - Existing source JSON, shared layers and unsupported features are not silently
   replaced. Upstream encoder provenance and license remain recorded.
 - The changed-file privacy gate reports 42 files, no unexpected findings and exit 0.
+
+Delivered in [PR #17](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/17).
