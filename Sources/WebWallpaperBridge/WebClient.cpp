@@ -77,7 +77,9 @@ class WebClient final : public CefClient, public CefLifeSpanHandler, public CefR
   void OnPaint(CefRefPtr<CefBrowser>, PaintElementType type, const RectList&,
                const void* buffer, int width, int height) override {
     if (type != PET_VIEW || state_->closing || !state_->loaded) return;
-    if (state_->paint(buffer, width, height)) state_->painted = true;
+    if (state_->paint(buffer, width, height)) {
+      state_->painted = true; ++state_->committedPaints;
+    }
   }
   void OnLoadEnd(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, int status) override {
     if (!frame->IsMain() || state_->closing) return;
@@ -90,8 +92,13 @@ class WebClient final : public CefClient, public CefLifeSpanHandler, public CefR
     if (code == ERR_ABORTED && state_->closing) return;  // An explicitly cancelled load, not a successful page.
     state_->fail("Load error " + std::to_string(code) + ": " + url.ToString() + ": " + message.ToString());
   }
-  bool OnBeforeBrowse(CefRefPtr<CefBrowser>, CefRefPtr<CefFrame>, CefRefPtr<CefRequest> request, bool, bool) override {
-    try { dw::localWebPath(request->GetURL(), state_->host); return false; }
+  bool OnBeforeBrowse(CefRefPtr<CefBrowser>, CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request, bool, bool) override {
+    try {
+      auto path = dw::localWebPath(request->GetURL(), state_->host);
+      if (state_->scene && (!frame->IsMain() || path != "__runtime/index.html" || request->GetMethod() != "GET"))
+        throw std::runtime_error("Scene navigation outside trusted entry is denied");
+      return false;
+    }
     catch (const std::exception& error) { state_->fail(error.what()); return true; }
   }
   bool OnBeforePopup(CefRefPtr<CefBrowser>, CefRefPtr<CefFrame>, int, const CefString& url, const CefString&,

@@ -10,7 +10,7 @@
 namespace {
 struct PageResources {
   std::shared_ptr<DWWebPageState> state;
-  std::shared_ptr<dw::ProjectFiles> files;
+  std::shared_ptr<dw::ProjectFiles> files, runtimeFiles;
   CefRefPtr<CefRequestContextHandler> handler;
   CefRefPtr<CefRequestContext> context;
   CefRefPtr<CefClient> client;
@@ -34,6 +34,10 @@ std::string entryURL(const std::string& host, const char* entry) {
   __weak DWWebRuntime* _runtime;
   NSString* _root;
   NSString* _entry;
+  NSString* _sceneRuntimeRoot;
+  NSString* _sceneEntry;
+  NSMutableDictionary<NSString*, void (^)(NSError*)>* _sceneCompletions;
+  NSMutableDictionary<NSString*, NSNumber*>* _sceneDeadlines;
   NSString* _origin;
   NSView* _view;
   DWWebAudioOutput* _audioOutput;
@@ -73,6 +77,118 @@ std::string entryURL(const std::string& host, const char* entry) {
     _completions = [NSMutableArray array];
   }
   return self;
+}
+- (void)configureSceneRuntimeRoot:(NSString*)root entry:(NSString*)entry representation:(NSString*)representation
+                         sceneID:(NSString*)sceneID generation:(uint64_t)generation {
+  DWRequireWebMainThread();
+  _sceneRuntimeRoot = [root copy]; _sceneEntry = [entry copy];
+  _entry = @"index.html";
+  NSDictionary* config = @{@"version": @1, @"sceneID": sceneID, @"generation": @(generation),
+    @"project": @{@"representation": representation, @"entryPath": entry},
+    @"viewport": @{@"width": @(_resources->state->width), @"height": @(_resources->state->height)},
+    @"fps": @(_frameRate), @"fit": @"cover", @"volume": @1, @"muted": @YES};
+  NSData* data = [NSJSONSerialization dataWithJSONObject:config options:0 error:nullptr];
+  _resources->state->scene = std::make_shared<dw::SceneSession>(sceneID.UTF8String, generation,
+      std::string(static_cast<const char*>(data.bytes), data.length));
+  _sceneCompletions = [NSMutableDictionary dictionary]; _sceneDeadlines = [NSMutableDictionary dictionary];
+}
+- (void)sceneCommand:(NSDictionary*)payload completion:(void (^)(NSError*))completion {
+  DWRequireWebMainThread();
+  const auto state = _resources->state;
+  if (!state->scene || !_ready || state->closing || !state->browser || !state->failure(false).empty()) {
+    completion(DWWebError(@"Scene is not ready for commands")); return;
+  }
+  NSString* identifier = NSUUID.UUID.UUIDString;
+  NSMutableDictionary* command = [payload mutableCopy];
+  command[@"id"] = identifier; command[@"sceneID"] = @(state->scene->sceneID.c_str());
+  command[@"generation"] = @(state->scene->generation);
+  NSError* error = nil;
+  NSData* data = [NSJSONSerialization dataWithJSONObject:command options:0 error:&error];
+  if (!data) { completion(error); return; }
+  NSString* json = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+  _sceneCompletions[identifier] = [completion copy];
+  _sceneDeadlines[identifier] = @(NSProcessInfo.processInfo.systemUptime + 5);
+  // Only this fixed entry point executes; all arguments are JSON-serialized data.
+  NSString* script = [NSString stringWithFormat:@"window.__dynamicWallpaperScene.command(%@);", json];
+  state->browser->GetMainFrame()->ExecuteJavaScript(script.UTF8String,
+      "https://" + state->host + "/__runtime/index.html", 0);
+}
+- (void)setScenePlaying:(BOOL)playing completion:(void (^)(NSError*))completion {
+  DWRequireWebMainThread();
+  if (!playing) {
+    NSError* error = nil;
+    if (![self setOutputGain:0 error:&error]) { completion(error); return; }
+  }
+  [self sceneCommand:@{@"type": playing ? @"play" : @"pause"} completion:completion];
+}
+- (void)setSceneVolume:(double)volume muted:(BOOL)muted completion:(void (^)(NSError*))completion {
+  DWRequireWebMainThread();
+  if (!std::isfinite(volume) || volume < 0 || volume > 1) { completion(DWWebError(@"Invalid scene volume")); return; }
+  if (muted || volume == 0) {
+    NSError* error = nil;
+    if (![self setOutputGain:0 error:&error]) { completion(error); return; }
+  }
+  [self sceneCommand:@{@"type": @"volume", @"volume": @(volume), @"muted": @(muted)} completion:completion];
+}
+- (void)setSceneFit:(NSString*)fit completion:(void (^)(NSError*))completion {
+  DWRequireWebMainThread();
+  if (![fit isEqual:@"cover"] && ![fit isEqual:@"contain"]) { completion(DWWebError(@"Invalid scene fit")); return; }
+  [self sceneCommand:@{@"type": @"fit", @"fit": fit} completion:completion];
+}
+- (void)setSceneFrameRate:(NSUInteger)frameRate completion:(void (^)(NSError*))completion {
+  DWRequireWebMainThread();
+  NSError* error = nil;
+  if (![self setFrameRate:frameRate error:&error]) { completion(error); return; }
+  [self sceneCommand:@{@"type": @"fps", @"fps": @(frameRate)} completion:completion];
+}
+- (BOOL)sendScenePointerAtPoint:(NSPoint)point kind:(NSString*)kind error:(NSError**)error {
+  DWRequireWebMainThread();
+  if ((!([kind isEqual:@"move"] || [kind isEqual:@"leave"] || [kind isEqual:@"click"])) ||
+      !std::isfinite(point.x) || !std::isfinite(point.y) || point.x < 0 || point.y < 0 || point.x > 1 || point.y > 1 ||
+      !_resources->state->scene || !_ready || _resources->state->closing || !_resources->state->browser) {
+    if (error) *error = DWWebError(@"Scene pointer event is invalid or unavailable"); return NO;
+  }
+  __weak DWWebPage* weakSelf = self;
+  [self sceneCommand:@{@"type": @"pointer", @"kind": kind, @"x": @(point.x), @"y": @(point.y)}
+      completion:^(NSError* commandError) {
+        DWWebPage* owner = weakSelf;
+        if (commandError && owner && !owner->_resources->state->closing)
+          owner->_resources->state->fail(commandError.localizedDescription.UTF8String);
+      }];
+  return YES;
+}
+- (void)drainSceneEvents {
+  const auto state = _resources->state;
+  if (!state->scene) return;
+  std::vector<dw::SceneEvent> events;
+  { std::lock_guard lock(state->scene->mutex); events.swap(state->scene->events); }
+  for (const auto& event : events) {
+    if (state->closing) break;
+    if (event.type == "error") {
+      state->fail("Scene engine: " + event.message);
+      break;  // Never acknowledge queued commands after the engine has failed.
+    }
+    else if (event.type == "ready" && !state->engineReady) {
+      state->engineReady = true; state->engineReadyAfterPaint = state->committedPaints;
+      if (state->browser) state->browser->GetHost()->Invalidate(PET_VIEW);
+    } else if (event.type == "command-ack") {
+      NSString* identifier = @(event.commandID.c_str());
+      void (^completion)(NSError*) = _sceneCompletions[identifier];
+      if (!completion) { state->fail("Unknown or duplicate scene command acknowledgement"); continue; }
+      [_sceneCompletions removeObjectForKey:identifier]; [_sceneDeadlines removeObjectForKey:identifier];
+      completion(nil);
+    }
+  }
+  for (NSString* identifier in _sceneDeadlines.allKeys) {
+    if (NSProcessInfo.processInfo.systemUptime < _sceneDeadlines[identifier].doubleValue) continue;
+    state->fail("Scene command acknowledgement exceeded its 5-second deadline");
+    break;
+  }
+}
+- (void)failSceneCommands:(NSError*)error {
+  NSArray* callbacks = _sceneCompletions.allValues;
+  [_sceneCompletions removeAllObjects]; [_sceneDeadlines removeAllObjects];
+  for (void (^completion)(NSError*) in callbacks) completion(error);
 }
 - (NSView*)view { DWRequireWebMainThread(); return _view; }
 - (NSString*)origin { DWRequireWebMainThread(); return _origin; }
@@ -172,13 +288,20 @@ std::string entryURL(const std::string& host, const char* entry) {
     _audioOutput = [[DWWebAudioOutput alloc] initWithError:&audioError];
     if (!_audioOutput) throw std::runtime_error(audioError.localizedDescription.UTF8String);
     state->audio = _audioOutput.buffer;
-    const std::string url = entryURL(state->host, _entry.UTF8String);
+    const std::string url = state->scene ? "https://" + state->host + "/__runtime/index.html" : entryURL(state->host, _entry.UTF8String);
     _resources->files = std::make_shared<dw::ProjectFiles>(_root.fileSystemRepresentation,
         [state](const std::string& message) { state->fail(message); });
-    auto entry = _resources->files->open(_entry.UTF8String); entry.close();
+    if (state->scene) {
+      _resources->runtimeFiles = std::make_shared<dw::ProjectFiles>(_sceneRuntimeRoot.fileSystemRepresentation,
+          [state](const std::string& message) { state->fail(message); });
+      auto entry = _resources->files->open(_sceneEntry.UTF8String); entry.close();
+      auto metadata = _resources->files->open("project.json"); metadata.close();
+      auto shell = _resources->runtimeFiles->open("index.html"); shell.close();
+    } else { auto entry = _resources->files->open(_entry.UTF8String); entry.close(); }
     state->contextDestroyed = false;
-    _resources->handler = dw::makeLocalWebRequestContext(_resources->files, state->host,
-        [state](const dw::WebResourceEvent& event) { state->resourceEvent(event); });
+    auto reporter = [state](const dw::WebResourceEvent& event) { state->resourceEvent(event); };
+    _resources->handler = state->scene ? dw::makeSceneRequestContext(_resources->files, _resources->runtimeFiles,
+        state->scene, state->host, reporter) : dw::makeLocalWebRequestContext(_resources->files, state->host, reporter);
     CefRequestContextSettings settings;  // No cache path or shared context: private in-memory storage.
     _resources->context = CefRequestContext::CreateContext(settings, _resources->handler);
     if (!_resources->context || _resources->context->IsSharingWith(CefRequestContext::GetGlobalContext()))
@@ -206,6 +329,8 @@ std::string entryURL(const std::string& host, const char* entry) {
   auto state = _resources->state;
   if (state->closing.exchange(true)) return;
   [_audioOutput close];
+  if (state->scene) { std::lock_guard lock(state->scene->mutex); state->scene->retired = true; state->scene->events.clear(); }
+  [self failSceneCommands:DWWebError(@"Scene command cancelled because the page is closing")];
   _ready = NO; self.onReady = nil;
   _closeDeadline = NSProcessInfo.processInfo.systemUptime + 5;
   if (state->browser) state->browser->GetHost()->CloseBrowser(true);
@@ -216,6 +341,8 @@ std::string entryURL(const std::string& host, const char* entry) {
   if (_closed || _closeFailure) return;
   auto state = _resources->state;
   if (!state->closing) {
+    [self drainSceneEvents];
+    if (state->closing) { [self tick]; return; }
     if (state->audio && state->audio->errorCode() != DWWebAudioError::none && state->failure(false).empty())
       state->fail("Native webpage audio output failed (code " + std::to_string(int(state->audio->errorCode())) + ")");
     if (_started && !_ready && NSProcessInfo.processInfo.systemUptime > _prepareDeadline)
@@ -223,15 +350,17 @@ std::string entryURL(const std::string& host, const char* entry) {
     const auto failure = state->failure(false);
     if (!failure.empty()) {
       _ready = NO;
+      [self failSceneCommands:DWWebError(@(failure.c_str()))];
       if (!_reportedFailure) { _reportedFailure = YES; if (self.onError) self.onError(DWWebError(@(failure.c_str()))); }
-    } else if (state->loaded && state->painted && !_ready) {
+    } else if (state->loaded && state->painted && !_ready &&
+        (!state->scene || (state->engineReady && state->committedPaints > state->engineReadyAfterPaint))) {
       _ready = YES;
       if (self.onReady) self.onReady();
     }
     return;
   }
   if (state->browserClosed && !_releasedReferences) {
-    _resources->client = nullptr; _resources->context = nullptr; _resources->handler = nullptr; _resources->files = nullptr;
+    _resources->client = nullptr; _resources->context = nullptr; _resources->handler = nullptr; _resources->files = nullptr; _resources->runtimeFiles = nullptr;
     _releasedReferences = YES;
   }
   const bool released = state->browserClosed && state->clientDestroyed && state->contextDestroyed &&

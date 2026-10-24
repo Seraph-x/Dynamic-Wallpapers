@@ -21,6 +21,11 @@ NS_SWIFT_UI_ACTOR @interface DWWebRuntime : NSObject
 - (nullable DWWebPage *)pageWithProjectRoot:(NSString *)root entry:(NSString *)entry
                                      size:(NSSize)size scale:(CGFloat)scale
                                     error:(NSError * _Nullable * _Nullable)error;
+/// Trusted scene shell and selected project use separate descriptor-bound roots.
+- (nullable DWWebPage *)scenePageWithProjectRoot:(NSString *)root runtimeRoot:(NSString *)runtimeRoot
+    entry:(NSString *)entry representation:(NSString *)representation sceneID:(NSString *)sceneID
+    generation:(uint64_t)generation size:(NSSize)size scale:(CGFloat)scale
+    error:(NSError * _Nullable * _Nullable)error;
 /// Only legal after every page has actually closed. No forced-close success path.
 - (BOOL)shutdownWithError:(NSError * _Nullable * _Nullable)error;
 @end
@@ -43,6 +48,14 @@ NS_SWIFT_UI_ACTOR @interface DWWebPage : NSObject
 - (BOOL)setFrameRate:(NSUInteger)frameRate error:(NSError * _Nullable * _Nullable)error;
 - (BOOL)sendClickAtPoint:(NSPoint)point clickCount:(NSInteger)clickCount
                   error:(NSError * _Nullable * _Nullable)error NS_SWIFT_NAME(sendClick(at:clickCount:));
+/// Scene commands complete only after the trusted engine acknowledges execution.
+- (void)setScenePlaying:(BOOL)playing completion:(void (^)(NSError * _Nullable error))completion;
+- (void)setSceneVolume:(double)volume muted:(BOOL)muted completion:(void (^)(NSError * _Nullable error))completion;
+/// fit is exactly cover or contain.
+- (void)setSceneFit:(NSString *)fit completion:(void (^)(NSError * _Nullable error))completion;
+- (void)setSceneFrameRate:(NSUInteger)frameRate completion:(void (^)(NSError * _Nullable error))completion;
+/// Normalized scene coordinates [0,1]; kind is move, leave, or click.
+- (BOOL)sendScenePointerAtPoint:(NSPoint)point kind:(NSString *)kind error:(NSError * _Nullable * _Nullable)error;
 /// Releases the page/context; the view keeps its last submitted frame.
 /// A close failure remains owned and is returned again to later callers.
 - (void)closeWithCompletion:(void (^)(NSError * _Nullable error))completion;

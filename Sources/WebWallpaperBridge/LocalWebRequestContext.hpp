@@ -1,5 +1,6 @@
 #pragma once
 #include "LocalProjectFiles.hpp"
+#include "SceneProtocol.hpp"
 #include "include/cef_request_context_handler.h"
 #include <memory>
 
@@ -15,5 +16,8 @@ using WebResourceReporter = std::function<void(const WebResourceEvent&)>;
 /// requests without browser/frame objects (including service-worker requests).
 CefRefPtr<CefRequestContextHandler> makeLocalWebRequestContext(
     std::shared_ptr<ProjectFiles> files, std::string host, WebResourceReporter reporter);
+CefRefPtr<CefRequestContextHandler> makeSceneRequestContext(
+    std::shared_ptr<ProjectFiles> project, std::shared_ptr<ProjectFiles> runtime,
+    std::shared_ptr<SceneSession> scene, std::string host, WebResourceReporter reporter);
 std::string localWebPath(const CefString& url, const std::string& host);
 }  // namespace dw
