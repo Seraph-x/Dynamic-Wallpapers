@@ -1,0 +1,11 @@
+{
+  "name": "dynamic-wallpaper-editor-web-build",
+  "private": true,
+  "dependencies": {
+    "@webwallgl/editor": "3.0.0",
+    "webwallgl": "3.0.0",
+    "mediabunny": "1.56.0",
+    "esbuild": "0.28.2",
+    "playwright": "1.58.2"
+  }
+}

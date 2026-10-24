@@ -19,5 +19,8 @@ CefRefPtr<CefRequestContextHandler> makeLocalWebRequestContext(
 CefRefPtr<CefRequestContextHandler> makeSceneRequestContext(
     std::shared_ptr<ProjectFiles> project, std::shared_ptr<ProjectFiles> runtime,
     std::shared_ptr<SceneSession> scene, std::string host, WebResourceReporter reporter);
+CefRefPtr<CefRequestContextHandler> makeEditorRequestContext(
+    std::shared_ptr<ProjectFiles> project, std::shared_ptr<ProjectFiles> runtime,
+    std::shared_ptr<EditorSession> editor, std::string host, WebResourceReporter reporter);
 std::string localWebPath(const CefString& url, const std::string& host);
 }  // namespace dw

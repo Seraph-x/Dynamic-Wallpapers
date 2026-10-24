@@ -2,6 +2,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 @class DWWebPage;
+typedef void (^DWEditorCommandCompletion)(NSDictionary<NSString*, id>* _Nullable reply, NSError* _Nullable error);
 
 /// Call before SwiftUI/NSApplication startup. This does not load or initialize CEF.
 NS_SWIFT_UI_ACTOR FOUNDATION_EXPORT void DWWebCreateApplication(void);
@@ -26,6 +27,10 @@ NS_SWIFT_UI_ACTOR @interface DWWebRuntime : NSObject
     entry:(NSString *)entry representation:(NSString *)representation sceneID:(NSString *)sceneID
     generation:(uint64_t)generation size:(NSSize)size scale:(CGFloat)scale
     error:(NSError * _Nullable * _Nullable)error;
+/// Used only by the separately installed Editor process; supplies an interactive native CEF child view.
+- (nullable DWWebPage *)editorPageWithProjectRoot:(NSString *)root runtimeRoot:(NSString *)runtimeRoot
+    configuration:(NSDictionary<NSString*, id>*)configuration size:(NSSize)size
+    error:(NSError * _Nullable * _Nullable)error;
 /// Only legal after every page has actually closed. No forced-close success path.
 - (BOOL)shutdownWithError:(NSError * _Nullable * _Nullable)error;
 @end
@@ -43,6 +48,10 @@ NS_SWIFT_UI_ACTOR @interface DWWebPage : NSObject
 @property(nonatomic, readonly) NSDictionary<NSString*, NSNumber*>* audioDiagnostics;
 @property(nonatomic, copy, nullable) void (^onReady)(void);
 @property(nonatomic, copy, nullable) void (^onError)(NSError *error);
+@property(nonatomic, copy, nullable) void (^onEditorDirty)(BOOL dirty);
+/// Fixed data commands; replies are paired with unpredictable native request IDs.
+- (void)requestEditorCommand:(NSDictionary<NSString*, id>*)command
+    completion:(DWEditorCommandCompletion)completion;
 - (void)start;
 - (BOOL)setOutputGain:(double)gain error:(NSError * _Nullable * _Nullable)error;
 - (BOOL)setFrameRate:(NSUInteger)frameRate error:(NSError * _Nullable * _Nullable)error;

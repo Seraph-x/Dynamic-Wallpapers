@@ -42,26 +42,26 @@ Files: `Editor/{Package.swift,product.json,README.md}`, native sources under
 `Editor/Sources/EditorApp/`, browser sources/build/locks under `Editor/Web/`;
 new native editor page/protocol/client in Sources/WebWallpaperBridge.
 
-- [ ] Define own app id/version (0.1.0), project-data root/cache, five-language
+- [x] Define own app id/version (0.1.0), project-data root/cache, five-language
   resources and a process lease per store. Test duplicate instance activation and
   one live window per project; externally changed saves fail instead of overwrite.
-- [ ] Native CEF protocol tests first: descriptor mounts, origin/method/session/
+- [x] Native CEF protocol tests first: descriptor mounts, origin/method/session/
   generation, fixed JSON requests/replies, stale/cancelled requests and errors.
   Implement EditorPage with actual SetAsChild view; preserve offscreen playback.
-- [ ] Add a native CEF harness for real ready frame, keyboard/form interaction,
+- [x] Add a native CEF harness for real ready frame, keyboard/form interaction,
   resize, blocked resource access and complete close. Include new files in build
   source lists and do not report load-end as renderer readiness.
-- [ ] Browser TDD: JSON document edits, image/text layers, rename/visible/reorder,
+- [x] Browser TDD: JSON document edits, image/text layers, rename/visible/reorder,
   transform/duplicate/delete, undo/redo and unknown field/resource preservation.
   Implement inspector/tree/canvas UI using published editor controls and real
   rendering, with explicit zero audio/media and offline assets.
-- [ ] Pin @webwallgl/editor/webwallgl 3.0.0 and bundler integrity/provenance. Record
+- [x] Pin @webwallgl/editor/webwallgl 3.0.0 and bundler integrity/provenance. Record
   all notices; no Node server/CDN/runtime dependency on a running Main app.
-- [ ] Native file actions use safe project store; cancel save preserves dirty state.
+- [x] Native file actions use safe project store; cancel save preserves dirty state.
   Rebuild/seek preview for structural edits; preserve controlled-field bindings.
-- [ ] Export loose/PKG via upstream builder/compatibility reader; test both by
+- [x] Export loose/PKG via upstream builder/compatibility reader; test both by
   re-importing and rendering through existing scene playback.
-- [ ] Verify Editor own shutdown/close failure and unsaved Save/Discard/Cancel.
+- [x] Verify Editor own shutdown/close failure and unsaved Save/Discard/Cancel.
   It remains alive when Main quits. Run independent review and open English PR 2.
 
 ## PR 3: Main handoff and independent packaging

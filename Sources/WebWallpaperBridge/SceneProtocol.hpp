@@ -12,6 +12,18 @@ struct SceneRoute { SceneMount mount; std::string path; };
 struct SceneEvent { std::string type, message, commandID; };
 SceneRoute sceneRoute(const std::string& path, const std::string& method, bool mainFrame);
 SceneEvent parseSceneEvent(const std::string& body, const std::string& sceneID, uint64_t generation);
+struct EditorEvent { std::string type, id, payload; bool dirty = false; };
+/// Editor has its own process and protocol; scene playback events remain unchanged.
+struct EditorSession final {
+  const std::string session, configuration;
+  const uint64_t generation;
+  std::mutex mutex;
+  bool retired = false;
+  std::vector<EditorEvent> events;
+  EditorSession(std::string id, uint64_t revision, std::string config)
+      : session(std::move(id)), configuration(std::move(config)), generation(revision) {}
+  bool receive(const std::string& body);
+};
 /// Immutable identity/configuration; event queue is shared between CEF IO and UI.
 struct SceneSession final {
   const std::string sceneID, configuration;

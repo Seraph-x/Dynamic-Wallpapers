@@ -18,9 +18,12 @@ struct DWWebPageState {
   std::atomic<unsigned> resourceWarnings{0};
   bool loaded = false, painted = false;
   std::shared_ptr<dw::SceneSession> scene;
+  std::shared_ptr<dw::EditorSession> editor;
   uint64_t committedPaints = 0, engineReadyAfterPaint = 0;
   bool engineReady = false;
   std::function<bool(const void*, int, int)> paint;
+  std::function<void(void*)> attachNative;
+  std::function<void(void*)> detachNative;
   std::shared_ptr<DWWebAudioBuffer> audio;
   std::mutex errorMutex;
   std::string error, closeError;
@@ -61,7 +64,7 @@ struct DWWebPageState {
     if (event.kind == "resource-open") ++opened;
     else if (event.kind == "resource-close") ++released;
     else if (event.kind == "context-handler-destroyed") contextDestroyed = true;
-    else if (event.kind == "scene-event-retired" || event.kind == "scene-spectrum-retired")
+    else if (event.kind == "scene-event-retired" || event.kind == "scene-spectrum-retired" || event.kind == "editor-event-retired")
       fprintf(stderr, "DWWEB cancelled-scene-event origin=%s %s\n", host.c_str(), event.detail.c_str());
     else if (event.kind == "resource-missing-optional") optionalResourceMissing(event);
     else if (event.kind == "resource-error" || event.kind == "file-error" || event.kind == "context-error" ||

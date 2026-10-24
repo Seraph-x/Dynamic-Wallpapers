@@ -54,6 +54,85 @@ std::string entryURL(const std::string& host, const char* entry) {
   NSMutableArray<void (^)(NSError*)>* _completions;
   void (^_onReady)(void);
   void (^_onError)(NSError*);
+  void (^_onEditorDirty)(BOOL);
+  NSMutableDictionary<NSString*, void (^)(NSDictionary*, NSError*)>* _editorCompletions;
+  NSMutableDictionary<NSString*, NSNumber*>* _editorDeadlines;
+}
+- (void (^)(BOOL))onEditorDirty { DWRequireWebMainThread(); return _onEditorDirty; }
+- (void)setOnEditorDirty:(void (^)(BOOL))callback { DWRequireWebMainThread(); _onEditorDirty = [callback copy]; }
+- (BOOL)configureEditorRuntimeRoot:(NSString*)root configuration:(NSDictionary*)configuration error:(NSError**)error {
+  DWRequireWebMainThread();
+  NSMutableDictionary* config = [configuration mutableCopy];
+  NSString* session = NSUUID.UUID.UUIDString;
+  config[@"session"] = session; config[@"generation"] = @1; config[@"version"] = @1;
+  NSData* data = [NSJSONSerialization dataWithJSONObject:config options:0 error:error];
+  if (!data) return NO;
+  _sceneRuntimeRoot = [root copy]; _entry = @"index.html";
+  _resources->state->editor = std::make_shared<dw::EditorSession>(session.UTF8String, 1,
+      std::string(static_cast<const char*>(data.bytes), data.length));
+  _resources->state->attachNative = [](void* handle) {
+    NSView* child = (__bridge NSView*)handle;
+    child.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+  };
+  _resources->state->detachNative = [](void* handle) {
+    NSView* child = (__bridge NSView*)handle;
+    dispatch_async(dispatch_get_main_queue(), ^{
+      NSWindow* window = child.window;
+      [window makeFirstResponder:nil];
+      [child removeFromSuperview];
+      [window recalculateKeyViewLoop];
+      fprintf(stderr, "DWWEB editor-native-child-detached\n");
+    });
+  };
+  _editorCompletions = [NSMutableDictionary dictionary]; _editorDeadlines = [NSMutableDictionary dictionary];
+  return YES;
+}
+- (void)requestEditorCommand:(NSDictionary<NSString*, id>*)payload completion:(DWEditorCommandCompletion)completion {
+  DWRequireWebMainThread();
+  auto state = _resources->state;
+  if (!state->editor || !_ready || state->closing || !state->browser || !state->failure(false).empty()) {
+    completion(nil, DWWebError(@"Editor is not ready")); return;
+  }
+  if (![@[@"snapshot", @"freeze", @"thaw", @"load", @"mark-saved", @"add-image", @"export-pkg", @"undo", @"redo"] containsObject:payload[@"type"]]) {
+    completion(nil, DWWebError(@"Unknown Editor command")); return;
+  }
+  NSString* identifier = NSUUID.UUID.UUIDString;
+  NSMutableDictionary* command = [payload mutableCopy]; command[@"id"] = identifier;
+  command[@"session"] = @(state->editor->session.c_str()); command[@"generation"] = @(state->editor->generation);
+  NSError* error = nil; NSData* data = [NSJSONSerialization dataWithJSONObject:command options:0 error:&error];
+  if (!data) { completion(nil, error); return; }
+  _editorCompletions[identifier] = [completion copy];
+  _editorDeadlines[identifier] = @(NSProcessInfo.processInfo.systemUptime + 30);
+  NSString* script = [NSString stringWithFormat:@"window.__dynamicWallpaperEditor.command(%@);", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]];
+  state->browser->GetMainFrame()->ExecuteJavaScript(script.UTF8String, "https://" + state->host + "/__runtime/index.html", 0);
+}
+- (void)drainEditorEvents {
+  auto state = _resources->state; if (!state->editor) return;
+  std::vector<dw::EditorEvent> events;
+  { std::lock_guard lock(state->editor->mutex); events.swap(state->editor->events); }
+  for (const auto& event : events) {
+    if (state->closing) break;
+    if (event.type == "error") { state->fail(event.payload); break; }
+    if (event.type == "ready") {
+      if (state->engineReady) { state->fail("Duplicate Editor ready"); break; }
+      state->engineReady = true;
+    } else if (event.type == "dirty") { if (_onEditorDirty) _onEditorDirty(event.dirty); }
+    else if (event.type == "reply") {
+      NSString* identifier = @(event.id.c_str());
+      void (^callback)(NSDictionary*, NSError*) = _editorCompletions[identifier];
+      if (!callback) { state->fail("Unsolicited or duplicate Editor reply"); break; }
+      [_editorCompletions removeObjectForKey:identifier]; [_editorDeadlines removeObjectForKey:identifier];
+      NSData* bytes = [NSData dataWithBytes:event.payload.data() length:event.payload.size()];
+      callback([NSJSONSerialization JSONObjectWithData:bytes options:0 error:nil], nil);
+    }
+  }
+  for (NSString* identifier in _editorDeadlines.allKeys)
+    if (NSProcessInfo.processInfo.systemUptime >= _editorDeadlines[identifier].doubleValue) { state->fail("Editor command timed out"); break; }
+  if (!state->failure(false).empty()) [self failEditorCommands:DWWebError(@(state->failure(false).c_str()))];
+}
+- (void)failEditorCommands:(NSError*)error {
+  NSArray* callbacks = _editorCompletions.allValues; [_editorCompletions removeAllObjects]; [_editorDeadlines removeAllObjects];
+  for (void (^callback)(NSDictionary*, NSError*) in callbacks) callback(nil, error);
 }
 - (void (^)(void))onReady { DWRequireWebMainThread(); return _onReady; }
 - (void)setOnReady:(void (^)(void))callback { DWRequireWebMainThread(); _onReady = [callback copy]; }
@@ -306,16 +385,18 @@ std::string entryURL(const std::string& host, const char* entry) {
   _started = YES; _prepareDeadline = NSProcessInfo.processInfo.systemUptime + 10;
   try {
     NSError* audioError = nil;
-    _audioOutput = [[DWWebAudioOutput alloc] initWithError:&audioError];
-    if (!_audioOutput) throw std::runtime_error(audioError.localizedDescription.UTF8String);
-    state->audio = _audioOutput.buffer;
-    const std::string url = state->scene ? "https://" + state->host + "/__runtime/index.html" : entryURL(state->host, _entry.UTF8String);
+    if (!state->editor) {
+      _audioOutput = [[DWWebAudioOutput alloc] initWithError:&audioError];
+      if (!_audioOutput) throw std::runtime_error(audioError.localizedDescription.UTF8String);
+      state->audio = _audioOutput.buffer;
+    }
+    const std::string url = (state->scene || state->editor) ? "https://" + state->host + "/__runtime/index.html" : entryURL(state->host, _entry.UTF8String);
     _resources->files = std::make_shared<dw::ProjectFiles>(_root.fileSystemRepresentation,
         [state](const std::string& message) { state->fail(message); });
-    if (state->scene) {
+    if (state->scene || state->editor) {
       _resources->runtimeFiles = std::make_shared<dw::ProjectFiles>(_sceneRuntimeRoot.fileSystemRepresentation,
           [state](const std::string& message) { state->fail(message); });
-      auto entry = _resources->files->open(_sceneEntry.UTF8String); entry.close();
+      if (state->scene) { auto entry = _resources->files->open(_sceneEntry.UTF8String); entry.close(); }
       auto metadata = _resources->files->open("project.json"); metadata.close();
       auto shell = _resources->runtimeFiles->open("index.html"); shell.close();
     } else { auto entry = _resources->files->open(_entry.UTF8String); entry.close(); }
@@ -323,13 +404,16 @@ std::string entryURL(const std::string& host, const char* entry) {
     auto reporter = [state](const dw::WebResourceEvent& event) { state->resourceEvent(event); };
     _resources->handler = state->scene ? dw::makeSceneRequestContext(_resources->files, _resources->runtimeFiles,
         state->scene, state->host, reporter) : dw::makeLocalWebRequestContext(_resources->files, state->host, reporter);
+    if (state->editor) _resources->handler = dw::makeEditorRequestContext(_resources->files, _resources->runtimeFiles, state->editor, state->host, reporter);
     CefRequestContextSettings settings;  // No cache path or shared context: private in-memory storage.
     _resources->context = CefRequestContext::CreateContext(settings, _resources->handler);
     if (!_resources->context || _resources->context->IsSharingWith(CefRequestContext::GetGlobalContext()))
       throw std::runtime_error("Could not create an isolated webpage context");
     state->clientDestroyed = false;
     _resources->client = DWMakeWebClient(state);
-    CefWindowInfo window; window.SetAsWindowless(nullptr);
+    CefWindowInfo window;
+    if (state->editor) { window.SetAsChild((__bridge void*)_view, CefRect(0, 0, state->width, state->height)); window.runtime_style = CEF_RUNTIME_STYLE_ALLOY; }
+    else window.SetAsWindowless(nullptr);
     CefBrowserSettings browserSettings;
     browserSettings.windowless_frame_rate = static_cast<int>(_frameRate);
     browserSettings.javascript_access_clipboard = STATE_DISABLED;
@@ -351,6 +435,8 @@ std::string entryURL(const std::string& host, const char* entry) {
   if (state->closing.exchange(true)) return;
   [_audioOutput close];
   if (state->scene) { std::lock_guard lock(state->scene->mutex); state->scene->retired = true; state->scene->events.clear(); }
+  if (state->editor) { std::lock_guard lock(state->editor->mutex); state->editor->retired = true; state->editor->events.clear(); }
+  [self failEditorCommands:DWWebError(@"Editor command cancelled because page is closing")];
   [self failSceneCommands:DWWebError(@"Scene command cancelled because the page is closing")];
   _ready = NO; self.onReady = nil;
   _closeDeadline = NSProcessInfo.processInfo.systemUptime + 5;
@@ -363,6 +449,7 @@ std::string entryURL(const std::string& host, const char* entry) {
   auto state = _resources->state;
   if (!state->closing) {
     [self drainSceneEvents];
+    [self drainEditorEvents];
     if (state->closing) { [self tick]; return; }
     if (state->audio && state->audio->errorCode() != DWWebAudioError::none && state->failure(false).empty())
       state->fail("Native webpage audio output failed (code " + std::to_string(int(state->audio->errorCode())) + ")");
@@ -373,8 +460,8 @@ std::string entryURL(const std::string& host, const char* entry) {
       _ready = NO;
       [self failSceneCommands:DWWebError(@(failure.c_str()))];
       if (!_reportedFailure) { _reportedFailure = YES; if (self.onError) self.onError(DWWebError(@(failure.c_str()))); }
-    } else if (state->loaded && state->painted && !_ready &&
-        (!state->scene || (state->engineReady && state->committedPaints > state->engineReadyAfterPaint))) {
+    } else if (state->loaded && !_ready && (state->editor ? state->engineReady :
+        (state->painted && (!state->scene || (state->engineReady && state->committedPaints > state->engineReadyAfterPaint))))) {
       _ready = YES;
       if (self.onReady) self.onReady();
     }

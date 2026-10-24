@@ -262,6 +262,19 @@ class RuntimeApp final : public CefApp, public CefBrowserProcessHandler {
   [_pages removeObject:page];
   [self stopPageLifecycleTimerIfIdle];
 }
+- (DWWebPage*)editorPageWithProjectRoot:(NSString*)root runtimeRoot:(NSString*)runtimeRoot
+    configuration:(NSDictionary*)configuration size:(NSSize)size error:(NSError**)error {
+  DWRequireWebMainThread();
+  if (!runtimeRoot.isAbsolutePath || ![configuration isKindOfClass:NSDictionary.class]) {
+    if (error) *error = DWWebError(@"Invalid Editor runtime or document"); return nil;
+  }
+  DWWebPage* page = [self pageWithProjectRoot:root entry:@"index.html" size:size scale:1 error:error];
+  if (page && ![page configureEditorRuntimeRoot:runtimeRoot configuration:configuration error:error]) {
+    [page closeWithCompletion:^(NSError* closeError) { if (closeError) NSLog(@"Editor prepare cleanup failed: %@", closeError); }];
+    return nil;
+  }
+  return page;
+}
 - (BOOL)shutdownWithError:(NSError**)error {
   DWRequireWebMainThread();
   if (_terminalFailure) { if (error) *error = _terminalFailure; return NO; }
