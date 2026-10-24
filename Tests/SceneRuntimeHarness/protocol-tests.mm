@@ -12,6 +12,9 @@ int main() { @autoreleasepool {
     require(sceneRoute("__runtime/index.html", "GET", false).mount == SceneMount::runtime);
     require(sceneRoute("__project/scene.pkg", "GET", false).path == "scene.pkg");
     require(sceneRoute("__scene/config", "GET", true).mount == SceneMount::config);
+    require(sceneRoute("__scene/spectrum", "GET", true).mount == SceneMount::spectrum);
+    rejects([] { sceneRoute("__scene/spectrum", "POST", true); });
+    rejects([] { sceneRoute("__scene/spectrum", "GET", false); });
     require(sceneRoute("__scene/event", "POST", true).mount == SceneMount::event);
     for (auto path : {"index.html", "__project/../secret", "__runtime/./index.html", "__project//x", "__project/", "__scene/config/x"})
       rejects([&] { sceneRoute(path, "GET", true); });
@@ -32,11 +35,19 @@ int main() { @autoreleasepool {
     rejects([] { parseSceneEvent(R"({"type":"error","sceneID":"scene","generation":7,"message":"bad\u0000message"})", "scene", 7); });
     rejects([] { parseSceneEvent(std::string(8193, ' '), "scene", 7); });
     SceneSession session("scene", 7, "{}");
+    std::vector<double> bands(64, 0.25);
+    require(session.replaceSpectrum(bands, bands));
+    require(session.spectrumJSON().value().find("0.25") != std::string::npos);
+    rejects([&] { session.replaceSpectrum(std::vector<double>(63), bands); });
+    rejects([&] { session.replaceSpectrum(std::vector<double>(64, 1.1), bands); });
+    rejects([&] { session.replaceSpectrum(std::vector<double>(64, NAN), bands); });
     session.receive(R"({"type":"ready","sceneID":"scene","generation":7,"frame":1})");
     require(session.events.size() == 1);
     rejects([&] { session.receive(R"({"type":"ready","sceneID":"scene","generation":8,"frame":1})"); });
     require(session.events.size() == 1);
     session.retired = true;
+    require(!session.replaceSpectrum(bands, bands));
+    require(!session.spectrumJSON().has_value());
     require(!session.receive(R"({"type":"ready","sceneID":"scene","generation":7,"frame":1})"));
     require(session.events.size() == 1);
     char pattern[] = "/tmp/dw-scene-routes-XXXXXX";

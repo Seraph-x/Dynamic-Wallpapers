@@ -36,9 +36,15 @@ Imports create independent copies in the library. Changes to the original files 
 
 The app and its bundled offline help support **简体中文, English, 日本語, Français and Español**. Open **User Guide** from the app or menu-bar icon; no network connection is needed to read it.
 
+## System audio response (development builds)
+
+Optional system audio response uses Core Audio Tap on macOS 14.2+. Enable it in Settings → General → Sound and allow system audio recording when prompted. Playing scenes share one stereo spectrum capture; wallpaper output mute is independent. Capture excludes this app’s audio, uses no microphone, and does not save or upload audio. Pausing/closing all scenes or disabling the setting stops capture. Capture errors remain visible and offer an explicit retry. Other app features retain macOS 14.0 support. These additions are not part of the published 1.0.0 binaries.
+
+The scene editor is planned as a separately downloadable/removable plugin and is not bundled here.
+
 ## Scene compatibility and data
 
-Import projects you trust: scene scripts execute inside the CEF renderer. Scenes are rendered locally using bundled WebWallGL/CEF; the app does not download an engine from a CDN or require Node at runtime. System audio spectrum capture, property/scene editors and scene screen-saver playback are not included. Some unsupported effects produce engine warnings. See [scene validation and limits](docs/testing/scene-wallpapers.md).
+Import projects you trust: scene scripts execute inside the CEF renderer. Scenes are rendered locally using bundled WebWallGL/CEF; the app does not download an engine from a CDN or require Node at runtime. Property/scene editors and scene screen-saver playback are not included. Some unsupported effects produce engine warnings. See [scene validation and limits](docs/testing/scene-wallpapers.md).
 
 Version 1.0.0 saves library schema 4. Libraries from earlier supported versions load without rewriting the existing file until a save. An older app may reject a library saved by 1.0.0. Keep a separate copy of your library data before upgrading if you need to downgrade later; see the guide’s [data section](docs/help/en.md#data).
 

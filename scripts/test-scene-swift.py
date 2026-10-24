@@ -19,6 +19,7 @@ def positive_seconds(value):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--timeout', type=positive_seconds, default=60)
+    parser.add_argument('--system-audio', action='store_true', help='require real Core Audio Tap and external tone/CEF acceptance')
     parser.add_argument('--runtime-root', type=pathlib.Path, help='explicit packaged SceneRuntime directory')
     options = parser.parse_args()
     root = pathlib.Path(__file__).resolve().parent.parent
@@ -35,6 +36,8 @@ def main():
     command = ['bash', '-c', 'exec > "$1" 2>&1; shift; exec "$@"', 'scene-swift-test',
                str(run / 'test.log'), str(executable), str(runtime.resolve()),
                str(run / 'loose'), str(run / 'package'), str(run / 'context')]
+    if options.system_audio:
+        command.append('--system-audio')
     (run / 'command.json').write_text(json.dumps(command, indent=2) + '\n')
     print(f'SCENE_SWIFT artifacts={run} timeout_seconds={options.timeout}', flush=True)
     status = 1
@@ -47,6 +50,9 @@ def main():
                       'nativeGain=1 pointerPixels=1 closed=1')
             expected = [f'SCENE_SWIFT PASS representation={value} {suffix}' for value in ('loose', 'package')]
             expected.append('SCENE_SWIFT SHUTDOWN activePages=0')
+            if options.system_audio:
+                expected.extend(f'SCENE_AUDIO PASS cycle={cycle} realExternalTone=1 ownAudioExcluded=1 disabledClears=1 resourcesReleased=1'
+                                for cycle in (1, 2))
             if any(record not in log for record in expected):
                 status = 1
                 raise ValueError('Swift integration exited without all scene acceptance records')

@@ -62,9 +62,7 @@ test('package source reads exact validated package path and validates metadata b
 });
 
 test('runtime publishes engine first-frame readiness, preserves pause and emits ordered acknowledgements', async () => {
-  const { startSceneRuntime, zeroSpectrum } = await load('scene-runtime.mjs');
-  const audio = zeroSpectrum().snapshot();
-  assert.equal(audio.left.length, 64); assert.ok([...audio.left, ...audio.right].every(value => value === 0));
+  const { startSceneRuntime } = await load('scene-runtime.mjs');
   let finishLoad;
   const events = [], calls = [];
   const instance = {

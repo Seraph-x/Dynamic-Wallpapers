@@ -46,8 +46,10 @@ final class SceneSurfaceTests: XCTestCase {
         surface.setGlobalMute(false)
         factory.page.holdNextPlay = true
         surface.play()
+        XCTAssertTrue(factory.page.playbackIntent)
         for _ in 0..<20 { await Task.yield() }
         surface.pause()
+        XCTAssertFalse(factory.page.playbackIntent, "Capture demand must clear before a late play ack")
         XCTAssertEqual(factory.page.gains.last, 0)
         factory.page.finishPlay()
         try await surface.prepareToResume()
@@ -135,11 +137,13 @@ private final class TestScenePage: ScenePageSession {
     var prepareContinuation: CheckedContinuation<Void, Error>?
     var playError: Error?
     var holdNextPlay = false
+    var playbackIntent = false
     private var continuation: CheckedContinuation<Void, Error>?
     func prepare(project: SceneProjectReference, scale: CGFloat, fit: ContentFit) async throws {
         if holdPrepare { try await withCheckedThrowingContinuation { prepareContinuation = $0 } }
     }
     func setGain(_ value: Double) throws { gains.append(value) }
+    func setPlaybackIntent(_ value: Bool) { playbackIntent = value }
     func setPlaying(_ value: Bool) async throws {
         if let playError { throw playError }
         playing.append(value)

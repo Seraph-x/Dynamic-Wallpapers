@@ -9,9 +9,10 @@ APP="$PWD/.build/dependencies/cef/SceneSwiftTests.app"
 mkdir -p "$APP/Contents/MacOS"
 swiftc -sdk "$SDK" -Xclang-linker -isysroot -Xclang-linker "$SDK" -parse-as-library \
   -swift-version 5 -target arm64-apple-macosx14.0 -module-name SceneSwiftTests \
-  "${SWIFT_HARNESS_IMPORTS[@]}" Tests/SceneRuntimeHarness/swift-main.swift \
+  "${SWIFT_HARNESS_IMPORTS[@]}" Tests/SceneRuntimeHarness/{swift-main,system-audio}.swift \
   Sources/WallpaperApp/Media/{SceneSurface,ScenePageSession,CEFScenePageSession,CEFApplicationRuntime,CEFPageSession,WebPageSession,WebRuntimePaths}.swift \
   Sources/WallpaperApp/Playback/PlaybackCloseBarrier.swift Sources/WallpaperApp/ApplicationPaths.swift \
+  Sources/WallpaperApp/Audio/*.swift \
   Sources/WallpaperApp/Transcoding/TranscodeTools.swift \
   "${SWIFT_CORE_OBJECTS[@]}" "${SWIFT_NATIVE_OBJECTS[@]}" "${SWIFT_WEB_OBJECTS[@]}" \
   .build/dependencies/cef/wrapper-make/libcef_dll_wrapper/libcef_dll_wrapper.a \
@@ -25,6 +26,7 @@ with (app / 'Contents/Info.plist').open('wb') as output:
                   'CFBundleIdentifier': 'local.dynamicwallpaper.scene-swift-tests',
                   'CFBundleName': 'SceneSwiftTests', 'CFBundlePackageType': 'APPL',
                   'LSUIElement': True, 'NSHighResolutionCapable': True,
+                  'NSAudioCaptureUsageDescription': 'Verify system audio response using authored test tones. Captured audio is not stored.',
                   'LSMinimumSystemVersion': '14.0'}, output)
 PY
 bash scripts/build-web-helper.sh "$APP"

@@ -1,12 +1,6 @@
 import { validateConfig, validateCommand } from './scene-protocol.mjs';
 import { createProjectSource } from './scene-source.mjs';
-
-// System spectrum capture is deliberately unavailable. Never use the engine's
-// default simulated spectrum (or its simulated Now Playing media source).
-export function zeroSpectrum() {
-  const left = new Float32Array(64), right = new Float32Array(64);
-  return Object.freeze({ snapshot: () => ({ left, right }) });
-}
+import { createSpectrumSource } from './scene-spectrum.mjs';
 
 function errorMessage(error) {
   const text = String(error?.message ?? error);
@@ -20,10 +14,13 @@ export function startSceneRuntime(value, options) {
   let instance;
   let commands = Promise.resolve();
   let fps = config.fps;
+  const spectrum = createSpectrumSource(config);
+  let stopSpectrum;
   const event = payload => options.report({ ...payload, sceneID: config.sceneID, generation: config.generation });
   const destroy = () => {
     if (destroyed) return;
     destroyed = true;
+    stopSpectrum?.(); spectrum.clear();
     source.dispose();
     instance?.destroy({ releasePkgCache: true });
   };
@@ -37,13 +34,14 @@ export function startSceneRuntime(value, options) {
   const source = createProjectSource(config.project, { ...options.sourceOptions, onError: fail });
   instance = options.createScene(options.element, {
     fps: config.fps, fit: config.fit, volume: config.muted ? 0 : config.volume,
-    audio: zeroSpectrum(), media: null, autoQuality: false, debugHooks: false,
+    audio: spectrum, media: null, autoQuality: false, debugHooks: false,
     onError: fail,
     onDiagnostic: (message, level) => {
       if (level === 'error') fail(new Error(message));
       else if (level === 'warn') console.warn('Scene engine', message);
     },
   });
+  stopSpectrum = options.startSpectrum?.(spectrum, fail);
   // load resolves only after WebWallGL's real first frame. HTML/RAF callbacks do
   // not prove readiness. Native also waits for a later committed CEF pixel frame.
   const ready = instance.load(source).then(async () => {

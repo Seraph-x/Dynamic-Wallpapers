@@ -646,3 +646,14 @@
 "包含网页或场景时，仅支持固定停留时长。" = "Les sélections comprenant des pages web ou des scènes acceptent uniquement une durée fixe.";
 "网页和场景壁纸仅支持固定停留时长。" = "Les fonds web et de scène acceptent uniquement une durée fixe.";
 "声音设置仅适用于所选视频、网页和场景，图片与动图不受影响。" = "Les réglages audio s’appliquent aux vidéos, pages web et scènes sélectionnées. Les images et images animées restent inchangées.";
+
+/* Optional system audio spectrum. */
+"系统音频响应" = "Réaction à l’audio système";
+"仅在场景播放时分析系统声音，不录制文件、不上传、不使用麦克风。壁纸静音不影响音频响应。" = "Analyse le son système uniquement pendant la lecture des scènes. Aucun fichier audio, envoi ni accès au microphone. Le mode muet du fond d’écran ne désactive pas cette réaction.";
+"重试系统音频响应" = "Réessayer la réaction audio";
+"系统音频响应需要 macOS 14.2 或更新版本。" = "La réaction à l’audio système nécessite macOS 14.2 ou ultérieur.";
+"系统音频响应已关闭。" = "La réaction à l’audio système est désactivée.";
+"等待场景播放，尚未采集系统音频。" = "En attente de lecture d’une scène. Aucun audio système n’est capturé.";
+"正在启动系统音频采集，请允许系统音频录制权限。" = "Démarrage de la capture audio. Autorisez l’enregistrement de l’audio système.";
+"正在分析系统音频。" = "Analyse de l’audio système.";
+"系统音频响应已停止，请查看错误并重试。" = "La réaction audio s’est arrêtée. Consultez l’erreur et réessayez.";

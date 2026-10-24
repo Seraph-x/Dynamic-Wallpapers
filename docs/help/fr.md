@@ -186,7 +186,9 @@ Importez uniquement des projets fiables : les scripts de scène peuvent s’exé
 
 Utilisez une durée fixe. La pause conserve l’horloge de la scène et reprend la même instance. Les réglages de volume, de sourdine, de cadrage et de fréquence web s’appliquent. Activez l’interaction et ses autorisations pour les mouvements de souris et clics gauches sur le bureau vide. L’aperçu accepte directement la souris.
 
-Les propriétés par défaut de l’auteur sont utilisées. Le spectre audio du système, l’édition de scènes et l’économiseur d’écran natif ne sont pas pris en charge. La compatibilité dépend de la version figée de WebWallGL ; les échecs de chargement ou de rendu affichent une erreur. Certains effets ou scripts incompatibles peuvent uniquement produire un avertissement dans le journal CEF. La scène n’est pas remplacée par une image ou une vidéo.
+Les propriétés par défaut de l’auteur sont utilisées. L’édition de scènes et l’économiseur d’écran natif ne sont pas pris en charge. La compatibilité dépend de la version figée de WebWallGL ; les échecs de chargement ou de rendu affichent une erreur. Certains effets ou scripts incompatibles peuvent uniquement produire un avertissement dans le journal CEF. La scène n’est pas remplacée par une image ou une vidéo.
+
+Les versions de développement ajoutent « Réaction à l’audio système » dans Réglages → Général → Son (macOS 14.2 ou ultérieur, désactivée par défaut). Autorisez l’enregistrement de l’audio système à la première capture. Seules les scènes en lecture partagent un service de capture ; les vignettes ne le démarrent pas. Le mode muet du fond ne désactive pas cette réaction. Le son est analysé en mémoire, sans le son de cette app, sans enregistrement, envoi ni microphone. La capture s’arrête quand toutes les scènes sont en pause ou fermées, ou si le réglage est désactivé. Une erreur de capture ou de périphérique efface le spectre et affiche une erreur sans arrêter l’animation ; réessayez après résolution. L’éditeur est prévu comme un plugin téléchargeable et supprimable séparément.
 
 ## 4. Réglages {#settings}
 

@@ -14,6 +14,7 @@ final class CEFScenePageSession: ScenePageSession {
     private var preparation: CheckedContinuation<Void, Error>?
     private var started = false
     private var closing = false
+    private var playbackIntent = false
     private var closeTask: Task<Void, Error>?
 
     init(owner: CEFApplicationRuntime, size: CGSize, frameRate: WebWallpaperFrameRate) {
@@ -35,6 +36,7 @@ final class CEFScenePageSession: ScenePageSession {
                 page.onReady = { [weak self] in self?.finishPreparation(.success(())) }
                 page.onError = { [weak self] error in
                     guard let self, !self.closing else { return }
+                    self.owner.setScenePlaying(self.id, false)
                     if self.preparation != nil { self.finishPreparation(.failure(error)) }
                     else { self.onError?(error) }
                 }
@@ -61,7 +63,18 @@ final class CEFScenePageSession: ScenePageSession {
     }
     func setPlaying(_ value: Bool) async throws {
         guard !closing, let page else { throw CancellationError() }
+        if !value { owner.setScenePlaying(id, false) }
         try await command { page.setScenePlaying(value, completion: $0) }
+        owner.setScenePlaying(id, value && playbackIntent)
+    }
+    func setPlaybackIntent(_ value: Bool) {
+        playbackIntent = value
+        if !value { owner.setScenePlaying(id, false) }
+    }
+    func updateSpectrum(_ value: AudioSpectrum) {
+        guard !closing, let page, page.ready else { return }
+        do { try page.setSceneSpectrumLeft(value.left.map { NSNumber(value: $0) }, right: value.right.map { NSNumber(value: $0) }) }
+        catch { owner.systemAudioSpectrum.setPlaying(id, false); onError?(error) }
     }
     func setFrameRate(_ value: WebWallpaperFrameRate) {
         frameRate = value
@@ -92,6 +105,7 @@ final class CEFScenePageSession: ScenePageSession {
     func close() async throws {
         if let closeTask { try await closeTask.value; return }
         closing = true
+        owner.setScenePlaying(id, false)
         finishPreparation(.failure(CancellationError()))
         page?.onReady = nil; page?.onError = nil
         let page = self.page

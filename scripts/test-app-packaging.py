@@ -57,6 +57,10 @@ def write_payload_fixture(app):
              'Contents/Resources/ThirdParty/distribution-status.json']
     paths += [f'Contents/Resources/DynamicWallpaper_WallpaperApp.bundle/{language}.lproj/Localizable.strings'
               for language in ('zh-hans', 'en', 'ja', 'fr', 'es')]
+    paths += [f'Contents/Resources/DynamicWallpaper_WallpaperApp.bundle/{language}.lproj/InfoPlist.strings'
+              for language in ('zh-hans', 'en', 'ja', 'fr', 'es')]
+    paths += [f'Contents/Resources/{language}.lproj/InfoPlist.strings'
+              for language in ('zh-Hans', 'en', 'ja', 'fr', 'es')]
     framework = f'Contents/Frameworks/{bundle.FRAMEWORK}'
     paths += [f'{framework}/{name}' for name in ('Chromium Embedded Framework',
         'Libraries/libcef_sandbox.dylib', 'Libraries/libvk_swiftshader.dylib', 'Libraries/libvulkan.dylib',

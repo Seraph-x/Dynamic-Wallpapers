@@ -61,7 +61,7 @@ struct DWWebPageState {
     if (event.kind == "resource-open") ++opened;
     else if (event.kind == "resource-close") ++released;
     else if (event.kind == "context-handler-destroyed") contextDestroyed = true;
-    else if (event.kind == "scene-event-retired")
+    else if (event.kind == "scene-event-retired" || event.kind == "scene-spectrum-retired")
       fprintf(stderr, "DWWEB cancelled-scene-event origin=%s %s\n", host.c_str(), event.detail.c_str());
     else if (event.kind == "resource-missing-optional") optionalResourceMissing(event);
     else if (event.kind == "resource-error" || event.kind == "file-error" || event.kind == "context-error" ||

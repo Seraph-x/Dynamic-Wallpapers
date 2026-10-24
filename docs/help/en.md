@@ -186,7 +186,9 @@ Use projects you trust because scene scripts can execute. Invalid metadata, unsa
 
 Use fixed playlist durations. Pause retains the scene clock; resume continues the same instance. Existing volume, mute, fit and web frame-rate settings also apply to scenes. Enable the existing interaction setting and its permissions for mouse movement and blank-desktop left clicks. Preview windows accept direct mouse input.
 
-Playback uses the author’s default properties. System audio spectrum capture, scene editing and native screen-saver playback are not supported. Compatibility is limited to the pinned WebWallGL engine; scene loading/rendering failures report errors, and some unsupported effects or scripts may produce engine warnings. These are recorded in the CEF log; no picture or video substitution is performed.
+Playback uses the author’s default properties. Scene editing and native screen-saver playback are not supported. Compatibility is limited to the pinned WebWallGL engine; scene loading/rendering failures report errors, and some unsupported effects or scripts may produce engine warnings. These are recorded in the CEF log; no picture or video substitution is performed.
+
+Development builds add optional **System audio response** in Settings → General → Sound (macOS 14.2+; off by default). Allow system audio recording when prompted. Only playing scenes share one capture service; thumbnails do not start it. Wallpaper mute does not stop spectrum input. Audio is analyzed in memory, excludes this app’s sound, and is not recorded or uploaded; the microphone is not used. Capture stops when all scenes pause/close or the setting is turned off. A capture/device error clears the spectrum and shows an error while animation continues; use **Retry system audio response** after resolving the problem. The scene editor is planned as a separate downloadable/removable plugin.
 
 ## 4. Settings reference {#settings}
 

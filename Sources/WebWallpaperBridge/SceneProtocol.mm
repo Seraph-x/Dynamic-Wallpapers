@@ -12,6 +12,10 @@ SceneRoute sceneRoute(const std::string& path, const std::string& method, bool m
     return {SceneMount::event, {}};
   }
   if (method != "GET") throw std::runtime_error("Scene resources require GET");
+  if (path == "__scene/spectrum") {
+    if (!mainFrame) throw std::runtime_error("Scene spectrum requires the trusted main frame");
+    return {SceneMount::spectrum, {}};
+  }
   if (path == "__scene/config") return {SceneMount::config, {}};
   for (auto [prefix, mount] : {std::pair{"__runtime/", SceneMount::runtime}, {"__project/", SceneMount::project}}) {
     if (!path.starts_with(prefix)) continue;
@@ -37,6 +41,37 @@ static bool text(id value, NSUInteger maximum) {
   return [value isKindOfClass:NSString.class] && [value lengthOfBytesUsingEncoding:NSUTF8StringEncoding] > 0 &&
       [value lengthOfBytesUsingEncoding:NSUTF8StringEncoding] <= maximum && [value rangeOfString:@"\0"].location == NSNotFound;
 }
+static std::string spectrumJSON(const std::string& id, uint64_t generation,
+                                const std::vector<double>& left, const std::vector<double>& right) {
+  auto channel = [](const std::vector<double>& values) {
+    if (values.size() != 64) throw std::runtime_error("Spectrum requires 64 bands per channel");
+    NSMutableArray* result = [NSMutableArray arrayWithCapacity:64];
+    for (double value : values) {
+      if (!std::isfinite(value) || value < 0 || value > 1) throw std::runtime_error("Invalid spectrum value");
+      [result addObject:@(value)];
+    }
+    return result;
+  };
+  NSDictionary* payload = @{@"sceneID": @(id.c_str()), @"generation": @(generation),
+                             @"left": channel(left), @"right": channel(right)};
+  NSError* error = nil;
+  NSData* data = [NSJSONSerialization dataWithJSONObject:payload options:0 error:&error];
+  if (!data) throw std::runtime_error("Could not serialize scene spectrum");
+  return std::string(static_cast<const char*>(data.bytes), data.length);
+}
+bool SceneSession::replaceSpectrum(const std::vector<double>& left, const std::vector<double>& right) { @autoreleasepool {
+  auto json = dw::spectrumJSON(sceneID, generation, left, right);
+  std::lock_guard lock(mutex);
+  if (retired) return false;
+  spectrum = std::move(json);
+  return true;
+} }
+std::optional<std::string> SceneSession::spectrumJSON() { @autoreleasepool {
+  std::lock_guard lock(mutex);
+  if (retired) return std::nullopt;
+  if (spectrum.empty()) spectrum = dw::spectrumJSON(sceneID, generation, std::vector<double>(64), std::vector<double>(64));
+  return spectrum;
+} }
 SceneEvent parseSceneEvent(const std::string& body, const std::string& sceneID, uint64_t generation) { @autoreleasepool {
   if (body.empty() || body.size() > 8192) throw std::runtime_error("Scene event body exceeds bounds");
   NSData* data = [NSData dataWithBytes:body.data() length:body.size()];
