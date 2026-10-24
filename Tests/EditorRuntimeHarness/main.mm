@@ -61,6 +61,7 @@ static void verifyModelExport(DWWebRuntime* runtime,NSString* projectRoot,NSStri
 - (void)editorTestType:(NSString*)text;
 - (BOOL)editorTestNativeViewIsAttached;
 - (void)editorTestAwaitTitle:(NSString*)expected;
+- (void)editorTestAwaitInput:(NSString*)selector value:(NSString*)expected;
 @end
 @implementation DWWebPage (EditorAcceptance)
 - (void)editorTestScript:(NSString*)script {
@@ -80,12 +81,15 @@ static void verifyModelExport(DWWebRuntime* runtime,NSString* projectRoot,NSStri
   }
 }
 - (void)editorTestAwaitTitle:(NSString*)expected {
+  [self editorTestAwaitInput:@"#project-title" value:expected];
+}
+- (void)editorTestAwaitInput:(NSString*)selector value:(NSString*)expected {
   __block BOOL done=NO; __block NSError* failure=nil; NSString* identifier=NSUUID.UUID.UUIDString;
   _editorCompletions[identifier]=^(NSDictionary* reply,NSError* error){failure=error;done=[reply[@"typed"] boolValue]||error!=nil;};
   _editorDeadlines[identifier]=@(NSProcessInfo.processInfo.systemUptime+5);
-  NSDictionary* value=@{@"expected":expected,@"payload":@{@"type":@"reply",@"id":identifier,@"session":@(_resources->state->editor->session.c_str()),@"generation":@1,@"payload":@{@"typed":@YES}}};
+  NSDictionary* value=@{@"selector":selector,@"expected":expected,@"payload":@{@"type":@"reply",@"id":identifier,@"session":@(_resources->state->editor->session.c_str()),@"generation":@1,@"payload":@{@"typed":@YES}}};
   NSString* json=[[NSString alloc]initWithData:[NSJSONSerialization dataWithJSONObject:value options:0 error:nil] encoding:NSUTF8StringEncoding];
-  [self editorTestScript:[NSString stringWithFormat:@"(()=>{const test=%@;const check=()=>{if(document.getElementById('project-title').value===test.expected)fetch('/__editor/event',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(test.payload)});else requestAnimationFrame(check);};check();})();",json]];
+  [self editorTestScript:[NSString stringWithFormat:@"(()=>{const test=%@;const check=()=>{if(document.querySelector(test.selector).value===test.expected)fetch('/__editor/event',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(test.payload)});else requestAnimationFrame(check);};check();})();",json]];
   waitUntil(^{return done;},6,"Native keyboard input did not reach the renderer before blur"); require(!failure,"Keyboard input acknowledgement failed");
 }
 - (BOOL)editorTestNativeViewIsAttached {
@@ -124,6 +128,38 @@ static NSMutableDictionary* configureResources(DWWebPage* page, NSString* root, 
       if(failure) onFailure(failure); else if(reply[@"error"]) onFailure([NSError errorWithDomain:@"EditorAcceptance" code:1 userInfo:@{NSLocalizedDescriptionKey:reply[@"error"]}]);
     }];
   };return stats;
+}
+static void verifyModelWorkbench(DWWebRuntime* runtime,NSString* projectRoot,NSString* runtimeRoot,NSString* resources) {
+  NSData* sceneData=[NSData dataWithContentsOfFile:[projectRoot stringByAppendingPathComponent:@"scene.json"]];
+  NSData* projectData=[NSData dataWithContentsOfFile:[projectRoot stringByAppendingPathComponent:@"project.json"]];
+  require(sceneData!=nil&&projectData!=nil,"Native model source fixture missing");
+  NSDictionary* scene=[NSJSONSerialization JSONObjectWithData:sceneData options:0 error:nil];
+  NSDictionary* project=[NSJSONSerialization JSONObjectWithData:projectData options:0 error:nil];
+  NSDictionary* config=@{@"language":@"en",@"document":@{@"title":@"Native model",@"entry":@"scene.json",@"scene":scene,@"project":project}};
+  NSError* error=nil;__block NSError* failure=nil;
+  DWWebPage* page=[runtime editorPageWithProjectRoot:projectRoot runtimeRoot:runtimeRoot configuration:config size:NSMakeSize(1180,760) error:&error];
+  require(page!=nil,error.localizedDescription.UTF8String ?: "Native Model workbench creation failed");
+  page.onError=^(NSError* value){failure=value;};configureResources(page,resources,^(NSError* value){failure=value;});
+  NSWindow* window=[[NSWindow alloc]initWithContentRect:NSMakeRect(0,0,1180,760) styleMask:NSWindowStyleMaskTitled backing:NSBackingStoreBuffered defer:NO];
+  window.releasedWhenClosed=NO;page.view.frame=window.contentView.bounds;[window.contentView addSubview:page.view];[window makeKeyAndOrderFront:nil];
+  [page start];waitUntil(^{return page.ready||failure!=nil;},20,"Native Model workbench first frame timed out");require(!failure,"Native Model workbench failed");
+  command(page,@{@"type":@"thaw"});[page editorTestScript:@"document.querySelector('#layers button[data-layer-id=\"1\"]').click();"];command(page,@{@"type":@"snapshot"});
+  [page editorTestScript:@"document.getElementById('model-workspace').click();"];command(page,@{@"type":@"snapshot"});
+  [page editorTestScript:@"document.querySelector('#model-bones button[data-bone=\"1\"]').click();"];command(page,@{@"type":@"snapshot"});
+  [page editorTestScript:@"document.getElementById('model-bone-name').focus();document.getElementById('model-bone-name').select();"];
+  runFor(.1);[page editorTestType:@"Native Wing"];[page editorTestAwaitInput:@"#model-bone-name" value:@"Native Wing"];
+  NSDictionary* frozen=command(page,@{@"type":@"freeze"}),*document=frozen[@"document"];
+  NSString* path=@"models/editor/rig.mdl",*version=document[@"resourceOverrides"][path];
+  require(version.length==64&&[frozen[@"dirty"] boolValue],"Unblurred native model input was not committed before freeze");
+  NSData* bytes=[NSData dataWithContentsOfFile:[resources stringByAppendingPathComponent:version]];
+  require(bytes!=nil&&[[resourceHash(bytes) lowercaseString] isEqual:version],"Native model resource hash mismatch");
+  NSData* name=[@"Native Wing" dataUsingEncoding:NSUTF8StringEncoding];require([bytes rangeOfData:name options:0 range:NSMakeRange(0,bytes.length)].location!=NSNotFound,"Native model resource did not contain the typed bone name");
+  command(page,@{@"type":@"mark-saved",@"document":document});require(![command(page,@{@"type":@"freeze"})[@"dirty"] boolValue],"Native model saved acknowledgement remained dirty");
+  command(page,@{@"type":@"thaw"});command(page,@{@"type":@"undo"});
+  require(command(page,@{@"type":@"snapshot"})[@"document"][@"resourceOverrides"][path]==nil,"Native model undo did not restore the original resource");
+  command(page,@{@"type":@"redo"});require([command(page,@{@"type":@"snapshot"})[@"document"][@"resourceOverrides"][path] isEqual:version],"Native model redo did not restore the authored resource");
+  __block BOOL released=NO;[page closeWithCompletion:^(NSError* value){failure=value;released=YES;}];waitUntil(^{return released;},7,"Native model editor close timed out");require(!failure,"Native model editor close failed");[window close];
+  fprintf(stderr,"Native Model workspace: actual keyboard, unblurred freeze, staged MDL name/hash, save acknowledgement and undo/redo passed\n");
 }
 int main(int argc,char**argv) { @autoreleasepool {
   if(argc!=6 && argc!=9 && argc!=11){fprintf(stderr,"usage: EditorHarness FRAMEWORK HELPER CACHE RUNTIME PROJECT [MAIN_RUNTIME LOOSE_EXPORT PKG_EXPORT [MODEL_LOOSE MODEL_PKG]]\n");return 64;}
@@ -233,6 +269,7 @@ int main(int argc,char**argv) { @autoreleasepool {
       fprintf(stderr,"Editor %s export rendered actual Main scene image/text pixels\n",index==7?"loose":"PKG");
     } }
     if(argc==11)for(int index=9;index<=10;++index){@autoreleasepool{verifyModelExport(runtime,@(argv[index]),@(argv[6]),index==10);}}
+    if(argc==11){@autoreleasepool{verifyModelWorkbench(runtime,@(argv[9]),@(argv[4]),[@(argv[3]) stringByAppendingPathComponent:@"ModelResources"]);}}
     require([runtime shutdownWithError:&error],error.localizedDescription.UTF8String ?: "CEF shutdown failed");
     require(runtime.shutdownCount==1,"Runtime shutdown not observed");
     puts("Native Editor: real first frame, attached CEF child, keyboard, edit/undo/redo, resize and full release passed");return 0;

@@ -24,3 +24,12 @@ export function restPose(matrix) {
   }
   return pose.map(value=>value===0?0:value);
 }
+export function restMatrix(pose) {
+  if(!Array.isArray(pose) || pose.length!==9 || !pose.every(Number.isFinite))throw new Error('Expected nine finite local TRS components');
+  const [x,y,z,rx,ry,rz,sx,sy,sz]=pose;
+  const [cx,cy,cz]=[Math.cos(rx),Math.cos(ry),Math.cos(rz)],[ax,ay,az]=[Math.sin(rx),Math.sin(ry),Math.sin(rz)];
+  const result=Float32Array.of(cz*cy*sx,az*cy*sx,-ay*sx,0,
+    (cz*ay*ax-az*cx)*sy,(az*ay*ax+cz*cx)*sy,cy*ax*sy,0,
+    (cz*ay*cx+az*ax)*sz,(az*ay*cx-cz*ax)*sz,cy*cx*sz,0,x,y,z,1);
+  restPose(result);return result;
+}

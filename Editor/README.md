@@ -8,17 +8,15 @@ does not delete the Editor's saved projects.
 The initial version supports new scenes; importing loose or PKG projects;
 image/text layers; layer ordering, visibility and duplication; position, scale,
 rotation, color and opacity; canvas picking/dragging; live preview with
-play/pause; property keyframe animation; undo/redo; save/reopen; and loose/PKG
+play/pause; property keyframe animation; model hierarchy and numeric skin weights;
+undo/redo; save/reopen; and loose/PKG
 export. Script and property-bound fields remain read-only in the inspector.
 Preview is muted with explicit zero
 system spectrum; exports preserve audio response for wallpaper playback.
-Skeleton tools and a script IDE remain separate roadmap features. Immutable
-resource revisions let subsequent model/script tools share the same
-undo/save/export transaction as scene JSON.
-The [model resource foundation](../docs/editor-model-resources.md) now supplies
-lossless skeleton reindexing and numeric skin-weight transactions. These are
-tested infrastructure APIs; interactive skeleton/import/brush tools remain
-pending and are not exposed as completed Editor features.
+The [Model workspace](../docs/editor-model-workspace.md) uses immutable resource
+revisions for complete undo/save/export transactions. Direct model import,
+image-to-puppet creation, painting, existing-bone rest editing, skeletal clip
+authoring and a script IDE remain separate roadmap work.
 
 Use **File → New Project** or **Open Project**. Imports create complete owned
 copies. **Save** writes the Editor workspace; **Export** creates a standard scene
@@ -35,6 +33,22 @@ the workbench uses system fonts and original icons. Layers stay on the left,
 the live canvas stays central, and grouped properties scroll independently on
 the right. Text formatting appears before transforms for text layers. Changing
 appearance does not alter or mark the scene as edited.
+
+## Edit an imported model
+
+Select a puppet/skinned model layer and choose **Model** beside **Properties**.
+Pick bones in the outline or canvas; rename, create, reparent or delete them.
+Deletion asks for confirmation and an explicit replacement for weighted vertices
+or attachments. Parent changes retain local transforms and animation samples,
+which can change world-space motion. Existing local bind matrices are read-only.
+
+Choose a mesh/vertex in the bind-space map and edit up to four normalized joint
+weights. Apply commits; Revert discards pending input. Native Save, history,
+selection changes and Timeline edits prepare model input first. Invalid drafts
+remain visible. Read/format failures show their reason and allow returning to
+Properties; Reload model explicitly retries. Edits affect every layer sharing
+the model resource. See the [workspace guide](../docs/editor-model-workspace.md)
+for GPU capacity, format support, confirmation semantics and recovery.
 
 ## Animate a property
 

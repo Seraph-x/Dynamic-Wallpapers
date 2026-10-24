@@ -3,6 +3,9 @@ import { readFile,writeFile,mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { modelFixture,modelSpec } from './model-fixtures.mjs';
 import { createMdlDoc,writeMdlDoc } from './vendor/mdl-codec.mjs';
+import { testModelWorkspace } from './test-model-workspace.mjs';
+import { testModelRecovery } from './test-model-recovery.mjs';
+import { testModelLayout } from './test-model-layout.mjs';
 
 // Read committed screenshots, rather than an unpreserved WebGL drawing buffer.
 async function pixels(page) {
@@ -16,13 +19,13 @@ async function pixels(page) {
       const p=(y*canvas.width+x)*4;
       if(data[p+1]>180 && data[p]<70 && data[p+2]<70){const half=halves[x<canvas.width/2?0:1];half.n++;half.x+=x;half.y+=y;}
     }
-    return {width:canvas.width,halves:halves.map(h=>({n:h.n,x:h.x/h.n,y:h.y/h.n}))};
+    return {width:canvas.width,height:canvas.height,halves:halves.map(h=>({n:h.n,x:h.x/h.n,y:h.y/h.n}))};
   },[...bytes]);
 }
 function samePose(actual,expected) {
   actual.halves.forEach((h,i)=>{
     assert(h.n>100,'Model mesh has no actual green pixels');
-    assert(Math.abs(h.x-expected.halves[i].x)<1.5 && Math.abs(h.y-expected.halves[i].y)<1.5,'Bone edit changed surviving mesh deformation');
+    assert(Math.abs(h.x-expected.halves[i].x)<1.5 && Math.abs(h.y-expected.halves[i].y)<1.5,`Bone edit changed surviving mesh deformation: ${JSON.stringify({actual,expected})}`);
   });
 }
 export async function testModel({page,command,resources,configuration,artifactRoot,blobRoot}) {
@@ -47,10 +50,15 @@ export async function testModel({page,command,resources,configuration,artifactRo
   assert(start.halves.every(h=>h.n>100) && middle.halves.every(h=>h.n>100),'Both real skinned meshes must render');
   assert(Math.abs(start.halves[0].y-middle.halves[0].y)<1.5,'Static left bone moved');
   assert(Math.abs(start.halves[1].y-middle.halves[1].y-30*start.width/640)<2,'Intermediate right-bone deformation differs from known animation');
+  const authored=await testModelWorkspace(page,command,modelPath);
+  const authoredBytes=new Uint8Array(await readFile(path.join(blobRoot,authored.resourceOverrides[modelPath])));
+  await testModelRecovery(page,command,modelPath,authoredBytes);
+  await testModelLayout(page,command,configuration,authored);
+  await command({type:'seek',time:.5});
   const edited=await page.evaluate(async bytes=>{
     const {rewriteSkeleton}=await import('./model-api.mjs');
     return [...rewriteSkeleton(new Uint8Array(bytes),{boneLimit:3,bones:[{source:0,parent:-1},{source:2,parent:0},{source:1,parent:0}]}).bytes];
-  },[...modelFixture()]);
+  },[...authoredBytes]);
   await command({type:'replace-resource',path:modelPath,data:Buffer.from(edited).toString('base64')});samePose(await pixels(page),middle);
   await command({type:'undo'});samePose(await pixels(page),middle);
   await command({type:'redo'});samePose(await pixels(page),middle);

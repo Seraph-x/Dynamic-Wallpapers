@@ -1,0 +1,119 @@
+# Edit a model's skeleton and skin
+
+Open a loose/PKG scene containing a puppet or skinned model, select its layer,
+and choose **Model** beside **Properties**. The workspace shows the skeleton,
+local bind matrices, mesh/vertex information and numeric skin influences.
+Switching workspace, selecting bones/vertices and showing overlays are preview
+choices; they do not change the saved project.
+
+This checkpoint adds hierarchy and numeric skin editing for imported scene
+models. Direct glTF/GLB import, image-to-puppet creation, painting, editing an
+existing bone's rest transform, skeletal clip authoring and the Script IDE
+remain separate roadmap work. Existing bind matrices are displayed read-only.
+
+## Change the hierarchy
+
+Select a bone in the outline or on the canvas. Change **Bone name** or **Parent**,
+then **Apply**, or use **Revert** to discard pending input. Parent choices
+exclude the selected bone and its descendants. Reparenting retains local bind
+transforms and animation samples, so world-space placement/motion can change.
+The resource transaction sorts parents before children and remaps skin,
+animation, attachment and recognized auxiliary references together.
+
+**Create bone** opens a native modal dialog. Enter its name, parent, position,
+rotation in degrees and scale. Zero scales, nonfinite values and transforms
+which the native Float32/TRS representation cannot preserve are rejected. The
+new bone receives a constant rest track in existing clips. **Cancel** or Escape
+discards unconfirmed input. Once submission starts, the dialog remains busy
+until the transaction succeeds or reports an error.
+
+**Delete bone** explains the affected vertices, attachments and children.
+Children move to the removed bone's parent while retaining local transforms;
+the removed bone's animation tracks are deleted. If it has weighted vertices
+or attachments, explicitly choose a surviving replacement. There is no implicit
+replacement. Cancel changes no content; the final bone cannot be deleted.
+Undo restores the complete previous resource, including references and tracks.
+
+All layers sharing an MDL resource receive its edit. The workspace calls this
+out because the file belongs to the project rather than to one layer instance.
+
+## Change numeric weights
+
+Choose a mesh and vertex. The bind-space map shows triangle edges, vertices and
+the selected bone's influence; click a vertex or use the index input. The map
+also supports Left/Right/Up/Down and Home/End. A ring and numeric controls
+identify the selected vertex without relying exclusively on color.
+
+Enter up to four distinct joint/weight pairs. Choose **Unused** with weight 0
+for an empty slot. Weights must be finite and nonnegative with a positive sum;
+Apply normalizes them. Duplicate joints, invalid vertex IDs and unsupported
+layouts fail without publishing a revision. Unedited vertices remain intact.
+The main preview immediately uses the authored MDL, and Undo restores its
+previous deformation.
+
+## Save pending input safely
+
+Save/freeze, undo/redo, layer/workspace changes, native image insertion and
+resource replacement first prepare model drafts. Timeline content operations
+also prepare model drafts. Invalid input remains editable and blocks dependent
+content changes until corrected or reverted. A confirmation dialog must be
+completed or cancelled before a native document barrier proceeds.
+
+Pending weight and hierarchy forms publish one resource revision. Weights are
+interpreted using the original joint IDs before hierarchy remapping, so a
+simultaneous parent change cannot silently retarget them. A model resource edit
+preserves an independent property-timeline draft; the next native barrier
+prepares Model, then Timeline. The controllers do not wait on each other's
+operation queues in both directions.
+
+Resources are staged before one document-history edit. The commit checks the
+selected document identity, layer/model path and resource version both before
+and after the asynchronous write. A stale write or disk error does not publish
+the edit. Resource replies continue to bypass preparation/render queues, so
+initial loading and Save cannot deadlock on their own blob read.
+
+Saved workspaces and loose/PKG exports use the same resource-version path as
+other Editor changes. Exported models play in Main without the Editor installed.
+No new workspace schema, native command or playback format is introduced.
+
+## Capacity, unsupported files and recovery
+
+The workspace reads the actual linked `u_skin[0]` uniform array size on the
+Editor renderer's first model draw. It does not infer capacity from device
+limits: the pinned shader can link a smaller palette after a failed attempt.
+The observer is attached only to the Editor-owned canvas/context, forwards
+context options and native draw calls unchanged, then restores the original
+method descriptors immediately after loading.
+
+A model must actually draw to obtain this capacity. A hidden/non-drawing model
+can therefore show capacity unavailable; make it visible in preview before
+structural/weight authoring. Rename-only changes do not need a new palette.
+Missing capacity or an exceeded limit is an explicit error, with no guessed
+default or clamping. Other machines can have different GPU capacities.
+
+The [model resource contract](editor-model-resources.md) lists supported binary
+layouts. Unknown mesh data remains unavailable for weight editing with its
+reason displayed; readable bones can still be renamed safely. A resource read
+failure or an unsupported skeleton displays its error and leaves normal
+Properties/layer selection available when there is no dirty model draft.
+**Reload model** explicitly retries inspection; **Revert** discards pending
+input if a source changed underneath it. Unsupported data is never flattened
+or replaced by a fabricated editable model.
+
+## Validation and source references
+
+The workspace uses the pinned WebWallGL model inspection, bone screen-point
+and rendering APIs together with the lossless codec credited in the
+[resource contract](editor-model-resources.md#reused-source). The engine and
+existing Editor API bundle remain unchanged. Forms use visible associated
+labels; creation/deletion use native `dialog.showModal()` focus behavior.
+
+Run the documented checks in [standalone Editor validation](testing/standalone-editor.md).
+The browser exercises real forms, overlay picking, destructive cancellation,
+influence/attachment replacement, actual deformation, history, unblurred input,
+cross-tool/native barriers and error recovery. Five languages and both themes
+are checked at 850 × 540, including an open Timeline. User-authored model bytes
+continue through save/reopen and both exports into Main's CEF pixel assertions.
+The native harness additionally types a bone name through AppKit, freezes it
+without blur and verifies the staged MDL name/hash, save acknowledgement and
+undo/redo before closing the CEF page normally.

@@ -1,8 +1,9 @@
 # Edit model resources without losing references
 
-This is the infrastructure portion of skeleton authoring. There is no Model
-workspace, glTF/GLB import dialog, image-to-puppet tool or weight brush in the
-application yet. Those remain part of the approved authoring roadmap.
+This is the resource layer used by the [Model workspace](editor-model-workspace.md)
+for skeleton hierarchy and numeric weights. Direct glTF/GLB import,
+image-to-puppet creation, painting and existing-bone rest editing remain part of
+the approved authoring roadmap.
 
 `Editor/Web/model.mjs` exports pure operations over MDL bytes. The reproducible
 offline build exposes them in `model-api.mjs`. They use the existing immutable
@@ -46,8 +47,8 @@ indices refer to the final skeleton. Surviving weights are unchanged; duplicate
 joint slots created by a replacement remain equivalent weighted contributions.
 Zero-weight deleted slots become joint 0 with zero weight.
 
-These are low-level operations. The subsequent UI must present destructive
-changes and obtain confirmation before committing them. This API does not
+These are low-level operations. The Model workspace presents destructive
+changes and obtains confirmation before committing them. This API does not
 display an installation prompt or any other user dialog.
 
 ## Change numeric influences
@@ -78,8 +79,9 @@ including when an operation fails.
 verified capacity for the target renderer, not a requested quality setting.
 There is no default and no clamping. The pinned MDL parser accepts at most 1024
 bones, but the shader palette has a hard ceiling of **128** and can compile a
-smaller palette on a GPU. The future Model workspace must establish the actual
-target capacity before exposing these operations. The current integration
+smaller palette on a GPU. The Model workspace must establish the actual
+target capacity before exposing these operations; the Model workspace observes
+the actual linked shader uniform size for this purpose. The integration
 fixture explicitly verifies a three-bone target in both Editor and Main.
 Rename-only edits do not change rendering capacity and need no new budget.
 

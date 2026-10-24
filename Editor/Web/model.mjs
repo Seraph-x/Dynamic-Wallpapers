@@ -128,3 +128,30 @@ export function setSkinInfluences(bytes,{mesh:meshIndex,edits,boneLimit}) {
   }
   return writeMdlDoc(doc);
 }
+function inspectMesh(mesh,boneCount) {
+  const layout=skinLayout(mesh),dv=view(mesh.vertexData),n=layout.count;
+  if(!n)throw new Error('The mesh has no vertices');
+  const positions=new Float32Array(n*3),joints=new Uint32Array(n*4),weights=new Float32Array(n*4);
+  for(let i=0;i<n;i++){
+    for(let k=0;k<3;k++)positions[i*3+k]=dv.getFloat32(i*layout.stride+k*4,true);
+    let total=0;
+    for(let k=0;k<4;k++){
+      const j=i*4+k;joints[j]=dv.getUint32(i*layout.stride+layout.bone+k*4,true);weights[j]=dv.getFloat32(i*layout.stride+layout.weight+k*4,true);
+      if(joints[j]>=boneCount || !Number.isFinite(weights[j]) || weights[j]<0)throw new Error('Invalid mesh skin references');total+=weights[j];
+    }
+    if(!(total>0))throw new Error('A mesh vertex has zero total weight');
+  }
+  if(!positions.every(Number.isFinite))throw new Error('Invalid mesh positions');
+  const step=n>65535?4:2,indices=new Uint32Array(mesh.indexData.length/step),iv=view(mesh.indexData);
+  if(mesh.indexData.length%step || indices.length%3)throw new Error('Invalid mesh triangle layout');
+  for(let i=0;i<indices.length;i++){indices[i]=step===4?iv.getUint32(i*step,true):iv.getUint16(i*step,true);if(indices[i]>=n)throw new Error('Mesh triangle index is out of range');}
+  return {vertexCount:n,positions,indices,joints,weights};
+}
+export function inspectModel(bytes) {
+  const {doc,skeleton}=readModel(bytes);
+  skeleton.bones.forEach((bone,i)=>{if(!Number.isInteger(bone.parent)||bone.parent< -1||bone.parent>=i)throw new Error('Unsupported source skeleton hierarchy');});
+  return {version:doc.version,bones:skeleton.bones,
+    meshes:doc.meshes.map(mesh=>{try{return inspectMesh(mesh,skeleton.bones.length);}catch(error){return {error:String(error.message)};}}),
+    attachments:doc.sections.filter(s=>s.type==='MDAT').flatMap(s=>s.attachments??[]),
+    animations:doc.sections.filter(s=>s.type==='MDLA').flatMap(s=>s.anims??[])};
+}

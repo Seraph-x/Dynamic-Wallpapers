@@ -1,5 +1,6 @@
 import { SceneDocument, safePath } from './document.mjs';
 import { createResourceClient, resourceReader, decodeResource } from './resources.mjs';
+import { observeModelCapacity } from './model-capacity.mjs';
 
 export function createEditorSource(value, readOriginal, readVersion) {
   const document = structuredClone(value), read = resourceReader(document,readOriginal,readVersion);
@@ -28,7 +29,7 @@ export function validateEditorCommand(command, config) {
 export function startEditor(config, options) {
   if (config.version !== 1 || !config.session || !Number.isSafeInteger(config.generation) || config.generation < 1) throw new Error('Invalid Editor configuration');
   let document = new SceneDocument(config.document,config.sourcePackage), queue = Promise.resolve(), destroyed = false;
-  let controls, instance, playing = true, frozen = true;
+  let controls, instance, playing = true, frozen = true, modelCapacity;
   const report = payload => options.report({ ...payload, session: config.session, generation: config.generation });
   const resources = createResourceClient(report);
   const read = async path => {
@@ -49,10 +50,14 @@ export function startEditor(config, options) {
     const time = controls?.time ?? 0;
     // The pinned engine binds load() to its canvas after the first mount. A
     // structural edit needs a fresh instance/canvas after releasing the old GL context.
-    instance?.destroy({ releasePkgCache: true }); controls = undefined;
+    modelCapacity?.dispose();instance?.destroy({ releasePkgCache: true }); controls = undefined;
     options.element.replaceChildren();
-    instance = options.createScene(options.element, sceneOptions);
-    await instance.load(createEditorSource(document.snapshot(), read,resources.read));
+    const canvas=options.element.ownerDocument.createElement('canvas');
+    canvas.style.cssText='position:absolute;inset:0;width:100%;height:100%;display:block';options.element.append(canvas);
+    modelCapacity=observeModelCapacity(canvas);
+    instance = options.createScene(canvas, sceneOptions);
+    try {await instance.load(createEditorSource(document.snapshot(), read,resources.read));}
+    finally {modelCapacity.dispose();}
     instance.setVolume(0); controls = options.editorOf(instance);
     if (!controls) throw new Error('The pinned engine did not expose Editor controls');
     controls.setTimeScale(playing ? 1 : 0); await controls.seek(time);
@@ -89,6 +94,7 @@ export function startEditor(config, options) {
         await report({type:'reply',id:value.id,payload:{}}); return;
       }
       await queue;
+      if(['load','add-image','replace-resource'].includes(value.type)&&options.snapshotError?.())throw options.snapshotError();
       let payload = {};
       switch (value.type) {
         case 'snapshot': if (options.snapshotError?.()) throw options.snapshotError(); payload = { document: document.snapshot() }; break;
@@ -145,5 +151,7 @@ export function startEditor(config, options) {
   return { ready, command, change: changed, get controls() { return controls; }, get document() { return document; },
     get playing() { return playing; }, get frozen() { return frozen; }, setPlaying, seek,
     stageResource:resources.stage,
-    destroy() { destroyed = true; resources.dispose(); instance?.destroy({ releasePkgCache: true }); } };
+    readResource(path) {if(destroyed)return Promise.reject(new Error('Editor closed'));return resourceReader(document.snapshot(),read,resources.read)(path);},
+    get modelBoneCapacity(){if(modelCapacity?.error)throw modelCapacity.error;return modelCapacity?.capacity;},
+    destroy() { destroyed = true; modelCapacity?.dispose();resources.dispose(); instance?.destroy({ releasePkgCache: true }); } };
 }

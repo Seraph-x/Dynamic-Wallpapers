@@ -1,4 +1,5 @@
 import { timelineMessages } from './timeline-messages.mjs';
+import { modelMessages } from './model-messages.mjs';
 const en = { play:'Play',pause:'Pause',title:'Project title',undo:'Undo',redo:'Redo',addText:'Add text',duplicate:'Duplicate',remove:'Delete',up:'Move up',down:'Move down',layers:'Layers',properties:'Properties',binding:'Script, animation and property-controlled fields are read-only.',previewMuted:'Preview is muted. Audio response is preserved for wallpaper playback.',saved:'Saved',unsaved:'Unsaved changes',name:'Name',visible:'Visible',origin:'Position (x y z)',scale:'Scale (x y z)',angles:'Rotation (radians)',color:'Color (r g b)',alpha:'Opacity',text:'Text',pointsize:'Font size',empty:'Select a layer',newText:'Text',bound:'Controlled field'};
 const translations = {
  'zh-Hans': {play:'播放',pause:'暂停',title:'工程名称',undo:'撤销',redo:'重做',addText:'添加文字',duplicate:'复制图层',remove:'删除',up:'上移',down:'下移',layers:'图层',properties:'属性',binding:'脚本、动画或用户属性控制的字段为只读，原数据会保留。',previewMuted:'预览静音。音频响应数据会保留，供壁纸播放使用。',saved:'已保存',unsaved:'有未保存的修改',name:'名称',visible:'可见',origin:'位置（x y z）',scale:'缩放（x y z）',angles:'旋转（弧度）',color:'颜色（r g b）',alpha:'不透明度',text:'文字',pointsize:'字号',empty:'选择一个图层',newText:'文字',bound:'受控字段'},
@@ -15,5 +16,5 @@ const interfaceMessages = {
 };
 export function messages(language = 'en') {
  const key = language.startsWith('zh') ? 'zh-Hans' : language.split('-')[0];
- return {...en,...translations[key],...interfaceMessages.en,...interfaceMessages[key],...timelineMessages(language)};
+ return {...en,...translations[key],...interfaceMessages.en,...interfaceMessages[key],...timelineMessages(language),...modelMessages(language)};
 }
