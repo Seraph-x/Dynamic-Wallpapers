@@ -1,6 +1,6 @@
 import Foundation
 
-public enum MediaBackend: String, Codable, Sendable { case native, extended, web }
+public enum MediaBackend: String, Codable, Sendable { case native, extended, web, scene }
 
 public struct WebProjectReference: Codable, Equatable, Sendable {
     public let root: URL

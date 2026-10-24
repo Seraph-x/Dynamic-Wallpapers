@@ -18,6 +18,10 @@ final class ManagedMediaImport {
         self.files = files
         self.probe = probe ?? { copy in
             if let project = copy.stagedWebProject { return try WebProjectProbe.inspect(project) }
+            if let project = copy.stagedSceneProject {
+                let task = Task.detached { try SceneProjectProbe.inspect(project) }
+                return try await withTaskCancellationHandler { try await task.value } onCancel: { task.cancel() }
+            }
             return try await MediaProbe.inspect(copy.stagedURL)
         }
     }
@@ -121,6 +125,13 @@ extension AppModel {
             let existingRoot = existing.origin?.projectRoot ?? existing.webProject?.root
             guard existingRoot?.standardizedFileURL == reference.root.standardizedFileURL else {
                 throw WallpaperError("此 HTML 文件已从另一个项目目录导入，请在素材库中确认原项目。")
+            }
+        }
+        if case .scene(let reference) = source {
+            try reference.validate()
+            let existingRoot = existing.origin?.projectRoot ?? existing.sceneProject?.root
+            guard existingRoot?.standardizedFileURL == reference.root.standardizedFileURL else {
+                throw WallpaperError("此场景入口已从另一个项目目录导入，请在素材库中确认原项目。")
             }
         }
         return existing

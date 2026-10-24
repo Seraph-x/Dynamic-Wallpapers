@@ -7,7 +7,7 @@ public struct LibraryStore {
     public func load() throws -> Library {
         do {
             if try LibraryMigration.exists(url) {
-                var library = try LibraryMigration.read(url, supportedVersions: [2, Library.currentVersion])
+                var library = try LibraryMigration.read(url, supportedVersions: [2, 3, Library.currentVersion])
                 library.version = Library.currentVersion
                 return library
             }

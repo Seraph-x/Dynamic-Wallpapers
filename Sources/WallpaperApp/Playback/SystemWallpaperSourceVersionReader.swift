@@ -20,8 +20,11 @@ actor SystemWallpaperSourceVersionReader {
         try Task.checkCancellation()
         guard item.url.isFileURL else { throw WallpaperError("系统底图需要本地素材。") }
         var parts = ["source-v1"]
-        if let project = item.webProject {
-            try project.validate()
+        try item.webProject?.validate()
+        try item.sceneProject?.validate()
+        let project = item.webProject.map { (root: $0.root, entryURL: $0.entryURL, entry: $0.entry) }
+            ?? item.sceneProject.map { (root: $0.root, entryURL: $0.entryURL, entry: $0.entry) }
+        if let project {
             let root = project.root.resolvingSymlinksInPath().standardizedFileURL
             let entry = project.entryURL.resolvingSymlinksInPath().standardizedFileURL
             guard isInside(entry, root: root) else {

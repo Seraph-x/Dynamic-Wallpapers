@@ -360,6 +360,12 @@ final class AppModel: ObservableObject {
         return await withTaskCancellationHandler { await task.value } onCancel: { task.cancel() }
     }
 
+    @discardableResult
+    func importSceneProject(_ reference: SceneProjectReference) async -> Bool {
+        guard let task = beginImport([.scene(reference)], targetList: selectedPlaylist?.id) else { return false }
+        return await withTaskCancellationHandler { await task.value } onCancel: { task.cancel() }
+    }
+
     func importTranscodedOutput(_ url: URL) { importURLs([url], addingToSelectedPlaylist: false) }
 
     func importURLs(_ urls: [URL], addingToSelectedPlaylist: Bool = true, purpose: ImportPurpose = .wallpaper) {

@@ -20,7 +20,7 @@ final class DirectWallpaperModelTests: XCTestCase {
         let original = try fixture(version: 2, displays: [legacyBinding()])
         try original.write(to: url)
         let loaded = try LibraryStore(url: url).load()
-        XCTAssertEqual(loaded.version, 3)
+        XCTAssertEqual(loaded.version, Library.currentVersion)
         XCTAssertEqual(loaded.displays[0].playlistID, playlistID)
         XCTAssertEqual(loaded.displays[0].currentEntryID, entryID)
         XCTAssertEqual(loaded.displays[0].groupID, groupID)
@@ -155,7 +155,7 @@ final class DirectWallpaperModelTests: XCTestCase {
         try original.write(to: url)
         let store = LibraryStore(url: url)
         let upgraded = try store.load()
-        XCTAssertEqual(upgraded.version, 3)
+        XCTAssertEqual(upgraded.version, Library.currentVersion)
         try FileManager.default.setAttributes([.posixPermissions: 0o500], ofItemAtPath: directory.path)
         defer {
             do { try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: directory.path) }

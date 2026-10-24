@@ -221,6 +221,7 @@ private struct ScreenSaverSourceReviewSheet: View {
     private func reason(_ value: ScreenSaverExclusionReason) -> String {
         switch value {
         case .webContent: return l10n("网页内容不支持")
+        case .sceneContent: return l10n("场景内容不支持")
         case .extendedBackend: return l10n("扩展播放器素材不支持")
         }
     }
