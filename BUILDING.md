@@ -27,3 +27,36 @@ python3 scripts/verify-app-bundle.py dist/DynamicWallpaper-source-build.app \
 Choose a new output and report name for each attempt; existing candidates and reports are never overwritten. The build uses the selected Xcode macOS SDK. FFmpeg's local build record binds the pinned source, build script, SDK, compiler version, and exact tool bytes. If these change, rebuild FFmpeg in a fresh cache instead of accepting a stale product.
 
 Preparation is non-GUI and does not install the application. Bundle verification checks static contents, signatures, and dependency closure; it does not prove that GUI playback works on every macOS version. A source build for personal use is separate from permission to redistribute the resulting binary. Review the incomplete [third-party materials status](Resources/ThirdParty/distribution-status.json) before distributing a built application.
+
+## Package a sanitized release
+
+Build published binaries from a tracked source snapshot in a non-personal path.
+Compiler diagnostics and FFmpeg configuration strings can retain their build
+paths; moving an already-built app does not remove them.
+
+```sh
+RELEASE_SOURCE=$(mktemp -d /tmp/dynamic-wallpaper-release.XXXXXX)
+git archive HEAD | tar -x -C "$RELEASE_SOURCE"
+cd "$RELEASE_SOURCE"
+python3 scripts/prepare-public-build.py
+bash scripts/build-app.sh --output dist/DynamicWallpaper-1.0.0.app
+python3 scripts/create-local-release.py \
+  --app dist/DynamicWallpaper-1.0.0.app \
+  --output dist/releases/1.0.0 \
+  --notes docs/releases/1.0.0/RELEASE_NOTES.md
+```
+
+Do not reuse prepared CEF wrapper or FFmpeg products from a personal source
+directory for a public artifact. Pinned downloaded inputs can be cached, but
+rebuild those products inside the release source directory. Verify signatures
+and compare the archive's extracted bytes before uploading. Scan the extracted
+app and the final source archive for personal paths and credentials; keep
+upstream copyright and license notices intact. Local receipts and diagnostic
+logs may contain absolute paths and are not release attachments.
+
+Ship `SHA256SUMS.txt` alongside the DMG/ZIP and the five installation notes in
+`docs/releases/1.0.0`. The DMG contains the app and those notes; it must be
+mounted read-only and the contained app re-verified after image creation. Source
+archives contain tracked files without Git history, local libraries, caches or
+validation logs. A clean privacy scan and a valid ad-hoc signature do not imply
+Apple notarization or resolve the recorded third-party distribution limits.

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "version": "0.3.0",
-  "build": "3",
+  "version": "1.0.0",
+  "build": "4",
   "target": {
     "architecture": "arm64",
     "minimum_macos": "14.0",

@@ -23,8 +23,8 @@ SCRIPT = ROOT / "scripts/product_configuration.py"
 def valid_document():
     return {
         "schema_version": 1,
-        "version": "0.3.0",
-        "build": "3",
+        "version": "1.0.0",
+        "build": "4",
         "target": {
             "architecture": "arm64",
             "minimum_macos": "14.0",
@@ -126,8 +126,8 @@ class ProductConfigurationTests(unittest.TestCase):
     def test_checked_in_document_loads_with_exact_values(self):
         configuration = load()
         self.assertEqual(CONFIGURATION_PATH, ROOT / "scripts/product-configuration.json")
-        self.assertEqual(configuration.version, "0.3.0")
-        self.assertEqual(configuration.build, "3")
+        self.assertEqual(configuration.version, "1.0.0")
+        self.assertEqual(configuration.build, "4")
         self.assertEqual(configuration.target.architecture, "arm64")
         self.assertEqual(configuration.target.minimum_macos, "14.0")
         self.assertEqual(configuration.target.swift_language_mode, "5")
@@ -508,8 +508,8 @@ class ProductConfigurationTests(unittest.TestCase):
             "CFBundleName": "Dynamic Wallpaper",
             "CFBundleDisplayName": "Dynamic Wallpaper",
             "CFBundleExecutable": "DynamicWallpaper",
-            "CFBundleShortVersionString": "0.3.0",
-            "CFBundleVersion": "3",
+            "CFBundleShortVersionString": "1.0.0",
+            "CFBundleVersion": "4",
             "LSMinimumSystemVersion": "14.0",
             "CFBundleDevelopmentRegion": "en",
             "CFBundleLocalizations": ["zh-Hans", "en", "ja", "fr", "es"],
@@ -519,8 +519,8 @@ class ProductConfigurationTests(unittest.TestCase):
             "CFBundleName": "Dynamic Wallpaper Screen Saver",
             "CFBundleDisplayName": "Dynamic Wallpaper Screen Saver",
             "CFBundleExecutable": "DynamicWallpaperScreenSaver",
-            "CFBundleShortVersionString": "0.3.0",
-            "CFBundleVersion": "3",
+            "CFBundleShortVersionString": "1.0.0",
+            "CFBundleVersion": "4",
             "LSMinimumSystemVersion": "14.0",
             "CFBundleDevelopmentRegion": "en",
             "CFBundleLocalizations": ["zh-Hans", "en", "ja", "fr", "es"],
@@ -528,7 +528,7 @@ class ProductConfigurationTests(unittest.TestCase):
             "DWApplicationBundleIdentifier": "local.dynamicwallpaper.app",
         })
         self.assertEqual(configuration.archive_name(),
-                         "DynamicWallpaper-0.3.0-build3-arm64.zip")
+                         "DynamicWallpaper-1.0.0-build4-arm64.zip")
 
     def test_checked_in_plists_are_stable_templates_without_product_facts(self):
         dynamic = {

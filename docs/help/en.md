@@ -1,6 +1,6 @@
 # Dynamic Wallpaper help
 
-**v0.3.0 · Build 3 · Offline user guide**
+**v1.0.0 · Build 4 · Offline user guide**
 
 <!-- help-languages -->
 Read in: [简体中文](zh-Hans.md) · [English](en.md) · [日本語](ja.md) · [Français](fr.md) · [Español](es.md)
@@ -22,7 +22,7 @@ Open **User Guide** from the app’s Help menu or its menu bar icon. The guide o
 
 ## 1. About the app {#introduction}
 
-Dynamic Wallpaper manages local wallpapers on macOS, bringing videos, animations, pictures, and local web projects to your desktop, individually or in rotating playlists.
+Dynamic Wallpaper manages local wallpapers on macOS, bringing videos, animations, pictures, local web projects and scene projects to your desktop, individually or in rotating playlists.
 
 Use it to keep your desktop lively, organize themed collections, or give each display its own content. You can apply a single wallpaper immediately or customize a playlist’s order, timing, transitions, and individual audio levels. The interface is available in Simplified Chinese, English, Japanese, French, and Spanish.
 
@@ -73,7 +73,7 @@ A playlist groups media for themed rotation or timed changes to your desktop.
 | Transition | Instant; Fade · 0.3 s (default); Fade · 0.8 s | Fades affect both picture and sound. Instant changes are sharper and reduce overlapping work during transitions |
 | Display Duration | Fixed Duration (30 seconds by default); Play Once in Full; Repeat a Set Number of Times (initially 1) | Select an entry, change its timing in the details, then click Save Duration |
 
-For a fixed duration, enter a value and choose s (seconds), m (minutes), or h (hours); for example, 1.5 m is 90 seconds. Full playback and repeats use a video’s or animation’s own duration. For a still image, full playback uses the chosen duration; repeated display lasts “duration × repeats.” Web wallpapers support fixed duration only. Duration must be greater than 0, and repeats must be a positive whole number.
+For a fixed duration, enter a value and choose s (seconds), m (minutes), or h (hours); for example, 1.5 m is 90 seconds. Full playback and repeats use a video’s or animation’s own duration. For a still image, full playback uses the chosen duration; repeated display lasts “duration × repeats.” Web and scene wallpapers support fixed duration only. Duration must be greater than 0, and repeats must be a positive whole number.
 
 Shuffle Without Repeats works by playlist entry: adding the same media twice creates two entries. With Repeat One selected, **Next Wallpaper** still selects the current entry; change the playback mode to move to another item. If the next entry cannot be prepared, the current picture stays visible and an error is shown. The failing entry is not skipped automatically.
 
@@ -110,7 +110,7 @@ Only the details panel produces preview sound; desktop copies stay muted. The de
 | Audio for an applied single wallpaper on the Displays page | Updates the current wallpaper immediately. Synchronized displays share the change; playlists are unaffected |
 | Mute All | Takes precedence over individual settings and mutes previews too |
 
-Videos and web wallpapers have individual audio controls. **Mute This Item** is off by default, and **Volume** starts at 100%. Volume ranges from 0–100% in 1% steps. Use Mute All for a quiet desktop, then adjust individual levels when some media is louder than others.
+Videos, web wallpapers and scenes have individual audio controls. **Mute This Item** is off by default, and **Volume** starts at 100%. Volume ranges from 0–100% in 1% steps. Use Mute All for a quiet desktop, then adjust individual levels when some media is louder than others.
 
 ### 3.5 Work with multiple items {#batch}
 
@@ -119,7 +119,7 @@ Videos and web wallpapers have individual audio controls. **Mute This Item** is 
 3. In a playlist, click **Batch Edit…**. Enable **Change Duration**, **Change Mute Setting**, or **Change Volume**, enter the values, then click **Save Changes**.
 4. Click **Done** to leave multiple-selection mode.
 
-All three change switches start off. Fields you do not enable keep their existing values. The editor starts with 30 seconds, 1 repeat, mute off, and 100% volume; these are initial editing values, not a summary of the selected entries. If web entries are selected, batch timing supports fixed duration only. Audio changes apply only to videos and web wallpapers.
+All three change switches start off. Fields you do not enable keep their existing values. The editor starts with 30 seconds, 1 repeat, mute off, and 100% volume; these are initial editing values, not a summary of the selected entries. If web or scene entries are selected, batch timing supports fixed duration only. Audio changes apply to videos, web wallpapers and scenes.
 
 ### 3.6 Local web wallpapers and interaction {#web}
 
@@ -169,7 +169,7 @@ The main window can show the wallpaper behind its interface when it occupies the
 
 ### 3.10 Set up the native screen saver {#screensaver}
 
-The **Screen Saver** sidebar page manages system screen saver content independently of desktop wallpaper. Choose a native video, still image, animation, or a playlist containing them. **Import Screen Saver Media…** adds local files. Web items and media using the extended player are excluded. After importing or choosing a source, the review dialog centers included items; when exclusions exist, included and excluded items appear side by side. Confirm exclusions before publishing. The original playlist stays unchanged, and newly excluded entries require confirmation again.
+The **Screen Saver** sidebar page manages system screen saver content independently of desktop wallpaper. Choose a native video, still image, animation, or a playlist containing them. **Import Screen Saver Media…** adds local files. Web projects, scenes and media using the extended player are excluded. After importing or choosing a source, the review dialog centers included items; when exclusions exist, included and excluded items appear side by side. Confirm exclusions before publishing. The original playlist stays unchanged, and newly excluded entries require confirmation again.
 
 The app copies published media to `DynamicWallpaper/ScreenSaverExport` in its Application Support folder. The page shows whether usable content is published. A failed sync reports an error and keeps the last successful copy. Related playlist edits sync automatically; **Sync Now** requests another publication. New content takes effect the **next time the screen saver starts** or when you reopen the in-app preview. A running instance keeps its starting version. Removing source media does not immediately remove a published copy. **Clear Published Screen Saver Content…** affects only screen saver content; older copies are reclaimed after active instances finish.
 
@@ -177,7 +177,12 @@ For first use, click **Install or Update Screen Saver…** on that page and foll
 
 ### 3.11 Local scene wallpapers {#scene}
 
-Choose **Import Wallpaper → Scene Project** and select a directory containing `project.json` and all scene resources. Local loose JSON and PKG projects are copied into the library and rendered with WebWallGL through the bundled CEF runtime. Keep all referenced resources inside that directory.
+1. Choose **Import Wallpaper → Scene Project**.
+2. Select the folder containing `project.json`, the scene JSON or PKG entry, and all referenced resources. Select the folder rather than an isolated JSON/PKG file.
+3. Click **Import Scene Project**. The app saves an independent copy; later changes to the original folder are not synchronized.
+4. Select the imported scene, preview it, choose a display and fit mode, then click **Apply Wallpaper**.
+
+Use projects you trust because scene scripts can execute. Invalid metadata, unsafe paths or a missing entry produce an import error; keep resource paths inside the project folder.
 
 Use fixed playlist durations. Pause retains the scene clock; resume continues the same instance. Existing volume, mute, fit and web frame-rate settings also apply to scenes. Enable the existing interaction setting and its permissions for mouse movement and blank-desktop left clicks. Preview windows accept direct mouse input.
 
@@ -195,7 +200,7 @@ These defaults apply to a new library; existing preferences are preserved. Ordin
 | Launch at login | On / off; a new installation does not register it by default | Runs the app after you log in to macOS. If approval is needed, use Open System Login Items… to confirm it |
 | Show app icon in Dock | On / off; on by default | When off, opening a management window temporarily shows the Dock icon and app menus; the icon hides after all management windows close. Minimizing or hiding a window does not close it. The saved preference is unchanged. This does not stop playback and is not a power-saving setting |
 | Sync System Wallpaper | On / off; off by default | Saves a frozen image of the applied wallpaper as the system wallpaper. It generates images and writes files; leave off if you do not need it |
-| Mute All | On / off; on by default | Mutes all video, web, and preview audio without setting individual volume levels to zero |
+| Mute All | On / off; on by default | Mutes all video, web, scene and preview audio without setting individual volume levels to zero |
 | Pause in Low Power Mode | On / off; off by default | Responds to macOS Low Power Mode, not a particular battery percentage. Useful when working on battery |
 | Pause when the device is hot | On / off; on by default | Pauses when macOS reports a serious or critical thermal condition. Keeping this enabled is recommended |
 
@@ -293,7 +298,7 @@ Use this only when the app explicitly reports that it cannot read the library. I
 | Item | Information |
 | --- | --- |
 | App | Dynamic Wallpaper |
-| Version | v0.3.0, build 3 |
+| Version | v1.0.0, build 4 |
 | Guide scope | Current user-facing tasks, settings, data consequences, and troubleshooting |
 
 Check **Settings → About** for the installed app version. This guide is included with the app for offline use.
@@ -321,6 +326,7 @@ Check **Settings → About** for the installed app version. This guide is includ
 | Still image | JPEG/JPG, PNG, HEIC, HEIF |
 | Animation | GIF, APNG |
 | Local web | HTML, HTM; imported through a web project folder |
+| Local scene | Loose JSON or PKG with `project.json`; imported through a scene project folder |
 
 An extension identifies a file type, not a guarantee that every codec inside it will play. Use the app’s inspection result for the specific file. Renaming an extension does not change video encoding.
 

@@ -1,42 +1,50 @@
 # Dynamic Wallpaper
 
-A local-first macOS app for turning your own videos, animated images, pictures, web projects, and local scene projects into desktop wallpapers.
+Play local videos, animations, images, web projects and scene wallpapers on an Apple Silicon Mac. Apply one wallpaper or rotate a playlist across independent or synchronized displays.
 
-This repository contains the source code and build instructions. A prebuilt release is attached to the [v0.3.0 release](https://github.com/Seraph-x/Dynamic-Wallpapers/releases/tag/v0.3.0); building from source is still the supported path for development. Dynamic Wallpaper is for Apple Silicon Macs and has a macOS 14 deployment target.
+[Download v1.0.0](https://github.com/Seraph-x/Dynamic-Wallpapers/releases/tag/v1.0.0) · [中文指南](docs/help/zh-Hans.md) · [English guide](docs/help/en.md) · [日本語](docs/help/ja.md) · [Français](docs/help/fr.md) · [Español](docs/help/es.md)
 
-## Overview
+## Install 1.0.0
 
-- **Your media, your desktop:** import local files, web projects or scene projects, preview them on the desktop, and apply a single wallpaper without creating a playlist.
-- **Local scenes:** import Wallpaper Engine loose JSON/PKG projects with `project.json`, render offline through bundled WebWallGL/CEF, and pause/resume the same scene. Author defaults are used; engine compatibility varies. System audio spectrum capture, scene editing and scene screen-saver playback are excluded. See [scene validation and limits](docs/testing/scene-wallpapers.md).
-- **Playlists and displays:** arrange wallpapers in order or shuffle them, control duration and transitions, and choose independent or synchronized playback across displays.
-- **Everyday controls:** adjust fit and audio, pause or switch playback from the menu bar, and optionally publish supported media as a macOS screen saver.
+Requires **Apple Silicon (arm64), macOS 14.0 or later**. Intel Macs are not supported by these builds.
 
-The app and its offline guide are available in English, Simplified Chinese, Japanese, French, and Spanish.
+1. Download `DynamicWallpaper-1.0.0-arm64.dmg` and `SHA256SUMS.txt` from the release page.
+2. Verify the download: `shasum -a 256 DynamicWallpaper-1.0.0-arm64.dmg`, then compare the result with `SHA256SUMS.txt`.
+3. Open the DMG, drag **Dynamic Wallpaper.app** into **Applications**, then eject the DMG.
+4. Launch the app from Applications. This build is ad-hoc signed and is **not Apple-notarized**. If macOS blocks it, verify the download first, then use **System Settings → Privacy & Security → Open Anyway** for this app.
 
-## Requirements
+A ZIP build is available too. Extract it and move the app into Applications. Installation notes in all five app languages are included in the DMG and attached to the release. Read the [1.0.0 release notes](docs/releases/1.0.0/RELEASE_NOTES.md) for tested behavior and limitations.
 
-- Apple Silicon Mac with a full Xcode installation that includes the macOS 26 SDK or newer. The build host must meet that Xcode version's macOS requirements; the app's macOS 14 deployment target is not the build-host minimum.
-- Python 3.11 or newer, CMake, make, curl, network access, and disk space for CEF, mpv, FFmpeg, SwiftPM outputs, and the app bundle.
+## Use your own wallpapers
 
-## Download a prebuilt build
+Choose **Import Wallpaper** and select the matching source:
 
-The [v0.3.0 release](https://github.com/Seraph-x/Dynamic-Wallpapers/releases/tag/v0.3.0) provides `DynamicWallpaper-0.3.0-arm64.dmg` (Apple Silicon, macOS 14 or later). Verify the download before installing:
+| Source | What to select | Playback |
+| --- | --- | --- |
+| Media Files | A local video, GIF/APNG or still image | Per-item audio, fit, preview and playlist timing |
+| Web Project | A project folder and its HTML entry | Local resources; pause keeps the picture and resume reloads the page |
+| Scene Project | A folder containing `project.json` and its loose JSON or PKG scene | Offline real-time rendering; pause and resume retain the same scene and clock |
 
-```sh
-shasum -a 256 -c SHA256SUMS.txt
-```
+Imports create independent copies in the library. Changes to the original files are not synchronized. Select an item, choose a display and fit mode, preview it, then click **Apply Wallpaper**. For rotation, create a playlist, add items and click **Apply Playlist**. Removing imported media does not delete the originals.
 
-The published build is ad-hoc signed and not notarized by Apple, so macOS blocks the first launch. Allow it once with Control-click → **Open**, or run:
+- Set different wallpapers per display or use **All Displays · Synchronized**.
+- Use menu-bar controls to pause, resume, switch wallpapers or mute output. Configure volume per item or playlist entry.
+- Scenes and web pages use fixed playlist durations. Scene playback uses the author’s default properties; compatibility depends on the pinned WebWallGL engine.
+- Enable **Web Interaction** and its macOS permissions for empty-desktop clicks and scene mouse movement. It is off by default.
+- Publish supported media to the bundled native screen saver. Web and scene projects are excluded.
+- Optionally synchronize a still system wallpaper or transcode eligible videos from the app.
 
-```sh
-xattr -dr com.apple.quarantine "/Applications/Dynamic Wallpaper.app"
-```
+The app and its bundled offline help support **简体中文, English, 日本語, Français and Español**. Open **User Guide** from the app or menu-bar icon; no network connection is needed to read it.
 
-Install notes ship inside the DMG in English, Simplified Chinese, Japanese, French, and Spanish.
+## Scene compatibility and data
+
+Import projects you trust: scene scripts execute inside the CEF renderer. Scenes are rendered locally using bundled WebWallGL/CEF; the app does not download an engine from a CDN or require Node at runtime. System audio spectrum capture, property/scene editors and scene screen-saver playback are not included. Some unsupported effects produce engine warnings. See [scene validation and limits](docs/testing/scene-wallpapers.md).
+
+Version 1.0.0 saves library schema 4. Libraries from earlier supported versions load without rewriting the existing file until a save. An older app may reject a library saved by 1.0.0. Keep a separate copy of your library data before upgrading if you need to downgrade later; see the guide’s [data section](docs/help/en.md#data).
 
 ## Build from source
 
-Clone the repository, then build a local app bundle:
+Use an Apple Silicon Mac with full Xcode, a macOS 26 SDK or newer, Python 3.11+, CMake, make and curl. The build host must meet Xcode’s system requirements; macOS 14 is the app deployment target.
 
 ```sh
 git clone https://github.com/Seraph-x/Dynamic-Wallpapers.git
@@ -45,24 +53,10 @@ python3 scripts/prepare-public-build.py
 bash scripts/build-app.sh --output dist/DynamicWallpaper-source-build.app
 ```
 
-Preparation downloads SHA256-pinned CEF and mpv binaries and builds FFmpeg from pinned source. See [BUILDING.md](BUILDING.md) for the complete procedure, including help and bundle verification. Build outputs stay local; these commands do not replace an installed app or modify its media library.
+Preparation verifies pinned CEF/mpv inputs and builds FFmpeg from pinned source. The scene bundle is checked into source; Node is only needed to reproduce that bundle or run browser tests. Build commands create a new candidate and do not replace the installed app or alter its library. See [BUILDING.md](BUILDING.md) for verification and [release notes](docs/releases/1.0.0/RELEASE_NOTES.md) for release packaging.
 
-## First steps
+## License and third-party materials
 
-Launch the app you built:
+Project-authored code and documentation use [GPL-3.0-or-later](LICENSE). Dependencies retain their own licenses, including WebWallGL/WeScene (MIT) and Mediabunny (MPL-2.0). See the [dependency inventory](Resources/ThirdParty/README.md).
 
-```sh
-open dist/DynamicWallpaper-source-build.app
-```
-
-1. In the app, choose **Import Wallpaper** to add local media or a local web project.
-2. Select an item to preview it, choose a display and fit mode, then select **Apply Wallpaper**.
-3. To rotate several items, create a playlist, add wallpapers, set their order and timing, then select **Apply Playlist**.
-
-## Help and troubleshooting
-
-For display options, audio controls, screen saver setup, and common problems, read the [English user guide](docs/help/en.md). You can switch to the other guide languages from there. Build prerequisites and verification commands are in [BUILDING.md](BUILDING.md).
-
-## License
-
-Project-authored source and documentation are licensed under [GNU GPL version 3 or later](LICENSE) (`GPL-3.0-or-later`). Third-party components retain their own licenses; see the [dependency and notice inventory](Resources/ThirdParty/README.md). Building for personal use does not by itself establish permission to redistribute the resulting app binary.
+The retained mpv corresponding-source/per-library notice records and per-build FFmpeg distribution review remain incomplete; the release preserves that status. A valid signature, successful build or 1.0.0 version number does not establish complete redistribution compliance.

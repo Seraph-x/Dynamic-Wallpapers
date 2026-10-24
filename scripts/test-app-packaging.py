@@ -33,8 +33,8 @@ def write_screensaver_fixture(bundle_path, overrides=None):
         'CFBundleExecutable': 'DynamicWallpaperScreenSaver',
         'CFBundleName': 'Dynamic Wallpaper Screen Saver',
         'CFBundleDisplayName': 'Dynamic Wallpaper Screen Saver',
-        'CFBundleShortVersionString': '0.3.0',
-        'CFBundleVersion': '3',
+        'CFBundleShortVersionString': bundle.CONFIG.version,
+        'CFBundleVersion': bundle.CONFIG.build,
         'CFBundleDevelopmentRegion': 'en',
         'CFBundleLocalizations': ['zh-Hans', 'en', 'ja', 'fr', 'es'],
         'LSMinimumSystemVersion': '14.0',
@@ -69,7 +69,7 @@ def write_payload_fixture(app):
         contents.mkdir(parents=True)
         (contents / 'Info.plist').write_bytes(plistlib.dumps({'CFBundleExecutable': name,
             'CFBundleIdentifier': identifier,
-            'CFBundleShortVersionString': '0.3.0', 'CFBundleVersion': '3'}))
+            'CFBundleShortVersionString': bundle.CONFIG.version, 'CFBundleVersion': bundle.CONFIG.build}))
         paths.append(f'Contents/Frameworks/{name}.app/Contents/MacOS/{name}')
     for relative in paths:
         path = app / relative; path.parent.mkdir(parents=True, exist_ok=True)
@@ -448,8 +448,8 @@ class PackagingTransactions(unittest.TestCase):
             embedded = app / 'Contents/PlugIns/Dynamic Wallpaper Screen Saver.saver'
             self.assertTrue((embedded / 'Contents/MacOS/DynamicWallpaperScreenSaver').is_file())
             self.assertEqual(provenance['bundle_identifier'], 'local.dynamicwallpaper.screensaver')
-            self.assertEqual(provenance['version'], '0.3.0')
-            self.assertEqual(provenance['build'], '3')
+            self.assertEqual(provenance['version'], bundle.CONFIG.version)
+            self.assertEqual(provenance['build'], bundle.CONFIG.build)
             self.assertEqual(provenance['architectures'], ['arm64'])
             self.assertEqual(provenance['sdk'], '27.0')
             self.assertEqual(len(provenance['executable_sha256']), 64)
