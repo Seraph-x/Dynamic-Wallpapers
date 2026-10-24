@@ -61,7 +61,7 @@ Files: `docs/editor-model-resources.md`, `Editor/README.md`, this plan.
 
 - [x] Explain source licensing, supported layouts, local-transform semantics and explicit failures. Do not claim a skeleton editing UI exists.
 - [x] Obtain independent code review, address material findings and rerun affected verification.
-- [ ] Commit using the configured real email; open an English PR against main. Do not merge or publish a release under this checkpoint's authorization.
+- [x] Commit using the configured real email; open an English PR against main. Do not merge or publish a release under this checkpoint's authorization.
 
 
 ## Verification record
@@ -73,3 +73,5 @@ Files: `docs/editor-model-resources.md`, `Editor/README.md`, this plan.
 - Real browser and native CEF acceptance passed. Both Main loose/PKG model exports retained horizontal bind positions, a stationary left bone and known intermediate right-bone skin deformation. Resource undo/redo, saved-document reload and full runtime release passed.
 - Public-export scan: the exact unmodified upstream MIT license is excluded from contact detection because it includes the required upstream author attribution. Its full bytes remain SHA-256 checked by the offline build. All other changed files are scanned normally.
 - Remaining roadmap work includes the Model workspace, glTF/GLB importer, image-to-puppet creation, brush/rest tools, skeletal clips and Script IDE. This infrastructure checkpoint does not claim those features are delivered.
+
+Delivery: [PR #15](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/15), submitted against main and not merged.
