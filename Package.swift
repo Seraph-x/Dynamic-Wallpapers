@@ -558,7 +558,7 @@ let configuredNames = Set(configuration.screenSaverTargets.map(\.name))
 let explicitNames: Set<String> = [
     "MPVBridge", "WebWallpaperBridge", "WallpaperApp", "ScreenSaverLeaseHarness",
     "WallpaperCoreTests", "ScreenSaverCoreTests", "ScreenSaverRuntimeTests",
-    "WallpaperScreenSaverTests", "WallpaperAppTests",
+    "WallpaperScreenSaverTests", "WallpaperAppTests", "WallpaperEditorCore", "WallpaperEditorCoreTests",
 ]
 let collisions = configuredNames.intersection(explicitNames)
 guard collisions.isEmpty else {
@@ -572,6 +572,8 @@ let screenSaverTargets: [Target] = configuration.screenSaverTargets.map { target
 }
 
 let explicitTargets: [Target] = [
+        .target(name: "WallpaperEditorCore", dependencies: ["WallpaperCore"]),
+        .testTarget(name: "WallpaperEditorCoreTests", dependencies: ["WallpaperEditorCore", "WallpaperCore"]),
         .target(name: "MPVBridge", publicHeadersPath: "include",
                 cxxSettings: [.unsafeFlags(["-I", mpvRoot + "/include", "-fobjc-arc"])],
                 linkerSettings: [.linkedFramework("Foundation"),
@@ -597,6 +599,9 @@ let explicitTargets: [Target] = [
 ]
 
 let products: [Product] = [
+    .library(name: "WallpaperCore", targets: ["WallpaperCore"]),
+    .library(name: "WallpaperEditorCore", targets: ["WallpaperEditorCore"]),
+    .library(name: "WebWallpaperBridge", targets: ["WebWallpaperBridge"]),
     .executable(name: configuration.swiftPMProduct, targets: ["WallpaperApp"]),
     .executable(name: "ScreenSaverLeaseHarness", targets: ["ScreenSaverLeaseHarness"]),
 ]
