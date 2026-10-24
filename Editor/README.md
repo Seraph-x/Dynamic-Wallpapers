@@ -25,13 +25,15 @@ Requires Apple Silicon, macOS 14+, Xcode and the repository's pinned CEF SDK and
 wrapper. The Editor does not link MPV/FFmpeg or the wallpaper executable. Its
 Swift package consumes the repository's shared library products.
 
+From the repository root (Node/npm are build-time dependencies):
+
 ```sh
+python3 scripts/prepare-public-build.py cef
 mkdir -p Editor/Web/.build
 cp Editor/Web/package.json Editor/Web/package-lock.json Editor/Web/.build/
 npm ci --prefix Editor/Web/.build --ignore-scripts
 node Editor/Web/build.mjs --check
-cd Editor
-python3 ../scripts/swift_sdk.py build --disable-sandbox
+(cd Editor && python3 ../scripts/swift_sdk.py build --disable-sandbox)
 ```
 
 From the repository root, build an independent candidate with its own CEF
@@ -54,6 +56,30 @@ Wallpaper** selects from those offers. **File → Open in Dynamic Wallpaper** sa
 an immutable standard scene snapshot and imports it into Main's library without
 applying it or adding it to a playlist. Each application keeps its own changes;
 no automatic file synchronization occurs. Both can run and quit independently.
+
+## Project layout and ownership
+
+`Editor/Package.swift` builds this application using the repository's local
+`WallpaperCore`, `WallpaperEditorCore` and `WebWallpaperBridge` library products.
+`Sources/EditorApp/` contains the native host and bundled offline resources;
+`Web/` contains the workbench source/tests. Keep the complete repository when
+building from source. The packaged application carries its own CEF framework,
+helpers and workbench, and needs no installed wallpaper app.
+
+Under `~/Library/Application Support/DynamicWallpaperEditor/`:
+
+```text
+Projects/<project ID>/
+├── workspace.json     # Saved editable document and revision
+└── Project/           # Owned scene files and resources
+Handoffs/              # Immutable standard scene exports for Main to import
+CEFCache/              # Editor-only browser data
+```
+
+Main's separate data root is `~/Library/Application Support/DynamicWallpaper/`.
+File handoffs create copies; saving in either application does not overwrite the
+other application's managed copy. Quit Editor and remove its app bundle to
+uninstall while retaining projects.
 
 `DYNAMIC_WALLPAPER_EDITOR_DATA_ROOT` explicitly selects isolated data for native
 acceptance tests. Normal users do not need to configure it.
