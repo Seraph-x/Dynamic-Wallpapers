@@ -631,3 +631,18 @@
 "screenSaver.phase.preview" = "preview";
 "screenSaver.phase.install" = "installation";
 "screenSaver.phase.shutdown" = "shutdown";
+
+/* Local scene wallpapers. */
+"场景项目" = "Scene Project";
+"场景" = "Scene";
+"本地场景项目" = "Local scene project";
+"本地场景 · WebGL" = "Local scene · WebGL";
+"场景内容不支持" = "Scene content is not supported";
+"导入场景项目" = "Import Scene Project";
+"选择场景项目目录" = "Choose Scene Project Folder";
+"选择包含 project.json 与场景资源的目录；整个项目将复制到应用目录。" = "Choose the folder containing project.json and the scene assets. The entire project will be copied into the app library.";
+"支持本地 loose JSON 和 PKG 场景，按作者默认设置播放。系统音频频谱与场景编辑器暂不支持。" = "Local loose JSON and PKG scenes use the author’s defaults. System audio spectrum and scene editing are not supported yet.";
+"暂停时保留场景，继续播放时从原位置恢复。" = "Pausing retains the scene. Playback resumes from the same position.";
+"包含网页或场景时，仅支持固定停留时长。" = "Selections containing web pages or scenes support fixed durations only.";
+"网页和场景壁纸仅支持固定停留时长。" = "Web and scene wallpapers support fixed durations only.";
+"声音设置仅适用于所选视频、网页和场景，图片与动图不受影响。" = "Audio settings apply to selected videos, web pages and scenes. Images and animated images are unaffected.";

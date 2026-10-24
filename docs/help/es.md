@@ -175,6 +175,14 @@ La app copia el contenido publicado en `DynamicWallpaper/ScreenSaverExport`, den
 
 La primera vez, pulsa **Instalar o actualizar salvapantallas…** y sigue los pasos de macOS. Después selecciona personalmente **Dynamic Wallpaper Screen Saver** en Ajustes del Sistema. **Volver a comprobar instalación** verifica el resultado, pero estar instalado no significa estar seleccionado. En el panel de configuración del salvapantallas, autoriza la carpeta de publicación que muestra la app. Este permiso independiente permite leer el contenido después de cerrar la app. Una carpeta movida, un permiso caducado o la falta de contenido publicado generan un error explícito. La vista previa de la app muestra el contenido publicado; comprueba por separado la reproducción real en macOS.
 
+### 3.11 Fondos de escena locales {#scene}
+
+Elige **Importar fondo → Proyecto de escena** y selecciona la carpeta con `project.json` y todos sus recursos. Los proyectos locales JSON y PKG se copian a la biblioteca y se renderizan con WebWallGL y el CEF incluido. Mantén todos los recursos dentro del proyecto.
+
+Usa duraciones fijas. La pausa conserva el reloj de la escena y reanuda la misma instancia. Se aplican los ajustes de volumen, silencio, encuadre y frecuencia web. Activa la interacción y sus permisos para movimientos del ratón y clics izquierdos en el escritorio vacío. La vista previa acepta el ratón directamente.
+
+Se usan las propiedades predeterminadas del autor. No se admiten el espectro de audio del sistema, la edición de escenas ni su uso en el salvapantallas nativo. La compatibilidad depende de la versión fijada de WebWallGL; los fallos de carga o renderizado muestran errores. Algunos efectos o scripts incompatibles pueden generar solo avisos, registrados en el log de CEF. No se sustituye la escena por una imagen o vídeo.
+
 ## 4. Referencia de ajustes {#settings}
 
 Estos valores predeterminados corresponden a una biblioteca nueva. Las preferencias existentes se conservan. Los ajustes habituales se guardan y aplican inmediatamente. Los editores con un botón de guardar, como el de duración, requieren pulsarlo.

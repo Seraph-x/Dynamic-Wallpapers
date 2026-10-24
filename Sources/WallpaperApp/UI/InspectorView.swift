@@ -68,7 +68,7 @@ private struct InspectorDetails: View {
                     }
                     Divider()
                 }
-                EntryTimingEditor(timing: entry.timing, isStatic: item.kind == .image, isWeb: item.kind == .web) {
+                EntryTimingEditor(timing: entry.timing, isStatic: item.kind == .image, isWeb: item.kind == .web || item.kind == .scene) {
                     saveTiming($0, playlistID: playlist.id, entryID: entry.id)
                 }
             }
@@ -103,11 +103,14 @@ private struct InspectorDetails: View {
                 .buttonStyle(.plain)
                 .help(l10n("重命名"))
             }
-            Text(item.kind == .web ? l10n("本地网页 · HTML") : "\(item.width) × \(item.height) · \(item.url.pathExtension.uppercased())")
+            Text(item.kind == .scene ? l10n("本地场景 · WebGL") : item.kind == .web ? l10n("本地网页 · HTML") : "\(item.width) × \(item.height) · \(item.url.pathExtension.uppercased())")
                 .font(.caption).foregroundStyle(.secondary)
             if let duration = item.duration {
                 Text(l10n("单次播放时长 \(duration.formatted(.number.precision(.fractionLength(2)).locale(l10n.locale))) 秒"))
                     .font(.caption).foregroundStyle(.secondary)
+            }
+            if item.kind == .scene {
+                Text(l10n("暂停时保留场景，继续播放时从原位置恢复。")) .font(.caption).foregroundStyle(.secondary)
             }
             if item.kind == .web {
                 Text(l10n("暂停时保留画面，继续播放时重新载入网页。")).font(.caption).foregroundStyle(.secondary)

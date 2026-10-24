@@ -18,7 +18,7 @@ enum WebImportSelection {
 
 struct WallpaperImportView: View {
     @Localized private var l10n
-    enum Kind: String, CaseIterable { case media = "媒体文件", web = "网页项目" }
+    enum Kind: String, CaseIterable { case media = "媒体文件", web = "网页项目", scene = "场景项目" }
     @ObservedObject var model: AppModel
     let purpose: ImportPurpose
     @Environment(\.dismiss) private var dismiss
@@ -26,6 +26,8 @@ struct WallpaperImportView: View {
     @State private var root: URL?
     @State private var entry: String
     @State private var failure: PresentedFailure?
+    @State private var inspectingScene = false
+    @State private var importTask: Task<Void, Never>?
 
     init(model: AppModel, purpose: ImportPurpose = .wallpaper,
          projectRoot: URL? = nil, entry: String = "index.html") {
@@ -43,7 +45,7 @@ struct WallpaperImportView: View {
             if purpose == .wallpaper {
                 Picker(l10n("壁纸来源"), selection: $kind) {
                     ForEach(Kind.allCases, id: \.self) { Text(l10n.text($0.rawValue)).tag($0) }
-                }.pickerStyle(.segmented)
+                }.pickerStyle(.segmented).disabled(inspectingScene || model.importing)
             }
             if kind == .media {
                 Label(l10n("视频、动图与图片"), systemImage: "photo.on.rectangle.angled").font(.headline)
@@ -54,7 +56,7 @@ struct WallpaperImportView: View {
                     HelpPopover(title: l10n("支持的格式"), message: WallpaperCopy.supportedFormats)
                 }
             } else {
-                Text(l10n("选择包含网页与资源的项目目录，再指定 HTML 入口；整个项目将复制到应用目录。"))
+                Text(l10n(kind == .scene ? "选择包含 project.json 与场景资源的目录；整个项目将复制到应用目录。" : "选择包含网页与资源的项目目录，再指定 HTML 入口；整个项目将复制到应用目录。"))
                     .foregroundStyle(.secondary)
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
@@ -63,20 +65,28 @@ struct WallpaperImportView: View {
                     }
                     Spacer()
                     Button(root == nil ? l10n("选择目录…") : l10n("更换目录…"), action: chooseRoot)
+                        .disabled(inspectingScene || model.importing)
                         .tint(AppColors.secondaryActionText)
                 }
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack(spacing: 6) {
-                        Text(l10n("入口文件（HTML）")).font(.caption).foregroundStyle(.secondary)
-                        HelpPopover(title: l10n("入口文件"), message: l10n("选择项目内要打开的 HTML 文件，默认为 index.html；手动填写时使用相对于项目目录的路径，例如 pages/index.html。"))
+                if kind == .web {
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(spacing: 6) {
+                            Text(l10n("入口文件（HTML）")).font(.caption).foregroundStyle(.secondary)
+                            HelpPopover(title: l10n("入口文件"), message: l10n("选择项目内要打开的 HTML 文件，默认为 index.html；手动填写时使用相对于项目目录的路径，例如 pages/index.html。"))
+                        }
+                        HStack {
+                            TextField(l10n("相对于项目目录的路径"), text: $entry).textFieldStyle(.roundedBorder)
+                                .disabled(inspectingScene || model.importing)
+                                .accessibilityLabel(l10n("入口文件（HTML）"))
+                                .accessibilityIdentifier("web-import-entry")
+                            Button(l10n("选择入口文件…"), action: chooseEntry).disabled(root == nil || inspectingScene || model.importing)
+                                .tint(AppColors.secondaryActionText)
+                        }
                     }
-                    HStack {
-                        TextField(l10n("相对于项目目录的路径"), text: $entry).textFieldStyle(.roundedBorder)
-                            .accessibilityLabel(l10n("入口文件（HTML）"))
-                            .accessibilityIdentifier("web-import-entry")
-                        Button(l10n("选择入口文件…"), action: chooseEntry).disabled(root == nil)
-                            .tint(AppColors.secondaryActionText)
-                    }
+                }
+                if kind == .scene {
+                    Text(l10n("支持本地 loose JSON 和 PKG 场景，按作者默认设置播放。系统音频频谱与场景编辑器暂不支持。"))
+                        .font(.caption).foregroundStyle(.secondary)
                 }
             }
             if let failure { FailureNotice(failure: failure) }
@@ -86,20 +96,22 @@ struct WallpaperImportView: View {
                     : (model.selectedPlaylist.map { l10n("同时加入“\($0.name)”") } ?? l10n("添加到素材库")))
                     .font(.caption).foregroundStyle(.secondary)
                 Spacer()
-                Button(l10n("取消")) { model.cancelImport(); dismiss() }.keyboardShortcut(.cancelAction)
+                Button(l10n("取消")) { importTask?.cancel(); model.cancelImport(); dismiss() }.keyboardShortcut(.cancelAction)
                     .tint(AppColors.secondaryActionText)
                 if kind == .media {
                     Button(l10n("选择文件…"), action: chooseMedia).keyboardShortcut(.defaultAction)
+                        .disabled(inspectingScene || model.importing)
                         .appGlassOutlinedButtonStyle()
                 } else {
-                    Button(l10n("导入网页项目"), action: importProject).keyboardShortcut(.defaultAction)
+                    Button(l10n(kind == .scene ? "导入场景项目" : "导入网页项目"), action: importProject).keyboardShortcut(.defaultAction)
                         .appGlassOutlinedButtonStyle()
-                        .disabled(root == nil || entry.isEmpty || model.isShuttingDown || model.importing || model.loadFailed)
+                        .disabled(root == nil || (kind == .web && entry.isEmpty) || inspectingScene || model.isShuttingDown || model.importing || model.loadFailed)
                 }
             }
         }.padding(24).frame(width: 520)
             .appGlassPresentation(appearance: model.library.settings.appearance)
             .onChange(of: kind) { _, _ in failure = nil }
+            .onDisappear { importTask?.cancel() }
     }
 
     private func chooseMedia() {
@@ -115,7 +127,7 @@ struct WallpaperImportView: View {
 
     private func chooseRoot() {
         let panel = NSOpenPanel()
-        panel.title = l10n("选择网页项目目录"); panel.prompt = l10n("选择目录")
+        panel.title = l10n(kind == .scene ? "选择场景项目目录" : "选择网页项目目录"); panel.prompt = l10n("选择目录")
         panel.canChooseDirectories = true; panel.canChooseFiles = false
         panel.allowsMultipleSelection = false; panel.directoryURL = root
         guard panel.runModal() == .OK, let selected = panel.url else { return }
@@ -136,9 +148,29 @@ struct WallpaperImportView: View {
 
     private func importProject() {
         guard let root else { return }
-        let reference = WebProjectReference(root: root, entry: entry)
-        Task { @MainActor in
-            if await model.importWebProject(reference) { dismiss() }
+        importTask = Task { @MainActor in
+            defer { inspectingScene = false }
+            let imported: Bool
+            if kind == .scene {
+                do {
+                    inspectingScene = true
+                    let probe = Task.detached { try SceneProjectProbe.inspect(root: root) }
+                    let item = try await withTaskCancellationHandler {
+                        try await probe.value
+                    } onCancel: { probe.cancel() }
+                    try Task.checkCancellation()
+                    guard let reference = item.sceneProject else { throw WallpaperError("场景项目引用缺失。") }
+                    imported = await model.importSceneProject(reference)
+                } catch is CancellationError { return }
+                catch {
+                    failure = PresentedFailure(error, context: .importing)
+                    return
+                }
+            } else {
+                imported = await model.importWebProject(WebProjectReference(root: root, entry: entry))
+            }
+            guard !Task.isCancelled else { return }
+            if imported { dismiss() }
             else {
                 failure = model.failure
                 model.failure = nil // The active importer owns this visible error.

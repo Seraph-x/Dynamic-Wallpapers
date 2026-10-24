@@ -215,7 +215,7 @@ private struct MediaCard: View {
         VStack(alignment: .leading, spacing: 10) {
             ThumbnailView(item: item, lifetime: thumbnails).aspectRatio(16 / 10, contentMode: .fit)
                 .overlay(alignment: .bottomLeading) {
-                    Text(item.kind == .web ? l10n("网页") : item.url.pathExtension.uppercased()).font(.system(size: 9, weight: .semibold))
+                    Text(item.kind == .scene ? l10n("场景") : item.kind == .web ? l10n("网页") : item.url.pathExtension.uppercased()).font(.system(size: 9, weight: .semibold))
                         .padding(.horizontal, 6).padding(.vertical, 3).background(.ultraThinMaterial, in: Capsule()).padding(9)
                 }.clipShape(RoundedRectangle(cornerRadius: 10))
             HStack {
@@ -223,7 +223,7 @@ private struct MediaCard: View {
                 Spacer(minLength: 0)
                 if item.isFavorite { Image(systemName: "heart.fill").font(.caption).foregroundStyle(.pink) }
             }
-            Text(item.kind == .web ? l10n("本地网页项目") : "\(item.width) × \(item.height)" + (item.duration.map { l10n("  ·  \($0.formatted(.number.precision(.fractionLength(0)))) 秒") } ?? ""))
+            Text(item.kind == .scene ? l10n("本地场景项目") : item.kind == .web ? l10n("本地网页项目") : "\(item.width) × \(item.height)" + (item.duration.map { l10n("  ·  \($0.formatted(.number.precision(.fractionLength(0)))) 秒") } ?? ""))
                 .font(.caption).foregroundStyle(.secondary)
         }.padding(10).background(selected ? palette.selectionBackground : Color.primary.opacity(0.025), in: RoundedRectangle(cornerRadius: 14))
             .overlay(RoundedRectangle(cornerRadius: 14).stroke(selected ? palette.selectionIndicator : .clear, lineWidth: 1.5))
