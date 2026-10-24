@@ -1,6 +1,6 @@
 # Ayuda de Dynamic Wallpaper
 
-**v0.3.0 · Compilación 3 · Guía sin conexión**
+**v1.0.0 · Compilación 4 · Guía sin conexión**
 
 <!-- help-languages -->
 Idioma de la guía: [简体中文](zh-Hans.md) · [English](en.md) · [日本語](ja.md) · [Français](fr.md) · [Español](es.md)
@@ -22,7 +22,7 @@ Abre la **Guía de uso** desde el menú Ayuda de la app o desde su icono en la b
 
 ## 1. Acerca de la app {#introduction}
 
-Dynamic Wallpaper organiza fondos locales en macOS y permite mostrar vídeos, animaciones, imágenes y proyectos web en el escritorio, de forma individual o mediante listas de reproducción.
+Dynamic Wallpaper organiza fondos locales en macOS y permite mostrar vídeos, animaciones, imágenes, proyectos web y escenas en el escritorio, de forma individual o mediante listas de reproducción.
 
 Es útil para dar movimiento al escritorio, agrupar contenidos por temas o dedicar un fondo distinto a cada pantalla. Puedes aplicar un único fondo directamente o ajustar el orden, la duración, las transiciones y el volumen de cada elemento de una lista. La interfaz está disponible en chino simplificado, inglés, japonés, francés y español.
 
@@ -73,7 +73,7 @@ Las listas agrupan contenidos para alternar fondos por temas o cambiarlos a inte
 | Transición | Instantánea, Fundido · 0,3 s (predeterminado), Fundido · 0,8 s | El fundido afecta a imagen y sonido. La transición instantánea marca un cambio directo y reduce el procesamiento simultáneo de dos elementos |
 | Duración de visualización | Duración fija (30 segundos de forma predeterminada), Reproducir una vez completa, Número de repeticiones (inicialmente 1) | Selecciona un elemento, modifica el tiempo en sus detalles y pulsa Guardar duración |
 
-Para una duración fija, introduce un valor y elige s (segundos), m (minutos) o h (horas); por ejemplo, 1.5 m equivale a 90 segundos. La reproducción completa y las repeticiones de vídeos y animaciones se calculan con su duración original. En imágenes fijas, una reproducción completa utiliza la duración elegida; el tiempo total con repeticiones es «duración × repeticiones». Los fondos web solo admiten duración fija. La duración debe ser mayor que 0 y las repeticiones deben ser un número entero positivo.
+Para una duración fija, introduce un valor y elige s (segundos), m (minutos) o h (horas); por ejemplo, 1.5 m equivale a 90 segundos. La reproducción completa y las repeticiones de vídeos y animaciones se calculan con su duración original. En imágenes fijas, una reproducción completa utiliza la duración elegida; el tiempo total con repeticiones es «duración × repeticiones». Los fondos web y de escena solo admiten duración fija. La duración debe ser mayor que 0 y las repeticiones deben ser un número entero positivo.
 
 Aleatorio sin repetir distingue los elementos de la lista: añadir dos veces el mismo contenido crea dos elementos. Con **Repetir uno**, **Siguiente fondo** vuelve a seleccionar el elemento actual; cambia de modo para avanzar a otro. Si no se puede preparar el siguiente, se mantiene la imagen actual y se muestra un error. No se omite automáticamente el elemento que falla.
 
@@ -110,7 +110,7 @@ Solo los detalles emiten el audio de la vista previa; las copias del escritorio 
 | Audio de un fondo individual aplicado, en Pantallas | Actualiza el fondo inmediatamente. El grupo sincronizado comparte el cambio; las listas no se modifican |
 | Silenciar todo | Tiene prioridad sobre los ajustes individuales y también silencia las vistas previas |
 
-Los vídeos y fondos web tienen controles de audio individuales. **Silenciar este elemento** está desactivado de forma predeterminada y el volumen inicial es del 100 %. El intervalo es de 0–100 %, en pasos del 1 %. Usa Silenciar todo para un escritorio silencioso y ajusta cada elemento si sus niveles son diferentes.
+Los vídeos, fondos web y escenas tienen controles de audio individuales. **Silenciar este elemento** está desactivado de forma predeterminada y el volumen inicial es del 100 %. El intervalo es de 0–100 %, en pasos del 1 %. Usa Silenciar todo para un escritorio silencioso y ajusta cada elemento si sus niveles son diferentes.
 
 ### 3.5 Operaciones con varios elementos {#batch}
 
@@ -119,7 +119,7 @@ Los vídeos y fondos web tienen controles de audio individuales. **Silenciar est
 3. En una lista, pulsa **Editar selección…**. Activa **Cambiar duración**, **Cambiar silencio** o **Cambiar volumen**, introduce los valores y pulsa **Guardar cambios**.
 4. Pulsa **Listo** para salir de la selección múltiple.
 
-Los tres interruptores de cambio empiezan desactivados. Los campos que no actives conservan su valor. El editor comienza con 30 segundos, 1 repetición, sonido sin silenciar y volumen del 100 %; no representa los valores comunes de la selección. Si hay elementos web, el cambio de duración en grupo solo admite tiempo fijo. Los cambios de audio solo se aplican a vídeos y fondos web.
+Los tres interruptores de cambio empiezan desactivados. Los campos que no actives conservan su valor. El editor comienza con 30 segundos, 1 repetición, sonido sin silenciar y volumen del 100 %; no representa los valores comunes de la selección. Si hay elementos web o escenas, el cambio de duración en grupo solo admite tiempo fijo. Los cambios de audio se aplican a vídeos, fondos web y escenas.
 
 ### 3.6 Fondos web locales e interacción {#web}
 
@@ -169,7 +169,7 @@ La ventana principal puede mostrar el fondo detrás de su interfaz mientras ocup
 
 ### 3.10 Configurar el salvapantallas nativo {#screensaver}
 
-La página **Salvapantallas** de la barra lateral gestiona su contenido por separado del fondo del escritorio. Elige un vídeo nativo, una imagen fija, una animación o una lista que los contenga. **Importar contenido para el salvapantallas…** añade archivos locales. Se excluyen los elementos web y los del reproductor ampliado. Tras importar o elegir un origen, el cuadro de confirmación muestra centrados los elementos incluidos; si hay exclusiones, incluidos y excluidos aparecen en dos columnas. Confirma las exclusiones antes de publicar. La lista original no cambia y cualquier nueva exclusión requiere otra confirmación.
+La página **Salvapantallas** de la barra lateral gestiona su contenido por separado del fondo del escritorio. Elige un vídeo nativo, una imagen fija, una animación o una lista que los contenga. **Importar contenido para el salvapantallas…** añade archivos locales. Se excluyen los elementos web, las escenas y los del reproductor ampliado. Tras importar o elegir un origen, el cuadro de confirmación muestra centrados los elementos incluidos; si hay exclusiones, incluidos y excluidos aparecen en dos columnas. Confirma las exclusiones antes de publicar. La lista original no cambia y cualquier nueva exclusión requiere otra confirmación.
 
 La app copia el contenido publicado en `DynamicWallpaper/ScreenSaverExport`, dentro de Application Support. La página solo indica si hay contenido utilizable publicado. Si falla la sincronización, muestra el error y conserva la última copia válida. Los cambios pertinentes de la lista se sincronizan automáticamente; **Sincronizar ahora** solicita otra publicación. El contenido nuevo se aplica en el **siguiente inicio del salvapantallas** o al volver a abrir la vista previa de la app. Una instancia activa conserva su versión inicial. Borrar el archivo de origen no elimina de inmediato la copia publicada. **Borrar contenido publicado…** solo afecta al salvapantallas; las copias antiguas se recuperan cuando terminan las instancias activas.
 
@@ -177,7 +177,12 @@ La primera vez, pulsa **Instalar o actualizar salvapantallas…** y sigue los pa
 
 ### 3.11 Fondos de escena locales {#scene}
 
-Elige **Importar fondo → Proyecto de escena** y selecciona la carpeta con `project.json` y todos sus recursos. Los proyectos locales JSON y PKG se copian a la biblioteca y se renderizan con WebWallGL y el CEF incluido. Mantén todos los recursos dentro del proyecto.
+1. Elige **Importar fondo → Proyecto de escena**.
+2. Selecciona la carpeta con `project.json`, la entrada JSON o PKG y todos los recursos, en lugar de un archivo JSON/PKG aislado.
+3. Pulsa **Importar proyecto de escena**. Se guarda una copia independiente; los cambios en la carpeta original no se sincronizan.
+4. Selecciona la escena, comprueba la vista previa, elige pantalla y encuadre y aplica el fondo.
+
+Importa solo proyectos de confianza, ya que sus scripts pueden ejecutarse. Los metadatos inválidos, las rutas fuera del proyecto o una entrada ausente producen un error de importación.
 
 Usa duraciones fijas. La pausa conserva el reloj de la escena y reanuda la misma instancia. Se aplican los ajustes de volumen, silencio, encuadre y frecuencia web. Activa la interacción y sus permisos para movimientos del ratón y clics izquierdos en el escritorio vacío. La vista previa acepta el ratón directamente.
 
@@ -195,7 +200,7 @@ Estos valores predeterminados corresponden a una biblioteca nueva. Las preferenc
 | Abrir al iniciar sesión | Activado / desactivado; una instalación nueva no lo registra inicialmente | Ejecuta la app al iniciar sesión en macOS. Si necesita aprobación, usa Abrir ítems de inicio del sistema… |
 | Mostrar el icono en el Dock | Activado / desactivado; activado inicialmente | Si está desactivado, abrir una ventana de gestión muestra temporalmente el icono del Dock y los menús de la app. El icono se oculta al cerrar todas esas ventanas; minimizarlas u ocultarlas no las cierra. La preferencia guardada no cambia. No detiene la reproducción ni es un ajuste de ahorro |
 | Sincronizar fondo del sistema | Activado / desactivado; desactivado inicialmente | Genera una imagen fija del fondo aplicado y la escribe como fondo del sistema. Déjalo desactivado si no necesitas esa generación y escritura de imágenes |
-| Silenciar todo | Activado / desactivado; activado inicialmente | Silencia vídeo, web y vistas previas sin poner a cero los volúmenes individuales |
+| Silenciar todo | Activado / desactivado; activado inicialmente | Silencia vídeo, web, escenas y vistas previas sin poner a cero los volúmenes individuales |
 | Pausar en modo de bajo consumo | Activado / desactivado; desactivado inicialmente | Responde al modo de bajo consumo de macOS, no a un porcentaje concreto de batería. Útil al trabajar sin cargador |
 | Pausar si el dispositivo se calienta | Activado / desactivado; activado inicialmente | Pausa cuando macOS informa de un estado térmico grave o crítico. Se recomienda mantenerlo activado |
 
@@ -293,7 +298,7 @@ Usa esta acción únicamente si la app indica expresamente que no puede leer la 
 | Elemento | Información |
 | --- | --- |
 | App | Dynamic Wallpaper |
-| Versión | v0.3.0, compilación 3 |
+| Versión | v1.0.0, compilación 4 |
 | Alcance de la guía | Operaciones, ajustes, efectos sobre los datos y solución de problemas de la app actual |
 
 Consulta **Ajustes → Acerca de** para comprobar la versión instalada. Esta guía se incluye en la app y funciona sin conexión.
@@ -321,6 +326,7 @@ Consulta **Ajustes → Acerca de** para comprobar la versión instalada. Esta gu
 | Imagen fija | JPEG/JPG, PNG, HEIC, HEIF |
 | Animación | GIF, APNG |
 | Web local | HTML, HTM; importados mediante la carpeta de un proyecto web |
+| Escena local | JSON o PKG con `project.json`; carpeta de proyecto de escena |
 
 La extensión indica el tipo de archivo, pero no garantiza que se reproduzcan todos los códecs que pueda contener. Usa el resultado del análisis de la app para el archivo concreto. Cambiar la extensión no cambia la codificación del vídeo.
 

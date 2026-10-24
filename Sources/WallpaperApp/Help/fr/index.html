@@ -23,7 +23,7 @@
 </header>
 <main id="main">
 <h1>Aide de Dynamic Wallpaper</h1>
-<p><strong>v0.3.0 · Build 3 · Guide hors ligne</strong></p>
+<p><strong>v1.0.0 · Build 4 · Guide hors ligne</strong></p>
 <p>Ouvrez le <strong>Guide d’utilisation</strong> depuis le menu Aide de l’app ou son icône dans la barre des menus. Le guide s’affiche dans la langue actuelle de l’interface. Les liens ci-dessus changent uniquement la langue du guide, sans modifier les réglages de l’app. L’aide est incluse dans l’app et reste accessible hors ligne.</p>
 <h2 id="contents">Sommaire</h2>
 <ol>
@@ -38,7 +38,7 @@
 <li><a href="#appendix">Annexes</a></li>
 </ol>
 <h2 id="introduction">1. Présentation</h2>
-<p>Dynamic Wallpaper gère vos fonds d’écran locaux sur macOS : vidéos, animations, images et projets web peuvent habiller le bureau, seuls ou dans une liste de lecture.</p>
+<p>Dynamic Wallpaper gère vos fonds d’écran locaux sur macOS : vidéos, animations, images, projets web et scènes peuvent habiller le bureau, seuls ou dans une liste de lecture.</p>
 <p>L’app convient à un bureau animé, à des collections organisées par thème ou à des écrans ayant chacun leur contenu. Vous pouvez appliquer directement un fond ou régler l’ordre, la durée, les transitions et le volume de chaque élément d’une liste. L’interface est disponible en chinois simplifié, anglais, japonais, français et espagnol.</p>
 <div class="table-scroll" role="region" tabindex="0" aria-label="Tableau à défilement horizontal"><table>
 <thead>
@@ -124,7 +124,7 @@
 </tr>
 </tbody>
 </table></div>
-<p>Pour une durée fixe, saisissez une valeur et choisissez s (secondes), m (minutes) ou h (heures) ; par exemple, 1.5 m équivaut à 90 secondes. La lecture complète et les répétitions d’une vidéo ou d’une animation utilisent sa durée propre. Pour une image fixe, la lecture complète utilise la durée choisie ; la durée totale en répétition vaut « durée × répétitions ». Les fonds web acceptent uniquement une durée fixe. La durée doit être supérieure à 0 et le nombre de répétitions doit être un entier positif.</p>
+<p>Pour une durée fixe, saisissez une valeur et choisissez s (secondes), m (minutes) ou h (heures) ; par exemple, 1.5 m équivaut à 90 secondes. La lecture complète et les répétitions d’une vidéo ou d’une animation utilisent sa durée propre. Pour une image fixe, la lecture complète utilise la durée choisie ; la durée totale en répétition vaut « durée × répétitions ». Les fonds web et de scène acceptent uniquement une durée fixe. La durée doit être supérieure à 0 et le nombre de répétitions doit être un entier positif.</p>
 <p>Le mode aléatoire distingue les éléments de la liste : le même média ajouté deux fois compte comme deux éléments. Avec <strong>Répéter un élément</strong>, <strong>Fond suivant</strong> sélectionne encore l’élément actuel ; changez de mode pour passer à un autre. Si le suivant ne peut pas être préparé, l’image actuelle reste affichée et une erreur apparaît. L’élément défaillant n’est pas ignoré automatiquement.</p>
 <p>Le sous-menu <strong>Listes de lecture</strong> de la barre des menus applique rapidement une liste à tous les écrans, avec le cadrage <strong>Remplir</strong>.</p>
 <h3 id="displays">3.3 Configurer plusieurs écrans</h3>
@@ -174,7 +174,7 @@
 </tr>
 </tbody>
 </table></div>
-<p>Les vidéos et les fonds web disposent de réglages audio individuels. Par défaut, <strong>Couper cet élément</strong> est désactivé et le volume est de 100 %. Le volume va de 0 à 100 %, par pas de 1 %. Utilisez Tout couper pour un bureau silencieux, puis ajustez les éléments séparément pour équilibrer leurs niveaux.</p>
+<p>Les vidéos, les fonds web et les scènes disposent de réglages audio individuels. Par défaut, <strong>Couper cet élément</strong> est désactivé et le volume est de 100 %. Le volume va de 0 à 100 %, par pas de 1 %. Utilisez Tout couper pour un bureau silencieux, puis ajustez les éléments séparément pour équilibrer leurs niveaux.</p>
 <h3 id="batch">3.5 Modifier plusieurs éléments</h3>
 <ol>
 <li>Cliquez sur <strong>Sélection multiple</strong>, puis cochez les éléments. <strong>Tout sélectionner</strong> sélectionne les résultats du filtre actuel.</li>
@@ -182,7 +182,7 @@
 <li>Dans une liste, cliquez sur <strong>Modifier la sélection…</strong>. Activez <strong>Modifier la durée</strong>, <strong>Modifier la mise en sourdine</strong> ou <strong>Modifier le volume</strong>, renseignez les valeurs, puis cliquez sur <strong>Enregistrer les modifications</strong>.</li>
 <li>Cliquez sur <strong>Terminé</strong> pour quitter la sélection multiple.</li>
 </ol>
-<p>Les trois options de modification sont désactivées au départ. Les champs non activés conservent leurs valeurs. L’éditeur démarre à 30 secondes, 1 répétition, son non coupé et volume de 100 % : ce ne sont pas les valeurs communes de la sélection. Si elle contient un élément web, seule la durée fixe est disponible pour la modification groupée. Les changements audio concernent uniquement les vidéos et les fonds web.</p>
+<p>Les trois options de modification sont désactivées au départ. Les champs non activés conservent leurs valeurs. L’éditeur démarre à 30 secondes, 1 répétition, son non coupé et volume de 100 % : ce ne sont pas les valeurs communes de la sélection. Si elle contient un élément web ou de scène, seule la durée fixe est disponible pour la modification groupée. Les changements audio concernent les vidéos, les fonds web et les scènes.</p>
 <h3 id="web">3.6 Fonds web locaux et interaction</h3>
 <p>Un projet web local convient aux contenus de bureau réalisés en HTML, avec des styles et des scripts.</p>
 <ol>
@@ -219,11 +219,17 @@
 <p>L’interface utilise Liquid Glass sous macOS 26 et versions ultérieures, y compris macOS 27, et des matériaux natifs compatibles sous macOS 14 et 15. Dans <strong>Réglages → Apparence</strong>, ajustez le thème, la transparence et le flou pour équilibrer la visibilité du fond et la lisibilité du texte.</p>
 <p>La fenêtre principale peut montrer le fond derrière son interface lorsqu’elle occupe l’espace plein écran actif. Les fenêtres ordinaires et les espaces en arrière-plan ne capturent pas continuellement ce fond plein écran. Sans fond fourni par l’app, une image fixe du fond système est utilisée ; elle ne correspond pas nécessairement au moment actuel d’un fond dynamique macOS.</p>
 <h3 id="screensaver">3.10 Configurer l’économiseur d’écran natif</h3>
-<p>La page <strong>Économiseur d’écran</strong> de la barre latérale gère son contenu indépendamment du fond du bureau. Choisissez une vidéo native, une image fixe, une animation ou une liste qui en contient. <strong>Importer des médias pour l’économiseur…</strong> ajoute des fichiers locaux. Les éléments Web et ceux du lecteur étendu sont exclus. Après importation ou sélection de la source, la fenêtre de confirmation centre les éléments inclus ; s’il y a des exclusions, les éléments inclus et exclus apparaissent côte à côte. Confirmez les exclusions avant publication. La liste d’origine reste intacte et toute nouvelle exclusion demande une nouvelle confirmation.</p>
+<p>La page <strong>Économiseur d’écran</strong> de la barre latérale gère son contenu indépendamment du fond du bureau. Choisissez une vidéo native, une image fixe, une animation ou une liste qui en contient. <strong>Importer des médias pour l’économiseur…</strong> ajoute des fichiers locaux. Les éléments web, les scènes et ceux du lecteur étendu sont exclus. Après importation ou sélection de la source, la fenêtre de confirmation centre les éléments inclus ; s’il y a des exclusions, les éléments inclus et exclus apparaissent côte à côte. Confirmez les exclusions avant publication. La liste d’origine reste intacte et toute nouvelle exclusion demande une nouvelle confirmation.</p>
 <p>L’app copie les médias publiés dans <code>DynamicWallpaper/ScreenSaverExport</code>, sous Application Support. La page indique seulement si un contenu utilisable est publié. Si la synchronisation échoue, elle signale l’erreur et conserve la dernière copie valide. Les changements pertinents de la liste se synchronisent automatiquement ; <strong>Synchroniser maintenant</strong> relance la publication. Le nouveau contenu entre en vigueur au <strong>prochain démarrage de l’économiseur</strong>, ou à la réouverture de l’aperçu dans l’app. Une instance en cours garde sa version initiale. Supprimer la source ne supprime pas aussitôt sa copie publiée. <strong>Effacer le contenu publié…</strong> ne touche qu’à l’économiseur ; les anciennes copies sont récupérées après l’arrêt des instances actives.</p>
 <p>La première fois, cliquez sur <strong>Installer ou mettre à jour l’économiseur…</strong> et suivez macOS. Sélectionnez ensuite vous-même <strong>Dynamic Wallpaper Screen Saver</strong> dans Réglages Système. <strong>Revérifier l’installation</strong> vérifie le résultat, mais une installation ne signifie pas que l’économiseur est sélectionné. Dans sa configuration système, autorisez le dossier de publication affiché par l’app. Cette autorisation distincte permet la lecture après la fermeture de l’app. Un dossier déplacé, une autorisation expirée ou l’absence de publication produit une erreur explicite. L’aperçu dans l’app montre le contenu publié ; vérifiez séparément la lecture réelle dans macOS.</p>
 <h3 id="scene">3.11 Fonds de scène locaux</h3>
-<p>Choisissez <strong>Importer un fond → Projet de scène</strong>, puis le dossier contenant <code>project.json</code> et toutes les ressources. Les projets locaux JSON et PKG sont copiés dans la bibliothèque et affichés avec WebWallGL via le CEF fourni. Conservez toutes les ressources dans le dossier du projet.</p>
+<ol>
+<li>Choisissez <strong>Importer un fond → Projet de scène</strong>.</li>
+<li>Sélectionnez le dossier contenant <code>project.json</code>, le fichier JSON ou PKG et toutes les ressources, plutôt qu’un fichier JSON/PKG isolé.</li>
+<li>Cliquez sur <strong>Importer un projet de scène</strong>. Une copie indépendante est enregistrée ; les changements du dossier original ne sont pas synchronisés.</li>
+<li>Sélectionnez la scène, vérifiez l’aperçu, choisissez l’écran et le cadrage, puis appliquez le fond.</li>
+</ol>
+<p>Importez uniquement des projets fiables : les scripts de scène peuvent s’exécuter. Des métadonnées invalides, un chemin hors du projet ou un fichier d’entrée absent produisent une erreur d’importation.</p>
 <p>Utilisez une durée fixe. La pause conserve l’horloge de la scène et reprend la même instance. Les réglages de volume, de sourdine, de cadrage et de fréquence web s’appliquent. Activez l’interaction et ses autorisations pour les mouvements de souris et clics gauches sur le bureau vide. L’aperçu accepte directement la souris.</p>
 <p>Les propriétés par défaut de l’auteur sont utilisées. Le spectre audio du système, l’édition de scènes et l’économiseur d’écran natif ne sont pas pris en charge. La compatibilité dépend de la version figée de WebWallGL ; les échecs de chargement ou de rendu affichent une erreur. Certains effets ou scripts incompatibles peuvent uniquement produire un avertissement dans le journal CEF. La scène n’est pas remplacée par une image ou une vidéo.</p>
 <h2 id="settings">4. Réglages</h2>
@@ -261,7 +267,7 @@
 <tr>
 <td>Tout couper</td>
 <td>Activé / désactivé ; activé par défaut</td>
-<td>Coupe les vidéos, le web et les aperçus sans ramener les volumes individuels à zéro</td>
+<td>Coupe les vidéos, le web, les scènes et les aperçus sans ramener les volumes individuels à zéro</td>
 </tr>
 <tr>
 <td>Suspendre en mode économie d’énergie</td>
@@ -522,7 +528,7 @@
 </tr>
 <tr>
 <td>Version</td>
-<td>v0.3.0, build 3</td>
+<td>v1.0.0, build 4</td>
 </tr>
 <tr>
 <td>Portée du guide</td>
@@ -599,6 +605,10 @@
 <tr>
 <td>Web local</td>
 <td>HTML, HTM ; importés via le dossier d’un projet web</td>
+</tr>
+<tr>
+<td>Scène locale</td>
+<td>JSON ou PKG avec <code>project.json</code> ; dossier de projet de scène</td>
 </tr>
 </tbody>
 </table></div>

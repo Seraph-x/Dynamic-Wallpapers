@@ -1,6 +1,6 @@
 # Aide de Dynamic Wallpaper
 
-**v0.3.0 · Build 3 · Guide hors ligne**
+**v1.0.0 · Build 4 · Guide hors ligne**
 
 <!-- help-languages -->
 Langue du guide : [简体中文](zh-Hans.md) · [English](en.md) · [日本語](ja.md) · [Français](fr.md) · [Español](es.md)
@@ -22,7 +22,7 @@ Ouvrez le **Guide d’utilisation** depuis le menu Aide de l’app ou son icône
 
 ## 1. Présentation {#introduction}
 
-Dynamic Wallpaper gère vos fonds d’écran locaux sur macOS : vidéos, animations, images et projets web peuvent habiller le bureau, seuls ou dans une liste de lecture.
+Dynamic Wallpaper gère vos fonds d’écran locaux sur macOS : vidéos, animations, images, projets web et scènes peuvent habiller le bureau, seuls ou dans une liste de lecture.
 
 L’app convient à un bureau animé, à des collections organisées par thème ou à des écrans ayant chacun leur contenu. Vous pouvez appliquer directement un fond ou régler l’ordre, la durée, les transitions et le volume de chaque élément d’une liste. L’interface est disponible en chinois simplifié, anglais, japonais, français et espagnol.
 
@@ -73,7 +73,7 @@ Une liste regroupe des médias pour une rotation thématique ou des changements 
 | Transition | Instantanée, Fondu · 0,3 s (par défaut), Fondu · 0,8 s | Le fondu agit sur l’image et le son. Une transition instantanée marque une coupure nette et réduit le traitement simultané des deux éléments |
 | Durée d’affichage | Durée fixe (30 secondes par défaut), Lecture complète unique, Nombre de répétitions (initialement 1) | Sélectionnez un élément, modifiez sa durée dans les détails, puis cliquez sur Enregistrer la durée |
 
-Pour une durée fixe, saisissez une valeur et choisissez s (secondes), m (minutes) ou h (heures) ; par exemple, 1.5 m équivaut à 90 secondes. La lecture complète et les répétitions d’une vidéo ou d’une animation utilisent sa durée propre. Pour une image fixe, la lecture complète utilise la durée choisie ; la durée totale en répétition vaut « durée × répétitions ». Les fonds web acceptent uniquement une durée fixe. La durée doit être supérieure à 0 et le nombre de répétitions doit être un entier positif.
+Pour une durée fixe, saisissez une valeur et choisissez s (secondes), m (minutes) ou h (heures) ; par exemple, 1.5 m équivaut à 90 secondes. La lecture complète et les répétitions d’une vidéo ou d’une animation utilisent sa durée propre. Pour une image fixe, la lecture complète utilise la durée choisie ; la durée totale en répétition vaut « durée × répétitions ». Les fonds web et de scène acceptent uniquement une durée fixe. La durée doit être supérieure à 0 et le nombre de répétitions doit être un entier positif.
 
 Le mode aléatoire distingue les éléments de la liste : le même média ajouté deux fois compte comme deux éléments. Avec **Répéter un élément**, **Fond suivant** sélectionne encore l’élément actuel ; changez de mode pour passer à un autre. Si le suivant ne peut pas être préparé, l’image actuelle reste affichée et une erreur apparaît. L’élément défaillant n’est pas ignoré automatiquement.
 
@@ -110,7 +110,7 @@ Seuls les détails produisent le son de l’aperçu ; les copies sur le bureau s
 | Audio d’un fond unique déjà appliqué, dans Écrans | Modifie immédiatement le fond actuel. Le groupe synchronisé partage le réglage ; les listes ne changent pas |
 | Tout couper | Est prioritaire sur les réglages individuels et coupe aussi les aperçus |
 
-Les vidéos et les fonds web disposent de réglages audio individuels. Par défaut, **Couper cet élément** est désactivé et le volume est de 100 %. Le volume va de 0 à 100 %, par pas de 1 %. Utilisez Tout couper pour un bureau silencieux, puis ajustez les éléments séparément pour équilibrer leurs niveaux.
+Les vidéos, les fonds web et les scènes disposent de réglages audio individuels. Par défaut, **Couper cet élément** est désactivé et le volume est de 100 %. Le volume va de 0 à 100 %, par pas de 1 %. Utilisez Tout couper pour un bureau silencieux, puis ajustez les éléments séparément pour équilibrer leurs niveaux.
 
 ### 3.5 Modifier plusieurs éléments {#batch}
 
@@ -119,7 +119,7 @@ Les vidéos et les fonds web disposent de réglages audio individuels. Par défa
 3. Dans une liste, cliquez sur **Modifier la sélection…**. Activez **Modifier la durée**, **Modifier la mise en sourdine** ou **Modifier le volume**, renseignez les valeurs, puis cliquez sur **Enregistrer les modifications**.
 4. Cliquez sur **Terminé** pour quitter la sélection multiple.
 
-Les trois options de modification sont désactivées au départ. Les champs non activés conservent leurs valeurs. L’éditeur démarre à 30 secondes, 1 répétition, son non coupé et volume de 100 % : ce ne sont pas les valeurs communes de la sélection. Si elle contient un élément web, seule la durée fixe est disponible pour la modification groupée. Les changements audio concernent uniquement les vidéos et les fonds web.
+Les trois options de modification sont désactivées au départ. Les champs non activés conservent leurs valeurs. L’éditeur démarre à 30 secondes, 1 répétition, son non coupé et volume de 100 % : ce ne sont pas les valeurs communes de la sélection. Si elle contient un élément web ou de scène, seule la durée fixe est disponible pour la modification groupée. Les changements audio concernent les vidéos, les fonds web et les scènes.
 
 ### 3.6 Fonds web locaux et interaction {#web}
 
@@ -169,7 +169,7 @@ La fenêtre principale peut montrer le fond derrière son interface lorsqu’ell
 
 ### 3.10 Configurer l’économiseur d’écran natif {#screensaver}
 
-La page **Économiseur d’écran** de la barre latérale gère son contenu indépendamment du fond du bureau. Choisissez une vidéo native, une image fixe, une animation ou une liste qui en contient. **Importer des médias pour l’économiseur…** ajoute des fichiers locaux. Les éléments Web et ceux du lecteur étendu sont exclus. Après importation ou sélection de la source, la fenêtre de confirmation centre les éléments inclus ; s’il y a des exclusions, les éléments inclus et exclus apparaissent côte à côte. Confirmez les exclusions avant publication. La liste d’origine reste intacte et toute nouvelle exclusion demande une nouvelle confirmation.
+La page **Économiseur d’écran** de la barre latérale gère son contenu indépendamment du fond du bureau. Choisissez une vidéo native, une image fixe, une animation ou une liste qui en contient. **Importer des médias pour l’économiseur…** ajoute des fichiers locaux. Les éléments web, les scènes et ceux du lecteur étendu sont exclus. Après importation ou sélection de la source, la fenêtre de confirmation centre les éléments inclus ; s’il y a des exclusions, les éléments inclus et exclus apparaissent côte à côte. Confirmez les exclusions avant publication. La liste d’origine reste intacte et toute nouvelle exclusion demande une nouvelle confirmation.
 
 L’app copie les médias publiés dans `DynamicWallpaper/ScreenSaverExport`, sous Application Support. La page indique seulement si un contenu utilisable est publié. Si la synchronisation échoue, elle signale l’erreur et conserve la dernière copie valide. Les changements pertinents de la liste se synchronisent automatiquement ; **Synchroniser maintenant** relance la publication. Le nouveau contenu entre en vigueur au **prochain démarrage de l’économiseur**, ou à la réouverture de l’aperçu dans l’app. Une instance en cours garde sa version initiale. Supprimer la source ne supprime pas aussitôt sa copie publiée. **Effacer le contenu publié…** ne touche qu’à l’économiseur ; les anciennes copies sont récupérées après l’arrêt des instances actives.
 
@@ -177,7 +177,12 @@ La première fois, cliquez sur **Installer ou mettre à jour l’économiseur…
 
 ### 3.11 Fonds de scène locaux {#scene}
 
-Choisissez **Importer un fond → Projet de scène**, puis le dossier contenant `project.json` et toutes les ressources. Les projets locaux JSON et PKG sont copiés dans la bibliothèque et affichés avec WebWallGL via le CEF fourni. Conservez toutes les ressources dans le dossier du projet.
+1. Choisissez **Importer un fond → Projet de scène**.
+2. Sélectionnez le dossier contenant `project.json`, le fichier JSON ou PKG et toutes les ressources, plutôt qu’un fichier JSON/PKG isolé.
+3. Cliquez sur **Importer un projet de scène**. Une copie indépendante est enregistrée ; les changements du dossier original ne sont pas synchronisés.
+4. Sélectionnez la scène, vérifiez l’aperçu, choisissez l’écran et le cadrage, puis appliquez le fond.
+
+Importez uniquement des projets fiables : les scripts de scène peuvent s’exécuter. Des métadonnées invalides, un chemin hors du projet ou un fichier d’entrée absent produisent une erreur d’importation.
 
 Utilisez une durée fixe. La pause conserve l’horloge de la scène et reprend la même instance. Les réglages de volume, de sourdine, de cadrage et de fréquence web s’appliquent. Activez l’interaction et ses autorisations pour les mouvements de souris et clics gauches sur le bureau vide. L’aperçu accepte directement la souris.
 
@@ -195,7 +200,7 @@ Les valeurs par défaut ci-dessous concernent une nouvelle bibliothèque. Les pr
 | Ouvrir à la connexion | Activé / désactivé ; non enregistré par défaut à la première installation | Lance l’app après la connexion à macOS. Si une approbation est nécessaire, utilisez Ouvrir les éléments de connexion… |
 | Afficher l’icône dans le Dock | Activé / désactivé ; activé par défaut | Si désactivé, l’ouverture d’une fenêtre de gestion affiche temporairement l’icône du Dock et les menus de l’app. L’icône se masque quand toutes ces fenêtres sont fermées ; les réduire ou les masquer ne les ferme pas. Le réglage enregistré reste inchangé. Cela n’arrête pas la lecture et ne constitue pas un réglage d’économie d’énergie |
 | Synchroniser le fond d’écran système | Activé / désactivé ; désactivé par défaut | Crée une image fixe du fond appliqué et l’écrit comme fond système. Laissez désactivé si vous n’avez pas besoin de ces générations et écritures d’images |
-| Tout couper | Activé / désactivé ; activé par défaut | Coupe les vidéos, le web et les aperçus sans ramener les volumes individuels à zéro |
+| Tout couper | Activé / désactivé ; activé par défaut | Coupe les vidéos, le web, les scènes et les aperçus sans ramener les volumes individuels à zéro |
 | Suspendre en mode économie d’énergie | Activé / désactivé ; désactivé par défaut | Suit le mode économie d’énergie de macOS, pas un pourcentage de batterie. Utile sur batterie |
 | Suspendre en cas de surchauffe | Activé / désactivé ; activé par défaut | Suspend la lecture lorsque macOS signale un état thermique grave ou critique. Il est conseillé de le laisser activé |
 
@@ -293,7 +298,7 @@ Utilisez cette action uniquement lorsque l’app indique explicitement qu’elle
 | Élément | Information |
 | --- | --- |
 | App | Dynamic Wallpaper |
-| Version | v0.3.0, build 3 |
+| Version | v1.0.0, build 4 |
 | Portée du guide | Opérations, réglages, conséquences pour les données et dépannage de l’app actuelle |
 
 Consultez **Réglages → À propos** pour vérifier la version installée. Ce guide est inclus dans l’app et fonctionne hors ligne.
@@ -321,6 +326,7 @@ Consultez **Réglages → À propos** pour vérifier la version installée. Ce g
 | Image fixe | JPEG/JPG, PNG, HEIC, HEIF |
 | Animation | GIF, APNG |
 | Web local | HTML, HTM ; importés via le dossier d’un projet web |
+| Scène locale | JSON ou PKG avec `project.json` ; dossier de projet de scène |
 
 L’extension désigne un type de fichier, sans garantir la lecture de tous les codecs qu’il peut contenir. Fiez-vous à l’analyse du fichier par l’app. Renommer une extension ne modifie pas l’encodage vidéo.
 

@@ -127,7 +127,7 @@ class HelpBundleTests(unittest.TestCase):
             shutil.copy2(ROOT / 'scripts/product-configuration.json',
                          root / 'scripts/product-configuration.json')
             readme = root / 'docs/help/README.md'
-            readme.write_text(readme.read_text().replace('v0.3.0 / build 3',
+            readme.write_text(readme.read_text().replace('v1.0.0 / build 4',
                                                          'v0.2.0 / build 2', 1))
             with self.assertRaisesRegex(ValueError, 'README.md must name configured version/build'):
                 BUILD_HELP.generated_files(root)

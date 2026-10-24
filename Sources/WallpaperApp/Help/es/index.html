@@ -23,7 +23,7 @@
 </header>
 <main id="main">
 <h1>Ayuda de Dynamic Wallpaper</h1>
-<p><strong>v0.3.0 · Compilación 3 · Guía sin conexión</strong></p>
+<p><strong>v1.0.0 · Compilación 4 · Guía sin conexión</strong></p>
 <p>Abre la <strong>Guía de uso</strong> desde el menú Ayuda de la app o desde su icono en la barra de menús. Se abrirá en el idioma actual de la interfaz. Los enlaces de arriba solo cambian el idioma de la guía, no los ajustes de la app. La ayuda está incluida en la aplicación y se puede leer sin conexión.</p>
 <h2 id="contents">Índice</h2>
 <ol>
@@ -38,7 +38,7 @@
 <li><a href="#appendix">Apéndice</a></li>
 </ol>
 <h2 id="introduction">1. Acerca de la app</h2>
-<p>Dynamic Wallpaper organiza fondos locales en macOS y permite mostrar vídeos, animaciones, imágenes y proyectos web en el escritorio, de forma individual o mediante listas de reproducción.</p>
+<p>Dynamic Wallpaper organiza fondos locales en macOS y permite mostrar vídeos, animaciones, imágenes, proyectos web y escenas en el escritorio, de forma individual o mediante listas de reproducción.</p>
 <p>Es útil para dar movimiento al escritorio, agrupar contenidos por temas o dedicar un fondo distinto a cada pantalla. Puedes aplicar un único fondo directamente o ajustar el orden, la duración, las transiciones y el volumen de cada elemento de una lista. La interfaz está disponible en chino simplificado, inglés, japonés, francés y español.</p>
 <div class="table-scroll" role="region" tabindex="0" aria-label="Tabla con desplazamiento horizontal"><table>
 <thead>
@@ -124,7 +124,7 @@
 </tr>
 </tbody>
 </table></div>
-<p>Para una duración fija, introduce un valor y elige s (segundos), m (minutos) o h (horas); por ejemplo, 1.5 m equivale a 90 segundos. La reproducción completa y las repeticiones de vídeos y animaciones se calculan con su duración original. En imágenes fijas, una reproducción completa utiliza la duración elegida; el tiempo total con repeticiones es «duración × repeticiones». Los fondos web solo admiten duración fija. La duración debe ser mayor que 0 y las repeticiones deben ser un número entero positivo.</p>
+<p>Para una duración fija, introduce un valor y elige s (segundos), m (minutos) o h (horas); por ejemplo, 1.5 m equivale a 90 segundos. La reproducción completa y las repeticiones de vídeos y animaciones se calculan con su duración original. En imágenes fijas, una reproducción completa utiliza la duración elegida; el tiempo total con repeticiones es «duración × repeticiones». Los fondos web y de escena solo admiten duración fija. La duración debe ser mayor que 0 y las repeticiones deben ser un número entero positivo.</p>
 <p>Aleatorio sin repetir distingue los elementos de la lista: añadir dos veces el mismo contenido crea dos elementos. Con <strong>Repetir uno</strong>, <strong>Siguiente fondo</strong> vuelve a seleccionar el elemento actual; cambia de modo para avanzar a otro. Si no se puede preparar el siguiente, se mantiene la imagen actual y se muestra un error. No se omite automáticamente el elemento que falla.</p>
 <p>El submenú <strong>Listas de reproducción</strong> de la barra de menús permite aplicar rápidamente una lista a todas las pantallas con <strong>Rellenar</strong>.</p>
 <h3 id="displays">3.3 Configurar varias pantallas</h3>
@@ -174,7 +174,7 @@
 </tr>
 </tbody>
 </table></div>
-<p>Los vídeos y fondos web tienen controles de audio individuales. <strong>Silenciar este elemento</strong> está desactivado de forma predeterminada y el volumen inicial es del 100 %. El intervalo es de 0–100 %, en pasos del 1 %. Usa Silenciar todo para un escritorio silencioso y ajusta cada elemento si sus niveles son diferentes.</p>
+<p>Los vídeos, fondos web y escenas tienen controles de audio individuales. <strong>Silenciar este elemento</strong> está desactivado de forma predeterminada y el volumen inicial es del 100 %. El intervalo es de 0–100 %, en pasos del 1 %. Usa Silenciar todo para un escritorio silencioso y ajusta cada elemento si sus niveles son diferentes.</p>
 <h3 id="batch">3.5 Operaciones con varios elementos</h3>
 <ol>
 <li>Pulsa <strong>Selección múltiple</strong> y marca los elementos. <strong>Seleccionar todos los resultados</strong> selecciona los resultados del filtro actual.</li>
@@ -182,7 +182,7 @@
 <li>En una lista, pulsa <strong>Editar selección…</strong>. Activa <strong>Cambiar duración</strong>, <strong>Cambiar silencio</strong> o <strong>Cambiar volumen</strong>, introduce los valores y pulsa <strong>Guardar cambios</strong>.</li>
 <li>Pulsa <strong>Listo</strong> para salir de la selección múltiple.</li>
 </ol>
-<p>Los tres interruptores de cambio empiezan desactivados. Los campos que no actives conservan su valor. El editor comienza con 30 segundos, 1 repetición, sonido sin silenciar y volumen del 100 %; no representa los valores comunes de la selección. Si hay elementos web, el cambio de duración en grupo solo admite tiempo fijo. Los cambios de audio solo se aplican a vídeos y fondos web.</p>
+<p>Los tres interruptores de cambio empiezan desactivados. Los campos que no actives conservan su valor. El editor comienza con 30 segundos, 1 repetición, sonido sin silenciar y volumen del 100 %; no representa los valores comunes de la selección. Si hay elementos web o escenas, el cambio de duración en grupo solo admite tiempo fijo. Los cambios de audio se aplican a vídeos, fondos web y escenas.</p>
 <h3 id="web">3.6 Fondos web locales e interacción</h3>
 <p>Un proyecto web local permite utilizar contenido de escritorio creado con HTML, estilos y scripts.</p>
 <ol>
@@ -219,11 +219,17 @@
 <p>La interfaz usa Liquid Glass en macOS 26 y posteriores, incluido macOS 27, y materiales nativos compatibles en macOS 14 y 15. En <strong>Ajustes → Apariencia</strong> puedes ajustar el tema, la transparencia y el desenfoque para equilibrar la visibilidad del fondo con la lectura del texto.</p>
 <p>La ventana principal puede mostrar el fondo detrás de su interfaz mientras ocupa el espacio activo a pantalla completa. Las ventanas normales y los espacios en segundo plano no mantienen esa captura continua. Si no hay un fondo de la app, se utiliza una imagen fija del fondo del sistema, que puede no coincidir con la imagen de la hora actual de un fondo dinámico de macOS.</p>
 <h3 id="screensaver">3.10 Configurar el salvapantallas nativo</h3>
-<p>La página <strong>Salvapantallas</strong> de la barra lateral gestiona su contenido por separado del fondo del escritorio. Elige un vídeo nativo, una imagen fija, una animación o una lista que los contenga. <strong>Importar contenido para el salvapantallas…</strong> añade archivos locales. Se excluyen los elementos web y los del reproductor ampliado. Tras importar o elegir un origen, el cuadro de confirmación muestra centrados los elementos incluidos; si hay exclusiones, incluidos y excluidos aparecen en dos columnas. Confirma las exclusiones antes de publicar. La lista original no cambia y cualquier nueva exclusión requiere otra confirmación.</p>
+<p>La página <strong>Salvapantallas</strong> de la barra lateral gestiona su contenido por separado del fondo del escritorio. Elige un vídeo nativo, una imagen fija, una animación o una lista que los contenga. <strong>Importar contenido para el salvapantallas…</strong> añade archivos locales. Se excluyen los elementos web, las escenas y los del reproductor ampliado. Tras importar o elegir un origen, el cuadro de confirmación muestra centrados los elementos incluidos; si hay exclusiones, incluidos y excluidos aparecen en dos columnas. Confirma las exclusiones antes de publicar. La lista original no cambia y cualquier nueva exclusión requiere otra confirmación.</p>
 <p>La app copia el contenido publicado en <code>DynamicWallpaper/ScreenSaverExport</code>, dentro de Application Support. La página solo indica si hay contenido utilizable publicado. Si falla la sincronización, muestra el error y conserva la última copia válida. Los cambios pertinentes de la lista se sincronizan automáticamente; <strong>Sincronizar ahora</strong> solicita otra publicación. El contenido nuevo se aplica en el <strong>siguiente inicio del salvapantallas</strong> o al volver a abrir la vista previa de la app. Una instancia activa conserva su versión inicial. Borrar el archivo de origen no elimina de inmediato la copia publicada. <strong>Borrar contenido publicado…</strong> solo afecta al salvapantallas; las copias antiguas se recuperan cuando terminan las instancias activas.</p>
 <p>La primera vez, pulsa <strong>Instalar o actualizar salvapantallas…</strong> y sigue los pasos de macOS. Después selecciona personalmente <strong>Dynamic Wallpaper Screen Saver</strong> en Ajustes del Sistema. <strong>Volver a comprobar instalación</strong> verifica el resultado, pero estar instalado no significa estar seleccionado. En el panel de configuración del salvapantallas, autoriza la carpeta de publicación que muestra la app. Este permiso independiente permite leer el contenido después de cerrar la app. Una carpeta movida, un permiso caducado o la falta de contenido publicado generan un error explícito. La vista previa de la app muestra el contenido publicado; comprueba por separado la reproducción real en macOS.</p>
 <h3 id="scene">3.11 Fondos de escena locales</h3>
-<p>Elige <strong>Importar fondo → Proyecto de escena</strong> y selecciona la carpeta con <code>project.json</code> y todos sus recursos. Los proyectos locales JSON y PKG se copian a la biblioteca y se renderizan con WebWallGL y el CEF incluido. Mantén todos los recursos dentro del proyecto.</p>
+<ol>
+<li>Elige <strong>Importar fondo → Proyecto de escena</strong>.</li>
+<li>Selecciona la carpeta con <code>project.json</code>, la entrada JSON o PKG y todos los recursos, en lugar de un archivo JSON/PKG aislado.</li>
+<li>Pulsa <strong>Importar proyecto de escena</strong>. Se guarda una copia independiente; los cambios en la carpeta original no se sincronizan.</li>
+<li>Selecciona la escena, comprueba la vista previa, elige pantalla y encuadre y aplica el fondo.</li>
+</ol>
+<p>Importa solo proyectos de confianza, ya que sus scripts pueden ejecutarse. Los metadatos inválidos, las rutas fuera del proyecto o una entrada ausente producen un error de importación.</p>
 <p>Usa duraciones fijas. La pausa conserva el reloj de la escena y reanuda la misma instancia. Se aplican los ajustes de volumen, silencio, encuadre y frecuencia web. Activa la interacción y sus permisos para movimientos del ratón y clics izquierdos en el escritorio vacío. La vista previa acepta el ratón directamente.</p>
 <p>Se usan las propiedades predeterminadas del autor. No se admiten el espectro de audio del sistema, la edición de escenas ni su uso en el salvapantallas nativo. La compatibilidad depende de la versión fijada de WebWallGL; los fallos de carga o renderizado muestran errores. Algunos efectos o scripts incompatibles pueden generar solo avisos, registrados en el log de CEF. No se sustituye la escena por una imagen o vídeo.</p>
 <h2 id="settings">4. Referencia de ajustes</h2>
@@ -261,7 +267,7 @@
 <tr>
 <td>Silenciar todo</td>
 <td>Activado / desactivado; activado inicialmente</td>
-<td>Silencia vídeo, web y vistas previas sin poner a cero los volúmenes individuales</td>
+<td>Silencia vídeo, web, escenas y vistas previas sin poner a cero los volúmenes individuales</td>
 </tr>
 <tr>
 <td>Pausar en modo de bajo consumo</td>
@@ -522,7 +528,7 @@
 </tr>
 <tr>
 <td>Versión</td>
-<td>v0.3.0, compilación 3</td>
+<td>v1.0.0, compilación 4</td>
 </tr>
 <tr>
 <td>Alcance de la guía</td>
@@ -599,6 +605,10 @@
 <tr>
 <td>Web local</td>
 <td>HTML, HTM; importados mediante la carpeta de un proyecto web</td>
+</tr>
+<tr>
+<td>Escena local</td>
+<td>JSON o PKG con <code>project.json</code>; carpeta de proyecto de escena</td>
 </tr>
 </tbody>
 </table></div>
