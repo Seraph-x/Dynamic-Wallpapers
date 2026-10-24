@@ -122,6 +122,19 @@ int main(int argc,char**argv) { @autoreleasepool {
     command(page,@{@"type":@"undo"});
     require([command(page,@{@"type":@"snapshot"})[@"document"][@"scene"][@"objects"] count]==0,"Native undo did not change scene document");
     command(page,@{@"type":@"redo"});
+    [page editorTestScript:@"document.querySelector('#layers button[data-layer-id=\"1\"]').click();document.getElementById('timeline-toggle').click();"];
+    command(page,@{@"type":@"snapshot"});
+    [page editorTestScript:@"document.getElementById('timeline-create').click();"];
+    NSDictionary* animated=command(page,@{@"type":@"snapshot"})[@"document"];
+    require([animated[@"scene"][@"objects"][0][@"origin"][@"animation"][@"c0"] count]==1,"Native CEF timeline did not create a property track");
+    [page editorTestScript:@"const field=document.getElementById('timeline-key-value');field.value='360';field.dispatchEvent(new Event('input',{bubbles:true}));"];
+    NSDictionary* timelineSaved=command(page,@{@"type":@"freeze"})[@"document"];
+    require([timelineSaved[@"scene"][@"objects"][0][@"origin"][@"animation"][@"c0"][0][@"value"] doubleValue]==360,"Native freeze lost pending timeline input");
+    command(page,@{@"type":@"mark-saved",@"document":timelineSaved});
+    require(![command(page,@{@"type":@"freeze"})[@"dirty"] boolValue],"Native timeline save acknowledgement remained dirty");
+    command(page,@{@"type":@"thaw"});
+    require(std::abs([command(page,@{@"type":@"seek",@"time":@.5})[@"time"] doubleValue]-.5)<1e-8,"Native timeline seek did not reach the requested time");
+    fprintf(stderr,"Native CEF timeline create, unblurred draft freeze, saved acknowledgement and typed seek passed\n");
     if(argc==9) {
       NSData* model=[NSData dataWithContentsOfFile:[@(argv[7]) stringByAppendingPathComponent:@"models/editor/green.json"]]; require(model!=nil,"Resource model fixture missing");
       command(page,@{@"type":@"replace-resource",@"path":@"models/editor/green.json",@"data":[model base64EncodedStringWithOptions:0]});
@@ -161,16 +174,19 @@ int main(int argc,char**argv) { @autoreleasepool {
       require(!failure,failure.localizedDescription.UTF8String ?: "Exported scene failed");
       auto counts = ^NSArray* {
       CGImageRef image=(__bridge CGImageRef)playback.view.layer.contents;
-      if(!image) return @[@0,@0,@0];
+      if(!image) return @[@0,@0,@0,@0];
       CFDataRef data=CGDataProviderCopyData(CGImageGetDataProvider(image));require(data!=nullptr,"Export pixel read failed");
-      const UInt8* bytes=CFDataGetBytePtr(data);size_t green=0,red=0,blue=0;
-      for(CFIndex p=0;p+3<CFDataGetLength(data);p+=4){if(bytes[p+1]>180&&bytes[p]<70&&bytes[p+2]<70)++green;if(bytes[p+2]>180&&bytes[p+1]<70&&bytes[p]<70)++red;if(bytes[p]>180&&bytes[p+1]<70&&bytes[p+2]<70)++blue;}
-      CFRelease(data);return @[@(green),@(red),@(blue)];
+      const UInt8* bytes=CFDataGetBytePtr(data);size_t green=0,red=0,blue=0;double greenX=0;const size_t rowBytes=CGImageGetBytesPerRow(image);
+      for(CFIndex p=0;p+3<CFDataGetLength(data);p+=4){if(bytes[p+1]>180&&bytes[p]<70&&bytes[p+2]<70){++green;greenX+=double((static_cast<size_t>(p)%rowBytes)/4);}if(bytes[p+2]>180&&bytes[p+1]<70&&bytes[p]<70)++red;if(bytes[p]>180&&bytes[p+1]<70&&bytes[p+2]<70)++blue;}
+      CFRelease(data);return @[@(green),@(red),@(blue),@(green?greenX/green:0)];
       };
       // Image/font textures can upload after the engine's first drawable frame.
       // Require actual colored pixels, not merely an engine-ready notification.
       waitUntil(^{NSArray* value=counts();return BOOL([value[0] unsignedLongValue]>100 && [value[1] unsignedLongValue]>20 && [value[2] unsignedLongValue]>100);},5,"Exported image/text pixels not preserved by Main scene renderer");
       fprintf(stderr,"Main export pixels green=%lu red=%lu blue=%lu\n",[counts()[0] unsignedLongValue],[counts()[1] unsignedLongValue],[counts()[2] unsignedLongValue]);
+      const double firstX=[counts()[3] doubleValue];
+      waitUntil(^{return BOOL(std::abs([counts()[3] doubleValue]-firstX)>3);},3,"Exported property keyframes did not animate in Main");
+      fprintf(stderr,"Main export animation centroid %.2f -> %.2f\n",firstX,[counts()[3] doubleValue]);
       __block BOOL released=NO;[playback closeWithCompletion:^(NSError* value){failure=value;released=YES;}];
       waitUntil(^{return released;},7,"Export playback close timed out");require(!failure,"Export playback close failed");
       fprintf(stderr,"Editor %s export rendered actual Main scene image/text pixels\n",index==7?"loose":"PKG");

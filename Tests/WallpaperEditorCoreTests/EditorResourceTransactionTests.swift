@@ -135,4 +135,18 @@ final class EditorResourceTransactionTests: XCTestCase {
         let reopened=try await store.open(id:saved.id)
         XCTAssertEqual(reopened.document,saved)
     }
+    func testPropertyKeyframesSurviveNativeSaveAndBothExports() async throws {
+        let store=store(),owned=try await store.create(title:"Keyframes",width:640,height:360)
+        let scene=Data(#"{"objects":[{"id":1,"origin":{"value":"160 180 0","future":"binding","animation":{"c0":[{"frame":0,"value":160,"front":{"enabled":true,"x":1,"y":0}},{"frame":60,"value":480,"back":{"enabled":true,"x":1,"y":0}}],"c1":[{"frame":0,"value":180}],"c2":[{"frame":0,"value":0}],"options":{"fps":30,"length":60,"mode":"mirror","future":"options"}}}}]}"#.utf8)
+        let saved=try await store.save(owned.document,scene:scene,project:owned.document.project,title:"Animated")
+        let reopened=try await store.open(id:saved.id)
+        XCTAssertEqual(reopened.document,saved)
+        let loose=try await store.exportLoose(saved,to:temporary.appendingPathComponent("AnimatedLoose"))
+        let looseImported=try await store.importProject(root:loose.root)
+        XCTAssertEqual(looseImported.document.scene,saved.scene)
+        let pkg=ScenePackageReaderTests.package([("scene.json",saved.scene)])
+        let package=try await store.exportPackage(saved,package:pkg,to:temporary.appendingPathComponent("AnimatedPackage"))
+        let packageImported=try await store.importProject(root:package.root)
+        XCTAssertEqual(packageImported.document.scene,saved.scene)
+    }
 }

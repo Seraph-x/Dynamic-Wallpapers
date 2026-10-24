@@ -20,7 +20,7 @@ export function validateEditorCommand(command, config) {
       typeof command.id !== 'string' || !command.id) throw new Error('Stale Editor command');
   const fields = { snapshot: [], load: ['document'], 'mark-saved': ['document'], 'add-image': ['image'],
     'export-pkg': ['paths'], freeze: [], thaw: [], undo: [], redo: [],
-    'replace-resource':['path','data'], 'resource-reply':['requestID','result'] }[command.type];
+    'replace-resource':['path','data'], 'resource-reply':['requestID','result'], seek:['time'] }[command.type];
   if (!fields || Object.keys(command).some(key => !['session', 'generation', 'id', 'type', ...fields].includes(key)) ||
       fields.some(key => command[key] === undefined)) throw new Error('Invalid Editor command');
 }
@@ -70,6 +70,14 @@ export function startEditor(config, options) {
     await report({ type: 'dirty', dirty: document.dirty });
     return enqueue(render);
   }
+  function setPlaying(value) {
+    playing=value; controls?.setTimeScale(value ? 1 : 0); options.onPlaybackChange?.(playing);
+  }
+  function seek(time) {
+    if (destroyed || frozen) return Promise.reject(new Error('Editor is closed or frozen'));
+    if (!Number.isFinite(time) || time < 0) return Promise.reject(new Error('Invalid timeline time'));
+    return enqueue(()=>controls.seek(time));
+  }
   const ready = enqueue(async () => { await render(); await report({ type: 'ready', frame: 1 }); });
   async function applyCommand(value) {
     try {
@@ -89,8 +97,9 @@ export function startEditor(config, options) {
         case 'load': document = new SceneDocument(value.document,config.sourcePackage); await render(); break;
         case 'mark-saved': document.markSaved(value.document); options.onChange(document, controls); break;
         case 'add-image': await changed(doc => doc.addImage(value.image)); break;
-        case 'undo': await changed(doc => doc.undo()); break;
-        case 'redo': await changed(doc => doc.redo()); break;
+        case 'undo': if(options.snapshotError?.())throw options.snapshotError();await changed(doc => doc.undo()); break;
+        case 'redo': if(options.snapshotError?.())throw options.snapshotError();await changed(doc => doc.redo()); break;
+        case 'seek': setPlaying(false); await seek(value.time); payload={time:controls.time}; break;
         case 'replace-resource': {
           if (frozen) throw new Error('Editor is frozen for a native operation');
           // Validate the target before staging any bytes on disk.
@@ -134,7 +143,7 @@ export function startEditor(config, options) {
     const result = commandQueue.then(() => applyCommand(value)); commandQueue = result.catch(options.onError); return result;
   }
   return { ready, command, change: changed, get controls() { return controls; }, get document() { return document; },
-    get playing() { return playing; }, setPlaying(value) { playing = value; controls?.setTimeScale(value ? 1 : 0); },
+    get playing() { return playing; }, get frozen() { return frozen; }, setPlaying, seek,
     stageResource:resources.stage,
     destroy() { destroyed = true; resources.dispose(); instance?.destroy({ releasePkgCache: true }); } };
 }

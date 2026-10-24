@@ -1,3 +1,5 @@
+import { editAnimation } from './animation.mjs';
+
 export function safePath(value) {
   if (typeof value !== 'string' || !value || /[\\:\0]/.test(value) || value.split('/').some(p => !p || p === '.' || p === '..')) throw new Error('Invalid project resource path');
   return value;
@@ -92,6 +94,12 @@ export class SceneDocument {
           !Number.isFinite(data) || (key === 'alpha' ? data < 0 || data > 1 : data <= 0) : typeof data !== 'string') throw new Error('Invalid field value');
         layer[key] = data;
       }
+    });
+  }
+  animate(id,property,edit) {
+    this.#change(value => {
+      const layer = this.#layer(value,id);
+      layer[property] = editAnimation(layer,property,edit);
     });
   }
   rename(title) {

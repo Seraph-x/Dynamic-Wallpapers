@@ -8,14 +8,13 @@ does not delete the Editor's saved projects.
 The initial version supports new scenes; importing loose or PKG projects;
 image/text layers; layer ordering, visibility and duplication; position, scale,
 rotation, color and opacity; canvas picking/dragging; live preview with
-play/pause; undo/redo; save/reopen; and loose/PKG export. Script, animation and
-property-bound fields remain read-only. Preview is muted with explicit zero
+play/pause; property keyframe animation; undo/redo; save/reopen; and loose/PKG
+export. Script and property-bound fields remain read-only in the inspector.
+Preview is muted with explicit zero
 system spectrum; exports preserve audio response for wallpaper playback.
-Advanced timelines, skeleton tools and a script IDE are outside this version.
-The advanced-authoring foundation adds immutable resource revisions: model,
-script and animation resource edits can participate in the same undo/save/export
-transaction as scene JSON. Their editing panels ship in subsequent PRs; the
-foundation alone does not expose timeline, rigging or code-editor controls.
+Skeleton tools and a script IDE remain separate roadmap features. Immutable
+resource revisions let subsequent model/script tools share the same
+undo/save/export transaction as scene JSON.
 
 Use **File → New Project** or **Open Project**. Imports create complete owned
 copies. **Save** writes the Editor workspace; **Export** creates a standard scene
@@ -32,6 +31,47 @@ the workbench uses system fonts and original icons. Layers stay on the left,
 the live canvas stays central, and grouped properties scroll independently on
 the right. Text formatting appears before transforms for text layers. Changing
 appearance does not alter or mark the scene as edited.
+
+## Animate a property
+
+Open **Timeline**, select a layer and choose Position, Scale, Rotation, Color or
+Opacity, then **Animate property**. Vector properties have separate X/Y/Z tracks
+(R/G/B for color). Select a diamond to edit its frame, absolute property value
+and linear/smooth tangents. **Apply** commits the fields together; **Revert**
+discards pending input. Saving, changing layers and undo/redo first process
+pending input, so an unapplied value is not silently lost. Invalid drafts stay
+editable and block the affected action. Undo restores each content edit.
+
+**Add key** samples the renderer at the playhead, **Copy key / Paste key** copies
+within the current window, and **Delete key** removes a selected key. Keep one
+reference key per channel, or use **Remove animation** to retain the current
+rendered value as a constant. Drag a key or use Left/Right while it is focused;
+Shift moves ten frames. Occupied destinations fail without overwriting a key.
+**Snap keys to frames** affects insertion, dragging and pasting; turn it off for
+fractional key positions.
+
+Time is displayed in seconds; Previous/Next move one frame at the selected
+track's FPS. The labeled native slider also supports keyboard navigation. View
+start/end and **Loop preview range** are window-local preview controls and do
+not dirty or change the exported scene. Track FPS, duration in frames and
+Once/Loop/Ping-pong are saved in the scene itself. Changing FPS keeps key frame
+numbers, changing playback speed. Shortening a track past existing keys or events
+is rejected until those entries have been moved or removed.
+
+The timeline writes WebWallGL's native property animation channels and Bezier
+tangents; Main needs no Editor-specific playback code. Relative animations show
+absolute values while retaining their original base/delta format. Custom
+imported handles and unknown fields are preserved until an explicit edit changes
+them. Linked, script-started or unrecognized animations remain intact and show a
+reason instead of being flattened. Replacing a script/user binding or unsupported
+animation requires **Replace binding… → Replace** and is undoable. Seeking samples
+property curves; it does not rewind the history of stateful scripts or particles.
+
+The timeline starts collapsed. It scrolls independently and can be closed to
+restore canvas space; the compact layout keeps the canvas visible at the
+minimum native window size in all five interface languages.
+See [timeline timing and compatibility](../docs/editor-timeline.md) for the
+saved format, input rules and implementation boundaries.
 
 ## Development
 
@@ -111,7 +151,8 @@ aliases fail explicitly rather than overwriting scene or project metadata.
 
 - [WebWallGL](https://github.com/oneincase/webwallgl): actual pinned playback
   engine and `@webwallgl/editor` API, version 3.0.0; upstream image/text scene
-  layout and PKG builder inform this editor. Both are MIT licensed. Our native
+  layout, native property animation/tangent conventions and PKG builder inform
+  this editor. Both are MIT licensed. Our native
   host and focused workbench are implemented in this repository.
 - [DSH Wallpaper Engine](https://github.com/elysia395/dsh-wallpaper-engine):
   scene-hosting design reference; no DSH application source is vendored here.
