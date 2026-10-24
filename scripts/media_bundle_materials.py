@@ -13,8 +13,8 @@ def verify_distribution_materials(directory):
             or not isinstance(status.get('files'), list) or not status['files']):
         raise ValueError('Invalid distribution material manifest; notice files are required')
     components = status.get('components')
-    if not isinstance(components, dict) or set(components) != {'cef', 'mpv', 'ffmpeg'}:
-        raise ValueError('Distribution material manifest must describe CEF, mpv and FFmpeg')
+    if not isinstance(components, dict) or set(components) != {'cef', 'mpv', 'ffmpeg', 'webwallgl', 'mediabunny', 'wescene'}:
+        raise ValueError('Distribution material manifest must describe CEF, mpv, FFmpeg, WebWallGL, Mediabunny and WeScene')
     declared = set()
     for entry in status['files']:
         relative = entry.get('path', '')

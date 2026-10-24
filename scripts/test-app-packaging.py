@@ -537,12 +537,25 @@ class PackagingTransactions(unittest.TestCase):
             status = {'schema_version': 1, 'complete': False,
                 'files': [{'path': 'notice.txt', 'sha256': hashlib.sha256(b'notice').hexdigest()}],
                 'components': {name: {'version': 'fixed', 'license': 'retained notice', 'complete': False,
-                    'license_files': ['notice.txt']} for name in ('cef', 'mpv', 'ffmpeg')}}
+                    'license_files': ['notice.txt']} for name in ('cef', 'mpv', 'ffmpeg', 'webwallgl', 'mediabunny', 'wescene')}}
             (materials / 'distribution-status.json').write_text(json.dumps(status))
             self.assertFalse(materials_module.verify_distribution_materials(materials)['complete'])
             (materials / 'unlisted-source.txt').write_bytes(b'unlisted')
             with self.assertRaisesRegex(ValueError, '[Mm]anifest|[Uu]nlisted|[Cc]over'):
                 materials_module.verify_distribution_materials(materials)
+
+    def test_material_manifest_requires_scene_dependency_records(self):
+        source = pathlib.Path(__file__).resolve().parents[1] / 'Resources/ThirdParty'
+        for component in ('webwallgl', 'mediabunny', 'wescene'):
+            with self.subTest(component=component), tempfile.TemporaryDirectory() as directory:
+                materials = pathlib.Path(directory) / 'ThirdParty'
+                shutil.copytree(source, materials)
+                path = materials / 'distribution-status.json'
+                status = json.loads(path.read_text())
+                del status['components'][component]
+                path.write_text(json.dumps(status))
+                with self.assertRaisesRegex(ValueError, 'must describe'):
+                    materials_module.verify_distribution_materials(materials)
 
     def test_checked_in_materials_exclude_host_generated_paths_and_keep_incomplete_status(self):
         materials = pathlib.Path(__file__).resolve().parents[1] / 'Resources/ThirdParty'
@@ -550,6 +563,12 @@ class PackagingTransactions(unittest.TestCase):
         self.assertFalse(status['complete'])
         self.assertFalse(status['components']['mpv']['complete'])
         self.assertFalse(status['components']['ffmpeg']['complete'])
+        self.assertEqual(status['components']['webwallgl']['version'], '3.0.0')
+        self.assertEqual(status['components']['mediabunny']['version'], '1.56.0')
+        self.assertEqual(status['components']['mediabunny']['license'], 'MPL-2.0')
+        self.assertIn('WebWallGL/WeScene-LICENSE', status['components']['wescene']['license_files'])
+        self.assertTrue(all((materials / entry['path']).stat().st_size == entry['size']
+                            for entry in status['files']))
         removed = ('FFmpeg/buildconf.txt', 'FFmpeg/config.h', 'FFmpeg/config.mak',
                    'FFmpeg/ffprobe-version.txt', 'FFmpeg/license.txt', 'MPV/build-metadata.txt')
         for relative in removed:
