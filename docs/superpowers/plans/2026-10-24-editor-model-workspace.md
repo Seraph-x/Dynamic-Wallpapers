@@ -56,7 +56,7 @@ Files: `Editor/Web/test-model.mjs`, additional workspace acceptance helpers, `Te
 - [x] Preserve the known model fixture's animation through hierarchy edits and exported loose/PKG playback in Main's CEF runtime. Verify weight edits actually change deformation, then undo to the known animated export fixture.
 - [x] Regenerate and verify all offline resources, run JS and relevant native/product/source-export checks, inspect the final diff and run the changed-file privacy gate (retaining the exact pinned upstream license attribution).
 - [x] Request independent plan/code review, fix material findings and rerun affected checks. Update English documentation with actual features, semantics, limitations and source references.
-- [ ] Commit with the configured real email and submit an English PR against the merged main. PR #15 is already merged; this new workspace PR is not automatically merged by that authorization.
+- [x] Commit with the configured real email and submit an English PR against the merged main. PR #15 is already merged; this new workspace PR is not automatically merged by that authorization.
 
 
 ## Verification record
@@ -69,3 +69,5 @@ Files: `Editor/Web/test-model.mjs`, additional workspace acceptance helpers, `Te
 - Product/source checks passed: 3 Editor product tests, 42 product-configuration tests and 16 public-source export tests. No full application-suite result is claimed.
 - An initial combined run failed because a layout helper changed the viewport used by later pixel comparisons (368 versus 612 canvas pixels wide). It now restores its entry viewport; the pixel tolerance and known deformation assertions were retained. The subsequent complete native run passed.
 - Changed-file privacy scan passed for all 46 changed files without detector exemptions. No merge or release of this new PR is authorized by the previous PR's merge request.
+
+Delivery: [PR #16](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/16), submitted against main and not merged.
