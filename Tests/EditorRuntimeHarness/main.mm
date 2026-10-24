@@ -15,6 +15,47 @@ static void runFor(double seconds) {
   double end = NSProcessInfo.processInfo.systemUptime + seconds;
   waitUntil(^{return BOOL(NSProcessInfo.processInfo.systemUptime >= end);},seconds+1,"run loop deadline");
 }
+// The exported model has a stationary left mesh and a right mesh driven upward
+// by 0..60 px. This reads Main's committed CEF frame, not Editor preview data.
+static NSArray* modelPixels(DWWebPage* page) {
+  CGImageRef image=(__bridge CGImageRef)page.view.layer.contents;
+  if(!image)return @[@0,@0,@0,@0,@0,@0];
+  NSData* data=CFBridgingRelease(CGDataProviderCopyData(CGImageGetDataProvider(image)));
+  require(data!=nil,"Model pixel read failed");
+  const auto* bytes=static_cast<const UInt8*>(data.bytes);
+  const size_t width=CGImageGetWidth(image),height=CGImageGetHeight(image),rowBytes=CGImageGetBytesPerRow(image);
+  size_t count[2]={0,0};double xTotal[2]={0,0},yTotal[2]={0,0};
+  for(size_t y=0;y<height;++y)for(size_t x=0;x<width;++x){
+    const size_t p=y*rowBytes+x*4;
+    if(bytes[p+1]>180&&bytes[p]<70&&bytes[p+2]<70){const size_t half=x<width/2?0:1;++count[half];xTotal[half]+=x;yTotal[half]+=y;}
+  }
+  return @[@(count[0]),@(count[1]),@(count[0]?xTotal[0]/count[0]:0),@(count[1]?xTotal[1]/count[1]:0),
+           @(count[0]?yTotal[0]/count[0]:0),@(count[1]?yTotal[1]/count[1]:0)];
+}
+static void verifyModelExport(DWWebRuntime* runtime,NSString* projectRoot,NSString* runtimeRoot,BOOL package) {
+  NSError* error=nil;__block NSError* failure=nil;
+  DWWebPage* page=[runtime scenePageWithProjectRoot:projectRoot runtimeRoot:runtimeRoot entry:package?@"scene.pkg":@"scene.json"
+    representation:package?@"package":@"loose" sceneID:NSUUID.UUID.UUIDString generation:1 size:NSMakeSize(640,360) scale:1 error:&error];
+  require(page!=nil,error.localizedDescription.UTF8String ?: "Model playback creation failed");
+  page.onError=^(NSError* value){failure=value;};[page start];
+  waitUntil(^{return page.ready||failure!=nil;},20,"Main model first frame timed out");require(!failure,"Main model playback failed");
+  waitUntil(^{NSArray* p=modelPixels(page);return BOOL([p[0] unsignedLongValue]>100&&[p[1] unsignedLongValue]>100);},5,"Main did not render both skinned model meshes");
+  __block double low=1e9,high=-1e9;
+  waitUntil(^{
+    NSArray* p=modelPixels(page);
+    if([p[0] unsignedLongValue]<=100||[p[1] unsignedLongValue]<=100)return NO;
+    require(std::abs([p[2] doubleValue]-284.5)<3&&std::abs([p[3] doubleValue]-354.5)<3,"Model joint reindex changed horizontal bind placement");
+    require(std::abs([p[4] doubleValue]-179.5)<3,"Stationary model bone moved in Main");
+    const double delta=[p[4] doubleValue]-[p[5] doubleValue];
+    require(delta>=-2&&delta<=62,"Model deformation left the known 0..60 pixel range");
+    low=std::min(low,delta);high=std::max(high,delta);
+    return BOOL(delta>15&&delta<45&&high-low>10);
+  },3,"Main did not render known intermediate skeletal deformation");
+  require(!failure,"Main model rendering reported an error");
+  __block BOOL released=NO;[page closeWithCompletion:^(NSError* value){failure=value;released=YES;}];
+  waitUntil(^{return released;},7,"Model playback close timed out");require(!failure,"Model playback close failed");
+  fprintf(stderr,"Main %s model export: stationary bind and intermediate skin deformation %.2f..%.2f px passed\n",package?"PKG":"loose",low,high);
+}
 @interface DWWebPage (EditorAcceptance)
 - (void)editorTestScript:(NSString*)script;
 - (void)editorTestType:(NSString*)text;
@@ -85,7 +126,7 @@ static NSMutableDictionary* configureResources(DWWebPage* page, NSString* root, 
   };return stats;
 }
 int main(int argc,char**argv) { @autoreleasepool {
-  if(argc!=6 && argc!=9){fprintf(stderr,"usage: EditorHarness FRAMEWORK HELPER CACHE RUNTIME PROJECT [MAIN_RUNTIME LOOSE_EXPORT PKG_EXPORT]\n");return 64;}
+  if(argc!=6 && argc!=9 && argc!=11){fprintf(stderr,"usage: EditorHarness FRAMEWORK HELPER CACHE RUNTIME PROJECT [MAIN_RUNTIME LOOSE_EXPORT PKG_EXPORT [MODEL_LOOSE MODEL_PKG]]\n");return 64;}
   DWWebCreateApplication(); [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory]; [NSApp finishLaunching];
   DWWebRuntime* runtime=[[DWWebRuntime alloc]initWithFrameworkDirectory:@(argv[1]) helperExecutable:@(argv[2]) cacheDirectory:@(argv[3])];
   NSError* error=nil;
@@ -96,7 +137,7 @@ int main(int argc,char**argv) { @autoreleasepool {
     @autoreleasepool {
     NSDictionary* scene=@{@"general":@{@"orthogonalprojection":@{@"width":@640,@"height":@360},@"clearenabled":@YES,@"clearcolor":@"0.1 0.1 0.1"},@"objects":@[]};
     NSDictionary* configuration=@{@"language":@"en",@"document":@{@"title":@"Native",@"entry":@"scene.json",@"scene":scene,@"project":@{@"type":@"scene",@"file":@"scene.json"}}};
-    page=[runtime editorPageWithProjectRoot:@(argc==9?argv[7]:argv[5]) runtimeRoot:@(argv[4]) configuration:configuration size:NSMakeSize(1180,760) error:&error];
+    page=[runtime editorPageWithProjectRoot:@(argc>=9?argv[7]:argv[5]) runtimeRoot:@(argv[4]) configuration:configuration size:NSMakeSize(1180,760) error:&error];
     require(page!=nil,error.localizedDescription.UTF8String ?: "Editor page creation failed");
     window=[[NSWindow alloc]initWithContentRect:NSMakeRect(0,0,1180,760) styleMask:NSWindowStyleMaskTitled|NSWindowStyleMaskResizable backing:NSBackingStoreBuffered defer:NO];
     window.releasedWhenClosed=NO; page.view.frame=window.contentView.bounds;page.view.autoresizingMask=NSViewWidthSizable|NSViewHeightSizable;
@@ -135,7 +176,7 @@ int main(int argc,char**argv) { @autoreleasepool {
     command(page,@{@"type":@"thaw"});
     require(std::abs([command(page,@{@"type":@"seek",@"time":@.5})[@"time"] doubleValue]-.5)<1e-8,"Native timeline seek did not reach the requested time");
     fprintf(stderr,"Native CEF timeline create, unblurred draft freeze, saved acknowledgement and typed seek passed\n");
-    if(argc==9) {
+    if(argc>=9) {
       NSData* model=[NSData dataWithContentsOfFile:[@(argv[7]) stringByAppendingPathComponent:@"models/editor/green.json"]]; require(model!=nil,"Resource model fixture missing");
       command(page,@{@"type":@"replace-resource",@"path":@"models/editor/green.json",@"data":[model base64EncodedStringWithOptions:0]});
       command(page,@{@"type":@"add-image",@"image":@{@"name":@"Resource image",@"model":@"models/editor/green.json",@"width":@80,@"height":@40}});
@@ -165,7 +206,7 @@ int main(int argc,char**argv) { @autoreleasepool {
       fprintf(stderr,"Native resource stage/read, save acknowledgement and pre-ready reopen passed\n");
     } }
     // Match AppKit's event-loop lifetime for exported playback as well as Editor setup.
-    if(argc==9) for(int index=7;index<=8;++index) { @autoreleasepool {
+    if(argc>=9) for(int index=7;index<=8;++index) { @autoreleasepool {
       NSString* entry=index==7?@"scene.json":@"scene.pkg";
       DWWebPage* playback=[runtime scenePageWithProjectRoot:@(argv[index]) runtimeRoot:@(argv[6]) entry:entry
         representation:index==7?@"loose":@"package" sceneID:NSUUID.UUID.UUIDString generation:1 size:NSMakeSize(640,360) scale:1 error:&error];
@@ -191,6 +232,7 @@ int main(int argc,char**argv) { @autoreleasepool {
       waitUntil(^{return released;},7,"Export playback close timed out");require(!failure,"Export playback close failed");
       fprintf(stderr,"Editor %s export rendered actual Main scene image/text pixels\n",index==7?"loose":"PKG");
     } }
+    if(argc==11)for(int index=9;index<=10;++index){@autoreleasepool{verifyModelExport(runtime,@(argv[index]),@(argv[6]),index==10);}}
     require([runtime shutdownWithError:&error],error.localizedDescription.UTF8String ?: "CEF shutdown failed");
     require(runtime.shutdownCount==1,"Runtime shutdown not observed");
     puts("Native Editor: real first frame, attached CEF child, keyboard, edit/undo/redo, resize and full release passed");return 0;

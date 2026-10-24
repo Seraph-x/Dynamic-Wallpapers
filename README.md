@@ -55,6 +55,9 @@ and export loose/PKG. **File → Open in Dynamic Wallpaper**
 imports an owned copy into the wallpaper library without automatically applying
 it. Both applications work independently. Removing Editor leaves saved projects
 and wallpaper playback intact. See [installation and removal](docs/editor-install.md).
+The [model resource foundation](docs/editor-model-resources.md) supports tested
+skeleton and skin transactions internally; the interactive model tools remain
+under development.
 
 The two applications share source modules in this repository and ship their own
 runtime dependencies. Editor has its own version (currently 0.1.0), bundle

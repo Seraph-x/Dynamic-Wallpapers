@@ -1,4 +1,5 @@
 import { testTimeline } from './test-timeline.mjs';
+import { testModel } from './test-model.mjs';
 import { createRequire } from 'node:module';
 import { createServer } from 'node:http';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
@@ -173,6 +174,8 @@ try {
     await page.locator('#timeline-toggle').click();
     await page.locator('#theme').selectOption('dark'); await page.locator('#theme').selectOption('light');
   }
+  assert.equal((await page.locator('#diagnostics').textContent()),'');assert.deepEqual(errors,[]);
+  await testModel({page,command,resources,configuration,artifactRoot,blobRoot});
   assert.equal((await page.locator('#diagnostics').textContent()),'');assert.deepEqual(errors,[]);
   console.log('Real Editor: edits, pixels, undo/redo, exports, hidden layers, appearance and five-language minimum-window layout passed');
 } finally {await browser?.close();await new Promise(resolve=>server.close(resolve));}
