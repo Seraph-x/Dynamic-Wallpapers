@@ -97,4 +97,5 @@ MenuContent/AppDelegate and five-language resources; Editor handoff handlers;
 Delivery: [PR #8](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/8) →
 [PR #9](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/9) →
 [PR #10](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/10).
-All three are submitted for review; no merge or Editor release is performed.
+All three are merged into main after repeated verification. The Editor release
+remains separate and has not been published.

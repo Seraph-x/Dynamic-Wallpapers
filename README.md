@@ -36,11 +36,11 @@ Imports create independent copies in the library. Changes to the original files 
 
 The app and its bundled offline help support **简体中文, English, 日本語, Français and Español**. Open **User Guide** from the app or menu-bar icon; no network connection is needed to read it.
 
-## System audio response (development builds)
+## System audio response (source builds)
 
 Optional system audio response uses Core Audio Tap on macOS 14.2+. Enable it in Settings → General → Sound and allow system audio recording when prompted. Playing scenes share one stereo spectrum capture; wallpaper output mute is independent. Capture excludes this app’s audio, uses no microphone, and does not save or upload audio. Pausing/closing all scenes or disabling the setting stops capture. Capture errors remain visible and offer an explicit retry. Other app features retain macOS 14.0 support. These additions are not part of the published 1.0.0 binaries.
 
-## Standalone Editor (development builds)
+## Standalone Editor (source builds)
 
 The [scene Editor](Editor/README.md) is an independent application with its own
 version, process, projects and runtime. It is never installed with the wallpaper
@@ -54,6 +54,41 @@ undo/redo, save projects and export loose/PKG. **File → Open in Dynamic Wallpa
 imports an owned copy into the wallpaper library without automatically applying
 it. Both applications work independently. Removing Editor leaves saved projects
 and wallpaper playback intact. See [installation and removal](docs/editor-install.md).
+
+The two applications share source modules in this repository and ship their own
+runtime dependencies. Editor has its own version (currently 0.1.0), bundle
+identity and CEF cache. Building Editor requires the complete repository;
+the resulting application can run on its own.
+
+### Repository and data layout
+
+```text
+Dynamic-Wallpapers/
+├── Package.swift                    # Main app and shared library products
+├── Sources/
+│   ├── WallpaperApp/                # Wallpaper app, including the Editor entry
+│   ├── WallpaperCore/               # Shared models and versioned file contracts
+│   ├── WallpaperEditorCore/         # Editor-owned projects, resources and export
+│   └── WebWallpaperBridge/          # Shared native CEF rendering bridge
+├── Editor/
+│   ├── Package.swift                # Independent Editor application package
+│   ├── product.json                 # Editor identity and version
+│   ├── Sources/EditorApp/            # Native Editor host and offline resources
+│   └── Web/                         # Workbench source and browser tests
+├── Tests/
+└── scripts/build-editor-app.py      # Separate Editor app/ZIP builder
+```
+
+| Application | User data | Removing the application |
+| --- | --- | --- |
+| Dynamic Wallpaper | `~/Library/Application Support/DynamicWallpaper/` | Editor and its projects remain available |
+| Dynamic Wallpaper Editor | `~/Library/Application Support/DynamicWallpaperEditor/` | Existing wallpaper playback and saved Editor projects remain available |
+
+Editor workspaces live in `Projects/<project ID>/workspace.json`, with scene
+assets alongside them in `Project/`. `Handoffs/` holds exported snapshots and
+`CEFCache/` holds Editor's browser cache. Main's `Media/` stores its own imported
+copies. Each application saves its own managed copy; edits are not synchronized
+automatically.
 
 ## Scene compatibility and data
 
@@ -81,7 +116,7 @@ The scene-wallpaper work draws on these projects:
 | Project | Role in Dynamic Wallpaper |
 | --- | --- |
 | [DSH Wallpaper Engine](https://github.com/elysia395/dsh-wallpaper-engine) | Design reference for hosting WebWallGL scene wallpapers and supplying audio spectrum and pointer input from the host application. |
-| [WebWallGL](https://github.com/oneincase/webwallgl) | The bundled scene renderer: parses local Wallpaper Engine projects and renders them with WebGL. The current playback integration pins version 3.0.0. Its editor is the upstream reference for the separately packaged scene-editor plugin. |
+| [WebWallGL](https://github.com/oneincase/webwallgl) | The bundled scene renderer: parses local Wallpaper Engine projects and renders them with WebGL. The current playback integration pins version 3.0.0. The standalone Editor uses the pinned `@webwallgl/editor` 3.0.0 API, image/text scene conventions and PKG builder. |
 | [Chromium Embedded Framework](https://github.com/chromiumembedded/cef) | The embedded Chromium runtime used for web and scene wallpaper playback. |
 | [mpv](https://github.com/mpv-player/mpv) and [FFmpeg](https://ffmpeg.org/) | Extended media playback, probing and transcoding. |
 | [Mediabunny](https://github.com/Vanilagy/mediabunny) | Media handling included in the pinned WebWallGL bundle. |
