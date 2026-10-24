@@ -35,7 +35,7 @@ public struct ScreenSaverProjection: Codable, Equatable, Sendable {
             } else {
                 excluded.append(ScreenSaverExclusion(name: item.name, signature: ScreenSaverExclusionSignature(
                     entryID: entry.id, mediaID: item.id, kind: item.kind, backend: item.backend,
-                    reason: item.backend == .web ? .webContent : .extendedBackend)))
+                    reason: item.backend == .web ? .webContent : (item.backend == .scene ? .sceneContent : .extendedBackend))))
             }
         }
         self.source = source; name = input.name; mode = input.mode; transition = input.transition
@@ -101,7 +101,7 @@ public struct ScreenSaverProjection: Codable, Equatable, Sendable {
         } catch {
             throw ScreenSaverFailure(code: .invalidProjection)
         }
-        guard media.kind != .web || entry.timing.mode == .seconds else {
+        guard (media.kind != .web && media.kind != .scene) || entry.timing.mode == .seconds else {
             throw ScreenSaverFailure(code: .unsupportedDuration)
         }
         do { try EntryTiming.validateClockDuration(entry.timing.duration(mediaDuration: media.duration)) }

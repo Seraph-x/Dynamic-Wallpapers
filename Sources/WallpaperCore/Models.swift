@@ -16,7 +16,7 @@ public struct WallpaperErrorGroup: LocalizedError {
     public var errorDescription: String? { errors.map(\.localizedDescription).joined(separator: "\n") }
 }
 
-public enum MediaKind: String, Codable, Sendable { case video, image, animatedImage, web }
+public enum MediaKind: String, Codable, Sendable { case video, image, animatedImage, web, scene }
 public enum PlaybackMode: String, Codable, CaseIterable, Sendable {
     case ordered, shuffle, repeatOne
     public var title: String {
@@ -40,20 +40,21 @@ public struct MediaItem: Identifiable, Codable, Equatable, Sendable {
     public let duration: Double?
     public let backend: MediaBackend
     public let webProject: WebProjectReference?
+    public let sceneProject: SceneProjectReference?
     public let origin: MediaOrigin?
     public var customName: String?
     public var isFavorite: Bool
-    public var supportsAudio: Bool { kind == .video || kind == .web }
+    public var supportsAudio: Bool { kind == .video || kind == .web || kind == .scene }
     public var name: String {
         if let customName {
             let trimmed = customName.trimmingCharacters(in: .whitespacesAndNewlines)
             if !trimmed.isEmpty { return trimmed }
         }
-        if kind == .web {
+        if kind == .web || kind == .scene {
             if let projectRoot = origin?.projectRoot?.lastPathComponent, !projectRoot.isEmpty {
                 return projectRoot
             }
-            if let projectRoot = webProject?.root.lastPathComponent,
+            if let projectRoot = (webProject?.root ?? sceneProject?.root)?.lastPathComponent,
                !projectRoot.isEmpty, projectRoot != "Project" {
                 return projectRoot
             }
@@ -64,14 +65,15 @@ public struct MediaItem: Identifiable, Codable, Equatable, Sendable {
     public init(id: UUID = UUID(), url: URL, kind: MediaKind, width: Int, height: Int,
                 duration: Double? = nil, isFavorite: Bool = false,
                 backend: MediaBackend = .native, webProject: WebProjectReference? = nil,
+                sceneProject: SceneProjectReference? = nil,
                 origin: MediaOrigin? = nil, customName: String? = nil) {
         self.id = id; self.url = url; self.kind = kind; self.width = width
         self.height = height; self.duration = duration; self.isFavorite = isFavorite
-        self.backend = backend; self.webProject = webProject
+        self.backend = backend; self.webProject = webProject; self.sceneProject = sceneProject
         self.origin = origin; self.customName = customName
     }
     private enum CodingKeys: String, CodingKey {
-        case id, url, kind, width, height, duration, isFavorite, backend, webProject, origin, customName
+        case id, url, kind, width, height, duration, isFavorite, backend, webProject, sceneProject, origin, customName
     }
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
@@ -84,15 +86,28 @@ public struct MediaItem: Identifiable, Codable, Equatable, Sendable {
         isFavorite = try values.decode(Bool.self, forKey: .isFavorite)
         backend = try values.contains(.backend) ? values.decode(MediaBackend.self, forKey: .backend) : .native
         webProject = try values.contains(.webProject) ? values.decode(WebProjectReference.self, forKey: .webProject) : nil
+        sceneProject = try values.contains(.sceneProject) ? values.decode(SceneProjectReference.self, forKey: .sceneProject) : nil
         origin = try values.decodeIfPresent(MediaOrigin.self, forKey: .origin)
         customName = try values.decodeIfPresent(String.self, forKey: .customName)
     }
     public func validateBackend(schema: Int) throws {
-        guard schema == 2 || schema == 3 || (backend == .native && kind != .web && webProject == nil) else {
+        guard (1...Library.currentVersion).contains(schema) else { throw WallpaperError("不支持此素材库版本。") }
+        guard schema >= 2 || (backend == .native && kind != .web && kind != .scene && webProject == nil && sceneProject == nil) else {
             throw WallpaperError("旧版素材库不能包含扩展媒体。")
         }
-        if kind == .web {
-            guard backend == .web, let webProject, duration == nil else {
+        guard schema >= 4 || (kind != .scene && backend != .scene && sceneProject == nil) else {
+            throw WallpaperError("旧版素材库不能包含场景项目。")
+        }
+        if kind == .scene {
+            guard backend == .scene, let sceneProject, webProject == nil, duration == nil else {
+                throw WallpaperError("场景项目的后端或时长元数据无效。")
+            }
+            try sceneProject.validate()
+            guard url.standardizedFileURL == sceneProject.entryURL.standardizedFileURL else {
+                throw WallpaperError("场景入口与项目引用不一致。")
+            }
+        } else if kind == .web {
+            guard backend == .web, let webProject, sceneProject == nil, duration == nil else {
                 throw WallpaperError("网页项目的后端或时长元数据无效。")
             }
             try webProject.validate()
@@ -100,7 +115,7 @@ public struct MediaItem: Identifiable, Codable, Equatable, Sendable {
                 throw WallpaperError("网页入口与项目引用不一致。")
             }
         } else {
-            guard webProject == nil, backend == .native || (backend == .extended && kind == .video) else {
+            guard webProject == nil, sceneProject == nil, backend == .native || (backend == .extended && kind == .video) else {
                 throw WallpaperError("素材类型与播放后端不一致。")
             }
         }
@@ -211,7 +226,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
 }
 
 public struct Library: Codable, Equatable, Sendable {
-    public static let currentVersion = 3
+    public static let currentVersion = 4
     public var version = currentVersion
     public var media: [MediaItem] = []
     public var playlists: [Playlist] = [Playlist(name: "我的播放列表")]
@@ -241,6 +256,7 @@ public struct Library: Codable, Equatable, Sendable {
               pendingMediaDeletions.allSatisfy({ $0.origin != nil }) else {
             throw WallpaperError("待清理记录不能引用仍在素材库中的壁纸或外部原文件。")
         }
+        for item in pendingMediaDeletions { try item.validateBackend(schema: version) }
         for item in media {
             try item.validateBackend(schema: version)
             guard item.url.isFileURL, item.width > 0, item.height > 0,
@@ -259,8 +275,8 @@ public struct Library: Codable, Equatable, Sendable {
                 try entry.timing.validate()
                 try entry.audio.validate()
                 let item = media.first { $0.id == entry.mediaID }!
-                guard item.kind != .web || entry.timing.mode == .seconds else {
-                    throw WallpaperError("网页壁纸仅支持固定停留时长。")
+                guard (item.kind != .web && item.kind != .scene) || entry.timing.mode == .seconds else {
+                    throw WallpaperError("网页和场景壁纸仅支持固定停留时长。")
                 }
                 try EntryTiming.validateClockDuration(entry.timing.duration(mediaDuration: item.duration))
             }

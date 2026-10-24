@@ -15,11 +15,14 @@ public struct MediaOrigin: Codable, Equatable, Sendable {
 public enum ManagedMediaSource: Sendable {
     case file(URL)
     case web(WebProjectReference)
+    case scene(SceneProjectReference)
 
     public var origin: MediaOrigin {
         switch self {
         case .file(let url): return MediaOrigin(url: url.standardizedFileURL)
         case .web(let project):
+            return MediaOrigin(url: project.entryURL.standardizedFileURL, projectRoot: project.root.standardizedFileURL)
+        case .scene(let project):
             return MediaOrigin(url: project.entryURL.standardizedFileURL, projectRoot: project.root.standardizedFileURL)
         }
     }
@@ -31,6 +34,8 @@ public struct ManagedMediaCopy: Sendable {
     public let url: URL
     public let stagedWebProject: WebProjectReference?
     public let webProject: WebProjectReference?
+    public let stagedSceneProject: SceneProjectReference?
+    public let sceneProject: SceneProjectReference?
     public fileprivate(set) var origin: MediaOrigin
     fileprivate let owner: UUID
     fileprivate var stagingName: String { ".import-\(id.uuidString)" }
@@ -38,7 +43,7 @@ public struct ManagedMediaCopy: Sendable {
     public func item(from metadata: MediaItem) -> MediaItem {
         MediaItem(id: id, url: url, kind: metadata.kind, width: metadata.width, height: metadata.height,
                   duration: metadata.duration, isFavorite: metadata.isFavorite, backend: metadata.backend,
-                  webProject: webProject, origin: origin, customName: metadata.customName)
+                  webProject: webProject, sceneProject: sceneProject, origin: origin, customName: metadata.customName)
     }
 }
 
@@ -65,7 +70,7 @@ public actor ManagedMediaStore {
             guard url.isFileURL, !url.lastPathComponent.isEmpty else { throw WallpaperError("素材路径必须是本地文件。") }
             copy = ManagedMediaCopy(id: id, stagedURL: staged.appendingPathComponent(url.lastPathComponent),
                 url: committed.appendingPathComponent(url.lastPathComponent), stagedWebProject: nil,
-                webProject: nil, origin: source.origin, owner: owner)
+                webProject: nil, stagedSceneProject: nil, sceneProject: nil, origin: source.origin, owner: owner)
         case .web(let project):
             try project.validate()
             let root = try ManagedMediaFileSystem.resolve(project.root)
@@ -75,7 +80,18 @@ public actor ManagedMediaStore {
             let stagingProject = WebProjectReference(root: staged.appendingPathComponent("Project"), entry: project.entry)
             let finalProject = WebProjectReference(root: committed.appendingPathComponent("Project"), entry: project.entry)
             copy = ManagedMediaCopy(id: id, stagedURL: stagingProject.entryURL, url: finalProject.entryURL,
-                stagedWebProject: stagingProject, webProject: finalProject, origin: source.origin, owner: owner)
+                stagedWebProject: stagingProject, webProject: finalProject, stagedSceneProject: nil, sceneProject: nil, origin: source.origin, owner: owner)
+        case .scene(let project):
+            try project.validate()
+            let root = try ManagedMediaFileSystem.resolve(project.root)
+            guard !ManagedMediaFileSystem.contains(directory, in: root) else {
+                throw WallpaperError("场景项目目录不能包含应用的 Media 目录。")
+            }
+            let stagingProject = SceneProjectReference(root: staged.appendingPathComponent("Project"), entry: project.entry, representation: project.representation)
+            let finalProject = SceneProjectReference(root: committed.appendingPathComponent("Project"), entry: project.entry, representation: project.representation)
+            copy = ManagedMediaCopy(id: id, stagedURL: stagingProject.entryURL, url: finalProject.entryURL,
+                stagedWebProject: nil, webProject: nil, stagedSceneProject: stagingProject, sceneProject: finalProject,
+                origin: source.origin, owner: owner)
         }
         try withRoot(create: true) { root in
             guard mkdirat(root, copy.stagingName, 0o700) == 0 else { throw ManagedMediaFileSystem.error("无法创建导入暂存目录") }
@@ -86,6 +102,9 @@ public actor ManagedMediaStore {
                     switch source {
                     case .file(let url): try ManagedProjectCopy.copy(url, into: target.fileDescriptor, name: url.lastPathComponent)
                     case .web(let project):
+                        let resolved = try ManagedMediaFileSystem.resolve(project.root)
+                        try ManagedProjectCopy.copy(resolved, into: target.fileDescriptor, name: "Project", projectRoot: resolved)
+                    case .scene(let project):
                         let resolved = try ManagedMediaFileSystem.resolve(project.root)
                         try ManagedProjectCopy.copy(resolved, into: target.fileDescriptor, name: "Project", projectRoot: resolved)
                     }
@@ -155,6 +174,12 @@ public actor ManagedMediaStore {
             guard project.root.standardizedFileURL.pathComponents == folder.appendingPathComponent("Project").standardizedFileURL.pathComponents,
                   item.url.standardizedFileURL.pathComponents == project.entryURL.standardizedFileURL.pathComponents else {
                 throw WallpaperError("网页素材不在对应的托管目录中，拒绝删除。")
+            }
+        } else if let project = item.sceneProject {
+            try project.validate()
+            guard project.root.standardizedFileURL.pathComponents == folder.appendingPathComponent("Project").standardizedFileURL.pathComponents,
+                  item.url.standardizedFileURL.pathComponents == project.entryURL.standardizedFileURL.pathComponents else {
+                throw WallpaperError("场景素材不在对应的托管目录中，拒绝删除。")
             }
         } else {
             guard item.url.isFileURL, item.url.deletingLastPathComponent().standardizedFileURL.pathComponents == folder.standardizedFileURL.pathComponents else {

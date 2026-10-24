@@ -3,6 +3,7 @@ import WallpaperCore
 
 public enum ScreenSaverExclusionReason: String, Codable, Hashable, Sendable {
     case webContent
+    case sceneContent
     case extendedBackend
 }
 
@@ -20,7 +21,7 @@ public struct ScreenSaverExclusionSignature: Codable, Equatable, Hashable, Senda
 
     func validate() throws {
         switch (kind, backend, reason) {
-        case (.web, .web, .webContent), (.video, .extended, .extendedBackend): return
+        case (.web, .web, .webContent), (.scene, .scene, .sceneContent), (.video, .extended, .extendedBackend): return
         default: throw ScreenSaverFailure(code: .invalidConsent)
         }
     }

@@ -34,7 +34,7 @@ final class LibraryMigrationTests: XCTestCase {
     func testCopiesValidatedLegacyPreservingIDsAudioAndOriginalBytes() throws {
         var expected = try writeLegacy()
         let bytes = try Data(contentsOf: legacy)
-        expected.version = 3
+        expected.version = Library.currentVersion
         let store = LibraryStore(url: extended, legacyURL: legacy)
         XCTAssertEqual(try store.load(), expected)
         XCTAssertEqual(try Data(contentsOf: legacy), bytes)
@@ -83,9 +83,9 @@ final class LibraryMigrationTests: XCTestCase {
         XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: lockedDirectory.path), [])
     }
 
-    func testFreshInstallCreatesSchemaThreeWithoutLegacyFile() throws {
+    func testFreshInstallCreatesCurrentSchemaWithoutLegacyFile() throws {
         let library = try LibraryStore(url: extended, legacyURL: legacy).load()
-        XCTAssertEqual(library.version, 3)
+        XCTAssertEqual(library.version, Library.currentVersion)
         XCTAssertFalse(FileManager.default.fileExists(atPath: legacy.path))
         XCTAssertEqual(try LibraryStore(url: extended).load(), library)
     }
