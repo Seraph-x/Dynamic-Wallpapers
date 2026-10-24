@@ -359,6 +359,13 @@ final class DesktopCoordinator {
                 guard let self else { throw WallpaperError("桌面网页接收器已关闭。") }
                 return try self.sendDesktopClick(at: point, clickCount: count, target: target)
             }
+            observer.onPointer = { [weak self] point, kind, target in
+                guard let self, let window = self.wallpaperWindow(on: target.screenID),
+                      let screen = self.screenProvider()[target.screenID] else { return }
+                let position = kind == "leave" ? CGPoint.zero : self.appKitPoint(point, screen: screen)
+                guard let position else { return }
+                try window.sendDesktopPointer(atScreenPoint: position, kind: kind, target: target)
+            }
             clickObserver = observer
             observeFinderLifecycle()
         }

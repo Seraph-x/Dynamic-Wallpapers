@@ -44,6 +44,10 @@ final class FinderDesktopClickObserver {
     typealias TargetProvider = (CGPoint) -> FinderClickTarget?
     var onStatus: ((WebInteractionStatus) -> Void)?
     var onClick: ((CGPoint, Int, FinderClickTarget) throws -> Bool)?
+    var onPointer: ((CGPoint, String, FinderClickTarget) throws -> Void)?
+    private var pointerQueryActive = false
+    private var pendingPointer: CGPoint?
+    private var lastPointerTarget: FinderClickTarget?
     private(set) var status = WebInteractionStatus("网页交互已关闭")
     private(set) var isRunning = false
     var isReady: Bool { isRunning && menuObserver.evidence.state == .observedClosed }
@@ -89,7 +93,7 @@ final class FinderDesktopClickObserver {
         sessionID = UUID(); lastDecision = nil
         do {
             try menuObserver.start(finderPID: finderPID)
-            let types: [CGEventType] = [.leftMouseDown, .leftMouseUp, .leftMouseDragged,
+            let types: [CGEventType] = [.mouseMoved, .leftMouseDown, .leftMouseUp, .leftMouseDragged,
                                        .rightMouseDown, .rightMouseUp, .rightMouseDragged,
                                        .otherMouseDown, .otherMouseUp, .otherMouseDragged]
             let mask = types.reduce(CGEventMask(0)) { $0 | (CGEventMask(1) << $1.rawValue) }
@@ -119,6 +123,8 @@ final class FinderDesktopClickObserver {
     }
 
     func stop(reason: String = "网页交互已关闭", diagnostics: String? = nil) {
+        leavePointer()
+        pendingPointer = nil
         isRunning = false; sessionID = UUID(); candidate = nil; lastDecision = nil
         tapResources?.stop()
         tapResources = nil
@@ -148,6 +154,11 @@ final class FinderDesktopClickObserver {
             stop(reason: "网页交互不可用：系统已停用桌面鼠标监听。"); return
         }
         guard isRunning, validateObservation() else { return }
+        if type == .mouseMoved {
+            pendingPointer = event.location
+            inspectLatestPointer()
+            return
+        }
         guard type == .leftMouseDown || type == .leftMouseUp else {
             reject("拖动或非左键操作不转发"); menuObserver.refresh(); return
         }
@@ -182,6 +193,46 @@ final class FinderDesktopClickObserver {
             pending.upPoint = point
             inspect(point: point, candidate: pending, isDown: false)
         }
+    }
+
+    /// Coalesce movement while AX is querying: only the latest cursor position
+    /// matters, and a slow query must never build an unbounded event backlog.
+    private func inspectLatestPointer() {
+        guard !pointerQueryActive, let point = pendingPointer else { return }
+        pendingPointer = nil
+        guard isRunning, point.x.isFinite, point.y.isFinite,
+              menuObserver.evidence.state == .observedClosed,
+              let target = targetAtPoint(point) else { leavePointer(); return }
+        pointerQueryActive = true
+        let session = sessionID, pid = finderPID, menu = menuObserver.evidence
+        queryQueue.async { [weak self] in
+            // Movement has no click destination. Exact Finder AX ancestry and
+            // window occlusion establish whether it is above desktop blank space.
+            let sample = FinderDesktopHitSampler.sample(point: point, target: target, menu: menu,
+                                                        finderPID: pid, destination: .finder)
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                self.pointerQueryActive = false
+                defer { self.inspectLatestPointer() }
+                guard self.isRunning, self.sessionID == session else { return }
+                let decision = FinderDesktopClickDecision.decide(down: sample, up: sample,
+                    currentMenu: self.menuObserver.evidence, currentTarget: self.targetAtPoint(point),
+                    didDrag: false, clickCount: 1)
+                guard decision == .forward else { self.leavePointer(); return }
+                if self.lastPointerTarget != target { self.leavePointer() }
+                do {
+                    try self.onPointer?(point, "move", target)
+                    self.lastPointerTarget = target
+                } catch { self.reject("场景鼠标转发失败：\(error.localizedDescription)") }
+            }
+        }
+    }
+
+    private func leavePointer() {
+        guard let target = lastPointerTarget else { return }
+        lastPointerTarget = nil
+        do { try onPointer?(.zero, "leave", target) }
+        catch { reject("场景鼠标离开事件失败：\(error.localizedDescription)") }
     }
 
     private func inspect(point: CGPoint, candidate pending: Candidate, isDown: Bool) {
