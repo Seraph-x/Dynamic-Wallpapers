@@ -50,7 +50,9 @@ simulated input. Running the audio test emits short authored test tones.
 - Eleven JavaScript tests cover existing scene behavior, spectrum identity/range,
   one request in flight, disposal and explicit transport/protocol errors.
 - Product and packaging suites pass (41 and 42 tests), along with localized
-  permission copying and the 14-test help suite.
+  permission copying and the 14-test help suite. A real development application
+  was packaged and passed signature/dependency validation; its main-only audio
+  permission, five localized prompts and spectrum runtime were verified.
 
 Two complete real CEF/Core Audio runs each completed two capture/release cycles:
 

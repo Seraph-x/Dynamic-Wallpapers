@@ -104,6 +104,8 @@ JavaScript modules, XCTest/node:test. Application deployment target stays 14.0.
 - [x] Run scene protocol/JS/Swift regressions and relevant pure core tests.
 - [x] Use requesting-code-review for independent final review, fix concrete
   findings with regression tests, run affected checks again.
-- [ ] Inspect `git diff --check` and final diff; commit with configured real
+- [x] Inspect `git diff --check` and final diff; commit with configured real
   identity. Create an English PR if completing the existing PR delivery workflow;
   do not merge without fresh merge authorization for this feature.
+
+Delivered as PR #7: https://github.com/Seraph-x/Dynamic-Wallpapers/pull/7
