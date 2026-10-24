@@ -5,9 +5,10 @@ import { startEditor,validateEditorCommand } from './runtime.mjs';
 import { messages } from './localization.mjs';
 import { initializeInterface, renderWorkspace, setPlaybackState } from './interface.mjs';
 import { Timeline } from './timeline.mjs';
+import { ModelWorkspace } from './model-workspace.mjs';
 
 const $ = id => document.getElementById(id);
-let editor, selected, drag, editFailure, timeline, selectionPointer;
+let editor, selected, drag, editFailure, timeline, model, selectionPointer;
 const pendingActions=new Set();
 document.body.inert = true;
 const showError = error => { $('diagnostics').textContent = String(error?.message ?? error); };
@@ -28,20 +29,22 @@ try {
     return promise;
   };
   const act = operation => runAction(async()=>{
-    await timeline?.flush();editFailure=undefined;$('diagnostics').textContent='';
+    await model?.flush();await timeline?.flush();editFailure=undefined;$('diagnostics').textContent='';
     await editor.change(operation);
   });
-  const selectLayer = id => runAction(async()=>{await timeline?.flush();selected=id;update(editor.document);});
+  const selectLayer = id => runAction(async()=>{await model?.flush();await timeline?.flush();selected=id;update(editor.document);});
   function update(doc) {
     renderWorkspace({doc,selected,t,onSelect:id => { void selectLayer(id); },
       onPatch:(id,patch) => void act(doc => doc.patch(id,patch))});
     timeline?.update(doc,selected);
+    model?.update(doc,selected);
   }
   editor = startEditor(config, { createScene, editorOf, buildScenePkg, checkWeCompat, element:$('canvas'), report, onChange:update, onError:showError,
-    setEditingEnabled: value => { document.body.inert = !value; }, snapshotError: () => editFailure,
+    setEditingEnabled: value => { document.body.inert = !value;model?.setFrozen(!value); }, snapshotError: () => editFailure,
     onPlaybackChange: value => setPlaybackState(value,t) });
-  timeline = new Timeline({editor,t,edit:(id,property,edit)=>editor.change(doc=>doc.animate(id,property,edit)),onError:showError,
+  timeline = new Timeline({editor,t,beforeEdit:()=>model?.flush(),edit:(id,property,edit)=>editor.change(doc=>doc.animate(id,property,edit)),onError:showError,
     onResetInput:()=>{editFailure=undefined;$('diagnostics').textContent='';}});
+  model=new ModelWorkspace({editor,t,onError:showError,onResetInput:()=>{editFailure=undefined;$('diagnostics').textContent='';}});
   async function finishDrag() {
     if (!drag) return;
     const pending = drag; drag = undefined;
@@ -49,14 +52,14 @@ try {
   }
   window.__dynamicWallpaperEditor = Object.freeze({ command: async value => {
     try { validateEditorCommand(value,config); } catch { return editor.command(value); }
-    if (['snapshot','freeze','undo','redo'].includes(value.type)) {
+    if (['snapshot','freeze','undo','redo','add-image','replace-resource','load'].includes(value.type)) {
       // Native menu/close commands do not necessarily blur the CEF text field.
       // Commit the visible value and pending drag before taking its snapshot.
       const focused = document.activeElement;
       const invalid = focused?.checkValidity && !focused.checkValidity() ? focused.validationMessage : undefined;
       focused?.blur();
-      if(value.type==='freeze')document.body.inert=true;
-      try { await Promise.all([...pendingActions]);await finishDrag();await timeline.flush(); } catch(error) { editFailure=error;showError(error); }
+      if(value.type==='freeze'){document.body.inert=true;model.setFrozen(true);}
+      try { await Promise.all([...pendingActions]);await finishDrag();await model.flush();await timeline.flush(); } catch(error) { editFailure=error;showError(error); }
       if (invalid) { editFailure = new Error(invalid); showError(editFailure); }
     }
     return editor.command(value);
@@ -82,7 +85,7 @@ try {
     const pointer={id:event.pointerId,down:true,x:event.clientX,y:event.clientY,currentX:event.clientX,currentY:event.clientY};selectionPointer=pointer;
     $('canvas').setPointerCapture(event.pointerId);
     void runAction(async()=>{
-      await timeline.flush();selected=hit[0].id;update(editor.document);
+      await model.flush();await timeline.flush();selected=hit[0].id;update(editor.document);
       if(document.body.inert||(!pointer.down&&pointer.x===pointer.currentX&&pointer.y===pointer.currentY))return;
       const snapshot=editor.document.snapshot(),layer=snapshot.scene.objects.find(layer=>layer.id===selected),projection=snapshot.scene.general?.orthogonalprojection;
       if(layer&&!controlled(layer.origin)&&projection?.width>0&&projection?.height>0){
@@ -102,9 +105,9 @@ try {
   });
   document.addEventListener('keydown', event => {
     if (document.body.inert) return;
-    if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'z' || /INPUT|TEXTAREA/.test(event.target.tagName)) return;
+    if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'z' || /INPUT|TEXTAREA|SELECT/.test(event.target.tagName)) return;
     event.preventDefault(); void act(doc => event.shiftKey ? doc.redo() : doc.undo());
   });
   await editor.ready;
-  window.addEventListener('pagehide', () => { timeline.destroy();editor.destroy(); }, { once:true });
+  window.addEventListener('pagehide', () => { model.destroy();timeline.destroy();editor.destroy(); }, { once:true });
 } catch (error) { showError(error); console.error('Editor preparation failed',error); }

@@ -4,6 +4,39 @@ The Editor is a separate Swift package/application. Main does not depend on its
 authoring target, UI resources or installation. PR 1 supplies file contracts;
 PR 2 supplies the Editor; PR 3 supplies the optional Main handoff and packaging.
 
+## Model workspace acceptance
+
+The current Model workspace is covered by 55 focused JavaScript checks,
+including 24 model/capacity/hierarchy/resource checks, and the full real-browser
+and native CEF harness. The reproducible build verifies 24 offline resources.
+Product/source checks pass 3 Editor product tests, 42 product-configuration
+tests and 16 public-source export tests. These focused checks do not establish
+a full application-suite pass.
+
+The browser edits actual model forms and checks the measured linked GPU
+palette, bone picking without layer dragging, rename/create/reparent/delete,
+weighted/attached replacement confirmation, cancellation, numeric weight pixels
+and undo/redo. Invalid model drafts block Timeline creation/key submission and
+native image insertion. A model rename preserves an independent property-key
+draft, and the native barrier subsequently commits it. An injected resource-read
+503 and an unsupported forward-parent source remain explicit and permit leaving
+the Model workspace and recovering without losing the document.
+
+All five languages, both themes and the 850 × 540 layout are checked with the
+Timeline open, without content edits. A first combined run failed by comparing
+screenshots at different canvas sizes after the layout test; the layout helper
+now restores its entry viewport. Pixel tolerances were not increased. The full
+browser/native run subsequently passed.
+
+Native CEF additionally enters a bone name through real AppKit keyboard events,
+freezes without blur, verifies the authored name and SHA-256 in the actual staged
+MDL bytes, acknowledges Save, then checks native undo/redo. User-authored model
+resources continue through saved-document reload and loose/PKG export into
+Main's actual CEF scene runtime, where bind placement, the stationary left bone
+and intermediate right-bone deformation are asserted. Normal page closure and
+exactly one runtime shutdown remain required. See the
+[workspace guide](../editor-model-workspace.md) for user-visible semantics.
+
 ## Reproducible checks
 
 Prepare the pinned CEF dependencies and Editor browser build dependencies as

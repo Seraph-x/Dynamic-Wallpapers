@@ -1,0 +1,31 @@
+.workspace-switch { display:flex; gap:4px; padding:8px 12px; border-bottom:1px solid var(--line-soft); }
+.workspace-switch button { flex:1; min-width:0; padding:6px; font-size:11px; }
+.workspace-switch [aria-pressed="true"] { background:var(--field); border-color:var(--accent); }
+#model-panel { min-width:0; padding-block:12px; }
+.model-note { font-size:10px; color:var(--muted); line-height:1.6; overflow-wrap:anywhere; }
+#model-panel form, #model-panel fieldset { min-width:0; margin:12px 0; padding:0; border:0; }
+#model-panel legend { font-size:11px; font-weight:600; padding-block:8px; }
+#model-panel .property-field { margin-block:9px; }
+#model-panel input, #model-panel select { width:100%; min-width:0; font-size:11px; }
+#model-show-bones { width:16px!important; }
+.model-bones { list-style:none; margin:12px 0; padding:0; max-height:150px; overflow:auto; border:1px solid var(--line); border-radius:6px; }
+.model-bones button { width:100%; border:0; border-radius:0; text-align:left; padding-block:6px; font-size:11px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.model-bones [aria-pressed="true"] { background:var(--field); color:var(--accent); }
+.model-actions { display:flex; flex-wrap:wrap; gap:7px; margin-block:12px; }
+.model-actions button { font-size:11px; padding:6px 9px; }
+#model-rest-matrix { white-space:pre; overflow:auto; padding:8px; border-radius:5px; background:var(--field); font:10px/1.6 var(--mono); }
+.model-influence { display:grid; grid-template-columns:minmax(0,1.5fr) minmax(0,1fr); gap:8px; }
+#model-weight-map { width:100%; height:auto; background:#242624; border-radius:5px; }
+.model-dialog { width:min(410px,calc(100vw - 40px)); max-height:85dvh; overflow:auto; background:var(--surface); color:var(--text); border:1px solid var(--line); border-radius:12px; padding:22px; }
+.model-dialog::backdrop { background:#0007; }
+.model-dialog p { font-size:12px; line-height:1.6; }
+.model-dialog .property-field { margin-block:12px; }
+.model-dialog input,.model-dialog select { min-width:0; width:100%; }
+.model-dialog .model-trs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; border:0; padding:0; margin-top:10px; }
+.model-trs legend { font-size:11px; }
+#model-bone-overlay { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:hidden; }
+#model-bone-overlay line { stroke:#eadcb9; stroke-width:2; }
+#model-bone-overlay g { pointer-events:auto; cursor:pointer; }
+#model-bone-overlay circle { fill:#f1dbab; stroke:#30322d; stroke-width:1.5; }
+#model-bone-overlay [aria-pressed="true"] circle { fill:#f08058; }
+#model-bone-overlay g:focus-visible circle { stroke:#fff; stroke-width:3; }

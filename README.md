@@ -55,8 +55,9 @@ and export loose/PKG. **File → Open in Dynamic Wallpaper**
 imports an owned copy into the wallpaper library without automatically applying
 it. Both applications work independently. Removing Editor leaves saved projects
 and wallpaper playback intact. See [installation and removal](docs/editor-install.md).
-The [model resource foundation](docs/editor-model-resources.md) supports tested
-skeleton and skin transactions internally; the interactive model tools remain
+The [Model workspace](docs/editor-model-workspace.md) edits imported skeleton
+hierarchies and numeric skin weights with bone/vertex picking, undo and resource
+export. Direct glTF/GLB import, weight painting and skeletal clip tools remain
 under development.
 
 The two applications share source modules in this repository and ship their own

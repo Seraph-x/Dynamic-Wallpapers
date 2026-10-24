@@ -37,10 +37,10 @@ async function put(name,bytes) {
   else await writeFile(path.join(output,name),bytes);
 }
 await put('editor-api.mjs',bundled.outputFiles[0].contents);
-const model = await build({entryPoints:[path.join(web,'model.mjs')],outfile:'model-api.mjs',bundle:true,platform:'browser',format:'esm',target:'chrome120',minify:true,legalComments:'eof',write:false});
+const model = await build({entryPoints:[path.join(web,'model-api-entry.mjs')],outfile:'model-api.mjs',bundle:true,platform:'browser',format:'esm',target:'chrome120',minify:true,legalComments:'eof',write:false});
 await put('model-api.mjs',model.outputFiles[0].contents);
 await put('webwallgl.bundle.mjs',engine);
-for (const name of ['index.html','editor.css','app.mjs','document.mjs','runtime.mjs','localization.mjs','interface.mjs','resources.mjs','animation.mjs','timeline-clock.mjs','timeline-view.mjs','timeline.mjs','timeline-messages.mjs','timeline.css']) await put(name,await readFile(path.join(web,name)));
+for (const name of ['index.html','editor.css','app.mjs','document.mjs','runtime.mjs','localization.mjs','interface.mjs','resources.mjs','animation.mjs','timeline-clock.mjs','timeline-view.mjs','timeline.mjs','timeline-messages.mjs','timeline.css','model-capacity.mjs','model-resource-edit.mjs','model-workspace.mjs','model-view.mjs','model-overlay.mjs','model-messages.mjs','model.css']) await put(name,await readFile(path.join(web,name)));
 await mkdir(path.join(repo,'Editor/ThirdParty'),{recursive:true});
 if (!check) await copyFile(path.join(web,'.build/node_modules/@webwallgl/editor/LICENSE'),path.join(repo,'Editor/ThirdParty/WebWallGL-Editor-LICENSE'));
 const provenance={schema:1,packages:pins,editorEntrySHA256:hash(await readFile(entry)),engineSHA256:hash(engine),files};

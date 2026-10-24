@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark">
-<title>Dynamic Wallpaper Editor</title><link rel="stylesheet" href="editor.css"><link rel="stylesheet" href="timeline.css"><link rel="icon" href="data:,">
+<title>Dynamic Wallpaper Editor</title><link rel="stylesheet" href="editor.css"><link rel="stylesheet" href="timeline.css"><link rel="stylesheet" href="model.css"><link rel="icon" href="data:,">
 </head>
 <body>
 <header class="app-header">
@@ -25,12 +25,13 @@
   </aside>
   <section id="preview" class="preview-panel" data-label="canvas" aria-label="Canvas">
     <div class="canvas-heading"><h2><span data-icon="canvas" aria-hidden="true"></span><span data-text="canvas">Canvas</span></h2><span id="canvas-size" class="canvas-size"></span></div>
-    <div class="canvas-stage"><div id="canvas"></div></div>
+    <div class="canvas-stage"><div id="canvas"></div><svg id="model-bone-overlay" hidden></svg></div>
     <div class="canvas-footer"><span class="preview-status"><i aria-hidden="true"></i><span id="preview-state" data-text="livePreview">Live preview</span></span><span class="canvas-caption" data-text="localWorkspace">Local scene workspace</span></div>
   </section>
   <aside class="panel properties-panel" aria-labelledby="properties-heading">
     <div class="panel-heading"><h2 id="properties-heading" data-text="properties">Properties</h2><span id="selection-kind" class="selection-kind"></span></div>
-    <div class="inspector-scroll"><form id="inspector"></form></div>
+    <div class="workspace-switch" role="group" data-label="modelInspector"><button id="properties-workspace" type="button" aria-pressed="true" data-text="properties">Properties</button><button id="model-workspace" type="button" aria-pressed="false" data-text="modelWorkspace">Model</button></div>
+    <div class="inspector-scroll"><div id="property-panel"><form id="inspector"></form></div><div id="model-panel" hidden></div></div>
     <p id="binding" class="binding-note"><span data-icon="lock" aria-hidden="true"></span><span data-text="binding">Script, animation and property-controlled fields are read-only.</span></p>
   </aside>
 </main>

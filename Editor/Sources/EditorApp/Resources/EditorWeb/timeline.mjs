@@ -4,12 +4,13 @@ import { renderTimeline,renderTime,absoluteKey } from './timeline-view.mjs';
 const $=id=>document.getElementById(id);
 
 export class Timeline {
-  #editor;#t;#edit;#error;#reset;#clock;#layer;#selection={property:'origin',channel:0};#clipboard;
+  #editor;#t;#edit;#error;#reset;#clock;#layer;#selection={property:'origin',channel:0};#clipboard;#beforeEdit;
   #keyDraft=false;#settingsDraft=false;#keyCommit;#settingsCommit;#pending=new Set();#drag;#frame;#closed=false;#rate=30;
   #operations=Promise.resolve();#keyRevision=0;#settingsRevision=0;
   #keyboardTargets=new WeakMap();
   #scrubRequests=0;#scrubPointer=false;
-  constructor({editor,t,edit,onError,onResetInput}) {
+  constructor({editor,t,edit,onError,onResetInput,beforeEdit=async()=>{}}) {
+    this.#beforeEdit=beforeEdit;
     this.#editor=editor;this.#t=t;this.#edit=edit;this.#error=onError;this.#reset=onResetInput;this.#clock=new TimelineClock(editor);
     const bind=(id,event,operation)=>$(id).addEventListener(event,value=>{void this.#run(()=>operation(value));});
     bind('timeline-toggle','click',()=>this.#toggle());bind('timeline-close','click',()=>this.#toggle());
@@ -74,6 +75,7 @@ export class Timeline {
   #context(){return {id:this.#layer?.id,property:this.#selection.property,channel:this.#selection.channel};}
   async #change(edit,target=this.#context()){
     if(target.id===undefined)throw new Error('Select a layer first');
+    const document=this.#editor.document;await this.#beforeEdit();if(this.#editor.document!==document)throw new Error('Timeline document changed while preparing the edit');
     this.#editor.setPlaying(false);await this.#edit(target.id,target.property,edit);this.#reset();
   }
   #toggle(){const panel=$('timeline');panel.hidden=!panel.hidden;$('timeline-toggle').setAttribute('aria-expanded',String(!panel.hidden));if(!panel.hidden)this.#render();}
@@ -109,6 +111,7 @@ export class Timeline {
     const mode=$('timeline-interpolation').value,channel=this.#selection.channel;
     const id=this.#layer.id,property=this.#selection.property;
     this.#editor.setPlaying(false);
+    const document=this.#editor.document;await this.#beforeEdit();if(this.#editor.document!==document)throw new Error('Timeline document changed while preparing the edit');
     await this.#editor.change(doc=>doc.transaction(draft=>{
       if(frame!==old)draft.animate(id,property,{type:'move-key',channel,from:old,frame});
       draft.animate(id,property,{type:'set-key',channel,frame,value,...(mode==='custom'?{}:{interpolation:mode})});

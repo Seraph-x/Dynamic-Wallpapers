@@ -74,4 +74,4 @@ Files: `docs/editor-model-resources.md`, `Editor/README.md`, this plan.
 - Public-export scan: the exact unmodified upstream MIT license is excluded from contact detection because it includes the required upstream author attribution. Its full bytes remain SHA-256 checked by the offline build. All other changed files are scanned normally.
 - Remaining roadmap work includes the Model workspace, glTF/GLB importer, image-to-puppet creation, brush/rest tools, skeletal clips and Script IDE. This infrastructure checkpoint does not claim those features are delivered.
 
-Delivery: [PR #15](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/15), submitted against main and not merged.
+Delivery: [PR #15](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/15), merged into main on 2026-10-24. The Model workspace continues in the companion implementation plan.
