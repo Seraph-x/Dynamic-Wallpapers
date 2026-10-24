@@ -98,8 +98,9 @@ output is independent from the excluded system audio spectrum input. Pointer
 coordinates use each display's rendered viewport, respecting fit letterboxing,
 scale, current page identity, and the existing interaction opt-in/permissions.
 Support mouse movement/leave and left click through a narrow scene command API.
-Author-defined scene properties remain scene-local, validated and persisted;
-initial defaults come from project metadata and never mutate the source project.
+Author-defined property defaults are read by the engine from project metadata.
+A property editor and persisted user overrides are outside this first release;
+the source project is never mutated.
 
 ## PR sequence
 
@@ -112,7 +113,7 @@ initial defaults come from project metadata and never mutate the source project.
 3. **Scene playback and controls.** Scene surface/factory wiring, grouped pause,
    resume, audio, cancellation, pointer and cleanup integration, with focused
    integration tests. Target PR 2's branch.
-4. **User entry points and acceptance.** Import UI, metadata/property controls,
+4. **User entry points and acceptance.** Import UI, metadata presentation and playback controls,
    five-language help/copy, default packaged-app path and fixture-based real
    scene acceptance. Target PR 3's branch. Cross-link the dependency order in
    every PR. Do not merge the feature PRs without a new merge instruction.
