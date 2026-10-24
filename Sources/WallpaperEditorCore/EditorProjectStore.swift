@@ -82,16 +82,21 @@ public actor EditorProjectStore {
         let root = directory.appendingPathComponent(id.uuidString)
         let document = try EditorProjectDocument(data: EditorProjectFiles(root: directory, prefix: id.uuidString).read("workspace.json"))
         guard document.id == id else { throw WallpaperError("工程身份与目录不符。") }
+        try validateResources(document)
         return EditorOwnedProject(document: document, resources: root.appendingPathComponent("Project"))
     }
-    public func save(_ previous: EditorProjectDocument, scene: Data, project: Data, title: String) throws -> EditorProjectDocument {
+    public func save(_ previous: EditorProjectDocument, scene: Data, project: Data, title: String,
+                     resourceOverrides: [String: EditorResourceVersion]? = nil) throws -> EditorProjectDocument {
         let files = EditorProjectFiles(root: directory, prefix: previous.id.uuidString)
         return try files.locked { files in
             let current = try EditorProjectDocument(data: files.read("workspace.json"))
             guard current == previous else { throw WallpaperError("磁盘上的工程已改变，请重新打开，未覆盖现有内容。") }
             guard current.revision < UInt64.max else { throw WallpaperError("工程修订号已耗尽。") }
             let next = try EditorProjectDocument(id: current.id, revision: current.revision + 1, title: title,
-                sceneEntry: current.sceneEntry, sourcePackage: current.sourcePackage, scene: scene, project: project)
+                sceneEntry: current.sceneEntry, sourcePackage: current.sourcePackage, scene: scene, project: project,
+                resourceOverrides: resourceOverrides ?? current.resourceOverrides,
+                schemaVersion: current.schemaVersion == 2 || !(resourceOverrides ?? current.resourceOverrides).isEmpty ? 2 : 1)
+            try validateResources(next)
             try files.write(next.encoded(), to: "workspace.json")
             return next
         }
@@ -108,6 +113,9 @@ public actor EditorProjectStore {
             metadata["file"] = document.sceneEntry; metadata["title"] = document.title
             try files.write(EditorProjectDocument.encode(metadata), to: "project.json")
             try files.write(document.scene, to: document.sceneEntry)
+            for (path, version) in document.resourceOverrides {
+                try files.write(resourceBytes(id: document.id, version: version), to: path)
+            }
             if let container = document.sourcePackage { try files.remove(container) }
             guard destination.isFileURL, [nil, "", "localhost"].contains(destination.host), !destination.path.contains("\0") else { throw WallpaperError("导出目标必须是本地目录。") }
             // Cross-volume export is explicit: stage beside the destination, then publish atomically.

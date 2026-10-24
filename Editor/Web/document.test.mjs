@@ -57,3 +57,18 @@ test('invalid imports and missing layers surface explicit errors', () => {
   assert.throws(() => doc.addImage({ name: 'A', model: '../bad.json', width: 1, height: 1 }));
   assert.throws(() => doc.addImage({ name: 'A', model: 'a.json', width: 0, height: 1 }));
 });
+test('JSON and immutable resource versions commit as one transaction with exact undo', () => {
+  const input = initial(), doc = new SceneDocument(input), version = 'a'.repeat(64);
+  doc.transaction(draft => { draft.patch(1,{name:'New model'}); draft.resource('models/body.mdl',version); });
+  assert.equal(doc.snapshot().scene.objects[0].name,'New model');
+  assert.deepEqual(doc.snapshot().resourceOverrides,{'models/body.mdl':version});
+  doc.undo(); assert.deepEqual(doc.snapshot(),input); assert.equal(doc.canUndo,false);
+  doc.redo(); assert.equal(doc.snapshot().resourceOverrides['models/body.mdl'],version);
+  doc.markSaved(); assert.equal(doc.dirty,false);
+  doc.transaction(draft => draft.resource('models/body.mdl',version));
+  doc.undo(); assert.deepEqual(doc.snapshot(),input,'No-op transaction added history');
+  doc.redo(); const before = doc.snapshot();
+  assert.throws(() => doc.transaction(draft => { draft.patch(1,{name:'Invalid'}); draft.resource('../escape',version); }));
+  assert.deepEqual(doc.snapshot(),before); assert.equal(doc.canRedo,false);
+  assert.throws(() => doc.transaction(draft => draft.resource('nested.json',version)));
+});

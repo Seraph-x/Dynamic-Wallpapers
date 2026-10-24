@@ -60,6 +60,18 @@ struct EditorProjectFiles {
             guard renameat(parent, temporary, parent, name) == 0 else { throw failure("原子保存工程文件") }
         }
     }
+    func containsFile(_ path: String) throws -> Bool {
+        try SceneProjectReference.validateRelativePath(path)
+        return try withDirectory((path as NSString).deletingLastPathComponent) { parent in
+            var info = stat()
+            if fstatat(parent, (path as NSString).lastPathComponent, &info, AT_SYMLINK_NOFOLLOW) != 0 {
+                if errno == ENOENT { return false }
+                throw failure("检查工程资源")
+            }
+            guard info.st_mode & S_IFMT == S_IFREG else { throw WallpaperError("工程资源不是普通文件。") }
+            return true
+        }
+    }
     func remove(_ path: String) throws {
         try SceneProjectReference.validateRelativePath(path)
         try withDirectory((path as NSString).deletingLastPathComponent) { parent in
