@@ -21,6 +21,7 @@ The last command requires Playwright Chromium (`npx --prefix
 scripts/scene-runtime-build playwright install chromium`). It uses a temporary
 localhost test server, never the user's app or library. Set
 `SCENE_CHROMIUM_EXECUTABLE` to explicitly select another installed Chromium.
+`SCENE_DEVICE_SCALE=2` exercises Retina backing resolution.
 The application itself has no localhost server, Node requirement or network
 runtime dependency.
 

@@ -41,7 +41,7 @@ try {
   browser = await chromium.launch({ headless: true, ...(process.env.SCENE_CHROMIUM_EXECUTABLE ? { executablePath: process.env.SCENE_CHROMIUM_EXECUTABLE } : {}) });
   for (const form of ['loose', 'package']) {
     representation = form; events.length = 0;
-    const page = await browser.newPage({ viewport: { width: 640, height: 360 }, deviceScaleFactor: 1 });
+    const page = await browser.newPage({ viewport: { width: 640, height: 360 }, deviceScaleFactor: Number(process.env.SCENE_DEVICE_SCALE ?? 1) });
     const errors = [];
     page.on('response', response => { if (response.status() >= 400) console.error('HTTP failure', response.status(), response.url()); });
     page.on('pageerror', error => errors.push(error.message));
