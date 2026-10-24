@@ -9,8 +9,9 @@ public struct EditorImageResource: Sendable {
 
 extension EditorProjectStore {
     public func resourcePaths(id: UUID) throws -> [String] {
-        _ = try open(id: id)
-        return try EditorProjectFiles(root: directory, prefix: "\(id.uuidString)/Project").paths()
+        let document = try open(id: id).document
+        return try Set(EditorProjectFiles(root: directory, prefix: "\(id.uuidString)/Project").paths())
+            .union(document.resourceOverrides.keys).sorted()
     }
     public func addImage(id: UUID, data: Data, extension suffix: String, width: Int, height: Int) throws -> EditorImageResource {
         _ = try open(id: id)

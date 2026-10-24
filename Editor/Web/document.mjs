@@ -15,12 +15,36 @@ const equivalent = (left, right) => {
 };
 
 export class SceneDocument {
-  #value; #saved; #undo = []; #redo = [];
-  constructor(value) {
+  #value; #saved; #undo = []; #redo = []; #sourcePackage;
+  constructor(value, sourcePackage) {
     if (!object(value) || !object(value.scene) || !object(value.project) || value.project.type !== 'scene' ||
         (value.scene.objects !== undefined && !Array.isArray(value.scene.objects)) || typeof value.title !== 'string' || !value.title.trim()) throw new Error('Invalid scene document');
     safePath(value.entry);
+    this.#sourcePackage = sourcePackage;
+    if (value.resourceOverrides !== undefined) {
+      if (!object(value.resourceOverrides)) throw new Error('Invalid resource overrides');
+      for (const [path,version] of Object.entries(value.resourceOverrides)) this.#validateResource(value,path,version);
+    }
     this.#value = clone(value); this.#saved = clone(value);
+  }
+  #validateResource(value,path,version) {
+    safePath(path);
+    if (['project.json',value.entry,this.#sourcePackage].includes(path)) throw new Error('Reserved resource path');
+    if (version !== null && (typeof version !== 'string' || !/^[a-f0-9]{64}$/.test(version))) throw new Error('Invalid resource version');
+  }
+  resource(path,version) {
+    this.#change(value => {
+      this.#validateResource(value,path,version);
+      if (version === null) { if (value.resourceOverrides) delete value.resourceOverrides[path]; }
+      else { (value.resourceOverrides ??= {})[path] = version; }
+    });
+  }
+  transaction(operation) {
+    this.#change(value => {
+      const draft = new SceneDocument(value,this.#sourcePackage), result = operation(draft);
+      if (result?.then) throw new Error('Document transactions must be synchronous');
+      Object.assign(value,draft.snapshot());
+    });
   }
   snapshot() { return clone(this.#value); }
   get dirty() { return !equivalent(this.#value, this.#saved); }
