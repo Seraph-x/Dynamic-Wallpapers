@@ -1,3 +1,4 @@
+import { testTimeline } from './test-timeline.mjs';
 import { createRequire } from 'node:module';
 import { createServer } from 'node:http';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
@@ -98,6 +99,7 @@ try {
   await command({type:'redo'});await command({type:'redo'});
   assert.deepEqual(await canvas.screenshot(),revisedImage,'Resource redo did not restore revised pixels');
   snapshot=(await command({type:'snapshot'})).document;assert.equal(Object.keys(snapshot.resourceOverrides).length,2);
+  snapshot=await testTimeline(page,command);
   const exported=await command({type:'export-pkg',paths:[...resources.keys()]});assert(Buffer.from(exported.pkg,'base64').includes(Buffer.from('PKGV0012')));
   await page.locator('#project-title').fill('Unblurred title');
   const frozen=await command({type:'freeze'});assert.equal(frozen.document.title,'Unblurred title');assert.equal(frozen.dirty,true);
@@ -165,6 +167,10 @@ try {
     assert(layout.brand<=layout.title && layout.titleRight<=layout.actions,`${language}: overlapping header controls`);
     assert(layout.layers<=layout.canvas && layout.canvasRight<=layout.properties,`${language}: overlapping workspace panels`);
     assert.equal(layout.undefinedLabels,false,`${language}: missing interface text`);
+    await page.locator('#timeline-toggle').click();
+    const timelineLayout=await page.evaluate(()=>({overflow:document.documentElement.scrollWidth>innerWidth,panel:document.querySelector('#timeline').scrollWidth>document.querySelector('#timeline').clientWidth,canvas:document.querySelector('.canvas-stage').getBoundingClientRect().height,missing:[...document.querySelectorAll('#timeline [data-text]')].some(e=>e.textContent==='undefined')}));
+    assert.equal(timelineLayout.overflow,false,`${language}: timeline page overflow`);assert.equal(timelineLayout.panel,false,`${language}: timeline panel overflow`);assert.equal(timelineLayout.missing,false,`${language}: missing timeline label`);assert(timelineLayout.canvas>80,`${language}: timeline obscures the canvas`);
+    await page.locator('#timeline-toggle').click();
     await page.locator('#theme').selectOption('dark'); await page.locator('#theme').selectOption('light');
   }
   assert.equal((await page.locator('#diagnostics').textContent()),'');assert.deepEqual(errors,[]);

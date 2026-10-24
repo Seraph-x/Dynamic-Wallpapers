@@ -66,6 +66,62 @@ prevented SwiftPM's manifest sandbox from starting during a product-config check
 that check passed when run outside the outer sandbox. No product checks were
 disabled. These focused results do not establish a full application-suite pass.
 
+## Property timeline acceptance
+
+The timeline uses the pinned engine's native `animation.c0/c1/c2` channels,
+frame-based `options` and front/back Bezier handles. The renderer is the sampling
+authority; there is no second animation evaluator in the Editor. Model tests
+cover one-step undo, failed-edit rollback, duplicate-frame rejection, relative
+values, unknown fields, custom handle preservation, explicit binding replacement,
+copy/paste and conversion back to a sampled constant. Clock tests verify engine
+time, preview wrapping, freeze behavior and queued relative frame steps.
+
+`Editor/Web/test-timeline.mjs` runs inside the existing real-browser acceptance.
+It creates and edits position, scale, rotation, RGB and opacity tracks, checks
+known linear and smooth intermediate values, verifies exact snapped sampling,
+and exercises drag, copy/paste, native/toolbar undo, keyboard movement and the
+preview range. It tests conversion cancellation/restoration and that seeking
+does not dirty content. All five languages open the timeline at 850 × 540
+without horizontal overflow while retaining a usable canvas.
+
+The input cases are deliberately asynchronous: canvas selection, adding a layer,
+title/property changes and native save must retain unapplied key/settings drafts.
+Edits arriving while an older commit is rendering must remain pending or be
+committed as the next revision. A queued Add key must retain its original target
+when another property is selected. Rapid key movement spans both an old DOM
+node and a rebuilt node, then verifies each undo step. Invalid drafts survive
+freeze/thaw; rejected occupied-frame drags restore the actual key position.
+
+Native store tests save/reopen and reimport loose/PKG versions of a curve while
+preserving its unknown metadata and tangents. Native CEF acceptance additionally
+plays the exported animated scene in Main's existing runtime and observes the
+green image's centroid move by more than three pixels in each representation.
+This establishes actual playback, beyond metadata checks or a static first
+frame. Text and image pixel assertions, resource release and exactly one CEF
+shutdown remain required. Pixel counts may vary with moving image/text overlap;
+they are not treated as identical static screenshots.
+
+Validation failures found while implementing these cases are recorded as
+failures. In particular, the first selection implementation retained an old key
+form briefly, old selection paths discarded drafts, relative steps could collapse,
+and asynchronous commits could erase newer input. Their regressions must stay
+in the suite; disabling the interactions or adding successful mock replies is
+not an acceptance strategy. Independent review rechecked the fixes, including
+the fixed resource-reply bypass of input/command barriers.
+
+The final focused checks passed 183 root Swift tests, one independent native
+Editor bridge test and 31 JavaScript tests. Product checks passed three Editor,
+42 configuration and 16 source-export tests; all 16 offline resources reproduce.
+Several fresh complete browser/native runs finished within the existing phase
+budgets. The final runs include twelve rapid key moves across DOM generations
+and twelve undo steps, actual native CEF track creation, unblurred key input
+flushed by freeze, a clean save acknowledgement and typed seek. Main played
+both export formats with a moving image centroid, and all pages/resources closed
+before the single CEF shutdown. The final browser also exercises native range
+keyboard and pointer scrubbing, so a passing programmatic seek alone cannot
+stand in for a working timeline slider. These remain focused checks, not a
+passing claim for the unrelated complete application suite.
+
 From the repository root, `python3 scripts/test-editor-native.py` builds an
 isolated application, verifies the typed protocol, exercises the real browser
 workbench, and then runs native CEF acceptance. `SCENE_CHROMIUM_EXECUTABLE`

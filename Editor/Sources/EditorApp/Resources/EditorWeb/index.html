@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark">
-<title>Dynamic Wallpaper Editor</title><link rel="stylesheet" href="editor.css"><link rel="icon" href="data:,">
+<title>Dynamic Wallpaper Editor</title><link rel="stylesheet" href="editor.css"><link rel="stylesheet" href="timeline.css"><link rel="icon" href="data:,">
 </head>
 <body>
 <header class="app-header">
@@ -13,6 +13,7 @@
 <nav class="toolbar" data-label="editingTools" aria-label="Editing tools">
   <div class="tool-group"><button id="undo" class="quiet-button"><span data-icon="undo" aria-hidden="true"></span><span data-text="undo">Undo</span></button><button id="redo" class="quiet-button"><span data-icon="redo" aria-hidden="true"></span><span data-text="redo">Redo</span></button></div>
   <span class="toolbar-divider" aria-hidden="true"></span><button id="add-text" class="primary-button"><span data-icon="plus" aria-hidden="true"></span><span data-text="addText">Add text</span></button>
+  <button id="timeline-toggle" class="quiet-button" aria-expanded="false" aria-controls="timeline" data-text="timeline">Timeline</button>
   <span class="toolbar-hint" data-text="canvasHint">Click to select · Drag to move</span>
   <button id="playback" class="playback-button" aria-pressed="true"><span id="playback-icon" aria-hidden="true"></span><span id="playback-label">Pause</span></button>
 </nav>
@@ -33,6 +34,24 @@
     <p id="binding" class="binding-note"><span data-icon="lock" aria-hidden="true"></span><span data-text="binding">Script, animation and property-controlled fields are read-only.</span></p>
   </aside>
 </main>
+<section id="timeline" class="timeline-panel" aria-labelledby="timeline-heading" hidden>
+  <div class="timeline-heading"><h2 id="timeline-heading" data-text="timeline">Timeline</h2><span id="timeline-layer"></span><button id="timeline-close" data-label="closeTimeline" aria-label="Close timeline">×</button></div>
+  <div class="timeline-controls">
+    <label><span data-text="property">Property</span><select id="timeline-property"><option value="origin" data-text="position">Position</option><option value="scale" data-text="scaleTrack">Scale</option><option value="angles" data-text="rotation">Rotation</option><option value="color" data-text="colorTrack">Color</option><option value="alpha" data-text="opacity">Opacity</option></select></label>
+    <button id="timeline-create" data-text="addTrack">Animate property</button><button id="timeline-previous" data-label="previousFrame" aria-label="Previous frame">◀</button><button id="timeline-next" data-label="nextFrame" aria-label="Next frame">▶</button>
+    <label><span data-text="time">Time (s)</span><input id="timeline-time" type="number" min="0" step="any" value="0"></label><span class="timeline-frame-label"><span data-text="frame">Frame</span> <output id="timeline-time-frame">0</output></span>
+    <label class="timeline-check"><input id="timeline-snap" type="checkbox" checked><span data-text="snap">Snap to frames</span></label>
+  </div>
+  <div class="timeline-range"><label><span data-text="previewStart">View start (s)</span><input id="timeline-start" type="number" min="0" step="any" value="0"></label><label><span data-text="previewEnd">View end (s)</span><input id="timeline-end" type="number" min="0" step="any" value="5"></label><label class="timeline-check"><input id="timeline-loop" type="checkbox"><span data-text="previewLoop">Loop preview range</span></label><label for="timeline-scrub" class="sr-only" data-text="time">Time (s)</label><input id="timeline-scrub" type="range" min="0" max="5" step="0.03333333333333333" value="0"></div>
+  <div class="timeline-ruler" aria-hidden="true"></div><div id="timeline-tracks" class="timeline-tracks" tabindex="0"></div>
+  <div class="timeline-editors">
+    <form id="timeline-settings"><fieldset><legend data-text="trackSettings">Track settings</legend><label><span data-text="fps">Track FPS</span><input id="timeline-fps" type="number" min="0" step="any"></label><label><span data-text="length">Track frames</span><input id="timeline-length" type="number" min="0" step="any"></label><label><span data-text="mode">Playback</span><select id="timeline-mode"><option value="single" data-text="single">Once</option><option value="loop" data-text="loop">Loop</option><option value="mirror" data-text="mirror">Ping-pong</option></select></label><button type="submit" data-text="apply">Apply</button><button id="timeline-settings-revert" type="button" data-text="revert">Revert</button><button id="timeline-remove" type="button" data-text="removeTrack">Remove animation</button></fieldset></form>
+    <form id="timeline-key-editor"><fieldset><legend><span data-text="keyframe">Keyframe</span> <span id="timeline-key-label"></span></legend><label><span data-text="frame">Frame</span><input id="timeline-key-frame" type="number" min="0" step="any"></label><label><span data-text="value">Value</span><input id="timeline-key-value" type="number" step="any"></label><label><span data-text="tangents">Tangents</span><select id="timeline-interpolation"><option value="linear" data-text="linear">Linear</option><option value="smooth" data-text="smooth">Smooth</option><option value="custom" disabled data-text="custom">Custom (preserved)</option></select></label><button type="submit" data-text="apply">Apply</button><button id="timeline-revert" type="button" data-text="revert">Revert</button></fieldset></form>
+  </div>
+  <div class="timeline-actions"><button id="timeline-add-key" data-text="addKey">Add key</button><button id="timeline-delete-key" data-text="deleteKey">Delete key</button><button id="timeline-copy-key" data-text="copyKey">Copy key</button><button id="timeline-paste-key" data-text="pasteKey">Paste key</button><span><span data-text="sampled">Current value</span>: <output id="timeline-current-value">—</output></span><span id="timeline-track-note"></span></div>
+  <p id="timeline-hint" class="timeline-hint" data-text="seekHint">Seeking samples property animation; stateful scripts and particles are not rewound.</p>
+</section>
+<dialog id="timeline-confirm" aria-labelledby="timeline-confirm-title"><h3 id="timeline-confirm-title" data-text="replaceTitle">Replace this property binding?</h3><p data-text="replaceDetail">This replaces its current binding. You can undo this change.</p><div><button id="timeline-confirm-cancel" data-text="cancel">Cancel</button><button id="timeline-confirm-replace" class="primary-button" data-text="confirm">Replace</button></div></dialog>
 <footer class="status-bar"><output id="diagnostics" role="alert"></output><span class="audio-note"><span data-icon="muted" aria-hidden="true"></span><span data-text="previewMuted">Preview is muted. Audio response is preserved for wallpaper playback.</span></span><span class="shortcut-note"><kbd>⌘ Z</kbd><span data-text="undo">Undo</span></span></footer>
 <script type="module" src="app.mjs"></script>
 </body></html>

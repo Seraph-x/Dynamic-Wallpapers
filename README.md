@@ -50,7 +50,8 @@ the official releases page. The published 1.0.0 binaries predate this feature;
 an independent Editor release has not been published yet.
 
 Create or import loose/PKG scenes, edit image/text layers with live preview,
-undo/redo, save projects and export loose/PKG. **File → Open in Dynamic Wallpaper**
+animate transforms/color/opacity on a keyframe timeline, undo/redo, save projects
+and export loose/PKG. **File → Open in Dynamic Wallpaper**
 imports an owned copy into the wallpaper library without automatically applying
 it. Both applications work independently. Removing Editor leaves saved projects
 and wallpaper playback intact. See [installation and removal](docs/editor-install.md).
