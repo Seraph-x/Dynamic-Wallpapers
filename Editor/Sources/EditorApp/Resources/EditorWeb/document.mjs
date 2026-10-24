@@ -128,6 +128,14 @@ export class SceneDocument {
       return id;
     });
   }
+  retargetImage(id,expected,path) {
+    safePath(expected);safePath(path);
+    this.#change(value=>{
+      const layer=this.#layer(value,id);
+      if(layer.image!==expected||layer.text!==undefined||layer.model!==undefined)throw new Error('The selected image layer changed');
+      layer.image=path;
+    });
+  }
   duplicate(id) {
     return this.#change(value => { const layer = clone(this.#layer(value, id)); layer.id = this.#nextID(value);
       layer.name = `${layer.name ?? id} copy`; value.scene.objects.push(layer); return layer.id; });

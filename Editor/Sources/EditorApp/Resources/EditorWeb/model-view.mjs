@@ -1,3 +1,4 @@
+import { initializeImagePuppetView } from './image-puppet-view.mjs';
 const $=id=>document.getElementById(id);
 const node=(tag,properties={},...children)=>{const element=Object.assign(document.createElement(tag),properties);element.append(...children);return element;};
 function field(parent,id,title,type='text',value='') {
@@ -58,8 +59,10 @@ export function initializeModelView(t) {
   field(deleted.form,'model-delete-replacement',t.replacementBone,'select');
   actions(deleted.form,'model-delete-confirm','model-delete-cancel',{...t,apply:t.deleteBone,revert:t.cancel});
   $('model-delete-cancel').autofocus=true;
-  return {render({data,bone,mesh,vertex,capacity,boneDraft,weightDraft,onBone,loading,error}){
-    $('model-empty').hidden=Boolean(data);$('model-empty').textContent=error??(loading?t.modelLoading:t.modelEmpty);$('model-recovery').hidden=!error;body.hidden=!data;if(!data)return;
+  const image=initializeImagePuppetView(t,panel);
+  return {showImage:()=>image.show(),imageValues:()=>image.values(),imageError:message=>image.error(message),closeImage:()=>image.close(),render({data,bone,mesh,vertex,capacity,boneDraft,weightDraft,onBone,loading,error,canCreateImage}){
+    image.available(canCreateImage);
+    $('model-empty').hidden=Boolean(data);$('model-empty').textContent=error??(loading?t.modelLoading:canCreateImage?t.imageMeshHint:t.modelEmpty);$('model-recovery').hidden=!error;body.hidden=!data;if(!data)return;
     $('model-summary').textContent=`${data.bones.length} ${t.bones} · ${data.meshes.length} ${t.mesh} · ${data.animations.length} ${t.clips} · ${data.attachments.length} ${t.attachments}`;
     $('model-capacity').textContent=capacity?`${t.modelCapacity}: ${capacity}`:t.modelCapacityMissing;$('model-capacity').dataset.capacity=capacity??'';
     const focused=document.activeElement?.dataset.bone;
@@ -89,6 +92,7 @@ export function initializeModelView(t) {
     input.parentElement.hidden=!needed;input.required=needed;input.disabled=!needed;
     options(input,[['',t.chooseBone],...data.bones.flatMap((b,i)=>i===bone?[]:[[i,`${i}: ${String(b.name)}`]])],'');deleted.element.showModal();
   },busy(value){for(const control of panel.querySelectorAll('fieldset, #model-create, #model-recover, #model-reload'))control.disabled=value;
+    $('model-image-create').disabled=value;image.busy(value);
     $('model-delete').disabled=value||$('model-bones').children.length===1;
     for(const button of $('model-bones').querySelectorAll('button'))button.disabled=value;
     for(const element of [created.form,deleted.form])for(const control of element.querySelectorAll('input,select,button'))if(!control.id.endsWith('cancel'))control.disabled=value;

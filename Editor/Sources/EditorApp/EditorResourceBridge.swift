@@ -6,6 +6,8 @@ enum EditorResourceBridge {
     static func result(_ request: [String:Any], store: EditorProjectStore, id: UUID) async -> [String:Any] {
         do {
             switch request["action"] as? String {
+            case "list":
+                return ["paths":try await store.resourcePaths(id:id)]
             case "stage":
                 guard let encoded = request["data"] as? String, let data = Data(base64Encoded: encoded),
                       data.base64EncodedString() == encoded else { throw WallpaperError("Invalid Editor resource bytes") }

@@ -8,14 +8,15 @@ does not delete the Editor's saved projects.
 The initial version supports new scenes; importing loose or PKG projects;
 image/text layers; layer ordering, visibility and duplication; position, scale,
 rotation, color and opacity; canvas picking/dragging; live preview with
-play/pause; property keyframe animation; model hierarchy and numeric skin weights;
+play/pause; property keyframe animation; image-to-mesh creation; model hierarchy
+and numeric skin weights;
 undo/redo; save/reopen; and loose/PKG
 export. Script and property-bound fields remain read-only in the inspector.
 Preview is muted with explicit zero
 system spectrum; exports preserve audio response for wallpaper playback.
 The [Model workspace](../docs/editor-model-workspace.md) uses immutable resource
-revisions for complete undo/save/export transactions. Direct model import,
-image-to-puppet creation, painting, existing-bone rest editing, skeletal clip
+revisions for complete undo/save/export transactions. Direct glTF/GLB import,
+painting, existing-bone rest editing, skeletal clip
 authoring and a script IDE remain separate roadmap work.
 
 Use **File → New Project** or **Open Project**. Imports create complete owned
@@ -33,6 +34,21 @@ the workbench uses system fonts and original icons. Layers stay on the left,
 the live canvas stays central, and grouped properties scroll independently on
 the right. Text formatting appears before transforms for text layers. Changing
 appearance does not alter or mark the scene as edited.
+
+## Create a skinned mesh from an image
+
+Select an ordinary image layer, choose **Model → Create mesh from image…**,
+name the root bone and choose a grid density. **Create mesh** produces a new
+unlit mesh/model/material set for that layer. The original image, other layers
+and shared source resources remain intact. Cancel/Escape changes nothing.
+Conversion, undo/redo, save/reopen and loose/PKG export use normal project
+resource revisions. Use the existing bone and numeric-weight tools afterward.
+Images require declared natural dimensions and a supported single-pass textured
+material; unsupported sources report their reason without conversion. See the
+[workspace guide](../docs/editor-model-workspace.md#create-a-mesh-from-an-image)
+for the exact format restrictions. Mesh encoding reuses the MIT-licensed
+[WebWallGL MDL writer](https://github.com/oneincase/webwallgl/blob/197abe54266c31d346cebc314e49a26b70c960cc/renderer/vendor/we-scene/pkg/mdl-write.js),
+with recorded provenance and a packaged license.
 
 ## Edit an imported model
 

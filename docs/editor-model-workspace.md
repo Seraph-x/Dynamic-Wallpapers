@@ -1,15 +1,50 @@
 # Edit a model's skeleton and skin
 
-Open a loose/PKG scene containing a puppet or skinned model, select its layer,
-and choose **Model** beside **Properties**. The workspace shows the skeleton,
+Open a loose/PKG scene, select an ordinary image or an existing puppet/skinned
+model, and choose **Model** beside **Properties**. The workspace shows the skeleton,
 local bind matrices, mesh/vertex information and numeric skin influences.
 Switching workspace, selecting bones/vertices and showing overlays are preview
 choices; they do not change the saved project.
 
-This checkpoint adds hierarchy and numeric skin editing for imported scene
-models. Direct glTF/GLB import, image-to-puppet creation, painting, editing an
+This checkpoint creates skinned grids from images and edits model hierarchies
+and numeric skin weights. Direct glTF/GLB import, painting, editing an
 existing bone's rest transform, skeletal clip authoring and the Script IDE
 remain separate roadmap work. Existing bind matrices are displayed read-only.
+
+## Create a mesh from an image
+
+On an ordinary image layer, choose **Create mesh from image…**. Enter the root
+bone name and choose 4, 8, 16 or 32 cells along each axis; the dialog displays
+vertex/triangle counts and defaults to 8. Confirm with **Create mesh**, or use
+Cancel/Escape to leave the project unchanged. The new centered XY grid retains
+the image's top-left texture orientation and binds every vertex to one identity
+root. An explicit positive constant layer `size` defines the grid dimensions;
+otherwise the model's natural dimensions are used. Its constant **Rest** clip keeps the bind pose until animation is authored.
+
+The conversion creates adjacent UUID-named model, MDL and material resources,
+then retargets only the selected layer. The copied material disables mesh
+lighting to retain the original flat image appearance. Layer transforms, color,
+opacity, visibility, property animations, scripts and unknown JSON metadata are
+retained. Other layers sharing the original model/material keep their resources.
+The three resource revisions and layer binding publish in one undoable history
+transaction; failed reads, staging or detected conflicts publish no partial edit.
+
+A supported source has explicit positive finite natural `width`/`height` and no
+existing `puppet`; **File → Add image** creates these dimensions. Autosized or
+missing dimensions are rejected explicitly. Property-bound, scripted or animated
+layer sizes cannot be preserved by constant mesh geometry and are rejected
+explicitly; their current value is never baked silently. The material must have one
+`genericimage2`/`genericimage4` pass and one project texture, without shader
+constants/combos or render-target bindings/textures. Dimensions, grid spacing,
+indices and buffers must survive native Float32/u32 encoding. Unsupported input
+shows its specific error and remains cancellable, without guessed dimensions,
+flattened effects or altered density. The density presets are UI choices, not
+an encoder cap.
+
+After creation, the existing hierarchy and numeric-weight tools apply. Save,
+reopen and loose/PKG export use the same resource pipeline, and Main plays the
+export without Editor installed. A pending creation dialog must be finished or
+cancelled before Save or other native document barriers proceed.
 
 ## Change the hierarchy
 
@@ -68,7 +103,9 @@ operation queues in both directions.
 
 Resources are staged before one document-history edit. The commit checks the
 selected document identity, layer/model path and resource version both before
-and after the asynchronous write. A stale write or disk error does not publish
+and after the asynchronous write. Image creation also checks the original
+workspace resource inventory through a read-only, workspace-scoped resource RPC
+and rechecks current overrides at the synchronous publication boundary. A stale write or disk error does not publish
 the edit. Resource replies continue to bypass preparation/render queues, so
 initial loading and Save cannot deadlock on their own blob read.
 
@@ -117,3 +154,12 @@ continue through save/reopen and both exports into Main's CEF pixel assertions.
 The native harness additionally types a bone name through AppKit, freezes it
 without blur and verifies the staged MDL name/hash, save acknowledgement and
 undo/redo before closing the CEF page normally.
+
+Image conversion acceptance additionally compares the exact rendered image pixels
+before/after conversion, excluding only SVG controls and rounded UI clipping.
+It verifies shared-source isolation, failed second-stage writes, unsupported
+sources, one-step history, saved reload, modal focus and all five languages/themes.
+A documented test-only MDLA root-motion fixture exercises numeric weight changes;
+it does not represent a skeletal clip-authoring UI. Main CEF verifies all four
+texture quadrants and known intermediate motion for both image-generated exports,
+while native Editor creation checks actual staged resource hashes and history.

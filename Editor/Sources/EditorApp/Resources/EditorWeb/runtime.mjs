@@ -150,7 +150,7 @@ export function startEditor(config, options) {
   }
   return { ready, command, change: changed, get controls() { return controls; }, get document() { return document; },
     get playing() { return playing; }, get frozen() { return frozen; }, setPlaying, seek,
-    stageResource:resources.stage,
+    stageResource:resources.stage,resourcePaths:resources.paths,
     readResource(path) {if(destroyed)return Promise.reject(new Error('Editor closed'));return resourceReader(document.snapshot(),read,resources.read)(path);},
     get modelBoneCapacity(){if(modelCapacity?.error)throw modelCapacity.error;return modelCapacity?.capacity;},
     destroy() { destroyed = true; modelCapacity?.dispose();resources.dispose(); instance?.destroy({ releasePkgCache: true }); } };
