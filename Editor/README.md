@@ -19,6 +19,16 @@ folder without replacing an existing destination. Reopen `workspace.json` from
 the Editor's `Projects` directory to continue a saved workspace. User data is
 stored under `~/Library/Application Support/DynamicWallpaperEditor/`.
 
+## Workbench appearance
+
+The workbench follows the system light/dark appearance. The Appearance control
+can override it for the current window. Warm neutral surfaces, a clay accent,
+serif headings and quiet controls take visual direction from Claude's interface;
+the workbench uses system fonts and original icons. Layers stay on the left,
+the live canvas stays central, and grouped properties scroll independently on
+the right. Text formatting appears before transforms for text layers. Changing
+appearance does not alter or mark the scene as edited.
+
 ## Development
 
 Requires Apple Silicon, macOS 14+, Xcode and the repository's pinned CEF SDK and

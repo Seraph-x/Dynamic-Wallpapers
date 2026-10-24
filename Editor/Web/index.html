@@ -1,10 +1,38 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dynamic Wallpaper Editor</title><link rel="stylesheet" href="editor.css"><link rel="icon" href="data:,"></head>
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark">
+<title>Dynamic Wallpaper Editor</title><link rel="stylesheet" href="editor.css"><link rel="icon" href="data:,">
+</head>
 <body>
-<header><label for="project-title" data-text="title">Project title</label><input id="project-title" autocomplete="off"><span id="saved" role="status"></span></header>
-<nav aria-label="Edit"><button id="playback" aria-pressed="true">Pause</button><button id="undo" data-text="undo">Undo</button><button id="redo" data-text="redo">Redo</button><button id="add-text" data-text="addText">Add text</button><button id="duplicate" data-text="duplicate">Duplicate</button><button id="remove" data-text="remove">Delete</button><button id="up" data-text="up">Move up</button><button id="down" data-text="down">Move down</button></nav>
-<main><aside><h1 data-text="layers">Layers</h1><ol id="layers"></ol></aside><section id="preview" aria-label="Scene preview"><div id="canvas"></div></section><aside><h2 data-text="properties">Properties</h2><form id="inspector"></form><p id="binding" data-text="binding">Script, animation and property-controlled fields are read-only.</p></aside></main>
-<footer><output id="diagnostics" role="alert"></output><span data-text="previewMuted">Preview is muted. Audio response is preserved for wallpaper playback.</span></footer>
+<header class="app-header">
+  <div class="brand"><span class="brand-mark" data-icon="studio" aria-hidden="true"></span><div><span class="brand-product">Dynamic Wallpaper</span><h1 data-text="sceneEditor">Scene Editor</h1></div></div>
+  <div class="project-heading"><label class="eyebrow" for="project-title" data-text="title">Project title</label><input id="project-title" autocomplete="off" spellcheck="false"></div>
+  <div class="header-actions"><span id="saved" class="save-status" role="status"></span><label for="theme" class="sr-only" data-text="theme">Appearance</label><div class="theme-control"><span data-icon="theme" aria-hidden="true"></span><select id="theme"><option value="system" data-text="system">System</option><option value="light" data-text="light">Light</option><option value="dark" data-text="dark">Dark</option></select></div></div>
+</header>
+<nav class="toolbar" data-label="editingTools" aria-label="Editing tools">
+  <div class="tool-group"><button id="undo" class="quiet-button"><span data-icon="undo" aria-hidden="true"></span><span data-text="undo">Undo</span></button><button id="redo" class="quiet-button"><span data-icon="redo" aria-hidden="true"></span><span data-text="redo">Redo</span></button></div>
+  <span class="toolbar-divider" aria-hidden="true"></span><button id="add-text" class="primary-button"><span data-icon="plus" aria-hidden="true"></span><span data-text="addText">Add text</span></button>
+  <span class="toolbar-hint" data-text="canvasHint">Click to select · Drag to move</span>
+  <button id="playback" class="playback-button" aria-pressed="true"><span id="playback-icon" aria-hidden="true"></span><span id="playback-label">Pause</span></button>
+</nav>
+<main>
+  <aside class="panel layers-panel" aria-labelledby="layers-heading">
+    <div class="panel-heading"><h2 id="layers-heading"><span data-icon="layers" aria-hidden="true"></span><span data-text="layers">Layers</span></h2><span id="layer-count" class="count-badge">0</span></div>
+    <div class="layer-scroll"><p class="section-caption" data-text="outline">Scene outline</p><ol id="layers"></ol><div id="layers-empty" class="panel-empty"><span class="empty-icon" data-icon="layers" aria-hidden="true"></span><h3 data-text="noLayers">A blank canvas</h3><p data-text="noLayersHint">Add text above, or an image from the File menu.</p></div></div>
+    <div class="layer-actions"><button id="duplicate" class="icon-button" data-label="duplicate" aria-label="Duplicate"><span data-icon="copy" aria-hidden="true"></span></button><button id="up" class="icon-button" data-label="up" aria-label="Move up"><span data-icon="up" aria-hidden="true"></span></button><button id="down" class="icon-button" data-label="down" aria-label="Move down"><span data-icon="down" aria-hidden="true"></span></button><button id="remove" class="icon-button danger-button" data-label="remove" aria-label="Delete"><span data-icon="trash" aria-hidden="true"></span></button></div>
+  </aside>
+  <section id="preview" class="preview-panel" data-label="canvas" aria-label="Canvas">
+    <div class="canvas-heading"><h2><span data-icon="canvas" aria-hidden="true"></span><span data-text="canvas">Canvas</span></h2><span id="canvas-size" class="canvas-size"></span></div>
+    <div class="canvas-stage"><div id="canvas"></div></div>
+    <div class="canvas-footer"><span class="preview-status"><i aria-hidden="true"></i><span id="preview-state" data-text="livePreview">Live preview</span></span><span class="canvas-caption" data-text="localWorkspace">Local scene workspace</span></div>
+  </section>
+  <aside class="panel properties-panel" aria-labelledby="properties-heading">
+    <div class="panel-heading"><h2 id="properties-heading" data-text="properties">Properties</h2><span id="selection-kind" class="selection-kind"></span></div>
+    <div class="inspector-scroll"><form id="inspector"></form></div>
+    <p id="binding" class="binding-note"><span data-icon="lock" aria-hidden="true"></span><span data-text="binding">Script, animation and property-controlled fields are read-only.</span></p>
+  </aside>
+</main>
+<footer class="status-bar"><output id="diagnostics" role="alert"></output><span class="audio-note"><span data-icon="muted" aria-hidden="true"></span><span data-text="previewMuted">Preview is muted. Audio response is preserved for wallpaper playback.</span></span><span class="shortcut-note"><kbd>⌘ Z</kbd><span data-text="undo">Undo</span></span></footer>
 <script type="module" src="app.mjs"></script>
 </body></html>

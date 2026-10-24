@@ -11,11 +11,12 @@
   "files": {
     "editor-api.mjs": "01ad2136319122edc3cf473322ee258df8adf49068e1228c6fcf6762969a4bd6",
     "webwallgl.bundle.mjs": "17c85a29c11b1a783f79f4351df00497217b1af76c4b457ca9422c21dbae8fa3",
-    "index.html": "9143c059920ff54f1a84b71662b2dac8acf40da82499964b39d7283aa9fdd16f",
-    "editor.css": "81586e7e17fa3d24605f3e616cda7a02f325515a149dfe0af646fe65a4a12ebb",
-    "app.mjs": "b678b502c993b089c904ba08b7775cd4a79f9240059054143b8ed219fa306fd9",
+    "index.html": "394ce141c8cd4ffb32382e40fae5ee9eb7ae5b9f864ec5f87b0cf3b1926c6669",
+    "editor.css": "8a1c828b216b5c9a237bba370b641097ae8dde13ff47e250d61bca5979fd1b6e",
+    "app.mjs": "dbe4244102fe912c925c4b12a8b78cb9799ddab25f5d13dbecd0fe77139c5009",
     "document.mjs": "413ee62256955abb09a889056e8793119052a6aa8afcab4534ce1e7e88ee01b5",
     "runtime.mjs": "29694876755598bf5dd81dd1d2f2f9be9bbb6ced7d3f7ede9073cd59a72d3a27",
-    "localization.mjs": "b3ae571afd8c292327b23265dad2035826b684f60939fae1a61ab78b99c83707"
+    "localization.mjs": "9427a68c2791d0f13f7161ad37df2499da5495391d9d44db27065d71684225d4",
+    "interface.mjs": "3e26d871b5253ac2b1a31cfc847f358574b25db19d920cdaea3dd4583600ce7b"
   }
 }
