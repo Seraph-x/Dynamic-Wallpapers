@@ -38,3 +38,11 @@ test('resource resolution captures each snapshot and preserves unknown originals
   assert.deepEqual(await first('other.bin'),new Uint8Array([9]));
   assert.equal(await first('absent'),null); await assert.rejects(first('../outside'));
 });
+test('resource inventory RPC validates real workspace-relative paths',async()=>{
+  let sent;const client=createResourceClient(value=>{sent=value;});
+  for(const paths of [['models/a.json','materials/a.png'],['../outside'],null]){
+    const result=client.paths();await Promise.resolve();assert.equal(sent.action,'list');client.reply({requestID:sent.id,result:{paths}});
+    if(Array.isArray(paths)&&paths[0]==='models/a.json')assert.deepEqual(await result,paths);else await assert.rejects(result,/path|inventory/i);
+  }
+  client.dispose();
+});

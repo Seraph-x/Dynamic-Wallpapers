@@ -124,7 +124,7 @@ bool EditorSession::receive(const std::string& body) { @autoreleasepool {
     } else if ([object[@"action"] isEqual:@"read"] && [object[@"version"] isKindOfClass:NSString.class] && [object[@"version"] length] == 64 &&
         [object[@"version"] rangeOfString:@"^[a-f0-9]{64}$" options:NSRegularExpressionSearch].location != NSNotFound) {
       [keys addObject:@"version"];
-    } else throw std::runtime_error("Invalid Editor resource request");
+    } else if (![object[@"action"] isEqual:@"list"]) throw std::runtime_error("Invalid Editor resource request");
     NSData* payload = [NSJSONSerialization dataWithJSONObject:object options:0 error:nil];
     event.payload.assign(static_cast<const char*>(payload.bytes), payload.length);
   } else if ([type isEqual:@"error"] && text(object[@"message"], 2048)) {

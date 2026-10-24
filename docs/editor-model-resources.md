@@ -130,6 +130,14 @@ then opened by Main's actual CEF scene runtime. Native assertions require known
 bind positions, a stationary left mesh and intermediate right-mesh deformation,
 followed by full page/runtime release.
 
+Image-to-mesh creation uses the same pinned encoder to write MDLV0023, an
+80-byte skinned vertex layout, one identity root and a constant Rest clip. It
+chooses 16-bit or 32-bit indices from the actual vertex count. Source image
+model/material metadata is copied to distinct resource paths; publication and
+the selected layer binding form one document transaction. See the
+[image conversion contract](editor-model-workspace.md#create-a-mesh-from-an-image)
+for supported materials and dimension requirements.
+
 ## Reused source
 
 The lossless codec is the unmodified MIT-licensed

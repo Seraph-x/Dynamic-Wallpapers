@@ -10,5 +10,15 @@ for(const [language,strings] of Object.entries(values))if(strings.length!==keys.
 export function modelMessages(language='en') {
   const key=language.startsWith('zh')?'zh-Hans':language.split('-')[0];
   const reload={en:'Reload model','zh-Hans':'重新读取模型',ja:'モデルを再読込',fr:'Relire le modèle',es:'Volver a leer el modelo'};
-  return {...Object.fromEntries(keys.map((name,i)=>[name,(values[key]??values.en)[i]])),reloadModel:reload[key]??reload.en};
+  const imageKeys='imageMeshCreate imageMeshTitle imageMeshNote imageRootName imageGridDensity imageVertices imageTriangles imageMeshConfirm imageRootDefault imageMeshHint'.split(' ');
+  const image={
+    en:['Create mesh from image…','Create an editable image mesh','Creates an unlit model copy with a root bone. Your original image and shared resources remain unchanged.','Root bone name','Grid density','vertices','triangles','Create mesh','Root','Turn this image into a skinned grid, then edit its bones and weights.'],
+    'zh-Hans':['从图片创建网格…','创建可编辑的图片网格','创建包含根骨骼的无光照模型副本，保留原图片及共享资源。','根骨骼名称','网格密度','个顶点','个三角形','创建网格','根骨骼','将这张图片转换为蒙皮网格，再编辑骨骼和权重。'],
+    ja:['画像からメッシュを作成…','編集可能な画像メッシュを作成','ルートボーン付きの非照明モデルを複製します。元画像と共有リソースは保持されます。','ルートボーン名','グリッド密度','頂点','三角形','メッシュを作成','ルート','画像をスキングリッドに変換して、ボーンとウェイトを編集します。'],
+    fr:['Créer un maillage depuis l’image…','Créer un maillage d’image modifiable','Crée une copie non éclairée avec un os racine. L’image et les ressources partagées sont conservées.','Nom de l’os racine','Densité de grille','sommets','triangles','Créer le maillage','Racine','Transformez cette image en grille pondérée, puis modifiez ses os et poids.'],
+    es:['Crear malla desde la imagen…','Crear una malla de imagen editable','Crea una copia sin iluminación con un hueso raíz. Se conservan la imagen y los recursos compartidos.','Nombre del hueso raíz','Densidad de cuadrícula','vértices','triángulos','Crear malla','Raíz','Convierte esta imagen en una malla con pesos y edita sus huesos e influencias.'],
+  };
+  for(const [language,strings] of Object.entries(image))if(strings.length!==imageKeys.length)throw new Error(`Incomplete image mesh translation: ${language}`);
+  return {...Object.fromEntries(keys.map((name,i)=>[name,(values[key]??values.en)[i]])),reloadModel:reload[key]??reload.en,
+    ...Object.fromEntries(imageKeys.map((name,i)=>[name,(image[key]??image.en)[i]]))};
 }

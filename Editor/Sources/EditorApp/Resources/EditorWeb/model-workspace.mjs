@@ -1,4 +1,4 @@
-import { inspectModel,editModelHierarchy,setSkinInfluences } from './model-api.mjs';
+import { inspectModel,editModelHierarchy,setSkinInfluences,captureImageSource,commitImagePuppet } from './model-api.mjs';
 import { modelResourceSource,commitModelResource } from './model-resource-edit.mjs';
 import { initializeModelView } from './model-view.mjs';
 import { ModelBoneOverlay,drawWeightMap } from './model-overlay.mjs';
@@ -6,7 +6,7 @@ import { ModelBoneOverlay,drawWeightMap } from './model-overlay.mjs';
 const $=id=>document.getElementById(id);
 export class ModelWorkspace {
   #editor;#t;#error;#reset;#view;#overlay;#active=false;#id;#source;#bytes;#data;#bone=0;#mesh=0;#vertex=0;#points;
-  #boneDraft=false;#weightDraft=false;#failure;#loadError;#operations=Promise.resolve();#loading=Promise.resolve({ok:true});#loadRevision=0;#busy=0;#closed=false;#locked=false;#dialogTarget;
+  #boneDraft=false;#weightDraft=false;#failure;#loadError;#operations=Promise.resolve();#loading=Promise.resolve({ok:true});#loadRevision=0;#busy=0;#closed=false;#locked=false;#dialogTarget;#imageSource;
   constructor({editor,t,onError,onResetInput}) {
     this.#editor=editor;this.#t=t;this.#error=onError;this.#reset=onResetInput;this.#view=initializeModelView(t);
     const bind=(id,event,operation)=>$(id).addEventListener(event,e=>{e.preventDefault();void this.#run(()=>operation(e));});
@@ -21,10 +21,18 @@ export class ModelWorkspace {
     bind('model-reload','click',()=>{this.#failure=undefined;this.#reset();this.update(editor.document,this.#id,true);});
     bind('model-create','click',async()=>{await this.#prepare();this.#dialogTarget={source:this.#source,bone:this.#bone};this.#view.showCreate(this.#data,this.#bone);});
     bind('model-delete','click',async()=>{await this.#prepare();this.#dialogTarget={source:this.#source,bone:this.#bone};this.#view.showDelete(this.#data,this.#bone,this.#impact());});
-    for(const [cancel,dialog] of [['model-new-cancel','model-create-dialog'],['model-delete-cancel','model-delete-dialog']]){
+    bind('model-image-create','click',async()=>{await this.#prepare();this.#imageSource=captureImageSource(editor,this.#id);this.#view.showImage();});
+    bind('model-image-dialog-form','submit',async()=>{
+      this.#validate('model-image-dialog-form');this.#view.imageError('');
+      try{
+        await commitImagePuppet(editor,this.#imageSource,this.#view.imageValues());this.#bone=0;this.#mesh=0;this.#vertex=0;
+        this.#failure=undefined;this.#reset();await this.#loading;this.#render();this.#view.closeImage();
+      }catch(error){this.#view.imageError(error.message);throw error;}
+    });
+    for(const [cancel,dialog] of [['model-new-cancel','model-create-dialog'],['model-delete-cancel','model-delete-dialog'],['model-image-cancel','model-image-dialog']]){
       $(cancel).addEventListener('click',()=>{if(!this.#locked&&!this.#busy)$(dialog).close();});
       $(dialog).addEventListener('cancel',event=>{if(this.#busy||this.#locked)event.preventDefault();});
-      $(dialog).addEventListener('close',()=>{this.#dialogTarget=undefined;this.#failure=undefined;this.#reset();});
+      $(dialog).addEventListener('close',()=>{this.#dialogTarget=undefined;this.#imageSource=undefined;this.#failure=undefined;this.#reset();});
     }
     bind('model-create-dialog-form','submit',async()=>{
       this.#validate('model-create-dialog-form');this.#assertDialog();const pose=[];
@@ -95,7 +103,9 @@ export class ModelWorkspace {
   #render(loading=false,error) {
     if(!this.#active)return;let capacity;
     try{capacity=this.#editor.modelBoneCapacity;}catch(value){error=value.message;}
-    this.#view.render({data:this.#data,bone:this.#bone,mesh:this.#mesh,vertex:this.#vertex,capacity,boneDraft:this.#boneDraft,weightDraft:this.#weightDraft,onBone:i=>this.#selectBone(i),loading,error:error??this.#loadError?.message});
+    const layer=this.#editor.document.snapshot().scene.objects?.find(layer=>layer.id===this.#id);
+    const canCreateImage=!this.#source&&!this.#loadError&&typeof layer?.image==='string'&&layer.text===undefined&&layer.model===undefined;
+    this.#view.render({data:this.#data,bone:this.#bone,mesh:this.#mesh,vertex:this.#vertex,capacity,boneDraft:this.#boneDraft,weightDraft:this.#weightDraft,onBone:i=>this.#selectBone(i),loading,error:error??this.#loadError?.message,canCreateImage});
     if(this.#data)this.#points=drawWeightMap($('model-weight-map'),this.#data.meshes[this.#mesh],this.#bone,this.#vertex);
     this.#view.busy(this.#busy>0||this.#locked);
   }
@@ -154,7 +164,7 @@ export class ModelWorkspace {
     this.#boneDraft=false;this.#weightDraft=false;
     try{await this.#write(bytes,map);}catch(error){this.#boneDraft=boneDraft;this.#weightDraft=weightDraft;throw error;}
   }
-  flush(){return this.#run(async()=>{if($('model-create-dialog').open||$('model-delete-dialog').open)throw new Error('Finish or cancel the model dialog before saving or changing the scene');await this.#prepare();},true);}
+  flush(){return this.#run(async()=>{if(document.querySelector('.model-dialog[open]'))throw new Error('Finish or cancel the model dialog before saving or changing the scene');await this.#prepare();},true);}
   setFrozen(value){this.#locked=value;this.#view.busy(value||this.#busy>0);}
   destroy(){this.#closed=true;this.#loadRevision++;this.#overlay.destroy();}
 }

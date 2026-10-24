@@ -6,9 +6,9 @@ PR 2 supplies the Editor; PR 3 supplies the optional Main handoff and packaging.
 
 ## Model workspace acceptance
 
-The current Model workspace is covered by 55 focused JavaScript checks,
-including 24 model/capacity/hierarchy/resource checks, and the full real-browser
-and native CEF harness. The reproducible build verifies 24 offline resources.
+The current Model workspace is covered by 70 focused JavaScript checks,
+including image-grid generation, atomic conversion and resource-inventory RPC.
+The full real-browser and native CEF harness also passes. The reproducible build verifies 25 offline resources.
 Product/source checks pass 3 Editor product tests, 42 product-configuration
 tests and 16 public-source export tests. These focused checks do not establish
 a full application-suite pass.
@@ -36,6 +36,26 @@ Main's actual CEF scene runtime, where bind placement, the stationary left bone
 and intermediate right-bone deformation are asserted. Normal page closure and
 exactly one runtime shutdown remain required. See the
 [workspace guide](../editor-model-workspace.md) for user-visible semantics.
+
+Image-to-mesh acceptance exercises cancellation, unsupported dimensions, a real
+second-stage HTTP failure, shared-image isolation, explicit layer size/alignment,
+one-step history and exact image pixels after conversion. Pixel captures exclude
+SVG editing controls and rounded workbench clipping; scene pixels are compared
+without increased tolerances. The browser creates an independent bone and uses a
+documented test-only native MDLA fixture to verify weight deformation. It saves,
+reloads and exports the authored image-generated model; no skeletal clip UI is
+implied. Five languages and both themes at 850 × 540 verify labels, native modal
+focus, Escape and unchanged content.
+
+The native harness additionally creates the grid from actual owned image files,
+checks three staged hashes and the selected binding, then freezes, saves and
+undoes/redoes the complete conversion. Main renders the original four-quadrant
+image and both converted loose/PKG exports. Assertions require the correct
+orientation/bind placement and changing intermediate root motion in the known
+0..20-pixel range, followed by page closure and exactly one runtime shutdown.
+The independent Editor builds successfully and its real native resource bridge
+test passes, including workspace-scoped inventory and denied unknown workspaces.
+The resource protocol rejects inventory requests with extra paths/fields.
 
 ## Reproducible checks
 

@@ -31,6 +31,11 @@ export function createResourceClient(report) {
     });
   }
   return {
+    async paths() {
+      const result=await request({action:'list'});
+      if(!Array.isArray(result.paths))throw new Error('Invalid resource inventory');
+      return result.paths.map(safePath);
+    },
     async stage(bytes) {
       if (!(bytes instanceof Uint8Array)) throw new Error('Resource bytes required');
       const copy = bytes.slice(), expected = await digest(copy), result = await request({action:'stage',data:encodeResource(copy)});

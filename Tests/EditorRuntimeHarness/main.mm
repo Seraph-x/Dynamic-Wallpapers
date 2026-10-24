@@ -108,13 +108,19 @@ static NSString* resourceHash(NSData* data) {
   unsigned char hash[CC_SHA256_DIGEST_LENGTH]; CC_SHA256(data.bytes,static_cast<CC_LONG>(data.length),hash);
   NSMutableString* result=[NSMutableString string]; for(auto byte:hash)[result appendFormat:@"%02x",byte];return result;
 }
-static NSMutableDictionary* configureResources(DWWebPage* page, NSString* root, void (^onFailure)(NSError*)) {
+static NSMutableDictionary* configureResources(DWWebPage* page, NSString* root, NSString* projectRoot, void (^onFailure)(NSError*)) {
   NSError* error=nil;require([NSFileManager.defaultManager createDirectoryAtPath:root withIntermediateDirectories:YES attributes:nil error:&error],"Cannot create native resource test store");
   NSMutableDictionary* stats=[@{@"beforeReady":@0} mutableCopy]; __weak DWWebPage* weakPage=page;
   page.onEditorResource=^(NSDictionary<NSString*,id>* request){
     DWWebPage* current=weakPage; require(current!=nil,"Resource request lost its page");
     NSError* error=nil;NSDictionary* result;
-    if([request[@"action"] isEqual:@"stage"]) {
+    if([request[@"action"] isEqual:@"list"]) {
+      NSMutableArray* paths=[NSMutableArray array];
+      NSDirectoryEnumerator* enumerator=[NSFileManager.defaultManager enumeratorAtPath:projectRoot];
+      for(NSString* path in enumerator){BOOL directory=NO;
+        if([NSFileManager.defaultManager fileExistsAtPath:[projectRoot stringByAppendingPathComponent:path] isDirectory:&directory]&&!directory)[paths addObject:path];}
+      result=@{@"paths":paths};
+    } else if([request[@"action"] isEqual:@"stage"]) {
       NSData* bytes=[[NSData alloc]initWithBase64EncodedString:request[@"data"] options:0];require(bytes!=nil,"Invalid test resource bytes");
       NSString* version=resourceHash(bytes);BOOL written=[bytes writeToFile:[root stringByAppendingPathComponent:version] options:NSDataWritingAtomic error:&error];
       result=written?@{@"version":version}:@{@"error":error.localizedDescription};
@@ -139,7 +145,7 @@ static void verifyModelWorkbench(DWWebRuntime* runtime,NSString* projectRoot,NSS
   NSError* error=nil;__block NSError* failure=nil;
   DWWebPage* page=[runtime editorPageWithProjectRoot:projectRoot runtimeRoot:runtimeRoot configuration:config size:NSMakeSize(1180,760) error:&error];
   require(page!=nil,error.localizedDescription.UTF8String ?: "Native Model workbench creation failed");
-  page.onError=^(NSError* value){failure=value;};configureResources(page,resources,^(NSError* value){failure=value;});
+  page.onError=^(NSError* value){failure=value;};configureResources(page,resources,projectRoot,^(NSError* value){failure=value;});
   NSWindow* window=[[NSWindow alloc]initWithContentRect:NSMakeRect(0,0,1180,760) styleMask:NSWindowStyleMaskTitled backing:NSBackingStoreBuffered defer:NO];
   window.releasedWhenClosed=NO;page.view.frame=window.contentView.bounds;[window.contentView addSubview:page.view];[window makeKeyAndOrderFront:nil];
   [page start];waitUntil(^{return page.ready||failure!=nil;},20,"Native Model workbench first frame timed out");require(!failure,"Native Model workbench failed");
@@ -161,8 +167,9 @@ static void verifyModelWorkbench(DWWebRuntime* runtime,NSString* projectRoot,NSS
   __block BOOL released=NO;[page closeWithCompletion:^(NSError* value){failure=value;released=YES;}];waitUntil(^{return released;},7,"Native model editor close timed out");require(!failure,"Native model editor close failed");[window close];
   fprintf(stderr,"Native Model workspace: actual keyboard, unblurred freeze, staged MDL name/hash, save acknowledgement and undo/redo passed\n");
 }
+#include "ImagePuppetAcceptance.h"
 int main(int argc,char**argv) { @autoreleasepool {
-  if(argc!=6 && argc!=9 && argc!=11){fprintf(stderr,"usage: EditorHarness FRAMEWORK HELPER CACHE RUNTIME PROJECT [MAIN_RUNTIME LOOSE_EXPORT PKG_EXPORT [MODEL_LOOSE MODEL_PKG]]\n");return 64;}
+  if(argc!=6 && argc!=9 && argc!=11 && argc!=14){fprintf(stderr,"usage: EditorHarness FRAMEWORK HELPER CACHE RUNTIME PROJECT [MAIN_RUNTIME LOOSE_EXPORT PKG_EXPORT [MODEL_LOOSE MODEL_PKG [IMAGE_SOURCE IMAGE_LOOSE IMAGE_PKG]]]\n");return 64;}
   DWWebCreateApplication(); [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory]; [NSApp finishLaunching];
   DWWebRuntime* runtime=[[DWWebRuntime alloc]initWithFrameworkDirectory:@(argv[1]) helperExecutable:@(argv[2]) cacheDirectory:@(argv[3])];
   NSError* error=nil;
@@ -180,7 +187,7 @@ int main(int argc,char**argv) { @autoreleasepool {
     [window.contentView addSubview:page.view];[window makeKeyAndOrderFront:nil];[NSApp activateIgnoringOtherApps:YES];
     __block BOOL dirty=NO;
     page.onError=^(NSError* value){failure=value;};page.onEditorDirty=^(BOOL value){dirty=value;};
-    configureResources(page,resourceRoot,^(NSError* value){failure=value;});
+    configureResources(page,resourceRoot,@(argc>=9?argv[7]:argv[5]),^(NSError* value){failure=value;});
     [page start];waitUntil(^{return page.ready||failure!=nil;},20,"No actual Editor first-frame readiness");
     require(!failure,failure.localizedDescription.UTF8String ?: "Editor readiness failed");
     require([page editorTestNativeViewIsAttached],"CEF child view is not attached to the native editor window");
@@ -232,7 +239,7 @@ int main(int argc,char**argv) { @autoreleasepool {
       DWWebPage* reopened=[runtime editorPageWithProjectRoot:@(argv[7]) runtimeRoot:@(argv[4]) configuration:@{@"language":@"en",@"document":resourceSnapshot} size:NSMakeSize(640,360) error:&error];
       require(reopened!=nil,"Cannot reopen resource revision"); failure=nil;
       reopened.onError=^(NSError* value){failure=value;};
-      NSMutableDictionary* stats=configureResources(reopened,resourceRoot,^(NSError* value){failure=value;});
+      NSMutableDictionary* stats=configureResources(reopened,resourceRoot,@(argv[7]),^(NSError* value){failure=value;});
       NSWindow* host=[[NSWindow alloc]initWithContentRect:NSMakeRect(0,0,640,360) styleMask:NSWindowStyleMaskTitled backing:NSBackingStoreBuffered defer:NO];host.releasedWhenClosed=NO;
       [host.contentView addSubview:reopened.view];[host makeKeyAndOrderFront:nil];
       [reopened start];waitUntil(^{return reopened.ready||failure!=nil;},20,"Resource reopen initial rendering deadlocked");
@@ -268,8 +275,14 @@ int main(int argc,char**argv) { @autoreleasepool {
       waitUntil(^{return released;},7,"Export playback close timed out");require(!failure,"Export playback close failed");
       fprintf(stderr,"Editor %s export rendered actual Main scene image/text pixels\n",index==7?"loose":"PKG");
     } }
-    if(argc==11)for(int index=9;index<=10;++index){@autoreleasepool{verifyModelExport(runtime,@(argv[index]),@(argv[6]),index==10);}}
-    if(argc==11){@autoreleasepool{verifyModelWorkbench(runtime,@(argv[9]),@(argv[4]),[@(argv[3]) stringByAppendingPathComponent:@"ModelResources"]);}}
+    if(argc>=11)for(int index=9;index<=10;++index){@autoreleasepool{verifyModelExport(runtime,@(argv[index]),@(argv[6]),index==10);}}
+    if(argc>=11){@autoreleasepool{verifyModelWorkbench(runtime,@(argv[9]),@(argv[4]),[@(argv[3]) stringByAppendingPathComponent:@"ModelResources"]);}}
+    if(argc==14){@autoreleasepool{
+      verifyImageCreation(runtime,@(argv[11]),@(argv[4]),[@(argv[3]) stringByAppendingPathComponent:@"ImageResources"]);
+      verifyImageExport(runtime,@(argv[11]),@(argv[6]),NO,NO);
+      verifyImageExport(runtime,@(argv[12]),@(argv[6]),NO,YES);
+      verifyImageExport(runtime,@(argv[13]),@(argv[6]),YES,YES);
+    }}
     require([runtime shutdownWithError:&error],error.localizedDescription.UTF8String ?: "CEF shutdown failed");
     require(runtime.shutdownCount==1,"Runtime shutdown not observed");
     puts("Native Editor: real first frame, attached CEF child, keyboard, edit/undo/redo, resize and full release passed");return 0;
