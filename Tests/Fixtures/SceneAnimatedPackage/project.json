@@ -1,0 +1,8 @@
+{
+  "title": "Dynamic Wallpapers authored acceptance fixture",
+  "type": "scene",
+  "file": "scene.pkg",
+  "general": {
+    "properties": {}
+  }
+}
