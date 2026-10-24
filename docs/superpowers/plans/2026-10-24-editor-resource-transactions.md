@@ -83,6 +83,9 @@ resource list and packaging list if the new resources module is separately shipp
 - [x] Request independent code review against main and this spec. Resolve
   substantive findings with regression tests and rerun affected acceptance.
 - [x] Inspect final diff and verify owned source privacy and source-export/product checks.
-- [ ] Commit integration and create an English PR using the real configured author
+- [x] Commit integration and create an English PR using the real configured author
   email. Do not claim the four later feature PRs are implemented, or merge/publish
   the new PR without authorization for that action.
+
+Completed: [PR #12](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/12).
+The four subsequent roadmap features remain separate work; this PR is not merged.
