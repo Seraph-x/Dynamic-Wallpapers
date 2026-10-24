@@ -1,0 +1,6 @@
+Copyright (c) 2026 Dynamic Wallpapers contributors
+
+These original scene fixtures are dedicated to the public domain under CC0 1.0.
+https://creativecommons.org/publicdomain/zero/1.0/
+
+No third-party wallpaper assets are included. Orange moves with scene time; cyan follows the pointer; green spectrum strip turns red if a nonzero spectrum is injected. SceneAnimatedPackage contains the same scene.json in a PKGV0012 archive.

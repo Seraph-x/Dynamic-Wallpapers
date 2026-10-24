@@ -11,7 +11,7 @@ clang++ -std=c++20 -mmacosx-version-min=14.0 -fobjc-arc -frtti -O2 -DNS_BLOCK_AS
   -isystem "$CEF_ROOT" -I Sources/WebWallpaperBridge/include -I Sources/WebWallpaperBridge \
   Tests/WebRuntimeHarness/page-state-main.mm Tests/WebRuntimeHarness/page-state-tests.mm \
   Sources/WebWallpaperBridge/WebRuntime.mm Sources/WebWallpaperBridge/WebClient.cpp Sources/WebWallpaperBridge/WebAudioOutput.mm \
-  Sources/WebWallpaperBridge/LocalProjectFiles.cpp Sources/WebWallpaperBridge/LocalWebRequestContext.cpp \
+  Sources/WebWallpaperBridge/LocalProjectFiles.cpp Sources/WebWallpaperBridge/LocalWebRequestContext.cpp Sources/WebWallpaperBridge/SceneProtocol.mm \
   "$WRAPPER" -framework AppKit -framework QuartzCore -framework AVFoundation -framework CoreAudio -o "$RUN_ROOT/WebPageStateTests"
 set +e
 "$RUN_ROOT/WebPageStateTests"

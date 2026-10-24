@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "esbuild": "0.28.2",
+    "mediabunny": "1.56.0",
+    "playwright": "1.58.2",
+    "webwallgl": "3.0.0"
+  },
+  "private": true,
+  "name": "dynamic-wallpapers-scene-runtime-build"
+}

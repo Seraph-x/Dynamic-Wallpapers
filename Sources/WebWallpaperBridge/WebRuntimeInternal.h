@@ -15,5 +15,7 @@ static inline NSError* DWWebError(NSString* message) {
 @interface DWWebPage (RuntimeInternal)
 - (instancetype)initWithRuntime:(DWWebRuntime*)runtime root:(NSString*)root entry:(NSString*)entry
                           size:(NSSize)size scale:(CGFloat)scale;
+- (void)configureSceneRuntimeRoot:(NSString*)root entry:(NSString*)entry representation:(NSString*)representation
+                         sceneID:(NSString*)sceneID generation:(uint64_t)generation;
 - (void)tick;
 @end

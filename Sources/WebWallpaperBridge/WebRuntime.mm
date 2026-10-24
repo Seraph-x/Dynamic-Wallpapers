@@ -1,4 +1,5 @@
 #import "WebRuntimeInternal.h"
+#include "SceneProtocol.hpp"
 #include "include/cef_app.h"
 #include "include/cef_application_mac.h"
 #include "include/wrapper/cef_library_loader.h"
@@ -228,6 +229,32 @@ class RuntimeApp final : public CefApp, public CefBrowserProcessHandler {
   [_pages addObject:page];
   [self startPageLifecycleTimerIfNeeded];
   [self scheduleMaintenancePump];
+  return page;
+}
+- (DWWebPage*)scenePageWithProjectRoot:(NSString*)root runtimeRoot:(NSString*)runtimeRoot
+    entry:(NSString*)entry representation:(NSString*)representation sceneID:(NSString*)sceneID
+    generation:(uint64_t)generation size:(NSSize)size scale:(CGFloat)scale error:(NSError**)error {
+  DWRequireWebMainThread();
+  if (!runtimeRoot.isAbsolutePath || sceneID.length == 0 ||
+      [sceneID lengthOfBytesUsingEncoding:NSUTF8StringEncoding] > 128 || generation == 0 || generation > 9007199254740991ULL ||
+      (![representation isEqual:@"loose"] && ![representation isEqual:@"package"])) {
+    if (error) *error = DWWebError(@"Scene identity, runtime path or representation is invalid"); return nil;
+  }
+  NSString* extension = entry.pathExtension.lowercaseString;
+  if (([representation isEqual:@"loose"] && ![extension isEqual:@"json"]) ||
+      ([representation isEqual:@"package"] && ![extension isEqual:@"pkg"])) {
+    if (error) *error = DWWebError(@"Scene entry extension does not match representation"); return nil;
+  }
+  try {
+    dw::sceneRoute("__project/" + std::string(entry.UTF8String), "GET", true);
+    if ([entry rangeOfString:@"\0"].location != NSNotFound ||
+        [sceneID rangeOfString:@"\0"].location != NSNotFound)
+      throw std::runtime_error("Scene identity or entry contains NUL");
+  } catch (const std::exception& failure) {
+    if (error) *error = DWWebError(@(failure.what())); return nil;
+  }
+  DWWebPage* page = [self pageWithProjectRoot:root entry:entry size:size scale:scale error:error];
+  [page configureSceneRuntimeRoot:runtimeRoot entry:entry representation:representation sceneID:sceneID generation:generation];
   return page;
 }
 - (void)retirePage:(DWWebPage*)page {

@@ -37,6 +37,36 @@
         "MPV/render.h"
       ],
       "source_record": "MPV/SOURCE-STATUS.md"
+    },
+    "webwallgl": {
+      "version": "3.0.0",
+      "license": "MIT; bundled Mediabunny modules separately under MPL-2.0",
+      "complete": true,
+      "scope": "Exact npm distribution reference and original MIT notice retained by hash; locked bundle recipe and source URL recorded; no renderer feature-completeness claim",
+      "license_files": [
+        "WebWallGL/LICENSE"
+      ],
+      "source_record": "WebWallGL/provenance.json"
+    },
+    "mediabunny": {
+      "version": "1.56.0",
+      "license": "MPL-2.0",
+      "complete": true,
+      "scope": "Original MPL notice, exact unmodified npm Source Code Form URL and integrity retained; covered executable modules bundled using locked recipe",
+      "license_files": [
+        "WebWallGL/Mediabunny-LICENSE"
+      ],
+      "source_record": "WebWallGL/README.md"
+    },
+    "wescene": {
+      "version": "Vendored in webwallgl 3.0.0",
+      "license": "MIT",
+      "complete": true,
+      "scope": "Original MIT notice retained for code vendored in the exact pinned engine distribution; no separately published upstream revision or source rebuild claim",
+      "license_files": [
+        "WebWallGL/WeScene-LICENSE"
+      ],
+      "source_record": "WebWallGL/README.md"
     }
   },
   "unresolved": [
@@ -141,8 +171,33 @@
     },
     {
       "path": "README.md",
-      "sha256": "67d972f658d2d4baa5b53556327dd6d348012a56a0e6b05ab61f42eec8487fd8",
-      "size": 1955
+      "sha256": "bf99cd9c40a4a53daa682510b7d0bc530ff286f2d0217790552ec9a17f658cd6",
+      "size": 2503
+    },
+    {
+      "path": "WebWallGL/LICENSE",
+      "sha256": "857432ca4f48930e6079aca25164c27b791576ee2a7d3e3c9d6a92a089fe4948",
+      "size": 1085
+    },
+    {
+      "path": "WebWallGL/Mediabunny-LICENSE",
+      "sha256": "3f3d9e0024b1921b067d6f7f88deb4a60cbe7a78e76c64e3f1d7fc3b779b9d04",
+      "size": 16726
+    },
+    {
+      "path": "WebWallGL/README.md",
+      "sha256": "36501640155f2b539d37b241a6ce2c1b50d2f2f497694e65a62a51814bf549a3",
+      "size": 2202
+    },
+    {
+      "path": "WebWallGL/WeScene-LICENSE",
+      "sha256": "55bb1034635de81dc53f0466ec62e7681c49ae171fe5dc3221e346a0ea732641",
+      "size": 1086
+    },
+    {
+      "path": "WebWallGL/provenance.json",
+      "sha256": "cdb3462079a31e1071af6e6b7c2bf74eaef48471a91834b52d277cb742bdd456",
+      "size": 1252
     }
   ]
 }
