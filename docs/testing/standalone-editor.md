@@ -6,9 +6,11 @@ PR 2 supplies the Editor; PR 3 supplies the optional Main handoff and packaging.
 
 ## Model workspace acceptance
 
-The current Model workspace is covered by 70 focused JavaScript checks,
+The current Model workspace is covered by 88 focused JavaScript checks,
 including image-grid generation, atomic conversion and resource-inventory RPC.
-The full real-browser and native CEF harness also passes. The reproducible build verifies 25 offline resources.
+The reproducible build verifies 28 offline resources. Complete real-browser
+and native CEF acceptance passes with the explicitly approved isolated test
+keychain mode described below.
 Product/source checks pass 3 Editor product tests, 42 product-configuration
 tests and 16 public-source export tests. These focused checks do not establish
 a full application-suite pass.
@@ -56,6 +58,46 @@ orientation/bind placement and changing intermediate root motion in the known
 The independent Editor builds successfully and its real native resource bridge
 test passes, including workspace-scoped inventory and denied unknown workspaces.
 The resource protocol rejects inventory requests with extra paths/fields.
+
+## Weight brush acceptance
+
+The brush uses real pointer capture and edits actual staged MDL weights. Coverage
+includes segment interpolation, influence normalization, one history step per
+stroke, no-op completion, Escape/pointer cancellation, delayed preparation and
+pointerup followed by native freeze, explicit stage failure/recovery, and
+preserving an unrelated invalid Timeline draft. Browser acceptance saves,
+reopens and exports the painted mesh in loose and PKG form. Main's native CEF
+frames must show a stationary painted corner while the remaining root-driven
+vertices move over the documented test-only MDLA fixture's 0..20-pixel range.
+The fixture establishes playback of painted weights, not skeletal clip authoring.
+A separate native brush phase uses actual CEF pointer input, Save and undo/redo;
+normal closure and exactly one shutdown are required in each native phase.
+The complete run passed protocol, browser, image/brush browser, native and native
+brush phases within the unchanged budgets. A second native-brush execution with
+a fresh context also passed real input, history, both export formats and normal
+single shutdown. The independent Editor build and
+real native resource-bridge test also passed. The production Editor executable
+omits the test-keychain marker, and an unknown test-keychain mode exits with 64.
+
+A native validation attempt reached the expected export pixels but exceeded its
+60-second shutdown budget. Symbolication identified a worker waiting for macOS
+Keychain authorization in `KeychainPassword::GetPassword` / `SecItemCopyMatching`,
+while the main thread waited in `TaskTracker::CompleteShutdown`. That attempt
+remains failed; changing argv or message-pump draining did not resolve it and
+those experiments were not applied to production source.
+
+For explicit, user-approved test isolation, run:
+
+```sh
+EDITOR_NATIVE_TEST_KEYCHAIN=isolated python3 scripts/test-editor-native.py
+```
+
+`isolated` compiles Chromium's `--use-mock-keychain` only into the native test
+host. It does not create a macOS Keychain and does not validate system-keychain
+integration. Real CEF rendering, resource transactions and shutdown assertions
+still run. Unset `EDITOR_NATIVE_TEST_KEYCHAIN` or set it to `system` to use the
+normal system keychain; unknown values fail the build. Production app builders
+do not define this test macro and omit the switch entirely.
 
 ## Reproducible checks
 

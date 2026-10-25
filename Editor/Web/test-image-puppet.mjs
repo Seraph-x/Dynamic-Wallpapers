@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { testWeightBrush } from './test-weight-brush.mjs';
 import { mkdir,writeFile,readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { testImagePuppetLayout } from './test-image-puppet-layout.mjs';
@@ -88,6 +89,7 @@ try{
     if(form==='Package')await writeFile(path.join(dir,'scene.pkg'),Buffer.from(exported.pkg,'base64'));
     else{await writeFile(path.join(dir,'scene.json'),JSON.stringify(value.scene));for(const name of form==='Source'?[...resources.keys()]:all){const version=value.resourceOverrides?.[name],target=path.join(dir,name);await mkdir(path.dirname(target),{recursive:true});await writeFile(target,version?await readFile(path.join(blobRoot,version)):resources.get(name));}}
   }
+  await testWeightBrush({page,command,configuration,resources,blobRoot,artifactRoot,mdlPath,redBounds});
   await testImagePuppetLayout(page,command,configuration,original);
   assert.deepEqual(errors,[]);assert.equal(await page.locator('#diagnostics').textContent(),'');
   console.log('Image puppet: exact image pixels, cancel/stage failure, shared isolation, one-step history, UI bones/weights with known test motion, saved reload and loose/PKG exports passed');

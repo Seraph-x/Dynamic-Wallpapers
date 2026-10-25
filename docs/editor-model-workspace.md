@@ -7,7 +7,7 @@ Switching workspace, selecting bones/vertices and showing overlays are preview
 choices; they do not change the saved project.
 
 This checkpoint creates skinned grids from images and edits model hierarchies
-and numeric skin weights. Direct glTF/GLB import, painting, editing an
+and painted/numeric skin weights. Direct glTF/GLB import, editing an
 existing bone's rest transform, skeletal clip authoring and the Script IDE
 remain separate roadmap work. Existing bind matrices are displayed read-only.
 
@@ -86,6 +86,48 @@ layouts fail without publishing a revision. Unedited vertices remain intact.
 The main preview immediately uses the authored MDL, and Undo restores its
 previous deformation.
 
+## Paint weights
+
+Select a mesh and bone, then choose **Paint weights** under **Map tool**. Set
+**Radius (map px)**, **Target weight** and **Strength**. Defaults are 24 map
+pixels, target 1 and strength 0.5. The map has a 320 × 180 logical coordinate
+space independent of its displayed size. Radius must be positive and finite;
+target and strength range from 0 to 1. These are preview settings, not saved
+project content. Their validity is checked when a stroke starts.
+
+Drag on the map to preview the selected bone's weight. Release applies the
+stroke to the actual model as one resource revision and one undo step. Escape,
+pointer cancellation or unexpected lost capture discards the stroke. Save,
+selection and Timeline content edits require an unfinished stroke to be finished
+or cancelled. If you already released while preparation is pending, Save waits
+for that completed stroke, including across native freeze. A no-op stroke does
+not stage a resource or dirty history. Pointer capture follows a drag outside
+the map; only its primary owning pointer can end it.
+
+The brush works in the existing XY **bind-space projection**. Vertices sharing
+the same projected XY position are painted together, including vertices at
+different depths. It is not depth-aware 3D surface picking. The main scene updates
+on release; the weight-map preview is transient until then. Choose **Select
+vertex** to use ordinary map picking and Home/End/arrow navigation again. Numeric
+influence fields remain the keyboard-accessible authoring path.
+
+Each stroke uses the maximum linear falloff coverage along its full polyline.
+For coverage `c`, original selected weight `w`, strength `s` and target `t`, the
+result is `w + s*c*(t-w)`. Extra pointer samples or retracing the same stroke do
+not build up additional strength; a new stroke does. Normalize existing
+influences and preserve all other surviving joints in proportion. Exact zero
+influences disappear. A fifth positive influence is rejected without discarding
+an existing one. Reducing the sole weighted joint requires another surviving
+weighted joint: assign one explicitly with the numeric controls first. Native
+Float32-unrepresentable influence values are rejected instead of silently lost.
+
+Failed preview strokes leave the document unchanged and show the actual error.
+A failed resource stage also publishes nothing; use **Revert** in the numeric
+weights form to clear the failed commit before retrying. Error cleanup removes
+only that stroke's own barrier; it does not discard an invalid Timeline draft.
+Painted resources use ordinary save/reopen and loose/PKG export, including
+playback in Main without Editor installed.
+
 ## Save pending input safely
 
 Save/freeze, undo/redo, layer/workspace changes, native image insertion and
@@ -163,3 +205,10 @@ A documented test-only MDLA root-motion fixture exercises numeric weight changes
 it does not represent a skeletal clip-authoring UI. Main CEF verifies all four
 texture quadrants and known intermediate motion for both image-generated exports,
 while native Editor creation checks actual staged resource hashes and history.
+
+Brush acceptance uses real pointer strokes and asserts the authored weight
+resource, expected fixed-corner deformation, atomic undo/redo, saved reload and
+both exports. It covers cancellation, preview/staging failures, no-op barriers,
+keyboard selection, unrelated invalid drafts, and delayed preparation followed
+by pointerup/freeze. Pointer ownership and implicit release follow the
+[Pointer Events specification](https://www.w3.org/TR/pointerevents/).

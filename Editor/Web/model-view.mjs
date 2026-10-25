@@ -1,3 +1,4 @@
+import { initializeWeightBrushView } from './model-brush-view.mjs';
 import { initializeImagePuppetView } from './image-puppet-view.mjs';
 const $=id=>document.getElementById(id);
 const node=(tag,properties={},...children)=>{const element=Object.assign(document.createElement(tag),properties);element.append(...children);return element;};
@@ -34,6 +35,7 @@ export function initializeModelView(t) {
   $('model-bone-parent').setAttribute('aria-describedby','model-parent-note');actions(bone,'model-bone-apply','model-bone-revert',t);
   body.append(node('div',{className:'model-actions'},node('button',{id:'model-create',type:'button',textContent:t.createBone}),node('button',{id:'model-delete',type:'button',className:'danger-button',textContent:t.deleteBone})));
   body.append(node('p',{className:'section-caption',textContent:t.restTransform}),node('pre',{id:'model-rest-matrix',tabIndex:0}));
+  initializeWeightBrushView(t,body);
   const skin=form(body,'model-weights-form',t.bindMesh);field(skin,'model-skin-mesh',t.mesh,'select');
   skin.append(node('p',{id:'model-skin-error',className:'model-note'}));
   const controls=node('div',{id:'model-skin-controls'});skin.append(controls);

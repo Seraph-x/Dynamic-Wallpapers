@@ -1,4 +1,6 @@
-import { inspectModel,editModelHierarchy,setSkinInfluences,captureImageSource,commitImagePuppet } from './model-api.mjs';
+import { WeightBrushController } from './model-brush-controller.mjs';
+import { drawBrushCursor } from './model-brush-view.mjs';
+import { inspectModel,editModelHierarchy,setSkinInfluences,createWeightStroke,captureImageSource,commitImagePuppet } from './model-api.mjs';
 import { modelResourceSource,commitModelResource } from './model-resource-edit.mjs';
 import { initializeModelView } from './model-view.mjs';
 import { ModelBoneOverlay,drawWeightMap } from './model-overlay.mjs';
@@ -6,7 +8,7 @@ import { ModelBoneOverlay,drawWeightMap } from './model-overlay.mjs';
 const $=id=>document.getElementById(id);
 export class ModelWorkspace {
   #editor;#t;#error;#reset;#view;#overlay;#active=false;#id;#source;#bytes;#data;#bone=0;#mesh=0;#vertex=0;#points;
-  #boneDraft=false;#weightDraft=false;#failure;#loadError;#operations=Promise.resolve();#loading=Promise.resolve({ok:true});#loadRevision=0;#busy=0;#closed=false;#locked=false;#dialogTarget;#imageSource;
+  #boneDraft=false;#weightDraft=false;#failure;#loadError;#operations=Promise.resolve();#loading=Promise.resolve({ok:true});#loadRevision=0;#busy=0;#closed=false;#locked=false;#dialogTarget;#imageSource;#brush;
   constructor({editor,t,onError,onResetInput}) {
     this.#editor=editor;this.#t=t;this.#error=onError;this.#reset=onResetInput;this.#view=initializeModelView(t);
     const bind=(id,event,operation)=>$(id).addEventListener(event,e=>{e.preventDefault();void this.#run(()=>operation(e));});
@@ -53,24 +55,31 @@ export class ModelWorkspace {
       });
     }
     $('model-weight-map').addEventListener('click',event=>{
-      if(!this.#points?.length)return;const box=event.currentTarget.getBoundingClientRect(),x=(event.clientX-box.left)*320/box.width,y=(event.clientY-box.top)*180/box.height;
+      if($('model-map-tool').value!=='select'||!this.#points?.length)return;const box=event.currentTarget.getBoundingClientRect(),x=(event.clientX-box.left)*320/box.width,y=(event.clientY-box.top)*180/box.height;
       let vertex=0,distance=Infinity;this.#points.forEach((point,i)=>{const d=Math.hypot(point[0]-x,point[1]-y);if(d<distance){distance=d;vertex=i;}});
       void this.#run(async()=>{await this.#prepare();this.#vertex=vertex;this.#render();});
     });
     $('model-weight-map').addEventListener('keydown',event=>{
+      if($('model-map-tool').value!=='select')return;
       if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'].includes(event.key))return;event.preventDefault();
       const count=this.#data?.meshes[this.#mesh]?.vertexCount;if(!count)return;
       const vertex=event.key==='Home'?0:event.key==='End'?count-1:Math.max(0,Math.min(count-1,this.#vertex+(['ArrowLeft','ArrowDown'].includes(event.key)?-1:1)));
       void this.#run(async()=>{await this.#prepare();this.#vertex=vertex;this.#render();});
     });
     this.#overlay=new ModelBoneOverlay({svg:$('model-bone-overlay'),editor,state:()=>({visible:this.#active&&Boolean(this.#data)&&$('model-show-bones').checked,id:this.#id,bone:this.#bone}),onSelect:i=>this.#selectBone(i)});
+    this.#brush=new WeightBrushController({canvas:$('model-weight-map'),enabled:()=>this.#active&&!this.#locked&&!this.#busy&&$('model-map-tool').value==='paint',
+      prepare:()=>this.#startBrush(),onState:()=>this.#render(),onError:error=>this.#error(error),onFinish:error=>this.#reset(error),onHover:point=>{
+        if(!this.#data)return;const radius=$('model-brush-radius').valueAsNumber;
+        drawWeightMap($('model-weight-map'),this.#data.meshes[this.#mesh],this.#bone,this.#vertex);
+        if(Number.isFinite(radius)&&radius>0)drawBrushCursor($('model-weight-map'),point,radius);
+      }});
     this.#toggle();
   }
   #run(operation,preparation=false) {
     const accepted=preparation||(!this.#locked&&!this.#editor.frozen);
     this.#busy++;this.#view.busy(true);
     const result=this.#operations.then(()=>{if(!accepted)throw new Error('Editor is frozen');return operation();});this.#operations=result.catch(()=>{});
-    void result.catch(error=>{this.#failure=error;this.#error(error);}).finally(()=>{this.#busy--;this.#view.busy(this.#busy>0||this.#locked);});return result;
+    void result.catch(error=>{if(error.code!=='EDITOR_WEIGHT_STROKE_PENDING')this.#failure=error;this.#error(error);}).finally(()=>{this.#busy--;this.#view.busy(this.#busy>0||this.#locked||this.#brush?.busy);});return result;
   }
   #toggle() {
     $('model-panel').hidden=!this.#active;$('property-panel').hidden=this.#active;$('binding').hidden=this.#active;
@@ -107,7 +116,7 @@ export class ModelWorkspace {
     const canCreateImage=!this.#source&&!this.#loadError&&typeof layer?.image==='string'&&layer.text===undefined&&layer.model===undefined;
     this.#view.render({data:this.#data,bone:this.#bone,mesh:this.#mesh,vertex:this.#vertex,capacity,boneDraft:this.#boneDraft,weightDraft:this.#weightDraft,onBone:i=>this.#selectBone(i),loading,error:error??this.#loadError?.message,canCreateImage});
     if(this.#data)this.#points=drawWeightMap($('model-weight-map'),this.#data.meshes[this.#mesh],this.#bone,this.#vertex);
-    this.#view.busy(this.#busy>0||this.#locked);
+    this.#view.busy(this.#busy>0||this.#locked||this.#brush?.busy);
   }
   #selectBone(bone){void this.#run(async()=>{await this.#prepare();this.#bone=bone;this.#render();});}
   #validate(id) {
@@ -140,7 +149,24 @@ export class ModelWorkspace {
     }
     return {vertices,attachments:this.#data.attachments.filter(a=>a.bone===this.#bone).length,children:this.#data.bones.filter(b=>b.parent===this.#bone).length};
   }
-  async #prepare() {
+  #startBrush() {return this.#run(async()=>{
+    await this.#prepare(true);this.#validate('model-brush-form');
+    if(!this.#bytes||!this.#data?.meshes[this.#mesh]?.vertexCount)throw new Error('Select a readable skinned mesh');
+    const source=this.#source,bytes=this.#bytes,mesh=this.#mesh,bone=this.#bone,vertex=this.#vertex,capacity=this.#editor.modelBoneCapacity;
+    const radius=$('model-brush-radius').valueAsNumber,stroke=createWeightStroke({mesh:this.#data.meshes[mesh],points:this.#points,bone,boneCount:this.#data.bones.length,
+      radius,target:$('model-brush-target').valueAsNumber,strength:$('model-brush-strength').valueAsNumber});
+    return {move:point=>{stroke.move(point);drawWeightMap($('model-weight-map'),stroke.preview(),bone,vertex);drawBrushCursor($('model-weight-map'),point,radius);},
+      // This stroke was accepted before a native freeze; its completed release
+      // remains authorized while its initial preparation/staging is pending.
+      cancel:()=>this.#render(),commit:()=>this.#run(async()=>{
+        if(source!==this.#source||mesh!==this.#mesh||bone!==this.#bone)throw new Error('Model brush source or selection changed; the stroke is stale');
+        const edits=stroke.edits();if(!edits.length)return;
+        const next=setSkinInfluences(bytes,{mesh,edits,boneLimit:capacity});if(next.length===bytes.length&&next.every((v,i)=>v===bytes[i]))return;
+        await commitModelResource(this.#editor,source,next);this.#failure=undefined;this.#reset();await this.#loading;this.#render();
+      },true)};
+  });}
+  async #prepare(brushPreparation=false) {
+    if(!brushPreparation)this.#brush?.assertIdle();
     const loaded=await this.#loading;
     if(!loaded.ok&&(this.#boneDraft||this.#weightDraft))throw loaded.error;
     if(this.#failure)throw this.#failure;
@@ -164,7 +190,7 @@ export class ModelWorkspace {
     this.#boneDraft=false;this.#weightDraft=false;
     try{await this.#write(bytes,map);}catch(error){this.#boneDraft=boneDraft;this.#weightDraft=weightDraft;throw error;}
   }
-  flush(){return this.#run(async()=>{if(document.querySelector('.model-dialog[open]'))throw new Error('Finish or cancel the model dialog before saving or changing the scene');await this.#prepare();},true);}
-  setFrozen(value){this.#locked=value;this.#view.busy(value||this.#busy>0);}
-  destroy(){this.#closed=true;this.#loadRevision++;this.#overlay.destroy();}
+  async flush(){this.#brush?.assertIdle();await this.#brush?.settled();return this.#run(async()=>{if(document.querySelector('.model-dialog[open]'))throw new Error('Finish or cancel the model dialog before saving or changing the scene');await this.#prepare();},true);}
+  setFrozen(value){this.#locked=value;this.#view.busy(value||this.#busy>0||this.#brush?.busy);}
+  destroy(){this.#brush.destroy();this.#closed=true;this.#loadRevision++;this.#overlay.destroy();}
 }

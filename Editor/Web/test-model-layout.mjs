@@ -8,6 +8,7 @@ export async function testModelLayout(page,command,configuration,document) {
     const ready=page.waitForRequest(r=>r.method()==='POST'&&r.url().endsWith('/__editor/event')&&r.postDataJSON().type==='ready');
     await page.reload();await ready;await command({type:'thaw'});await page.getByRole('button',{name:'Rig',exact:true}).click();
     await page.locator('#model-workspace').click();await page.locator('#model-bones button').nth(2).waitFor();
+    await page.locator('#model-map-tool').selectOption('paint');assert.equal(await page.locator('#model-brush-parameters').isVisible(),true);
     await page.setViewportSize({width:850,height:540});await page.locator('#timeline-toggle').click();
     const layout=await page.evaluate(()=>({overflow:document.documentElement.scrollWidth>innerWidth,
       inspectorOverflow:document.querySelector('.inspector-scroll').scrollWidth>document.querySelector('.inspector-scroll').clientWidth,
@@ -16,8 +17,9 @@ export async function testModelLayout(page,command,configuration,document) {
     assert.equal(layout.overflow,false,`${language}: model workspace page overflow`);assert.equal(layout.inspectorOverflow,false,`${language}: model inspector overflow`);
     assert.equal(layout.missing,false,`${language}: missing model label`);assert(layout.canvas>80,`${language}: model workspace obscures canvas`);
     await page.locator('#timeline-toggle').click();await page.locator('#theme').selectOption('dark');await page.locator('#theme').selectOption('light');
+    await page.locator('#model-map-tool').selectOption('select');
     assert.deepEqual((await command({type:'snapshot'})).document,document,'Model layout/theme/selection dirtied content');
   }
   await page.setViewportSize(originalViewport);await page.locator('#properties-workspace').click();
-  console.log('Model layout: five languages, both themes and 850x540 with Timeline passed without content edits');
+  console.log('Model layout: brush controls, five languages, both themes and 850x540 with Timeline passed without content edits');
 }

@@ -36,3 +36,6 @@
 .image-grid-options input { width:auto; }
 .image-mesh-error { color:var(--danger); white-space:pre-wrap; }
 .image-mesh-error:empty { display:none; }
+
+#model-weight-map[data-tool="paint"] { cursor:crosshair; touch-action:none; }
+.model-brush-controls .property-field { margin-block:8px; }

@@ -169,12 +169,23 @@ static void verifyModelWorkbench(DWWebRuntime* runtime,NSString* projectRoot,NSS
 }
 #include "ImagePuppetAcceptance.h"
 int main(int argc,char**argv) { @autoreleasepool {
-  if(argc!=6 && argc!=9 && argc!=11 && argc!=14){fprintf(stderr,"usage: EditorHarness FRAMEWORK HELPER CACHE RUNTIME PROJECT [MAIN_RUNTIME LOOSE_EXPORT PKG_EXPORT [MODEL_LOOSE MODEL_PKG [IMAGE_SOURCE IMAGE_LOOSE IMAGE_PKG]]]\n");return 64;}
+  const bool brushOnly=argc>1&&std::string(argv[1])=="--brush-only";if(brushOnly){++argv;--argc;}
+  if(argc!=6 && argc!=9 && argc!=11 && argc!=14 && argc!=16){fprintf(stderr,"usage: EditorHarness FRAMEWORK HELPER CACHE RUNTIME PROJECT [MAIN_RUNTIME LOOSE_EXPORT PKG_EXPORT [MODEL_LOOSE MODEL_PKG [IMAGE_SOURCE IMAGE_LOOSE IMAGE_PKG [BRUSH_LOOSE BRUSH_PKG]]]]\n");return 64;}
   DWWebCreateApplication(); [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory]; [NSApp finishLaunching];
   DWWebRuntime* runtime=[[DWWebRuntime alloc]initWithFrameworkDirectory:@(argv[1]) helperExecutable:@(argv[2]) cacheDirectory:@(argv[3])];
   NSError* error=nil;
   try {
     require([runtime startWithError:&error],error.localizedDescription.UTF8String ?: "CEF start failed");
+    if(brushOnly){
+      require(argc==16,"Brush acceptance requires image source and both brush exports");
+      @autoreleasepool{
+        verifyImageCreation(runtime,@(argv[11]),@(argv[4]),[@(argv[3]) stringByAppendingPathComponent:@"BrushResources"],YES);
+        verifyImageExport(runtime,@(argv[14]),@(argv[6]),NO,YES,YES);
+        verifyImageExport(runtime,@(argv[15]),@(argv[6]),YES,YES,YES);
+      }
+      require([runtime shutdownWithError:&error],error.localizedDescription.UTF8String ?: "Brush CEF shutdown failed");
+      require(runtime.shutdownCount==1,"Brush runtime shutdown not observed");puts("Native brush: actual CEF pointer, resource history, painted exports and full release passed");return 0;
+    }
     DWWebPage* page=nil; NSWindow* window=nil; __block NSError* failure=nil; NSDictionary* resourceSnapshot=nil;
     NSString* resourceRoot=[@(argv[3]) stringByAppendingPathComponent:@"NativeResources"];
     @autoreleasepool {
@@ -277,11 +288,15 @@ int main(int argc,char**argv) { @autoreleasepool {
     } }
     if(argc>=11)for(int index=9;index<=10;++index){@autoreleasepool{verifyModelExport(runtime,@(argv[index]),@(argv[6]),index==10);}}
     if(argc>=11){@autoreleasepool{verifyModelWorkbench(runtime,@(argv[9]),@(argv[4]),[@(argv[3]) stringByAppendingPathComponent:@"ModelResources"]);}}
-    if(argc==14){@autoreleasepool{
+    if(argc>=14){@autoreleasepool{
       verifyImageCreation(runtime,@(argv[11]),@(argv[4]),[@(argv[3]) stringByAppendingPathComponent:@"ImageResources"]);
       verifyImageExport(runtime,@(argv[11]),@(argv[6]),NO,NO);
       verifyImageExport(runtime,@(argv[12]),@(argv[6]),NO,YES);
       verifyImageExport(runtime,@(argv[13]),@(argv[6]),YES,YES);
+    }}
+    if(argc==16){@autoreleasepool{
+      verifyImageExport(runtime,@(argv[14]),@(argv[6]),NO,YES,YES);
+      verifyImageExport(runtime,@(argv[15]),@(argv[6]),YES,YES,YES);
     }}
     require([runtime shutdownWithError:&error],error.localizedDescription.UTF8String ?: "CEF shutdown failed");
     require(runtime.shutdownCount==1,"Runtime shutdown not observed");
