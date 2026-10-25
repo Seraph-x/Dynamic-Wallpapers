@@ -107,7 +107,7 @@ import WebWallpaperBridge
         guard let workspace = try await command(["type":"snapshot"])["document"] as? [String: Any] else { throw WallpaperError("Editor snapshot is missing its workspace") }
         return workspace
     }
-    func save() async throws {
+    func save(resumeEditing: Bool = true) async throws {
         let state = try await command(["type":"freeze"])
         guard let snapshot = state["document"] as? [String:Any] else { throw WallpaperError("Missing save snapshot") }
         do {
@@ -117,7 +117,7 @@ import WebWallpaperBridge
             project: draft.project, title: draft.title, resourceOverrides:draft.resourceOverrides)
         _ = try await command(["type":"mark-saved", "document":snapshot])
         window?.title = workspace.title
-        if !closing { _ = try await command(["type":"thaw"]) }
+        if resumeEditing && !closing { _ = try await command(["type":"thaw"]) }
         } catch {
             if !closing { do { _ = try await command(["type":"thaw"]) } catch let thaw { throw WallpaperErrorGroup([error,thaw]) } }
             throw error
@@ -148,15 +148,27 @@ import WebWallpaperBridge
         let panel = NSSavePanel(); panel.nameFieldStringValue = workspace.title; panel.canCreateDirectories = true
         guard panel.runModal() == .OK, let destination = panel.url else { return }
         perform { controller in
-            try await controller.save()
-            if package {
-                let paths = try await controller.coordinator.store.resourcePaths(id: controller.workspace.id)
-                let reply = try await controller.command(["type":"export-pkg","paths":paths])
-                guard let base64 = reply["pkg"] as? String, let bytes = Data(base64Encoded: base64) else { throw WallpaperError("Editor returned invalid PKG bytes") }
-                _ = try await controller.coordinator.store.exportPackage(controller.workspace, package: bytes, to: destination)
-            } else { _ = try await controller.coordinator.store.exportLoose(controller.workspace, to: destination) }
+            try await controller.exportSnapshot(package: package, to: destination)
             NSWorkspace.shared.activateFileViewerSelecting([destination])
         }
+    }
+    func exportSnapshot(package: Bool, to destination: URL) async throws {
+        // Save owns recovery on failure. A successful save retains the freeze
+        // until resource enumeration, browser packaging and publication finish.
+        try await save(resumeEditing: false)
+        do {
+            if package {
+                let paths = try await coordinator.store.resourcePaths(id: workspace.id)
+                let reply = try await command(["type":"export-pkg","paths":paths])
+                guard let base64 = reply["pkg"] as? String, let bytes = Data(base64Encoded: base64) else { throw WallpaperError("Editor returned invalid PKG bytes") }
+                _ = try await coordinator.store.exportPackage(workspace, package: bytes, to: destination)
+            } else { _ = try await coordinator.store.exportLoose(workspace, to: destination) }
+        } catch {
+            do { _ = try await command(["type":"thaw"]) }
+            catch let thaw { throw WallpaperErrorGroup([error, thaw]) }
+            throw error
+        }
+        _ = try await command(["type":"thaw"])
     }
     func materializeSavedHandoff() async throws -> SceneProjectReference {
         let handoffs = coordinator.dataRoot.appendingPathComponent("Handoffs")
@@ -210,9 +222,7 @@ import WebWallpaperBridge
             needsSave = changed || !NSDictionary(dictionary:snapshot).isEqual(to: baseline)
         } else { needsSave = dirty }
         if needsSave {
-            let alert = NSAlert(); alert.messageText = text("unsaved"); alert.informativeText = text("unsavedDetail")
-            alert.addButton(withTitle: text("save")); alert.addButton(withTitle: text("discard")); alert.addButton(withTitle: text("cancel"))
-            switch alert.runModal() {
+            switch coordinator.confirmClose() {
             case .alertFirstButtonReturn:
                 try await save()
                 let latest = try await snapshot()

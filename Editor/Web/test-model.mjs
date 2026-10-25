@@ -52,7 +52,9 @@ export async function testModel({page,command,resources,configuration,artifactRo
   assert(Math.abs(start.halves[1].y-middle.halves[1].y-30*start.width/640)<2,'Intermediate right-bone deformation differs from known animation');
   const authored=await testModelWorkspace(page,command,modelPath);
   const authoredBytes=new Uint8Array(await readFile(path.join(blobRoot,authored.resourceOverrides[modelPath])));
+  console.log('Real model step=recovery');
   await testModelRecovery(page,command,modelPath,authoredBytes);
+  console.log('Real model step=layout');
   await testModelLayout(page,command,configuration,authored);
   await command({type:'seek',time:.5});
   const edited=await page.evaluate(async bytes=>{

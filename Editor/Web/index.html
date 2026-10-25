@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark">
-<title>Dynamic Wallpaper Editor</title><link rel="stylesheet" href="editor.css"><link rel="stylesheet" href="timeline.css"><link rel="stylesheet" href="model.css"><link rel="stylesheet" href="gltf.css"><link rel="icon" href="data:,">
+<title>Dynamic Wallpaper Editor</title><link rel="stylesheet" href="editor.css"><link rel="stylesheet" href="timeline.css"><link rel="stylesheet" href="model.css"><link rel="stylesheet" href="gltf.css"><link rel="stylesheet" href="script-workspace.css"><link rel="icon" href="data:,">
 </head>
 <body>
 <header class="app-header">
@@ -31,8 +31,8 @@
   </section>
   <aside class="panel properties-panel" aria-labelledby="properties-heading">
     <div class="panel-heading"><h2 id="properties-heading" data-text="properties">Properties</h2><span id="selection-kind" class="selection-kind"></span></div>
-    <div class="workspace-switch" role="group" data-label="modelInspector"><button id="properties-workspace" type="button" aria-pressed="true" data-text="properties">Properties</button><button id="model-workspace" type="button" aria-pressed="false" data-text="modelWorkspace">Model</button></div>
-    <div class="inspector-scroll"><div id="property-panel"><form id="inspector"></form></div><div id="model-panel" hidden></div></div>
+    <div class="workspace-switch" role="group" data-label="modelInspector"><button id="properties-workspace" type="button" aria-pressed="true" data-text="properties">Properties</button><button id="model-workspace" type="button" aria-pressed="false" data-text="modelWorkspace">Model</button><button id="script-workspace" type="button" aria-pressed="false" data-text="scriptWorkspace">Script</button></div>
+    <div class="inspector-scroll"><div id="property-panel"><form id="inspector"></form></div><div id="model-panel" hidden></div><div id="script-panel" hidden></div></div>
     <p id="binding" class="binding-note"><span data-icon="lock" aria-hidden="true"></span><span data-text="binding">Script, animation and property-controlled fields are read-only.</span></p>
   </aside>
 </main>

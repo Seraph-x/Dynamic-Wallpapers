@@ -1,0 +1,10 @@
+const keys='scriptWorkspace scriptTarget scriptSource scriptCheck scriptApply scriptRevert scriptRemove scriptDraftNote scriptReadOnly scriptPending scriptCommitted scriptChooseLayer scriptLine scriptCheckPassed'.split(' ');
+const translations={
+ en:['Script','Property / source','SceneScript source','Check','Apply source','Revert draft','Remove script','Drafts are checked and applied before saving, previewing or changing selection. Revert discards only the draft.','Read-only','Unapplied source draft','Committed source','Select a layer to inspect its source.','Line','Syntax check passed.'],
+ 'zh-Hans':['脚本','属性 / 源码','SceneScript 源码','检查','应用源码','还原草稿','移除脚本','保存、预览或切换选择前会检查并应用草稿。还原只放弃草稿。','只读','有未应用的源码草稿','已提交的源码','选择图层以查看其源码。','行','语法检查通过。'],
+ ja:['スクリプト','プロパティ / ソース','SceneScript ソース','検証','ソースを適用','下書きを戻す','スクリプトを削除','保存、プレビュー、選択変更前に下書きを検証して適用します。戻す操作は下書きだけを破棄します。','読み取り専用','未適用のソース下書き','適用済みソース','レイヤーを選択してソースを表示します。','行','構文検証に成功しました。'],
+ fr:['Script','Propriété / source','Source SceneScript','Vérifier','Appliquer la source','Annuler le brouillon','Retirer le script','Les brouillons sont vérifiés et appliqués avant enregistrement, aperçu ou changement de sélection. Annuler ne retire que le brouillon.','Lecture seule','Brouillon non appliqué','Source appliquée','Sélectionnez un calque pour voir sa source.','Ligne','Vérification syntaxique réussie.'],
+ es:['Script','Propiedad / fuente','Fuente SceneScript','Comprobar','Aplicar fuente','Revertir borrador','Quitar script','Los borradores se comprueban y aplican antes de guardar, previsualizar o cambiar la selección. Revertir descarta solo el borrador.','Solo lectura','Borrador sin aplicar','Fuente aplicada','Selecciona una capa para ver su fuente.','Línea','Comprobación sintáctica correcta.'],
+};
+for(const [language,values] of Object.entries(translations))if(values.length!==keys.length)throw new Error(`Incomplete Script workspace translation: ${language}`);
+export function scriptWorkspaceMessages(language='en'){const key=language.startsWith('zh')?'zh-Hans':language.split('-')[0];return Object.fromEntries(keys.map((name,index)=>[name,(translations[key]??translations.en)[index]]));}

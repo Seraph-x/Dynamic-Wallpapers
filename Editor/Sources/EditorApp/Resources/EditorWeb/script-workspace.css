@@ -1,0 +1,15 @@
+body.script-workspace-active main { grid-template-columns: 172px minmax(180px, .7fr) minmax(340px, 1fr); }
+#script-panel { display: flex; flex-direction: column; gap: 8px; padding-block: 12px; min-width: 0; }
+#script-panel > label { font-size: 11px; color: var(--secondary); }
+#script-target { width: 100%; min-width: 0; padding: 6px; font-size: 11px; }
+#script-source { width: 100%; min-height: 160px; font: 12px/1.65 var(--mono); tab-size: 2; resize: vertical; }
+#script-source[aria-invalid="true"] { border-color: var(--danger); }
+.script-actions { display: flex; flex-wrap: wrap; gap: 4px; }
+.script-actions button { font-size: 11px; padding-inline: 9px; }
+.script-note { margin: 0; color: var(--secondary); font-size: 11px; }
+.script-diagnostics { margin: 0; min-height: 1.5em; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--secondary); font: 11px/1.5 var(--mono); }
+#script-panel:has(#script-source[aria-invalid="true"]) .script-diagnostics { color: var(--danger); }
+.workspace-switch { flex-wrap: wrap; }
+@media (max-width: 1050px) { body.script-workspace-active main { grid-template-columns: 142px minmax(140px,.6fr) minmax(320px,1fr); } }
+
+@media (max-height: 640px) { #script-source { min-height: 76px; height: 90px; } #script-panel { gap: 5px; padding-block: 8px; } }

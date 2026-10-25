@@ -33,7 +33,16 @@ extension EditorScenePreviewWindowController: EditorPreviewWindow {}
     var store: EditorProjectStore! { get }
     var dataRoot: URL! { get }
     func show(_ error: Error, window: NSWindow?)
+    func confirmClose() -> NSApplication.ModalResponse
     func retired(_ id: UUID)
+}
+
+extension EditorWindowCoordinator {
+    func confirmClose() -> NSApplication.ModalResponse {
+        let alert = NSAlert(); alert.messageText = text("unsaved"); alert.informativeText = text("unsavedDetail")
+        alert.addButton(withTitle: text("save")); alert.addButton(withTitle: text("discard")); alert.addButton(withTitle: text("cancel"))
+        return alert.runModal()
+    }
 }
 
 extension EditorApplicationDelegate: EditorWindowCoordinator {}

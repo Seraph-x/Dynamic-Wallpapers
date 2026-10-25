@@ -1,10 +1,12 @@
 # Check and preserve SceneScript source
 
-This foundation provides source transactions and offline syntax diagnostics for
-inline native layer/effect scripts. It does not add a source editing UI. The
+Source transactions and offline syntax diagnostics support inline native
+layer/effect scripts. The [Script workspace](editor-script-workspace.md) now
+provides a native textarea and Check/Apply/Revert/Remove on these contracts. The
 [execution migration](editor-script-migration.md) disables SceneScript in every
 authoring-page mount and runs captured revisions in an independent scene page
-through **Run preview**. The full IDE remains in development. The pinned engine's
+through **Run preview**. Highlighting, completion, templates, find/replace and
+source-linked runtime diagnostics remain separate IDE work. The pinned engine's
 in-page script sandbox is not itself a security boundary.
 
 ## Check a scene without running its scripts
@@ -115,6 +117,36 @@ Discovery preserves unknown inline script-like metadata and its structural path.
 It does not resolve referenced material/particle/package-resource scripts, load
 assets or claim those sources have been checked.
 
+## Keep temporary source outside history
+
+`ScriptDraft(document, selection)` captures the document identity, full snapshot
+and selected anchor. Its `state`, `source`, `dirty` and `diagnostics` describe
+temporary input; `setSource` invalidates an earlier checked proposal. `check()`
+uses the real offline compiler without executing source or changing history.
+The workspace always checks explicit Apply, including unchanged imported source,
+so a no-op cannot falsely report that invalid syntax passed.
+
+Call `apply(document)` or `remove(document)` inside `editor.change`. Apply uses
+the checked proposal once, and Remove discards pending input while removing only
+the committed script member. Failed checks and stale/replaced documents preserve
+the pending source and current committed revision. A conflict requires explicit
+`revert(document)` to adopt the current document. `restoreInput()` restores only
+the captured local input; it does not rebase the draft onto another revision.
+
+No script and an empty script are distinct. The UI's explicit Apply can create
+`script: ''`; typing and locally undoing back to an initially empty constant
+field does not create a script during navigation or freeze. An identical existing
+source creates no history step. Source-only transactions preserve exact CRLF and
+Unicode; the UI retains consistent CRLF after input, while edited mixed line
+endings follow its documented LF policy.
+
+The workspace's serial action queue settles accepted source operations before
+native capture. Native dirty notifications include pending drafts. Freeze first
+locks user input, then flushes valid source before the runtime becomes frozen.
+Invalid drafts return the committed freeze document with dirty state, and the
+owner's validation snapshot rejects them. Thaw and explicit Revert retain the
+existing recovery path. Mark-saved and redraw cannot erase pending text.
+
 ## Verification and remaining IDE work
 
 The browser and native tests keep the live workbench blank while preparing,
@@ -133,8 +165,10 @@ page without Editor authoring channels. Both authoring renderers use the pinned
 saving. The fixed request contains no source, path or native command. This
 separates script execution from the workbench's native write/control channel
 within the existing CEF runtime, without claiming operating-system process
-isolation. Syntax highlighting, completion, templates, find/replace, source
-Apply/Revert and linked runtime diagnostics remain subsequent IDE work. The
+isolation. The source workspace adds real UI compiler/draft tests and actual CEF
+focused input; its authored loose/PKG scene must play independently in Main.
+Syntax highlighting, completion, templates, find/replace and linked runtime
+diagnostics remain subsequent IDE work. The
 independent preview already supports restarting its captured revision.
 
 The compiler, runtime semantics and package writer come from the pinned WebWallGL

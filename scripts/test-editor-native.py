@@ -34,6 +34,7 @@ commands = [
     ('browser-keys', ['node', str(root / 'Editor/Web/test-model-keys.mjs')], 60),
     ('browser-script-migration', ['node', str(root / 'Editor/Web/test-script-migration.mjs')], 60),
     ('browser-script-contracts', ['node', str(root / 'Editor/Web/test-script-contracts.mjs')], 60),
+    ('browser-script-workspace', ['node', str(root / 'Editor/Web/test-script-workspace.mjs')], 60),
     ('native', [str(app / 'Contents/MacOS/EditorNativeTests'),
                 str(frameworks / 'Chromium Embedded Framework.framework'),
                 str(frameworks / f'{helper}.app/Contents/MacOS' / helper), str(run / 'context'),
@@ -101,6 +102,11 @@ migration_native = [native[0], '--migration-only', native[1], native[2], str(run
                     str(run / 'browser-export/MigrationLoose'), str(root / 'Editor/Sources/EditorApp/Resources/ScenePreviewWeb'),
                     native[6], str(run / 'browser-export/MigrationPackage'), str(run / 'browser-export/script-migration-document.json')]
 commands.append(('native-script-migration', migration_native, 60))
+workspace_native = [native[0], '--script-workspace-only', native[1], native[2], str(run / 'script-workspace-context'), native[4],
+                    str(run / 'browser-export/ScriptWorkspaceLoose'), native[6],
+                    str(run / 'browser-export/ScriptWorkspaceLoose'), str(run / 'browser-export/ScriptWorkspacePackage'),
+                    str(run / 'browser-export/script-workspace-source.json'), str(run / 'browser-export/script-workspace-expected.json')]
+commands.append(('native-script-workspace', workspace_native, 60))
 print(f'EDITOR_NATIVE artifacts={run}', flush=True)
 for name, command, budget in commands:
     print(f'EDITOR_NATIVE phase={name} budget={budget}s', flush=True)
