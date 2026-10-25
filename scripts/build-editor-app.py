@@ -73,9 +73,15 @@ def verify_payload(app, root, product):
     for language in configuration(root, product).localizations:
         if not (localized / f'{language}.lproj/Localizable.strings').is_file():
             raise ValueError(f'Missing Editor localization: {language}')
-    for relative in ('EditorWeb/index.html', 'EditorWeb/app.mjs', 'EditorWeb/webwallgl.bundle.mjs'):
+    preview = ('index.html', 'scene.css', 'scene-runtime.mjs', 'scene-spectrum.mjs', 'scene-source.mjs',
+               'scene-shell.mjs', 'scene-protocol.mjs', 'webwallgl.bundle.mjs')
+    for relative in ('EditorWeb/index.html', 'EditorWeb/app.mjs', 'EditorWeb/webwallgl.bundle.mjs',
+                     *(f'ScenePreviewWeb/{name}' for name in preview)):
         if not (localized / relative).is_file():
             raise ValueError(f'Missing offline Editor resource: {relative}')
+    for name in preview:
+        if (localized / 'ScenePreviewWeb' / name).read_bytes() != (root / 'Sources/WallpaperApp/Resources/SceneRuntime' / name).read_bytes():
+            raise ValueError(f'Editor preview runtime differs from Main: {name}')
     for path in app.rglob('*'):
         if path.is_file() and not path.is_symlink():
             # Source roots must not be embedded in distributed executables/resources.

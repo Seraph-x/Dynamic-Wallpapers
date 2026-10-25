@@ -76,8 +76,11 @@ previews both joints, and bakes native rotation samples with undo/save/export.
 pose keys, reduce them losslessly and retain authoring locations through save/export.
 [SceneScript source contracts](docs/editor-script-contracts.md) provide data-only
 source transactions and an offline syntax-check command using the pinned native
-compiler. The script IDE and its isolated execution host remain under development;
-this foundation does not add a source editing UI.
+compiler. [Snapshot preview](docs/editor-scene-preview.md) opens an unsaved revision
+in an independent native scene window with pause/resume, restart and visible
+runtime diagnostics. It neither saves the workspace nor applies wallpaper.
+The script IDE and migration of workbench script execution remain under development;
+source editing UI is not included yet.
 
 The two applications share source modules in this repository and ship their own
 runtime dependencies. Editor has its own version (currently 0.1.0), bundle

@@ -34,7 +34,7 @@ authoring locations retained through save/reopen and export.
 [SceneScript source contracts](../docs/editor-script-contracts.md) add source-only
 document/history transactions and an offline syntax-check CLI. These developer
 tools use the actual pinned compiler without executing supplied source. The
-source editing UI, isolated execution host and full script IDE remain roadmap work;
+source editing UI, workbench execution migration and full script IDE remain roadmap work;
 script-bound inspector fields stay read-only.
 
 Use **File → New Project** or **Open Project**. Imports create complete owned
@@ -42,6 +42,23 @@ copies. **Save** writes the Editor workspace; **Export** creates a standard scen
 folder without replacing an existing destination. Reopen `workspace.json` from
 the Editor's `Projects` directory to continue a saved workspace. User data is
 stored under `~/Library/Application Support/DynamicWallpaperEditor/`.
+
+## Preview the current revision without saving
+
+Choose **File → Preview snapshot** to open an independent native scene window.
+The captured revision includes valid pending edits and staged resource versions;
+it does not save the project or apply wallpaper. **Pause/Resume** acknowledges
+the actual scene clock, while **Restart from beginning** releases the old page
+and starts that same snapshot in a fresh page. Later edits require a new preview.
+The preview is muted and receives zero system spectrum. Its status area displays
+the latest actual runtime warning/error as selectable plain text.
+
+The window owns a private scene copy and has no Editor authoring session or
+resource-write channel. Closing it releases the page before removing that copy;
+closing its project or quitting Editor closes its previews first. Cleanup errors
+stay visible and keep ownership for retry. This supplies the future IDE's preview
+host; the existing workbench can still execute imported scripts, so the complete
+IDE isolation boundary is not finished. See [snapshot ownership and limits](../docs/editor-scene-preview.md).
 
 ## Workbench appearance
 

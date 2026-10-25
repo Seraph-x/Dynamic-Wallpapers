@@ -83,6 +83,7 @@ enum EditorApplication {
         item(file,"new",#selector(newProject),"n"); item(file,"open",#selector(openProject),"o"); file.addItem(.separator())
         item(file,"addImage",#selector(addImage)); item(file,"importModel",#selector(importModel)); item(file,"save",#selector(save),"s")
         item(file,"exportLoose",#selector(exportLoose)); item(file,"exportPkg",#selector(exportPackage))
+        item(file,"previewSnapshot",#selector(previewSnapshot))
         file.addItem(.separator()); item(file,"importMain",#selector(importSharedScene)); item(file,"openMain",#selector(openInWallpaper))
         let edit = submenu(text("edit"))
         for (key,action,shortcut) in [("cut","cut:","x"),("copy","copy:","c"),("paste","paste:","v"),("selectAll","selectAll:","a")] {
@@ -91,7 +92,7 @@ enum EditorApplication {
     }
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         if menuItem.action == #selector(importSharedScene) { return !sharedSceneOffers.isEmpty && !terminating }
-        if [#selector(save),#selector(addImage),#selector(importModel),#selector(exportLoose),#selector(exportPackage),#selector(openInWallpaper)].contains(menuItem.action) {
+        if [#selector(save),#selector(addImage),#selector(importModel),#selector(exportLoose),#selector(exportPackage),#selector(openInWallpaper),#selector(previewSnapshot)].contains(menuItem.action) {
             return active?.ready == true && active?.busy == false
         }
         return !terminating
@@ -151,6 +152,7 @@ enum EditorApplication {
     @objc func save() { active?.perform { try await $0.save() } }
     @objc func exportLoose() { active?.exportProject(package: false) }
     @objc func exportPackage() { active?.exportProject(package: true) }
+    @objc func previewSnapshot() { active?.previewSnapshot() }
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         if terminating { return .terminateCancel }
         terminating = true

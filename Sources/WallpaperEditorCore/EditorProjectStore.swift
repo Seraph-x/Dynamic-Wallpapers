@@ -109,8 +109,29 @@ public actor EditorProjectStore {
     public func exportLoose(_ document: EditorProjectDocument, to destination: URL) async throws -> SceneProjectReference {
         let current = try open(id: document.id)
         guard current.document == document else { throw WallpaperError("请保存最新工程后再导出。") }
-        let copy = try await media.stage(source: .scene(SceneProjectReference(root: current.resources, entry: document.sceneEntry, representation: .loose)))
+        return try await materializeLoose(document, resources: current.resources, to: destination)
+    }
+    /// Captures an unsaved revision without changing its saved workspace or original resources.
+    public func exportPreview(_ draft: EditorProjectDocument, basedOn saved: EditorProjectDocument,
+                              to destination: URL) async throws -> SceneProjectReference {
+        let current = try validatePreview(draft, basedOn: saved)
+        return try await materializeLoose(draft, resources: current.resources, to: destination, previewBaseline: saved)
+    }
+    private func validatePreview(_ draft: EditorProjectDocument, basedOn saved: EditorProjectDocument) throws -> EditorOwnedProject {
+        guard draft.id == saved.id, draft.revision == saved.revision,
+              draft.sceneEntry == saved.sceneEntry, draft.sourcePackage == saved.sourcePackage else {
+            throw WallpaperError("预览草稿与已保存工程的身份、修订或入口不符。")
+        }
+        let current = try open(id: saved.id)
+        guard current.document == saved else { throw WallpaperError("磁盘上的工程已改变，请重新打开后再预览。") }
+        try validateResources(draft)
+        return current
+    }
+    private func materializeLoose(_ document: EditorProjectDocument, resources: URL, to destination: URL,
+                                  previewBaseline: EditorProjectDocument? = nil) async throws -> SceneProjectReference {
+        let copy = try await media.stage(source: .scene(SceneProjectReference(root: resources, entry: document.sceneEntry, representation: .loose)))
         do {
+            if let previewBaseline { _ = try validatePreview(document, basedOn: previewBaseline) }
             let root = try require(copy.stagedSceneProject).root
             let files = EditorProjectFiles(root: directory, prefix: ".import-\(copy.id.uuidString)/Project")
             var metadata = try EditorProjectDocument.object(document.project)
@@ -127,6 +148,8 @@ public actor EditorProjectStore {
             do {
                 try FileManager.default.copyItem(at: root, to: staged)
                 try await media.discard(copy)
+                // Both actor hops allow a save or resource change; publication must use the same baseline.
+                if let previewBaseline { _ = try validatePreview(document, basedOn: previewBaseline) }
                 guard renamex_np(staged.path, destination.path, UInt32(RENAME_EXCL)) == 0 else { throw WallpaperError("无法发布导出，未覆盖目标：\(String(cString: strerror(errno)))。") }
             } catch {
                 if FileManager.default.fileExists(atPath: staged.path) {

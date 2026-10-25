@@ -1,2 +1,3 @@
 # Generated upstream shader strings intentionally preserve their whitespace.
 Sources/WallpaperApp/Resources/SceneRuntime/webwallgl.bundle.mjs -whitespace linguist-generated=true
+Editor/Sources/EditorApp/Resources/ScenePreviewWeb/webwallgl.bundle.mjs -whitespace linguist-generated=true

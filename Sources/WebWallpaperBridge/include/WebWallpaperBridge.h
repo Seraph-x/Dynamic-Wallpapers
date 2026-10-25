@@ -48,6 +48,9 @@ NS_SWIFT_UI_ACTOR @interface DWWebPage : NSObject
 @property(nonatomic, readonly) NSDictionary<NSString*, NSNumber*>* audioDiagnostics;
 @property(nonatomic, copy, nullable) void (^onReady)(void);
 @property(nonatomic, copy, nullable) void (^onError)(NSError *error);
+/// Read-only renderer warnings/errors; values are untrusted display text.
+/// Keys: level (warn/error), message, source and line. Does not acknowledge commands.
+@property(nonatomic, copy, nullable) void (^onDiagnostic)(NSDictionary<NSString*, id>* diagnostic);
 @property(nonatomic, copy, nullable) void (^onEditorDirty)(BOOL dirty);
 /// Fixed workspace resource requests; the owning Editor supplies the storage implementation.
 @property(nonatomic, copy, nullable) void (^onEditorResource)(NSDictionary<NSString*, id>* request);

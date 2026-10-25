@@ -24,6 +24,7 @@ struct DWWebPageState {
   std::function<bool(const void*, int, int)> paint;
   std::function<void(void*)> attachNative;
   std::function<void(void*)> detachNative;
+  std::function<void(int, const std::string&, const std::string&, int)> consoleDiagnostic;
   std::shared_ptr<DWWebAudioBuffer> audio;
   std::mutex errorMutex;
   std::string error, closeError;

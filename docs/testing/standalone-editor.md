@@ -8,14 +8,55 @@ PR 2 supplies the Editor; PR 3 supplies the optional Main handoff and packaging.
 
 The Editor/runtime checks contain 350 JavaScript tests, including SceneScript source contracts, sparse bone keys, two-segment IK, FK deltas, frame events, native mixing, dense pose frames, clip authoring, glTF conversion,
 source/package decoding, atomic resources and the existing Model/Timeline tools.
-The reproducible build verifies 61 offline resources. Complete protocol, real-browser, image/brush
+The reproducible build verifies 69 offline resources (61 workbench and 8 independent preview). Complete protocol, real-browser, image/brush
 browser, rest/glTF/clip/pose/mixing/event/FK/IK/keys browser, native, native-brush, native-rest, native-glTF,
 native-clip, native-pose, native-mixing, native-event, native-FK, native-IK, native-keys
-and browser/native-script-contracts acceptance passes
+and browser/native-script-contracts plus native-preview acceptance passes
 with the explicitly approved isolated test-keychain configuration.
 Product/source checks pass 3 Editor product tests, 42 product-configuration
 tests and 16 public-source export tests. These focused checks do not establish
 a full application-suite pass.
+
+## Independent snapshot preview
+
+Build root tests with `python3 scripts/swift_sdk.py build --build-tests --disable-sandbox`,
+then run `python3 scripts/test.py --skip-build --filter WallpaperEditorCoreTests`.
+The 41 actual core tests include 9 new preview-export checks: unsaved JSON/title/
+resource versions, unchanged workspace bytes/revision, immutable copies, stale
+baselines, destination collisions, source PKG expansion, invalid/foreign/corrupt
+resources and strict path/link validation. Real file staging/copy tests change
+the baseline or resource during an actor boundary. Removing revalidation made
+both negative controls fail; restoring it passed the suite within its 60-second
+test budget.
+
+The independent Editor build and 15 tests include 13 preview/session checks.
+An explicit external native-page fixture controls readiness, acknowledgement
+and release failures; it does not fabricate rendering. Checks cover old callback
+generations, close while loading, restart release ordering, factory/start/restart
+failures, cleanup retry, visible warnings and exact draft snapshot parsing.
+Actual AppKit windows are also constructed in all five languages, light/dark
+appearances and the minimum 640×500 outer size; controls must remain inside
+the content area and diagnostics must be selectable plain text. This layout test
+starts no CEF runtime. The actual SwiftPM resource bundle must include all eight preview files with
+bytes identical to Main, in addition to the reproducible build/hash check.
+
+`native-preview` uses the real captured scene in the new `ScenePreviewWeb` with
+a live blank authoring page alongside it. A real SceneScript escapes its in-page
+sandbox to inspect the actual global scope and attempt seven same/cross-origin
+authoring or project-write requests. All must be denied, with zero native stages,
+unchanged captured/source bytes and an unchanged surviving Editor snapshot.
+Native acknowledgement must freeze the real script clock/pixels and resume
+them; restart must use a new origin and initial clock. Script init exceptions
+must reach the read-only native warning callback. Every page releases before
+owned directory removal and one runtime shutdown. The phase budget remains 60s.
+
+The test's renderer queries use CEF's native DevTools observer only inside the
+test host. Registration and submission run in an explicit `TID_UI` task and
+responses match the actual automatically assigned message ID. They create no
+production JavaScript evaluation or authoring endpoint. The approved isolated
+keychain remains limited to the native test host.
+
+See [preview behavior and remaining IDE boundary](../editor-scene-preview.md).
 
 ## SceneScript source contracts
 

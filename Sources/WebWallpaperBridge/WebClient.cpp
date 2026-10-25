@@ -146,6 +146,8 @@ class WebClient final : public CefClient, public CefLifeSpanHandler, public CefR
                         const CefString& source, int line) override {
     fprintf(stderr, "DWWEB console origin=%s severity=%d %s:%d %s\n", state_->host.c_str(), int(severity),
             source.ToString().c_str(), line, message.ToString().c_str());
+    if (severity >= LOGSEVERITY_WARNING && state_->consoleDiagnostic)
+      state_->consoleDiagnostic(int(severity), message.ToString(), source.ToString(), line);
     if (severity >= LOGSEVERITY_ERROR) {
       if (state_->isOptionalResource(source.ToString())) {
         fprintf(stderr, "DWWEB WARNING optional-resource-console %s\n", message.ToString().c_str());

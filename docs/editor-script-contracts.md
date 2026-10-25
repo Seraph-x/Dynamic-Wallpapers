@@ -2,8 +2,8 @@
 
 This foundation provides source transactions and offline syntax diagnostics for
 inline native layer/effect scripts. It does not add a source editing UI or change
-the Editor's existing script execution behavior. The full IDE and its isolated
-execution host remain in development. Import only projects you trust: the pinned
+the Editor's existing script execution behavior. The full IDE and workbench
+execution migration remain in development. Import only projects you trust: the pinned
 engine's in-page script sandbox is not a security boundary.
 
 ## Check a scene without running its scripts
@@ -125,7 +125,9 @@ CEF scene runtime, where two stationary meshes must show green, red, then green;
 Main has no Editor authoring session and releases every page before shutdown.
 See [native validation](testing/standalone-editor.md).
 
-Before a source Apply UI is connected, runtime script execution must be isolated
+The [snapshot preview host](editor-scene-preview.md) supplies a separate scene
+page without Editor authoring channels. Before a source Apply UI is connected,
+runtime script execution must also be isolated
 from the workbench's native write/control channel. Syntax highlighting,
 completion, templates, find/replace, linked runtime diagnostics and preview
 restart are subsequent IDE work. This PR does not claim that boundary is fixed.

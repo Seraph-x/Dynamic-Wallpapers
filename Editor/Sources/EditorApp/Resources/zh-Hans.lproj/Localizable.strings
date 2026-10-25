@@ -35,3 +35,17 @@
 "downloadMain" = "下载 Dynamic Wallpaper";
 "invalidMain" = "此壁纸应用不支持文件接口。";
 "noSharedScenes" = "从壁纸应用的 Editor 菜单打开，即可共享场景工程。";
+
+"previewSnapshot" = "预览当前快照";
+"previewPause" = "暂停";
+"previewResume" = "继续播放";
+"previewRestart" = "从头重启";
+"previewStatus" = "预览状态";
+"previewSnapshotNote" = "此静音预览使用当前修订的副本。后续修改需要打开新的预览。";
+"previewState_idle" = "准备预览";
+"previewState_loading" = "正在载入快照…";
+"previewState_playing" = "播放中";
+"previewState_paused" = "已暂停";
+"previewState_failed" = "预览失败";
+"previewState_closing" = "正在关闭预览…";
+"previewState_closed" = "已关闭";

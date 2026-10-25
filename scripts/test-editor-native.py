@@ -93,6 +93,9 @@ scripts_native = [native[0], '--scripts-only', native[1], native[2], str(run / '
                   str(run / 'browser-export/ScriptLoose'), str(run / 'browser-export/ScriptPackage'),
                   str(run / 'browser-export/script-contract-source.json'), str(run / 'browser-export/script-contract-expected.json')]
 commands.append(('native-script-contracts', scripts_native, 60))
+preview_native = [native[0], '--preview-only', native[1], native[2], str(run / 'preview-context'), native[4],
+                  str(run / 'browser-export/ScriptLoose'), str(root / 'Editor/Sources/EditorApp/Resources/ScenePreviewWeb')]
+commands.append(('native-preview', preview_native, 60))
 print(f'EDITOR_NATIVE artifacts={run}', flush=True)
 for name, command, budget in commands:
     print(f'EDITOR_NATIVE phase={name} budget={budget}s', flush=True)

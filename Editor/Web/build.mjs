@@ -8,6 +8,7 @@ const web = path.dirname(fileURLToPath(import.meta.url)), repo = path.resolve(we
 const require = createRequire(path.join(web,'.build/package.json'));
 const { build } = require('esbuild');
 const output = path.join(repo,'Editor/Sources/EditorApp/Resources/EditorWeb');
+const previewOutput = path.join(repo,'Editor/Sources/EditorApp/Resources/ScenePreviewWeb');
 const check = process.argv.includes('--check');
 const provenancePath = path.join(repo,'Editor/ThirdParty/provenance.json');
 const expected = JSON.parse(await readFile(provenancePath));
@@ -50,6 +51,15 @@ for (const name of ['index.html','editor.css','app.mjs','document.mjs','runtime.
 await mkdir(path.join(repo,'Editor/ThirdParty'),{recursive:true});
 if (!check) await copyFile(path.join(web,'.build/node_modules/@webwallgl/editor/LICENSE'),path.join(repo,'Editor/ThirdParty/WebWallGL-Editor-LICENSE'));
 const provenance={schema:1,packages:pins,editorEntrySHA256:hash(await readFile(entry)),engineSHA256:hash(engine),files};
+const previewFiles={};
+await mkdir(previewOutput,{recursive:true});
+for(const name of ['index.html','scene.css','scene-runtime.mjs','scene-spectrum.mjs','scene-source.mjs','scene-shell.mjs','scene-protocol.mjs','webwallgl.bundle.mjs']){
+  const bytes=await readFile(path.join(repo,'Sources/WallpaperApp/Resources/SceneRuntime',name));
+  previewFiles[name]=hash(bytes);
+  if(check){if(hash(await readFile(path.join(previewOutput,name)))!==previewFiles[name])throw new Error(`Editor preview resource differs from Main: ${name}`);}
+  else await writeFile(path.join(previewOutput,name),bytes);
+}
+provenance.previewFiles=previewFiles;
 if (check) { if (JSON.stringify(expected) !== JSON.stringify(provenance)) throw new Error('Editor provenance differs from reproducible build'); }
 else await writeFile(provenancePath,JSON.stringify(provenance,null,2)+'\n');
-console.log(`${check?'Verified':'Bundled'} Editor offline resources: ${Object.keys(files).length}`);
+console.log(`${check?'Verified':'Bundled'} Editor offline resources: ${Object.keys(files).length} workbench + ${Object.keys(previewFiles).length} preview`);
