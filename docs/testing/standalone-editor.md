@@ -6,15 +6,45 @@ PR 2 supplies the Editor; PR 3 supplies the optional Main handoff and packaging.
 
 ## Model workspace acceptance
 
-The Editor/runtime checks contain 261 JavaScript tests, including frame events, native mixing, dense pose frames, clip authoring, glTF conversion,
+The Editor/runtime checks contain 279 JavaScript tests, including FK deltas, frame events, native mixing, dense pose frames, clip authoring, glTF conversion,
 source/package decoding, atomic resources and the existing Model/Timeline tools.
-The reproducible build verifies 50 offline resources. Complete protocol, real-browser, image/brush
-browser, rest/glTF/clip/pose/mixing/event browser, native, native-brush, native-rest, native-glTF,
-native-clip, native-pose, native-mixing and native-event acceptance passes
+The reproducible build verifies 53 offline resources. Complete protocol, real-browser, image/brush
+browser, rest/glTF/clip/pose/mixing/event/FK browser, native, native-brush, native-rest, native-glTF,
+native-clip, native-pose, native-mixing, native-event and native-FK acceptance passes
 with the explicitly approved isolated test-keychain configuration.
 Product/source checks pass 3 Editor product tests, 42 product-configuration
 tests and 16 public-source export tests. These focused checks do not establish
 a full application-suite pass.
+
+## Native FK local deltas
+
+Run `node --test Editor/Web/model-fk.test.mjs Editor/Web/runtime-model-preview.test.mjs`
+for the pure Float32 native-delta transform and queued preview lifecycle. These
+22 checks cover inclusive boundaries, untouched bytes, signed scales, world/skin/
+vertex validation, clock restoration and error visibility.
+
+`node Editor/Web/test-model-fk.mjs` uses the actual engine and forms. It checks
+parent/child GPU placement, non-accumulating preview, Cancel/Escape, playing and
+paused clock restoration, single/range/loop-terminal baking, exact binary
+history, save/reopen and both exports. It also covers failed-stage retry/cancel,
+external source-byte drift, freeze/thaw and five-language light/dark layout at
+850×540 with Timeline. The loop endpoint deliberately rejects exact preview
+before applying a delta to the wrong wrapped first sample; terminal baking and
+playback immediately before the endpoint remain verified.
+
+The new `browser-fk` and `native-fk` phases have separate 60-second budgets.
+The native FK host uses trusted AppKit input and compares the whole edited MDL
+against independently encoded bytes/hash. Actual GPU readback verifies the
+parent displacement and its two descendants at four known animation times,
+including after closing and reopening the saved workspace. Both exported
+formats run in Main’s actual CEF renderer without Editor, checking the parent’s
+fixed 20px offset and the child’s known 0/15/30/60px motion. Each page closes to
+zero active pages and the runtime shuts down exactly once.
+
+Preview uses a modal backdrop, so pixel checks read actual WebGL draws instead
+of a dimmed canvas screenshot. Error diagnostics can resize the canvas;
+coordinates are normalized against the current framebuffer center. Snapshot
+commands deliberately blur focused controls, so focus assertions precede them.
 
 ## Native animation frame events
 
