@@ -45,9 +45,10 @@ export class ModelClipTools {
   const state=this.#options.state();if(!state.bytes)return;
   if(this.#bytes!==state.bytes){this.#bytes=state.bytes;try{this.#library=inspectClips(state.bytes);this.#unsupported=undefined;}catch(error){this.#library={clips:[]};this.#unsupported=error.message;}}
   if(!this.#library.clips.some(c=>c.id===this.#selected))this.#selected=this.#library.clips[0]?.id;
-  const layer=this.#options.editor.document.snapshot().scene.objects?.find(l=>l.id===state.id);this.#view.render({clips:this.#library.clips,clip:this.#library.clips.find(c=>c.id===this.#selected),draft:this.#draft,unsupported:this.#unsupported,layer});
+  const layer=this.#options.editor.document.snapshot().scene.objects?.find(l=>l.id===state.id);this.#view.render({clips:this.#library.clips,clip:this.#library.clips.find(c=>c.id===this.#selected),draft:this.#draft,unsupported:this.#unsupported,layer});this.#options.onSelection?.();
  }
  get draft(){return this.#draft;}set draft(value){this.#draft=value;}
+ get selected(){return this.#selected;}
  get barrier(){if(!this.#dialog)return;return this.#dialog.barrier??=new Error('Finish or cancel the model dialog before saving or changing the scene');}
  applyDraft(bytes){try{this.#validate('model-clip-form');return editModelClips(bytes,{type:'update',id:this.#selected,...this.#view.values()}).bytes;}catch(error){this.#failure=error;throw error;}}
  async commit(bytes){try{const source=captureClipSource(this.#options.editor,this.#options.state().id,this.#options.state().bytes);return await commitClipResource(this.#options.editor,source,bytes);}catch(error){this.#failure=error;throw error;}}

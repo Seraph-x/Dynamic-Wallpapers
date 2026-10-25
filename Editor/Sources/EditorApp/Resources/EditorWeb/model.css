@@ -47,3 +47,7 @@
 #model-clips-details summary { cursor:pointer; font-size:12px; padding-block:10px; }
 #model-clip-status,#model-clip-delete-impact { white-space:pre-wrap; overflow-wrap:anywhere; }
 #model-clip-playback-dialog p,#model-clip-delete-dialog p { overflow-wrap:anywhere; }
+#model-poses-details { border-top:1px solid var(--line); margin-top:18px; padding-top:8px; }
+#model-poses-details summary { cursor:pointer; font-size:12px; padding-block:10px; }
+#model-poses-details button { max-width:100%; white-space:normal; overflow-wrap:anywhere; }
+#model-pose-error { color:var(--danger); }

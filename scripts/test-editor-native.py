@@ -26,6 +26,7 @@ commands = [
     ('browser-rest', ['node', str(root / 'Editor/Web/test-model-rest.mjs')], 60),
     ('browser-gltf', ['node', str(root / 'Editor/Web/test-gltf-import.mjs')], 60),
     ('browser-clips', ['node', str(root / 'Editor/Web/test-model-clips.mjs')], 60),
+    ('browser-poses', ['node', str(root / 'Editor/Web/test-model-poses.mjs')], 60),
     ('native', [str(app / 'Contents/MacOS/EditorNativeTests'),
                 str(frameworks / 'Chromium Embedded Framework.framework'),
                 str(frameworks / f'{helper}.app/Contents/MacOS' / helper), str(run / 'context'),
@@ -53,6 +54,10 @@ clips_native = [native[0], '--clips-only', native[1], native[2], str(run / 'clip
                 str(run / 'browser-export/ClipLoose'), str(run / 'browser-export/ClipPackage'),
                 str(run / 'browser-export/ClipStaticLoose'), str(run / 'browser-export/ClipStaticPackage')]
 commands.append(('native-clips', clips_native, 60))
+poses_native = [native[0], '--poses-only', native[1], native[2], str(run / 'poses-context'), native[4],
+                str(run / 'browser-export/PoseLoose'), native[6],
+                str(run / 'browser-export/PoseLoose'), str(run / 'browser-export/PosePackage')]
+commands.append(('native-poses', poses_native, 60))
 print(f'EDITOR_NATIVE artifacts={run}', flush=True)
 for name, command, budget in commands:
     print(f'EDITOR_NATIVE phase={name} budget={budget}s', flush=True)

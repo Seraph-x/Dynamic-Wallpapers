@@ -60,7 +60,7 @@ try {
       // Native menu/close commands do not necessarily blur the CEF text field.
       // Commit the visible value and pending drag before taking its snapshot.
       const focused = document.activeElement;
-      const invalid = !focused?.closest?.('#model-brush-form,dialog') && focused?.checkValidity && !focused.checkValidity() ? focused.validationMessage : undefined;
+      const invalid = !focused?.closest?.('#model-brush-form,#model-poses-details,dialog') && focused?.checkValidity && !focused.checkValidity() ? focused.validationMessage : undefined;
       focused?.blur();
       if(value.type==='freeze'){document.body.inert=true;model.setFrozen(true);gltf.setFrozen(true);}
       try { await Promise.all([...pendingActions]);if(gltf.error)throw gltf.error;await finishDrag();await model.flush();await timeline.flush(); } catch(error) { editFailure=error;showError(error); }

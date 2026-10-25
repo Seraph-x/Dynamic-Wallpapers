@@ -8,3 +8,4 @@ export { parseGltfSource } from './gltf-source.mjs';
 export { buildGltfModel,prepareGltfCandidate } from './gltf-model.mjs';
 export { validateGltfRender } from './gltf-render-check.mjs';
 export { inspectClips,editModelClips } from './model-clips.mjs';
+export { inspectBonePose,editBonePose } from './model-poses.mjs';
