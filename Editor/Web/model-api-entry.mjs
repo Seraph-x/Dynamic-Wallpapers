@@ -9,4 +9,5 @@ export { buildGltfModel,prepareGltfCandidate } from './gltf-model.mjs';
 export { validateGltfRender } from './gltf-render-check.mjs';
 export { inspectClips,editModelClips } from './model-clips.mjs';
 export { inspectBonePose,editBonePose } from './model-poses.mjs';
+export { bakeBoneDelta } from './model-fk.mjs';
 export { inspectFrameEvents,editFrameEvents } from './model-events.mjs';

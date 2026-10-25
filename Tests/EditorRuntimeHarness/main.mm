@@ -178,14 +178,24 @@ static void verifyModelWorkbench(DWWebRuntime* runtime,NSString* projectRoot,NSS
 #include "PoseAcceptance.h"
 #include "MixingAcceptance.h"
 #include "EventAcceptance.h"
+#include "FkAcceptance.h"
 int main(int argc,char**argv) { @autoreleasepool {
-  const bool brushOnly=argc>1&&std::string(argv[1])=="--brush-only",restOnly=argc>1&&std::string(argv[1])=="--rest-only",gltfOnly=argc>1&&std::string(argv[1])=="--gltf-only",clipsOnly=argc>1&&std::string(argv[1])=="--clips-only",posesOnly=argc>1&&std::string(argv[1])=="--poses-only",mixingOnly=argc>1&&std::string(argv[1])=="--mixing-only",eventsOnly=argc>1&&std::string(argv[1])=="--events-only";if(brushOnly||restOnly||gltfOnly||clipsOnly||posesOnly||mixingOnly||eventsOnly){++argv;--argc;}
-  if((gltfOnly||eventsOnly)?argc!=10:clipsOnly?argc!=11:(posesOnly||mixingOnly)?argc!=9:argc!=6 && argc!=9 && argc!=11 && argc!=14 && argc!=16){fprintf(stderr,"usage: EditorHarness FRAMEWORK HELPER CACHE RUNTIME PROJECT [MAIN_RUNTIME LOOSE_EXPORT PKG_EXPORT [MODEL_LOOSE MODEL_PKG [IMAGE_SOURCE IMAGE_LOOSE IMAGE_PKG [BRUSH_LOOSE BRUSH_PKG]]]]\n       EditorHarness --gltf-only FRAMEWORK HELPER CACHE RUNTIME SOURCE_PROJECT MAIN_RUNTIME GLTF_LOOSE GLTF_PKG SOURCE_COMMAND\n       EditorHarness --clips-only FRAMEWORK HELPER CACHE RUNTIME CLIP_LOOSE MAIN_RUNTIME CLIP_LOOSE CLIP_PKG STATIC_LOOSE STATIC_PKG\n       EditorHarness --poses-only FRAMEWORK HELPER CACHE RUNTIME POSE_LOOSE MAIN_RUNTIME POSE_LOOSE POSE_PKG\n       EditorHarness --mixing-only FRAMEWORK HELPER CACHE RUNTIME MIX_LOOSE MAIN_RUNTIME MIX_LOOSE MIX_PKG\n       EditorHarness --events-only FRAMEWORK HELPER CACHE RUNTIME EVENTS_LOOSE MAIN_RUNTIME EVENTS_LOOSE EVENTS_PKG EXPECTED_MDL\n");return 64;}
+  const bool brushOnly=argc>1&&std::string(argv[1])=="--brush-only",restOnly=argc>1&&std::string(argv[1])=="--rest-only",gltfOnly=argc>1&&std::string(argv[1])=="--gltf-only",clipsOnly=argc>1&&std::string(argv[1])=="--clips-only",posesOnly=argc>1&&std::string(argv[1])=="--poses-only",mixingOnly=argc>1&&std::string(argv[1])=="--mixing-only",eventsOnly=argc>1&&std::string(argv[1])=="--events-only",fkOnly=argc>1&&std::string(argv[1])=="--fk-only";if(brushOnly||restOnly||gltfOnly||clipsOnly||posesOnly||mixingOnly||eventsOnly||fkOnly){++argv;--argc;}
+  if((gltfOnly||eventsOnly||fkOnly)?argc!=10:clipsOnly?argc!=11:(posesOnly||mixingOnly)?argc!=9:argc!=6 && argc!=9 && argc!=11 && argc!=14 && argc!=16){fprintf(stderr,"usage: EditorHarness FRAMEWORK HELPER CACHE RUNTIME PROJECT [MAIN_RUNTIME LOOSE_EXPORT PKG_EXPORT [MODEL_LOOSE MODEL_PKG [IMAGE_SOURCE IMAGE_LOOSE IMAGE_PKG [BRUSH_LOOSE BRUSH_PKG]]]]\n       EditorHarness --gltf-only FRAMEWORK HELPER CACHE RUNTIME SOURCE_PROJECT MAIN_RUNTIME GLTF_LOOSE GLTF_PKG SOURCE_COMMAND\n       EditorHarness --clips-only FRAMEWORK HELPER CACHE RUNTIME CLIP_LOOSE MAIN_RUNTIME CLIP_LOOSE CLIP_PKG STATIC_LOOSE STATIC_PKG\n       EditorHarness --poses-only FRAMEWORK HELPER CACHE RUNTIME POSE_LOOSE MAIN_RUNTIME POSE_LOOSE POSE_PKG\n       EditorHarness --mixing-only FRAMEWORK HELPER CACHE RUNTIME MIX_LOOSE MAIN_RUNTIME MIX_LOOSE MIX_PKG\n       EditorHarness --events-only FRAMEWORK HELPER CACHE RUNTIME EVENTS_LOOSE MAIN_RUNTIME EVENTS_LOOSE EVENTS_PKG EXPECTED_MDL\n       EditorHarness --fk-only FRAMEWORK HELPER CACHE RUNTIME FK_LOOSE MAIN_RUNTIME FK_LOOSE FK_PKG EXPECTED_MDL\n");return 64;}
   DWWebCreateApplication(); [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory]; [NSApp finishLaunching];
   DWWebRuntime* runtime=[[DWWebRuntime alloc]initWithFrameworkDirectory:@(argv[1]) helperExecutable:@(argv[2]) cacheDirectory:@(argv[3])];
   NSError* error=nil;
   try {
     require([runtime startWithError:&error],error.localizedDescription.UTF8String ?: "CEF start failed");
+    if(fkOnly){
+      @autoreleasepool{
+        verifyFkWorkbench(runtime,@(argv[5]),@(argv[4]),[@(argv[3]) stringByAppendingPathComponent:@"FkResources"],@(argv[9]));
+        verifyFkExport(runtime,@(argv[7]),@(argv[6]),NO);
+        verifyFkExport(runtime,@(argv[8]),@(argv[6]),YES);
+      }
+      require([runtime shutdownWithError:&error],error.localizedDescription.UTF8String ?: "FK CEF shutdown failed");
+      require(runtime.shutdownCount==1,"FK runtime shutdown was not exactly once");puts("Native FK: trusted preview, exact independent MDL/history, parent/descendant pixels, saved reopen, both Main exports and full release passed");return 0;
+    }
     if(eventsOnly){
       @autoreleasepool{
         verifyEventWorkbench(runtime,@(argv[5]),@(argv[4]),[@(argv[3]) stringByAppendingPathComponent:@"EventResources"],@(argv[9]));

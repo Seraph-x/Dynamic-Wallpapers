@@ -68,7 +68,9 @@ reset to bind and bake between endpoints. [Clip layers](docs/editor-clip-mixing.
 edit ordered normal/additive blending, speed and visibility without rewriting
 model resources. [Frame events](docs/editor-frame-events.md) create, edit, copy
 and order native markers while preserving opaque metadata and imported callbacks.
-Sparse authoring keys, FK/IK and the script IDE remain under development.
+[FK local deltas](docs/editor-fk-posing.md) preview and bake local transforms
+to inclusive native sample ranges, with child bones following their parent.
+Sparse authoring keys, IK and the script IDE remain under development.
 
 The two applications share source modules in this repository and ship their own
 runtime dependencies. Editor has its own version (currently 0.1.0), bundle
