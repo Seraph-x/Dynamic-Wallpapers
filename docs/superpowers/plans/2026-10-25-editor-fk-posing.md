@@ -52,7 +52,7 @@ Files: update `README.md`, `Editor/README.md`, relevant native testing docs, and
 - [x] Document workflow, exact delta/range/loop-boundary semantics, cancellation and unsupported deferred tools; retain upstream attribution.
 - [x] Independently review diff against this plan and master spec; fix material findings with regression tests.
 - [x] Verify independent Editor build/resource bridge, product configuration, public-source export, offline hashes and `git diff --check`. Scan a copy of changed files with sanitized-public-export; real author email remains per user instruction.
-- [ ] Commit with the real configured author and create an English PR. Leave this new PR open for review. Record verification evidence and PR URL here.
+- [x] Commit with the real configured author and create an English PR. Leave this new PR open for review. Record verification evidence and PR URL here.
 
 ## Progress and evidence
 
@@ -65,3 +65,5 @@ Files: update `README.md`, `Editor/README.md`, relevant native testing docs, and
 - Complete fresh-directory native runner passed all existing phases plus `browser-fk` and `native-fk`, each with its own unchanged 60-second phase budget. Native FK used trusted keyboard input and exact independently encoded MDL/hash, verified four known GPU samples after save/reopen, both Main export formats (parent 20px plus child 0/15/30/60px), zero retained pages and one runtime shutdown.
 - Independent Editor build passed (83.57 seconds); the real EditorResourceBridgeTests passed (one test). Product checks passed 3/3, configuration 42/42 and source export 16/16. Reproducible offline build checks all 53 resources. `git diff --check` is clean.
 - Sanitized-public-export gate passed on the 30 changed files; the configured real commit author is retained as explicitly requested. Final review of the expanded lifecycle checks found no remaining blocker.
+
+- Submitted [PR #25](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/25) from `feat/editor-fk-posing`; the new feature PR remains open for review.
