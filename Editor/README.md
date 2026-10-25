@@ -39,10 +39,11 @@ authoring-page scene mounts, including model-import preview, use `scripts:false`
 Property curves and skeletal animation remain active; imported SceneScript runs
 through **Run preview** in a separate scene page. The
 [Script workspace](../docs/editor-script-workspace.md) edits supported inline
-sources with Check/Apply/Revert/Remove and recoverable drafts. Script-bound
-inspector fields stay read-only. Syntax highlighting, API completion, lifecycle
-templates, find/replace and source-linked runtime diagnostics will follow in
-separate PRs; the current editor uses a native textarea.
+sources with Check/Apply/Revert/Remove and recoverable drafts. Its bundled
+CodeMirror editor adds JavaScript highlighting, local undo/redo, target-aware
+API hints, lifecycle starters and find/replace without network dependencies.
+Script-bound inspector fields stay read-only. Retained source-linked runtime
+diagnostics remain separate IDE work.
 
 Use **File → New Project** or **Open Project**. Imports create complete owned
 copies. **Save** writes the Editor workspace; **Export** creates a standard scene
@@ -53,8 +54,9 @@ stored under `~/Library/Application Support/DynamicWallpaperEditor/`.
 ## Edit SceneScript source
 
 Select a layer, choose **Script** beside **Properties / Model**, then choose a
-property or source. Type in the offline source field and use **Check** for real
-compiler diagnostics without execution or history changes. **Apply source**
+property or source. Type in the offline CodeMirror field and use **Check** for
+real compiler diagnostics without execution or history changes. Check compiles
+source; it does not type-check API members or establish runtime capability. **Apply source**
 checks and commits the current text as one undoable edit; unchanged text creates
 no history. **Revert draft** discards pending text. **Remove script** explicitly
 discards that draft and removes the committed script while preserving its base
@@ -65,7 +67,22 @@ native history commands first flush a valid draft. Invalid input keeps its text
 and selection and blocks the affected operation. Save and preview cannot publish
 an invalid draft; closing still offers **Save / Discard / Cancel**, with explicit
 Discard allowed and Cancel or failed Save restoring editing. Local text undo
-stays in the textarea; toolbar/native Undo applies to project history.
+stays in the source editor; toolbar/native Undo applies to project history.
+
+Use **Complete** or the editor completion shortcut for a conservative catalogue
+of the selected target's globals and members. **Find / Replace** opens the
+editor-scoped search panel; search alone does not edit the source. Choose a
+starter and **Use template** to edit the draft. Nonempty drafts require
+**Replace draft / Cancel** before replacement, which remains locally undoable.
+Apply is still required to commit the starter. Unavailable starters show their
+actual host/target limitation. See the [API and starter catalogue](../docs/editor-script-api.md)
+for the pinned numeric/event restrictions.
+
+The current host passes `media: null`, so system-media starters are unavailable.
+User-property callbacks receive initial values; live host changes are not wired.
+Audio starters read real spectrum or silence in Main; the independent muted
+preview supplies zero spectrum. These limits do not disable editing existing
+author-written source.
 
 Imported source bytes remain exact until edited. Input retains consistent CRLF
 line endings; editing mixed imported line endings uses LF. Unsupported bindings,
@@ -278,6 +295,12 @@ aliases fail explicitly rather than overwriting scene or project metadata.
   the exact upstream commit and selected-source checksum.
 - [DSH Wallpaper Engine](https://github.com/elysia395/dsh-wallpaper-engine):
   scene-hosting design reference; no DSH application source is vendored here.
+- [CodeMirror](https://codemirror.net/): bundled MIT-licensed CodeMirror 6 source
+  editor, JavaScript highlighting, local history, completion UI and search/replace.
+  Our static SceneScript catalogue and starter modules use the actual pinned
+  WebWallGL runtime contracts; hints do not evaluate source. Exact package pins
+  and bundled transitive versions are recorded in `ThirdParty/provenance.json`;
+  full notices are in [`ThirdParty/CodeMirror-LICENSES.txt`](ThirdParty/CodeMirror-LICENSES.txt).
 - [CEF](https://bitbucket.org/chromiumembedded/cef/): native browser runtime.
 - [Mediabunny](https://github.com/Vanilagy/mediabunny): dependency in the shared
   WebWallGL bundle.

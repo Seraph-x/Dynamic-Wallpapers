@@ -4,9 +4,71 @@ The Editor is a separate Swift package/application. Main does not depend on its
 authoring target, UI resources or installation. PR 1 supplies file contracts;
 PR 2 supplies the Editor; PR 3 supplies the optional Main handoff and packaging.
 
-## Current source-workspace checks
+## Offline code tools acceptance
 
-The current source-workspace checks pass 373 JavaScript tests and 30 independent
+The code-tools runner retains all earlier phases and adds
+`browser-script-language-runtime`, `browser-code-tools` and `native-code-tools`,
+for 34 browser/native phases. Every acceptance execution phase retains its
+60-second budget; compilation retains 180 seconds. Only the native test host
+uses the explicitly approved isolated-keychain setting. A run is a pass only
+when every phase completes normally; a timed-out run remains a failure.
+
+Run from the repository root with the pinned build dependencies installed:
+
+```sh
+node --test Editor/Web/script-language.test.mjs
+node Editor/Web/build.mjs --check
+node Editor/Web/test-script-language-runtime.mjs
+node Editor/Web/test-code-tools.mjs
+node Editor/Web/test-script-workspace.mjs
+EDITOR_NATIVE_TEST_KEYCHAIN=isolated python3 scripts/test-editor-native.py
+```
+
+`SCENE_CHROMIUM_EXECUTABLE` can explicitly select an installed Chrome/Chromium
+executable for the browser phases. The reproducible build now records 80 offline
+resources: 72 workbench and eight independent preview files. It validates the
+CodeMirror bundle has no external module imports, records every bundled package
+version, and checks complete transitive license notices alongside resource hashes.
+
+The pure catalogue checks distinguish scalar/vector/boolean/text targets and
+text/object sandboxes, restrict unsupported host/target starters, and compile
+all complete modules without executing them. The language-runtime browser phase
+executes actual starter modules through the pinned renderer: typed init/update,
+initial user properties, real cursor dispatch, resize/timer state, authored
+animation events, explicit stereo spectrum and silence. Unknown engine-member
+no-op behavior does not establish supported API capability.
+
+The visible CodeMirror browser phase covers syntax token spans, actual completion
+selection, confirmation and cancellation before replacing nonempty source,
+local undo/redo, one-match replacement and Replace all. It preserves local
+history after Apply/save/theme/unrelated Timeline changes and isolates history
+across different layer/source identities even when their current text is equal.
+Read-only source must remain keyboard-focusable, support select/copy and keep
+Undo from escaping into project history. Template confirmation blocks snapshot
+capture until resolved, including freeze/thaw/Cancel recovery.
+
+Freeze checks exercise a previously opened completion popup, Chromium's actual
+IME composition path and a focused search field. Every edit uses real keyboard,
+completion or search transactions; there is no hidden textarea or model-write
+substitute. Existing source-workspace checks retain exact imported CRLF/Unicode,
+invalid-draft recovery, document history and resource-byte assertions. The new
+native phase uses an attached CEF view and actual AppKit keyboard input, including
+completion and template confirmation. Saved/reopened source and both loose/PKG
+exports must match independently authored expected data and render actual red
+mesh pixels in Main without an Editor authoring bridge. Five-language light/dark
+minimum-window layouts remain part of browser acceptance.
+
+The code-tools revision passed 384 JavaScript tests, 30 independent Editor tests
+and 41 targeted Editor Core tests. The final Editor build and all 80 reproducible
+offline resources passed. A full fresh-directory run passed all 34 phases,
+including actual browser/native code tools and language-runtime factory checks.
+Editor product (3), product configuration (42) and public-source export (16)
+checks also passed. These focused checks do not establish a full Main application
+suite pass.
+
+## Previous source-workspace checks
+
+The preceding source-workspace revision passed 373 JavaScript tests and 30 independent
 Editor tests. The reproducible build verifies 75 offline resources (67 workbench
 and 8 independent preview). The full fresh-directory 31-phase browser/native
 run passed, including both new source-workspace phases. The root test build and
@@ -49,8 +111,8 @@ negative control before the restored implementation passed. View tests retain
 read-only malformed source and non-array effects without dropping imported data.
 Runtime tests include source-only native dirty state without a content revision.
 
-The real browser phase uses actual native HTML select/textarea/buttons and the
-pinned compiler. It covers Check/Apply/Revert/Remove, warnings after repeated
+The real browser phase uses actual HTML selects/buttons, visible CodeMirror
+keyboard input and the pinned compiler. It covers Check/Apply/Revert/Remove, warnings after repeated
 Apply, unchanged invalid source, invalid navigation, dirty-only freeze/snapshot
 rejection/thaw recovery, local text undo on existing and initially absent scripts,
 and preserving an independent Timeline draft. Actual input checks CRLF retention

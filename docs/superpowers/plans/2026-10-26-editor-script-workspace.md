@@ -51,7 +51,7 @@ Files: new `Editor/Web/test-script-workspace.mjs`, new `Tests/EditorRuntimeHarne
 - [x] Independently review plan, then substantial implementation and draft/barrier races. Fix important findings with regression tests.
 - [x] Update READMEs and source/validation documentation with actual behavior, remaining next-PR scope and upstream attribution. Use docs-generator and sanitized-public-export on the changed-file export; user-requested real commit email overrides the skill's noreply default.
 - [x] Verify all JS/offline checks, independent Editor build/tests, Core and product/config/export tests, and all fresh native phases. Check final diff and source/preview runtime byte preservation.
-- [ ] Commit as Seraph-x with the configured real email, publish an English PR, verify remote head, merge after all checks, synchronize clean local main. Then start the next planned PR without another approval question.
+- [x] Commit as Seraph-x with the configured real email, publish an English PR, verify remote head, merge after all checks, synchronize clean local main. Then start the next planned PR without another approval question.
 
 ## Verified first-PR delivery record
 
@@ -62,3 +62,5 @@ Files: new `Editor/Web/test-script-workspace.mjs`, new `Tests/EditorRuntimeHarne
 - The first complete native run hit its unchanged browser timeout. Reproduction caught a read-only Model inspection error wrongly blocking Undo. The corrected UI retains that diagnostic without treating it as a pending content edit; strict programmatic activation still rejects failed inspection.
 - Final fresh-directory 31-phase browser/native run passed, along with repeated focused browser/native source authoring, both Main export forms and exact source bytes. Test-only keychain remains confined to EditorNativeTests.
 - Main and independent scene runtime bytes remain unchanged. No new source-evaluation endpoint or production test mode was introduced.
+
+Merged delivery: [PR #31](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/31), merge commit `732be59a4eba5d6c763eeba8a7c29a5013498194`. The offline code tools follow in their separate implementation plan.

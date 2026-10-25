@@ -1,17 +1,18 @@
 import { ScriptDraft } from './script-draft.mjs';
-import { initializeScriptView,scriptTargets,scriptInputSource } from './script-workspace-view.mjs';
+import { initializeScriptView } from './script-workspace-view.mjs';
+import { scriptTargets,scriptInputSource } from './script-workspace-targets.mjs';
 
 export class ScriptWorkspace {
   #editor;#t;#onError;#reset;#onDraft;#view;#records=[];#draft;#record;#id;#document;
   #locked=false;#busy=0;#closed=false;#operations=Promise.resolve();#failure;#diagnostics=[];#diagnosticSource;
   constructor({editor,t,onError,onResetInput,onDraftChange}) {
     this.#editor=editor;this.#t=t;this.#onError=onError;this.#reset=onResetInput;this.#onDraft=onDraftChange;
-    this.#view=initializeScriptView(t);
-    this.#view.input.addEventListener('input',()=>{
+    this.#view=initializeScriptView(t,{onError:error=>this.#fail(error),onResolved:expected=>{if(this.#failure===expected){this.#clearFailure();this.#render();}}});
+    this.#view.onInput(value=>{
       try {
         if(this.#locked||this.#busy||editor.frozen)throw new Error('Editor is frozen');
-        if(this.#draft.state.kind==='constant'&&this.#view.input.value==='')this.#draft.restoreInput();
-        else this.#draft.setSource(scriptInputSource(this.#view.input.value,this.#draft.state.source??''));
+        if(this.#draft.state.kind==='constant'&&value==='')this.#draft.restoreInput();
+        else this.#draft.setSource(scriptInputSource(value,this.#draft.state.source??''));
         this.#clearFailure();this.#diagnostics=[];this.#diagnosticSource=undefined;this.#render();this.#onDraft();
       } catch(error){this.#fail(error);}
     });
@@ -63,7 +64,7 @@ export class ScriptWorkspace {
     const state=this.#draft?.state??this.#record?.state;
     const issues=this.#diagnostics;
     this.#view.render({source:this.#draft?.state.editable?this.#draft.source:this.#record?.source,state,dirty:this.dirty,locked:this.#locked||this.#busy>0,
-      failure:this.#failure,diagnostics:issues.length?issues:[]});
+      failure:this.#failure,diagnostics:issues.length?issues:[],context:this.#document,key:JSON.stringify([this.#id,this.#record?.key]),target:this.#record?.selection?.target});
   }
   activate() {
     document.body.classList.add('script-workspace-active');this.#view.panel.hidden=false;
@@ -75,6 +76,7 @@ export class ScriptWorkspace {
   setFrozen(value){this.#locked=value;this.#render();}
   async flush() {
     await this.#operations;
+    try { this.#view.assertSettled(); } catch(error){this.#fail(error);throw error;}
     // A prior freeze already attempted the draft. Preserve that exact rejection
     // for the owner's validation snapshot; never retry a write while frozen.
     if(this.#editor.frozen){if(this.#failure)throw this.#failure;if(this.dirty)throw new Error('Source draft remains pending in a frozen Editor');return;}
@@ -85,5 +87,5 @@ export class ScriptWorkspace {
       if(this.#failure)throw this.#failure;
     } catch(error){this.#fail(error);throw error;}
   }
-  destroy(){this.#closed=true;}
+  destroy(){this.#closed=true;this.#view.destroy();}
 }

@@ -85,10 +85,13 @@ play while editing. **Run preview** opens the current valid edits in that
 independent script-enabled window. [Execution migration](docs/editor-script-migration.md)
 separates pages, origins and authoring channels within CEF, without promising
 operating-system process isolation. The [Script workspace](docs/editor-script-workspace.md)
-now edits supported inline sources in an offline native textarea, with
-Check/Apply/Revert/Remove, recoverable drafts and ordinary history/save/export.
-Syntax highlighting, API completion, lifecycle templates, find/replace and
-source-linked runtime diagnostics remain separate IDE work.
+edits supported inline sources in an offline CodeMirror editor, with syntax
+highlighting, local undo/redo, target-aware API hints, lifecycle starters and
+find/replace. Check/Apply/Revert/Remove, recoverable drafts and ordinary
+history/save/export retain their source contracts. Starters replace nonempty
+drafts only after confirmation; hints and Check do not prove runtime types or
+capabilities. See the [supported API catalogue](docs/editor-script-api.md).
+Retained source-linked runtime diagnostics remain separate IDE work.
 
 The two applications share source modules in this repository and ship their own
 runtime dependencies. Editor has its own version (currently 0.1.0), bundle
@@ -155,6 +158,7 @@ The scene-wallpaper work draws on these projects:
 | [WebWallGL glTF helpers](docs/editor-gltf-import.md#source-references) | Selected MIT matrix/quaternion, animation sampling and PNG helpers from a recorded source commit; our importer adds strict compatibility checks, explicit conversion and atomic resource history. |
 | [Chromium Embedded Framework](https://github.com/chromiumembedded/cef) | The embedded Chromium runtime used for web and scene wallpaper playback. |
 | [mpv](https://github.com/mpv-player/mpv) and [FFmpeg](https://ffmpeg.org/) | Extended media playback, probing and transcoding. |
+| [CodeMirror](https://codemirror.net/) | The standalone Editor bundles the MIT-licensed CodeMirror 6 editor and JavaScript language, completion and search modules for offline source editing. The SceneScript API catalogue and starter modules are implemented here against the pinned runtime. |
 | [Mediabunny](https://github.com/Vanilagy/mediabunny) | Media handling included in the pinned WebWallGL bundle. |
 
 WebWallGL's distribution also includes vendored code with a retained
@@ -164,6 +168,6 @@ inputs, source URLs and license notices are recorded in the
 
 ## License and third-party materials
 
-Project-authored code and documentation use [GPL-3.0-or-later](LICENSE). Dependencies retain their own licenses, including WebWallGL/WeScene (MIT) and Mediabunny (MPL-2.0). See the [dependency inventory](Resources/ThirdParty/README.md).
+Project-authored code and documentation use [GPL-3.0-or-later](LICENSE). Dependencies retain their own licenses, including WebWallGL/WeScene and CodeMirror (MIT), and Mediabunny (MPL-2.0). See the [dependency inventory](Resources/ThirdParty/README.md).
 
 The retained mpv corresponding-source/per-library notice records and per-build FFmpeg distribution review remain incomplete; the release preserves that status. A valid signature, successful build or 1.0.0 version number does not establish complete redistribution compliance.

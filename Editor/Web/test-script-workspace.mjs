@@ -4,6 +4,7 @@ import path from 'node:path';
 import {openEditorHarness} from './browser-editor-harness.mjs';
 import {migrationDocument,migrationResources,openScriptPlayback} from './script-migration-fixture.mjs';
 import {readEditorPackage} from './package-archive.mjs';
+import {codeInput,codeReadOnly,inspectCodeEditor} from './test-code-editor-helpers.mjs';
 
 // Independent expected bytes: authoring output must never define its own oracle.
 const authoredSource='// workspace authored — 雪\r\nexport function update(value){\r\n  return {x:1,y:0,z:0};\r\n}\r\n';
@@ -17,7 +18,7 @@ const sourceRequests=[];page.on('request',request=>{if(request.url().includes('m
 const snapshot=async()=>(await command({type:'snapshot'})).document;
 async function selectLayer(id){await page.locator(`#layers button[data-layer-id="${id}"]`).click();}
 async function open(){await selectLayer(1);await page.locator('#script-workspace').click();await page.locator('#script-target').selectOption('color');}
-const input=()=>page.locator('#script-source');
+const input=()=>codeInput(page);
 async function check(){await page.locator('#script-check').click();}
 async function apply(){await page.locator('#script-apply').click();}
 async function revert(){await page.locator('#script-revert').click();}
@@ -26,7 +27,7 @@ try{
  assert.equal(await page.locator('#script-workspace').count(),1,'Missing real Script workspace entry');
  const blobs=(await readdir(blobRoot)).sort();for(const [name,bytes] of migrationResources())resources.set(name,bytes);
  await command({type:'thaw'});await command({type:'load',document:original});await open();
- assert.equal(await input().evaluate(e=>e.tagName),'TEXTAREA');assert.equal(await page.locator('#script-target').evaluate(e=>e.tagName),'SELECT');
+ assert.equal(await page.locator('#script-source').evaluate(e=>e.tagName),'DIV');assert.equal(await page.locator('#script-source textarea').count(),0);const codeState=await inspectCodeEditor(page);assert.equal(codeState.role,'textbox');assert(codeState.labelledBy?.split(' ').includes('script-source-label'));assert.equal(await page.locator('#script-target').evaluate(e=>e.tagName),'SELECT');
  assert.equal(await input().inputValue(),original.scene.objects[0].color.script.replaceAll('\r\n','\n'));assert.deepEqual(await snapshot(),original);
  // Check compiles real source, preserves pending text and cannot evaluate probes.
  const probe='globalThis.__workspaceMustNotRun=true;\nexport function update(value){return value;}';
@@ -42,7 +43,7 @@ try{
  await assert.rejects(snapshot(),/script|syntax|unexpected|expected/i);await command({type:'thaw'});assert.equal(await input().inputValue(),invalid);await revert();assert.deepEqual(await snapshot(),original);
  await input().fill(authoredSource.replaceAll('\r\n','\n'));await command({type:'mark-saved',document:original});
  assert.equal(await input().inputValue(),authoredSource.replaceAll('\r\n','\n'),'mark-saved erased the pending source');assert.equal(await page.locator('#saved').getAttribute('data-dirty'),'true');await revert();
- // A textarea's local undo must not become a document-history operation.
+ // The visible code editor's local undo must not become a document-history operation.
  await input().focus();await page.keyboard.press('ControlOrMeta+End');await page.keyboard.type(' ');await page.keyboard.press('ControlOrMeta+z');
  assert.equal(await input().inputValue(),original.scene.objects[0].color.script.replaceAll('\r\n','\n'));assert.deepEqual(await snapshot(),original);
  await page.locator('#script-target').selectOption('alpha');await input().focus();await page.keyboard.type('x');await page.keyboard.press('ControlOrMeta+z');assert.equal(await input().inputValue(),'');
@@ -61,9 +62,9 @@ try{
  await page.locator('#script-remove').click();const removed=await snapshot();assert(!Object.hasOwn(removed.scene.objects[0].color,'script'));assert.equal(removed.scene.objects[0].color.value,'0 1 0');assert.deepEqual(removed.scene.objects[0].color.future,{keep:true});
  await command({type:'undo'});assert.equal((await snapshot()).scene.objects[0].color.script,'');await command({type:'undo'});assert.deepEqual(await snapshot(),original);
  const unsupported=structuredClone(original);unsupported.scene.objects[0].alpha={value:1,script:'export function update(v){return v;}',user:'bound'};
- await command({type:'load',document:unsupported});await page.locator('#script-target').selectOption('alpha');assert(await input().isDisabled()||await input().getAttribute('readonly')!==null);assert((await page.locator('#script-diagnostics').textContent()).trim());assert.deepEqual(await snapshot(),unsupported);
+ await command({type:'load',document:unsupported});await page.locator('#script-target').selectOption('alpha');assert(await codeReadOnly(page));assert((await page.locator('#script-diagnostics').textContent()).trim());assert.deepEqual(await snapshot(),unsupported);
  await selectLayer(2);await page.locator('#script-target').selectOption('text');assert.equal(await input().inputValue(),original.scene.objects[2].text.script);const metadata=await page.locator('#script-target option').evaluateAll(options=>options.map(o=>o.value).filter(v=>v.startsWith('metadata:')));assert(metadata.length>0,'Unknown inline source must remain discoverable');
- await page.locator('#script-target').selectOption(metadata[0]);assert(await input().isDisabled()||await input().getAttribute('readonly')!==null);assert.equal(await input().inputValue(),original.scene.objects[2].future.script);assert.deepEqual(await snapshot(),unsupported);
+ await page.locator('#script-target').selectOption(metadata[0]);assert(await codeReadOnly(page));assert.equal(await input().inputValue(),original.scene.objects[2].future.script);assert.deepEqual(await snapshot(),unsupported);
  await selectLayer(3);await page.locator('#script-target').selectOption('effects[0].visible');assert.equal(await input().inputValue(),original.scene.objects[1].effects[0].visible.script);
  await command({type:'load',document:original});await open();await page.locator('#timeline-toggle').click();
  await page.locator('.timeline-key[data-property="origin"][data-channel="0"][data-frame="0"]').click();await page.locator('#timeline-key-value').fill('335');
@@ -89,7 +90,7 @@ try{
   assert(red.every(n=>n>100),'Authored script must render real red pixels in both model meshes');assert.equal(await playback.evaluate(()=>typeof globalThis.__dynamicWallpaperEditor),'undefined');
  }finally{await playback.close();}
  configuration.document=expected;await page.setViewportSize({width:850,height:540});
- for(const language of ['en','zh-Hans','ja','fr','es']){configuration.language=language;const ready=page.waitForRequest(r=>r.method()==='POST'&&r.url().endsWith('/__editor/event')&&r.postDataJSON().type==='ready');await page.reload();await ready;await command({type:'thaw'});await open();await page.locator('#timeline-toggle').click();for(const theme of ['light','dark']){await page.locator('#theme').selectOption(theme);const layout=await page.evaluate(()=>{const panel=document.getElementById('script-panel'),source=document.getElementById('script-source'),r=source.getBoundingClientRect();return {rect:{left:r.left,right:r.right,top:r.top,bottom:r.bottom},viewport:{width:innerWidth,height:innerHeight},overflow:document.documentElement.scrollWidth>innerWidth||panel.scrollWidth>panel.clientWidth,inside:r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight,labels:[...panel.querySelectorAll('label')].every(l=>l.control&&l.textContent.trim()&&!l.textContent.includes('undefined')),buttons:[...panel.querySelectorAll('button')].every(b=>b.textContent.trim()&&!b.textContent.includes('undefined'))};});assert(layout.inside&&!layout.overflow&&layout.labels&&layout.buttons,language+'/'+theme+': '+JSON.stringify(layout));assert.deepEqual(await snapshot(),expected);await quiet();}}
+ for(const language of ['en','zh-Hans','ja','fr','es']){configuration.language=language;const ready=page.waitForRequest(r=>r.method()==='POST'&&r.url().endsWith('/__editor/event')&&r.postDataJSON().type==='ready');await page.reload();await ready;await command({type:'thaw'});await open();await page.locator('#timeline-toggle').click();for(const theme of ['light','dark']){await page.locator('#theme').selectOption(theme);const layout=await page.evaluate(()=>{const panel=document.getElementById('script-panel'),source=document.getElementById('script-source'),r=source.getBoundingClientRect();return {rect:{left:r.left,right:r.right,top:r.top,bottom:r.bottom},viewport:{width:innerWidth,height:innerHeight},overflow:document.documentElement.scrollWidth>innerWidth||panel.scrollWidth>panel.clientWidth,inside:r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight,labels:[...panel.querySelectorAll('label')].every(l=>(l.control||l.id==='script-source-label'&&source.querySelector('.cm-content').getAttribute('aria-labelledby')?.split(' ').includes(l.id))&&l.textContent.trim()&&!l.textContent.includes('undefined')),buttons:[...panel.querySelectorAll('button')].every(b=>b.textContent.trim()&&!b.textContent.includes('undefined'))};});assert(layout.inside&&!layout.overflow&&layout.labels&&layout.buttons,language+'/'+theme+': '+JSON.stringify(layout));assert.deepEqual(await snapshot(),expected);await quiet();}}
  assert.deepEqual(sourceRequests,[],'Source executed network probes in authoring');assert.equal(events.filter(e=>e.type==='resource'&&e.action==='stage').length,0);assert.deepEqual((await readdir(blobRoot)).sort(),blobs);assert.deepEqual(errors,[]);
  console.log('Script workspace: real native forms/compiler, draft barriers, syntax recovery, local undo, CRLF/mixed bytes, bindings/metadata, history/save/reload, both exports, independent scripted pixels, five languages/themes/minimum layout and zero staging passed');
 }finally{await h.close();}

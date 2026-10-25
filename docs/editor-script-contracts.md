@@ -2,11 +2,14 @@
 
 Source transactions and offline syntax diagnostics support inline native
 layer/effect scripts. The [Script workspace](editor-script-workspace.md) now
-provides a native textarea and Check/Apply/Revert/Remove on these contracts. The
+provides an offline CodeMirror editor and Check/Apply/Revert/Remove on these
+contracts. The
 [execution migration](editor-script-migration.md) disables SceneScript in every
 authoring-page mount and runs captured revisions in an independent scene page
-through **Run preview**. Highlighting, completion, templates, find/replace and
-source-linked runtime diagnostics remain separate IDE work. The pinned engine's
+through **Run preview**. The workspace also provides highlighting, conservative
+API hints, complete starter templates and find/replace; see the
+[API catalogue](editor-script-api.md) for actual target/host restrictions.
+Retained source-linked runtime diagnostics remain separate IDE work. The pinned engine's
 in-page script sandbox is not itself a security boundary.
 
 ## Check a scene without running its scripts
@@ -29,10 +32,10 @@ command, not for either application's normal operation.
 | `discovered` | Number of inline members named `script`, including custom metadata |
 | `checked` | Number of registered native anchors actually passed to the compiler |
 | `unvalidated` | Unknown script-like metadata retained with `checked:false` |
-| `errors` / `warnings` | Native syntax/type errors and explicit no-entry warnings |
+| `errors` / `warnings` | Source-contract input errors, native syntax errors and explicit no-entry warnings |
 | `results` | Per-source structural path, layer/target, editability, native check and diagnostics |
 
-Exit **0** means no checked-source syntax/type errors; **1** means source errors
+Exit **0** means no checked-source input/syntax errors; **1** means source errors
 were reported; **2** means usage, input or I/O failed and stderr explains why.
 Zero checked sources is reported as zero. Unknown metadata is not treated as
 source or as an error: for example, a custom `scriptproperties.script` object
@@ -167,8 +170,9 @@ separates script execution from the workbench's native write/control channel
 within the existing CEF runtime, without claiming operating-system process
 isolation. The source workspace adds real UI compiler/draft tests and actual CEF
 focused input; its authored loose/PKG scene must play independently in Main.
-Syntax highlighting, completion, templates, find/replace and linked runtime
-diagnostics remain subsequent IDE work. The
+Offline CodeMirror acceptance adds highlighting, completion, template
+confirmation, search/replace and local history without changing these source
+transactions. Linked retained runtime diagnostics remain subsequent IDE work. The
 independent preview already supports restarting its captured revision.
 
 The compiler, runtime semantics and package writer come from the pinned WebWallGL

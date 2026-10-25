@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { scriptTargets,scriptInputSource } from './script-workspace-view.mjs';
+import { scriptTargets,scriptInputSource } from './script-workspace-targets.mjs';
 const source='export function update(value) { return value; }';
 const scene={objects:[{id:1,text:'Hello',color:{value:'1 0 0',script:source,future:1},origin:{value:'0 0 0',animation:{}},effects:[{visible:{value:true,script:source}}],future:{script:'unknown source'}},{id:2,alpha:1}]};
 test('source targets retain readable bound fields and metadata with explicit reasons',()=>{

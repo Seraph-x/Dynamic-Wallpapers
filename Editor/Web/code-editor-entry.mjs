@@ -1,0 +1,9 @@
+export { basicSetup } from 'codemirror';
+export { EditorState,Compartment } from '@codemirror/state';
+export { EditorView,keymap } from '@codemirror/view';
+export { javascript } from '@codemirror/lang-javascript';
+export { syntaxHighlighting,HighlightStyle,syntaxTree } from '@codemirror/language';
+export { tags } from '@lezer/highlight';
+export { autocompletion,startCompletion,closeCompletion } from '@codemirror/autocomplete';
+export { search,openSearchPanel,closeSearchPanel } from '@codemirror/search';
+export { isolateHistory } from '@codemirror/commands';

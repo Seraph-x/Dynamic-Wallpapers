@@ -13,3 +13,23 @@ body.script-workspace-active main { grid-template-columns: 172px minmax(180px, .
 @media (max-width: 1050px) { body.script-workspace-active main { grid-template-columns: 142px minmax(140px,.6fr) minmax(320px,1fr); } }
 
 @media (max-height: 640px) { #script-source { min-height: 76px; height: 90px; } #script-panel { gap: 5px; padding-block: 8px; } }
+:root { --code-keyword: light-dark(#75449a,#d4a7ef); --code-string: light-dark(#316b48,#aed5a8); --code-number: light-dark(#945323,#e6b887); }
+.script-source-label { margin: 0; font-size: 11px; color: var(--secondary); }
+#script-source { padding: 0; min-height: 160px; height: 230px; border: 1px solid var(--field-line); border-radius: 7px; resize: none; overflow: visible; }
+#script-source .cm-editor { height: 100%; border-radius: inherit; }
+#script-source .cm-editor:has(:focus-visible) { outline: 2px solid var(--accent); outline-offset: 3px; }
+#script-source:has([aria-invalid="true"]) { border-color: var(--danger); }
+#script-panel:has([aria-invalid="true"]) .script-diagnostics { color: var(--danger); }
+#script-source .cm-search { padding: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
+#script-source .cm-search input { max-width: 100%; width: 100%; font-size: 11px; padding: 4px; }
+#script-source .cm-search input[type="checkbox"] { width: auto; }
+#script-source .cm-search button { font-size: 10px; padding: 3px 5px; min-height: 26px; }
+#script-source .cm-search label { font-size: 10px; }
+.script-template-controls { display: flex; flex-wrap: wrap; gap: 6px; }
+#script-template { min-width: 0; max-width: 100%; flex: 1 1 160px; font-size: 11px; padding: 6px; }
+#script-use-template { font-size: 11px; padding-inline: 8px; }
+@media (max-height: 640px) { #script-source { min-height: 76px; height: 90px; } }
+#script-template-confirm { width: min(420px, calc(100vw - 40px)); padding: 22px; border: 1px solid var(--line); border-radius: 12px; color: var(--text); background: var(--surface); }
+#script-template-confirm::backdrop { background: #0006; }
+#script-template-confirm h3 { margin-top: 0; font: 21px/1.3 var(--serif); }
+#script-template-confirm p { color: var(--secondary); }
