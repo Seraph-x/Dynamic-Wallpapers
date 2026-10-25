@@ -10,11 +10,11 @@
   "engineSHA256": "17c85a29c11b1a783f79f4351df00497217b1af76c4b457ca9422c21dbae8fa3",
   "files": {
     "editor-api.mjs": "01ad2136319122edc3cf473322ee258df8adf49068e1228c6fcf6762969a4bd6",
-    "model-api.mjs": "284f800584a55aae38df3438016d6f0bfe59d2180c9f582b005367ed7b83c223",
+    "model-api.mjs": "d06ca36501aa688d80fe471a37e324a1437d1049030dd8843c02e37b6bb46d7c",
     "webwallgl.bundle.mjs": "17c85a29c11b1a783f79f4351df00497217b1af76c4b457ca9422c21dbae8fa3",
     "index.html": "e9fda7d5f821698ac47cdf82134d5d7290ebb423244342c3ca9220415177e4f7",
     "editor.css": "8a1c828b216b5c9a237bba370b641097ae8dde13ff47e250d61bca5979fd1b6e",
-    "app.mjs": "5d446ff8df55ffca89ceefe0ec697a21c9137df3d75f06f8a592726a7b2d1890",
+    "app.mjs": "08013f56f64a9792551511a6108283eef96ad6de669cc2af6bda185f7a8c44f1",
     "document.mjs": "a5337d4c092dcf5d09af55a58b4ef90aa2b2e6f81a2b44aa765770d32b063add",
     "runtime.mjs": "a6088f2d867fea7cb33d4bf7445714c4f8d897326deb965fd00d33b7b3b6f745",
     "localization.mjs": "0a5c411c7589aef4edac7ac8ef8139be727d51ffa8508e9c66664fda3c88e0d8",
@@ -28,11 +28,14 @@
     "timeline.css": "8fb3f08671c69ac6e93f24b4e15993a1e393bc8f76d661b447fee1890ccf55df",
     "model-capacity.mjs": "fecd0bb299e246154c9dc5f5196bd828eaa945dc643b903ceeafc368dec3fdac",
     "model-resource-edit.mjs": "4639b807243959e7762d5c4f52b9fdafc56662110c8ce3f7fe77ee2303208131",
-    "model-workspace.mjs": "cf8b91ccce5489d2a2c1e85e6c662102d3dbb3614a1bf55a6324bd6169f7dc81",
-    "model-view.mjs": "63f8c3bd558ab7ae42b27fe62996bc4713a57ef2ba20dadba0faa662d73c4b53",
-    "model-overlay.mjs": "4f2b0235f050dc72ba9b2c834a8a60834485e42a5ac004d1b3f28c81cdafc34a",
-    "model-messages.mjs": "1235b282098a88bbc1cc511520c0e9895cb4c59733279448c0c4abc72da6504d",
-    "model.css": "7a7c1b18d3ab92a23dea7428e97b84b3b27ac01ac1d4f27e760fb14cc0d1f8c8",
-    "image-puppet-view.mjs": "c295e65fb4988a08595fc2e4e7bd5764eda0f013496ea8300077f72bebc2be8c"
+    "model-workspace.mjs": "0e44d49055566c10ad9760867c9d39549ab7aae005b244cdc129450b835c184d",
+    "model-view.mjs": "af89485aa05eadbf073419d8dfb8bc31fee8ab7cef15f866169c7f0d5ae9a53c",
+    "model-overlay.mjs": "7fe09299e139b1eae087a03a8b1bb2974f6400dd154c6f5665f011613c9349a3",
+    "model-messages.mjs": "a323e85d56746be39906fc8a5ce7b37be4c48c08a9b0df1ff9622cd75b3de4af",
+    "model.css": "40793b985e28c83e40c2539d71868378b0f937c332465ebdbb8de50c451c6059",
+    "image-puppet-view.mjs": "c295e65fb4988a08595fc2e4e7bd5764eda0f013496ea8300077f72bebc2be8c",
+    "model-brush-view.mjs": "7fafb1ef1cf09b19522c51290013653a138875d2fa443b554d44ab53fe839c94",
+    "model-brush-controller.mjs": "3bcbb1de9270bad7a6851d8f0acd3b5708e7846daacf0b29b10ad0b78c3decc0",
+    "model-projection.mjs": "75da5ed936ef8ca00199ea99af801efd4e9b552bf5d321fe5522988c64190bde"
   }
 }

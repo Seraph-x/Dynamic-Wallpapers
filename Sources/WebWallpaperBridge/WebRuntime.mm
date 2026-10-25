@@ -53,6 +53,11 @@ class RuntimeApp final : public CefApp, public CefBrowserProcessHandler {
   void OnBeforeCommandLineProcessing(const CefString&, CefRefPtr<CefCommandLine> command) override {
     command->AppendSwitchWithValue("autoplay-policy", "no-user-gesture-required");
     command->AppendSwitch("disable-background-networking");
+#if defined(DW_CEF_TEST_KEYCHAIN) && DW_CEF_TEST_KEYCHAIN
+    // Opt-in native-test credential fixture; production builds omit this path.
+    command->AppendSwitch("use-mock-keychain");
+    fprintf(stderr,"DWWEB native-test keychain=isolated\n");
+#endif
   }
   void OnScheduleMessagePumpWork(int64_t delay_ms) override { schedule_(delay_ms); }
  private:

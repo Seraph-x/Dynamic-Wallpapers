@@ -31,6 +31,11 @@ commands = [
                 str(run / 'browser-export/ModelLoose'), str(run / 'browser-export/ModelPackage'),
                 str(run / 'browser-export/ImageSource'), str(run / 'browser-export/ImageLoose'), str(run / 'browser-export/ImagePackage')], 60),
 ]
+native = commands[-1][1]
+brush_native = [native[0], '--brush-only', *native[1:]]
+brush_native[4] = str(run / 'brush-context')
+brush_native.extend([str(run / 'browser-export/BrushLoose'), str(run / 'browser-export/BrushPackage')])
+commands.append(('native-brush', brush_native, 60))
 print(f'EDITOR_NATIVE artifacts={run}', flush=True)
 for name, command, budget in commands:
     print(f'EDITOR_NATIVE phase={name} budget={budget}s', flush=True)

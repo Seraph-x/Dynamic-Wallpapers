@@ -56,9 +56,9 @@ imports an owned copy into the wallpaper library without automatically applying
 it. Both applications work independently. Removing Editor leaves saved projects
 and wallpaper playback intact. See [installation and removal](docs/editor-install.md).
 The [Model workspace](docs/editor-model-workspace.md) creates skinned grids from
-ordinary images and edits model hierarchies/numeric skin weights, with bone/vertex
-picking, complete undo and resource export. Direct glTF/GLB import, weight painting and skeletal clip tools remain
-under development.
+ordinary images and edits model hierarchies and painted/numeric skin weights,
+with bone/vertex picking, complete undo and resource export. Direct glTF/GLB
+import, rest-transform editing and skeletal clip tools remain under development.
 
 The two applications share source modules in this repository and ship their own
 runtime dependencies. Editor has its own version (currently 0.1.0), bundle

@@ -1,11 +1,8 @@
+import { projectWeightMap } from './model-projection.mjs';
 export function drawWeightMap(canvas,mesh,bone,selected) {
   const context=canvas.getContext('2d');context.clearRect(0,0,canvas.width,canvas.height);
   if(!mesh?.vertexCount)return undefined;
-  const xs=[],ys=[];for(let i=0;i<mesh.vertexCount;i++){xs.push(mesh.positions[i*3]);ys.push(mesh.positions[i*3+1]);}
-  let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
-  for(let i=0;i<xs.length;i++){minX=Math.min(minX,xs[i]);maxX=Math.max(maxX,xs[i]);minY=Math.min(minY,ys[i]);maxY=Math.max(maxY,ys[i]);}
-  const scale=Math.min((canvas.width-24)/(maxX-minX||1),(canvas.height-24)/(maxY-minY||1));
-  const points=xs.map((x,i)=>[(x-(minX+maxX)/2)*scale+canvas.width/2,canvas.height/2-(ys[i]-(minY+maxY)/2)*scale]);
+  const points=projectWeightMap(mesh,canvas.width,canvas.height);
   context.strokeStyle='#797a7866';context.lineWidth=1;context.beginPath();
   for(let i=0;i<mesh.indices.length;i+=3){const [a,b,c]=Array.from(mesh.indices.subarray(i,i+3),v=>points[v]);context.moveTo(...a);context.lineTo(...b);context.lineTo(...c);context.closePath();}context.stroke();
   for(let i=0;i<points.length;i++){

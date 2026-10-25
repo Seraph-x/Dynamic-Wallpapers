@@ -8,10 +8,11 @@ import { Timeline } from './timeline.mjs';
 import { ModelWorkspace } from './model-workspace.mjs';
 
 const $ = id => document.getElementById(id);
+let displayedError;
 let editor, selected, drag, editFailure, timeline, model, selectionPointer;
 const pendingActions=new Set();
 document.body.inert = true;
-const showError = error => { $('diagnostics').textContent = String(error?.message ?? error); };
+const showError = error => { displayedError=error;$('diagnostics').textContent = String(error?.message ?? error); };
 try {
   const response = await fetch('/__editor/config', { redirect: 'error' });
   if (!response.ok) throw new Error(`Editor configuration: HTTP ${response.status}`);
@@ -44,7 +45,7 @@ try {
     onPlaybackChange: value => setPlaybackState(value,t) });
   timeline = new Timeline({editor,t,beforeEdit:()=>model?.flush(),edit:(id,property,edit)=>editor.change(doc=>doc.animate(id,property,edit)),onError:showError,
     onResetInput:()=>{editFailure=undefined;$('diagnostics').textContent='';}});
-  model=new ModelWorkspace({editor,t,onError:showError,onResetInput:()=>{editFailure=undefined;$('diagnostics').textContent='';}});
+  model=new ModelWorkspace({editor,t,onError:showError,onResetInput:expected=>{if(!expected||editFailure===expected)editFailure=undefined;if(expected&&displayedError!==expected)return;displayedError=undefined;$('diagnostics').textContent='';}});
   async function finishDrag() {
     if (!drag) return;
     const pending = drag; drag = undefined;
@@ -56,7 +57,7 @@ try {
       // Native menu/close commands do not necessarily blur the CEF text field.
       // Commit the visible value and pending drag before taking its snapshot.
       const focused = document.activeElement;
-      const invalid = focused?.checkValidity && !focused.checkValidity() ? focused.validationMessage : undefined;
+      const invalid = !focused?.closest?.('#model-brush-form') && focused?.checkValidity && !focused.checkValidity() ? focused.validationMessage : undefined;
       focused?.blur();
       if(value.type==='freeze'){document.body.inert=true;model.setFrozen(true);}
       try { await Promise.all([...pendingActions]);await finishDrag();await model.flush();await timeline.flush(); } catch(error) { editFailure=error;showError(error); }

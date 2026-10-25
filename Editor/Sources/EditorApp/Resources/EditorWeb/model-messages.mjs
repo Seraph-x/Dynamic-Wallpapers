@@ -19,6 +19,15 @@ export function modelMessages(language='en') {
     es:['Crear malla desde la imagen…','Crear una malla de imagen editable','Crea una copia sin iluminación con un hueso raíz. Se conservan la imagen y los recursos compartidos.','Nombre del hueso raíz','Densidad de cuadrícula','vértices','triángulos','Crear malla','Raíz','Convierte esta imagen en una malla con pesos y edita sus huesos e influencias.'],
   };
   for(const [language,strings] of Object.entries(image))if(strings.length!==imageKeys.length)throw new Error(`Incomplete image mesh translation: ${language}`);
-  return {...Object.fromEntries(keys.map((name,i)=>[name,(values[key]??values.en)[i]])),reloadModel:reload[key]??reload.en,
+  const brushKeys='weightBrush mapTool selectVertex paintWeights brushRadius brushTarget brushStrength brushHint'.split(' ');
+  const brush={
+    en:['Weight brush','Map tool','Select vertex','Paint weights','Radius (map px)','Target weight','Strength','Drag to paint the selected bone in XY bind space; overlapping projected vertices are painted together. The map previews the stroke; release applies it to the model. Escape cancels. Numeric weights remain available for keyboard editing.'],
+    'zh-Hans':['权重笔刷','网格工具','选择顶点','绘制权重','半径（图上像素）','目标权重','强度','拖动可在 XY 绑定空间为所选骨骼绘制权重；投影重叠的顶点会同时受影响。图中预览笔画，松开后应用到模型，Escape 取消。也可使用数值权重进行键盘编辑。'],
+    ja:['ウェイトブラシ','マップツール','頂点を選択','ウェイトを塗る','半径（マップ px）','目標ウェイト','強さ','XY バインド空間で選択ボーンをドラッグして塗ります。投影が重なる頂点も対象です。マップで筆跡を確認し、離すと適用、Escape で取消。数値ウェイトはキーボードで編集できます。'],
+    fr:['Pinceau de poids','Outil de carte','Sélectionner un sommet','Peindre les poids','Rayon (px de carte)','Poids cible','Intensité','Peignez l’os choisi dans le plan XY de liaison ; les sommets superposés sont peints ensemble. La carte prévisualise le trait, relâcher l’applique au modèle et Échap l’annule. Les poids numériques restent accessibles au clavier.'],
+    es:['Pincel de pesos','Herramienta del mapa','Seleccionar vértice','Pintar pesos','Radio (px del mapa)','Peso objetivo','Intensidad','Arrastra para pintar el hueso elegido en XY de enlace; se pintan juntos los vértices superpuestos. El mapa previsualiza el trazo, soltar lo aplica y Escape cancela. Los pesos numéricos siguen disponibles con teclado.'],
+  };
+  for(const [language,strings] of Object.entries(brush))if(strings.length!==brushKeys.length)throw new Error(`Incomplete brush translation: ${language}`);
+  return {...Object.fromEntries(brushKeys.map((name,i)=>[name,(brush[key]??brush.en)[i]])),...Object.fromEntries(keys.map((name,i)=>[name,(values[key]??values.en)[i]])),reloadModel:reload[key]??reload.en,
     ...Object.fromEntries(imageKeys.map((name,i)=>[name,(image[key]??image.en)[i]]))};
 }

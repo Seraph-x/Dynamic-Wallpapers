@@ -9,14 +9,13 @@ The initial version supports new scenes; importing loose or PKG projects;
 image/text layers; layer ordering, visibility and duplication; position, scale,
 rotation, color and opacity; canvas picking/dragging; live preview with
 play/pause; property keyframe animation; image-to-mesh creation; model hierarchy
-and numeric skin weights;
-undo/redo; save/reopen; and loose/PKG
-export. Script and property-bound fields remain read-only in the inspector.
+and painted/numeric skin weights; undo/redo; save/reopen; and loose/PKG export.
+Script and property-bound fields remain read-only in the inspector.
 Preview is muted with explicit zero
 system spectrum; exports preserve audio response for wallpaper playback.
 The [Model workspace](../docs/editor-model-workspace.md) uses immutable resource
 revisions for complete undo/save/export transactions. Direct glTF/GLB import,
-painting, existing-bone rest editing, skeletal clip
+existing-bone rest editing, skeletal clip
 authoring and a script IDE remain separate roadmap work.
 
 Use **File → New Project** or **Open Project**. Imports create complete owned
@@ -59,7 +58,12 @@ or attachments. Parent changes retain local transforms and animation samples,
 which can change world-space motion. Existing local bind matrices are read-only.
 
 Choose a mesh/vertex in the bind-space map and edit up to four normalized joint
-weights. Apply commits; Revert discards pending input. Native Save, history,
+weights. **Paint weights** adds a radius/target/strength brush for the selected
+bone in XY bind space. Drag previews the weight map; release applies one
+undoable stroke, and Escape cancels. Other influence proportions are retained;
+unsupported fifth influences or sole-weight reductions report explicit errors.
+**Select vertex** restores map picking and keyboard navigation. Apply commits;
+Revert discards pending input. Native Save, history,
 selection changes and Timeline edits prepare model input first. Invalid drafts
 remain visible. Read/format failures show their reason and allow returning to
 Properties; Reload model explicitly retries. Edits affect every layer sharing
