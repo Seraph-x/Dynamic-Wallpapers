@@ -41,7 +41,7 @@ Files: create `Editor/Web/test-model-poses.mjs`, `Tests/EditorRuntimeHarness/Pos
 
 - [x] Add separate browser/native pose phases with unchanged 60-second budgets. Real AppKit typing and unblurred freeze verify encoded TRS/hash, exact undo/redo, saved acknowledgment, known pose pixels, actual Main moving loose/PKG playback, full page release and one shutdown. Retain all previous coverage.
 - [x] Run JS suite, reproducible offline resources, independent Editor build/bridge, product/configuration/source-export checks and complete browser/native runner with the already approved test-host isolated keychain. Record any failed attempt and its root cause accurately.
-- [ ] Independent code review, final diff and changed-file privacy gate. Commit with the configured real email and create an English PR; do not automatically merge it.
+- [x] Independent code review, final diff and changed-file privacy gate. Commit with the configured real email and create an English PR; do not automatically merge it. Submitted as [PR #22](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/22).
 
 ## Verification commands
 
