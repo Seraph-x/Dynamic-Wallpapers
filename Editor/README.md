@@ -22,7 +22,6 @@ deletion, timing, preview and saved playback assignments.
 [Bone pose frames](../docs/editor-bone-poses.md) edit local sampled TRS,
 copy/paste/reset poses and bake between endpoints. [Clip layers](../docs/editor-clip-mixing.md)
 edit ordered normal/additive blending, speed and visibility.
-The script IDE remains subsequent roadmap work.
 [Frame events](../docs/editor-frame-events.md) create/edit/copy/order native
 markers, preserve opaque metadata and trigger existing imported handlers.
 [FK local deltas](../docs/editor-fk-posing.md) provide cancellable native preview
@@ -32,6 +31,11 @@ posing, cancellable preview and native rotation-sample baking for a root/middle/
 [Sparse bone keys](../docs/editor-bone-keys.md) provide adoption/lossless reduction,
 key editing and relocation, clipboard operations and native sample baking, with
 authoring locations retained through save/reopen and export.
+[SceneScript source contracts](../docs/editor-script-contracts.md) add source-only
+document/history transactions and an offline syntax-check CLI. These developer
+tools use the actual pinned compiler without executing supplied source. The
+source editing UI, isolated execution host and full script IDE remain roadmap work;
+script-bound inspector fields stay read-only.
 
 Use **File → New Project** or **Open Project**. Imports create complete owned
 copies. **Save** writes the Editor workspace; **Export** creates a standard scene
