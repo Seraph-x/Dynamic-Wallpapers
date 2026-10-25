@@ -8,6 +8,8 @@ export async function testModelLayout(page,command,configuration,document) {
     const ready=page.waitForRequest(r=>r.method()==='POST'&&r.url().endsWith('/__editor/event')&&r.postDataJSON().type==='ready');
     await page.reload();await ready;await command({type:'thaw'});await page.getByRole('button',{name:'Rig',exact:true}).click();
     await page.locator('#model-workspace').click();await page.locator('#model-bones button').nth(2).waitFor();
+    await page.locator('#model-rest-details summary').click();assert.equal(await page.locator('#model-rest-form input').count(),9);
+    assert.equal(await page.locator('#model-rest-tx').isEnabled(),true);
     await page.locator('#model-map-tool').selectOption('paint');assert.equal(await page.locator('#model-brush-parameters').isVisible(),true);
     await page.setViewportSize({width:850,height:540});await page.locator('#timeline-toggle').click();
     const layout=await page.evaluate(()=>({overflow:document.documentElement.scrollWidth>innerWidth,

@@ -23,6 +23,7 @@ commands = [
     ('protocol', [str(run / 'protocol-tests')], 60),
     ('browser', ['node', str(root / 'Editor/Web/test-rendering.mjs')], 60),
     ('browser-image', ['node', str(root / 'Editor/Web/test-image-puppet.mjs')], 60),
+    ('browser-rest', ['node', str(root / 'Editor/Web/test-model-rest.mjs')], 60),
     ('native', [str(app / 'Contents/MacOS/EditorNativeTests'),
                 str(frameworks / 'Chromium Embedded Framework.framework'),
                 str(frameworks / f'{helper}.app/Contents/MacOS' / helper), str(run / 'context'),
@@ -36,6 +37,10 @@ brush_native = [native[0], '--brush-only', *native[1:]]
 brush_native[4] = str(run / 'brush-context')
 brush_native.extend([str(run / 'browser-export/BrushLoose'), str(run / 'browser-export/BrushPackage')])
 commands.append(('native-brush', brush_native, 60))
+rest_native = [native[0], '--rest-only', native[1], native[2], str(run / 'rest-context'), native[4],
+               str(run / 'browser-export/RestSourceLoose'), native[6],
+               str(run / 'browser-export/RestLoose'), str(run / 'browser-export/RestPackage')]
+commands.append(('native-rest', rest_native, 60))
 print(f'EDITOR_NATIVE artifacts={run}', flush=True)
 for name, command, budget in commands:
     print(f'EDITOR_NATIVE phase={name} budget={budget}s', flush=True)

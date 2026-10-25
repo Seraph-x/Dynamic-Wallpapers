@@ -39,3 +39,7 @@
 
 #model-weight-map[data-tool="paint"] { cursor:crosshair; touch-action:none; }
 .model-brush-controls .property-field { margin-block:8px; }
+
+#model-panel .model-trs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+#model-rest-details summary { cursor:pointer; font-size:11px; padding-block:10px; }
+#model-rest-error { color:var(--danger); }

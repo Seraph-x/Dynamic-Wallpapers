@@ -8,7 +8,7 @@ import { testModelRecovery } from './test-model-recovery.mjs';
 import { testModelLayout } from './test-model-layout.mjs';
 
 // Read committed screenshots, rather than an unpreserved WebGL drawing buffer.
-async function pixels(page) {
+export async function pixels(page) {
   const bytes=await page.locator('#canvas canvas').screenshot();
   return page.evaluate(async bytes=>{
     const bitmap=await createImageBitmap(new Blob([new Uint8Array(bytes)],{type:'image/png'}));
@@ -22,7 +22,7 @@ async function pixels(page) {
     return {width:canvas.width,height:canvas.height,halves:halves.map(h=>({n:h.n,x:h.x/h.n,y:h.y/h.n}))};
   },[...bytes]);
 }
-function samePose(actual,expected) {
+export function samePose(actual,expected) {
   actual.halves.forEach((h,i)=>{
     assert(h.n>100,'Model mesh has no actual green pixels');
     assert(Math.abs(h.x-expected.halves[i].x)<1.5 && Math.abs(h.y-expected.halves[i].y)<1.5,`Bone edit changed surviving mesh deformation: ${JSON.stringify({actual,expected})}`);
