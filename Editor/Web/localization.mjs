@@ -1,3 +1,4 @@
+import { scriptWorkspaceMessages } from './script-workspace-messages.mjs';
 import { timelineMessages } from './timeline-messages.mjs';
 import { modelMessages } from './model-messages.mjs';
 import { gltfMessages } from './gltf-messages.mjs';
@@ -25,5 +26,5 @@ const interfaceMessages = {
 };
 export function messages(language = 'en') {
  const key = language.startsWith('zh') ? 'zh-Hans' : language.split('-')[0];
- return {...en,...translations[key],...interfaceMessages.en,...interfaceMessages[key],...timelineMessages(language),...modelMessages(language),...gltfMessages(language),...modelClipsMessages(language),...modelPoseMessages(language),...modelMixingMessages(language),...modelEventsMessages(language),...modelFkMessages(language),...modelIkMessages(language),...modelKeysMessages(language),...scriptModeMessages.en,...scriptModeMessages[key]};
+ return {...en,...translations[key],...interfaceMessages.en,...interfaceMessages[key],...timelineMessages(language),...modelMessages(language),...gltfMessages(language),...modelClipsMessages(language),...modelPoseMessages(language),...modelMixingMessages(language),...modelEventsMessages(language),...modelFkMessages(language),...modelIkMessages(language),...modelKeysMessages(language),...scriptModeMessages.en,...scriptModeMessages[key],...scriptWorkspaceMessages(language)};
 }

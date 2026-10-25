@@ -27,8 +27,6 @@ export class ModelWorkspace {
     this.#ik=new ModelIkTools({editor,t,parent:$('model-body'),prepare:()=>this.#prepare(),run:operation=>this.#run(operation),state:()=>({id:this.#id,source:this.#source,bytes:this.#bytes,bone:this.#bone,boneName:this.#data?.bones[this.#bone]?.name,clip:this.#clips.selected}),write:(bytes,commit)=>this.#write(bytes,undefined,false,commit),reset});
     this.#keys=new ModelKeysTools({editor,t,parent:$('model-body'),onRevert:()=>this.#releaseSourceFailure(),prepare:()=>this.#prepare(),run:operation=>this.#run(operation),state:()=>({id:this.#id,source:this.#source,bytes:this.#bytes,bone:this.#bone,boneName:this.#data?.bones[this.#bone]?.name,clip:this.#clips.selected}),write:(bytes,commit)=>this.#write(bytes,undefined,false,commit),reset});
     const bind=(id,event,operation)=>$(id).addEventListener(event,e=>{e.preventDefault();void this.#run(()=>operation(e));});
-    bind('model-workspace','click',async()=>{await this.#prepare();this.#active=true;this.#toggle();this.update(editor.document,this.#id,true);await this.#loading;});
-    bind('properties-workspace','click',async()=>{await this.#prepare();this.#active=false;this.#toggle();});
     const draft=(kind)=>{if(kind==='bone')this.#boneDraft=true;else if(kind==='rest')this.#restDraft=true;else this.#weightDraft=true;this.#failure=undefined;this.#reset();};
     $('model-bone-form').addEventListener('input',()=>draft('bone'));
     $('model-rest-form').addEventListener('input',()=>draft('rest'));
@@ -225,6 +223,10 @@ export class ModelWorkspace {
   async flush(){this.#brush?.assertIdle();await this.#brush?.settled();return this.#run(async()=>{if(document.querySelector('.model-dialog[open]'))throw this.#keys.barrier??this.#ik.barrier??this.#fk.barrier??this.#events.barrier??this.#mixing.barrier??this.#clips.barrier??new Error('Finish or cancel the model dialog before saving or changing the scene');await this.#prepare();},true);}
   #busyView(value){this.#view.busy(value);this.#clips?.busy(value);this.#poses?.busy(value);this.#mixing?.busy(value);this.#events?.busy(value);this.#fk?.busy(value);this.#ik?.busy(value);this.#keys?.busy(value);}
   setFrozen(value){this.#locked=value;this.#busyView(value||this.#busy>0||this.#brush?.busy);}
-  async activate(id){this.#active=true;this.#toggle();this.update(this.#editor.document,id,true);const loaded=await this.#loading;if(!loaded.ok)throw loaded.error;}
+  deactivate(){this.#active=false;this.#toggle();}
+  // Opening the inspector may expose an explicitly read-only imported model.
+  // That inspection error must not become a pending content-edit failure.
+  async show(id){this.#active=true;this.#toggle();this.update(this.#editor.document,id,true);return this.#loading;}
+  async activate(id){const loaded=await this.show(id);if(!loaded.ok)throw loaded.error;}
   destroy(){this.#keys.destroy();this.#ik.destroy();this.#fk.destroy();this.#brush.destroy();this.#closed=true;this.#loadRevision++;this.#overlay.destroy();}
 }

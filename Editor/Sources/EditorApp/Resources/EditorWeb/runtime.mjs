@@ -39,6 +39,8 @@ export function startEditor(config, options) {
   let controls, instance, playing = true, frozen = true, modelCapacity;
   const report = payload => options.report({ ...payload, session: config.session, generation: config.generation });
   const resources = createResourceClient(report);
+  const isDirty=()=>document.dirty||Boolean(options.draftDirty?.());
+  const notifyDirty=()=>report({type:'dirty',dirty:isDirty()});
   const read = async path => {
     safePath(path);
     const response = await fetch(`/__project/${path.split('/').map(encodeURIComponent).join('/')}`, { redirect: 'error' });
@@ -79,7 +81,7 @@ export function startEditor(config, options) {
   async function changed(operation) {
     if (frozen) throw new Error('Editor is frozen for a native operation');
     operation(document);
-    await report({ type: 'dirty', dirty: document.dirty });
+    await notifyDirty();
     return enqueue(render);
   }
   function setPlaying(value) {
@@ -137,11 +139,11 @@ export function startEditor(config, options) {
         await report({type:'reply',id:value.id,payload:{}}); return;
       }
       await queue;
-      if(['load','add-image','replace-resource','import-model'].includes(value.type)&&options.snapshotError?.())throw options.snapshotError();
+      if(['load','add-image','replace-resource','import-model','export-pkg'].includes(value.type)&&options.snapshotError?.())throw options.snapshotError();
       let payload = {};
       switch (value.type) {
         case 'snapshot': if (options.snapshotError?.()) throw options.snapshotError(); payload = { document: document.snapshot() }; break;
-        case 'freeze': frozen = true; options.setEditingEnabled(false); payload = { document:document.snapshot(), dirty:document.dirty || Boolean(options.snapshotError?.()) }; break;
+        case 'freeze': frozen = true; options.setEditingEnabled(false); payload = { document:document.snapshot(), dirty:isDirty() || Boolean(options.snapshotError?.()) }; break;
         case 'thaw': frozen = false; options.setEditingEnabled(true); break;
         case 'load': document = new SceneDocument(value.document,config.sourcePackage); await render(); break;
         case 'mark-saved': document.markSaved(value.document); options.onChange(document, controls); break;
@@ -180,7 +182,7 @@ export function startEditor(config, options) {
           payload = { pkg: btoa(base64), converted: result.converted, dropped: result.dropped }; break;
         }
       }
-      await report({ type: 'dirty', dirty: document.dirty });
+      await notifyDirty();
       await report({ type: 'reply', id: value.id, payload });
     } catch (error) {
       options.onError(error);
@@ -193,7 +195,7 @@ export function startEditor(config, options) {
     const result = commandQueue.then(() => applyCommand(value)); commandQueue = result.catch(options.onError); return result;
   }
   return { ready, command, change: changed, get controls() { return controls; }, get document() { return document; },
-    get playing() { return playing; }, get frozen() { return frozen; }, setPlaying,requestPreview,seek,previewModelClip,previewModelBonePose,previewModelBonePoses,restoreModelPreview,
+    get playing() { return playing; }, get frozen() { return frozen; }, setPlaying,requestPreview,notifyDirty,seek,previewModelClip,previewModelBonePose,previewModelBonePoses,restoreModelPreview,
     stageResource:resources.stage,resourcePaths:resources.paths,
     readResource(path) {if(destroyed)return Promise.reject(new Error('Editor closed'));return resourceReader(document.snapshot(),read,resources.read)(path);},
     get modelBoneCapacity(){if(modelCapacity?.error)throw modelCapacity.error;return modelCapacity?.capacity;},

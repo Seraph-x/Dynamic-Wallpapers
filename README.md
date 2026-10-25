@@ -84,8 +84,11 @@ engine's `scripts:false` option; property curves and skeletal animation still
 play while editing. **Run preview** opens the current valid edits in that
 independent script-enabled window. [Execution migration](docs/editor-script-migration.md)
 separates pages, origins and authoring channels within CEF, without promising
-operating-system process isolation. The source editing UI and full script IDE
-remain later work.
+operating-system process isolation. The [Script workspace](docs/editor-script-workspace.md)
+now edits supported inline sources in an offline native textarea, with
+Check/Apply/Revert/Remove, recoverable drafts and ordinary history/save/export.
+Syntax highlighting, API completion, lifecycle templates, find/replace and
+source-linked runtime diagnostics remain separate IDE work.
 
 The two applications share source modules in this repository and ship their own
 runtime dependencies. Editor has its own version (currently 0.1.0), bundle

@@ -4,9 +4,19 @@ The Editor is a separate Swift package/application. Main does not depend on its
 authoring target, UI resources or installation. PR 1 supplies file contracts;
 PR 2 supplies the Editor; PR 3 supplies the optional Main handoff and packaging.
 
-## Model workspace acceptance
+## Current source-workspace checks
 
-The current focused checks pass 353 JavaScript tests and 19 independent Editor
+The current source-workspace checks pass 373 JavaScript tests and 30 independent
+Editor tests. The reproducible build verifies 75 offline resources (67 workbench
+and 8 independent preview). The full fresh-directory 31-phase browser/native
+run passed, including both new source-workspace phases. The root test build and
+41 Editor Core tests, 3 Editor product checks, 42 configuration checks and 16
+public-source export checks also passed. These focused checks do not establish
+a full Main application-suite pass.
+
+## Previous Model workspace acceptance
+
+The preceding verified revision passed 353 JavaScript tests and 19 independent Editor
 tests, including SceneScript execution policy/source contracts, sparse bone keys,
 two-segment IK, FK deltas, frame events, native mixing, dense pose frames, clip authoring, glTF conversion,
 source/package decoding, atomic resources and the existing Model/Timeline tools.
@@ -18,6 +28,60 @@ and 41 Editor Core tests, 3 Editor product checks, 42 product configuration
 checks and 16 public-source export checks also passed. Earlier feature-specific
 results below describe their recorded runs.
 These focused checks do not establish a full Main application-suite pass.
+
+## Script workspace acceptance
+
+Run the targeted source/draft/compiler tests and offline build from the repository
+root:
+
+```sh
+node --test Editor/Web/script-draft.test.mjs Editor/Web/script-draft-runtime.test.mjs Editor/Web/script-workspace-view.test.mjs Editor/Web/script-api.test.mjs
+node Editor/Web/build.mjs --check
+node Editor/Web/test-script-workspace.mjs
+```
+
+The draft tests use the real compiler and `SceneDocument`: no source execution,
+syntax failure without history changes, one-step apply/remove, stale/replaced
+documents, consumed proposals, unknown wrapper members, empty-source intent and
+exact Unicode/CRLF. Restoring local input must retain its original document
+identity/snapshot. Removing that distinction produced an observed failing
+negative control before the restored implementation passed. View tests retain
+read-only malformed source and non-array effects without dropping imported data.
+Runtime tests include source-only native dirty state without a content revision.
+
+The real browser phase uses actual native HTML select/textarea/buttons and the
+pinned compiler. It covers Check/Apply/Revert/Remove, warnings after repeated
+Apply, unchanged invalid source, invalid navigation, dirty-only freeze/snapshot
+rejection/thaw recovery, local text undo on existing and initially absent scripts,
+and preserving an independent Timeline draft. Actual input checks CRLF retention
+and the documented LF policy after editing mixed line endings. Both exports
+retain independently expected source/wrapper/resource bytes, and the separately
+executed authored scene must produce red pixels without an Editor bridge.
+Five languages, both themes and 850 × 540 with Timeline retain layout assertions.
+Workbench source probes and resource-stage requests must remain zero.
+
+The `native-script-workspace` phase uses real attached CEF keyboard input,
+focused Unicode/CRLF freeze, validated snapshots, one-step undo/redo, invalid
+draft rejection and thaw/Revert recovery. Main's actual loose/PKG scene pages
+must render the authored red mesh pixels while retained source anchors execute;
+all pages release before normal runtime shutdown. The browser and native phases
+each retain their 60-second budget and the approved isolated keychain stays
+confined to the test host. The complete suite retains every previous phase.
+
+Harness command receivers validate CEF input and the browser barrier. They do
+not substitute for the production Swift controller/store's close and export
+policy tests. Four `EditorScriptCloseTests` cover the injected modal choice and
+actual draft-only Cancel, failed Save and explicit Discard: saved files stay
+unchanged, failure/Cancel thaw without closing, and Discard retires the owner
+without a validation snapshot or write. Seven `EditorExportSnapshotTests` use
+the real store and package reader: loose/PKG publication precedes thaw, a delayed
+browser reply stays frozen on the saved revision, invalid input never writes or
+packages, and transport/parser/destination failures thaw without fabricated
+output. Export and thaw failures remain individually observable. All 30 Editor
+tests passed; these external transport fixtures do not claim CEF rendering.
+See the
+[workspace behavior](../editor-script-workspace.md) and
+[source contracts](../editor-script-contracts.md).
 
 ## Workbench script execution migration
 
@@ -799,3 +863,16 @@ window reopened the retained workspace, edited and saved it, displayed Saved,
 and quit normally without another unsaved-change prompt. Removing the earlier
 registered validation apps preserved the saved workspace bytes exactly; Main
 reopened and rendered its existing scene library independently.
+
+
+### Source workspace regression found during full acceptance
+
+The first full run exceeded the existing 60-second browser phase budget.
+A bounded reproduction exposed the actual failure: reopening an unsupported
+model inspector put its read-only inspection error into the pending edit-error
+channel, so Undo could not restore the previous model. Workspace navigation now
+uses an explicit inspection result while retaining its visible diagnostic;
+strict programmatic model activation still rejects invalid input. The old
+resource-read recovery, unsupported-model Undo and complete Model layout tests
+passed without changing their assertions or budget. The final fresh-directory
+31-phase run then passed with all earlier phases retained.

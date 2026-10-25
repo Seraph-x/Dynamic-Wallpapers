@@ -37,14 +37,42 @@ document/history transactions and an offline syntax-check CLI. These developer
 tools use the actual pinned compiler without executing supplied source. All
 authoring-page scene mounts, including model-import preview, use `scripts:false`.
 Property curves and skeletal animation remain active; imported SceneScript runs
-through **Run preview** in a separate scene page. The source editing UI and full
-script IDE remain roadmap work; script-bound inspector fields stay read-only.
+through **Run preview** in a separate scene page. The
+[Script workspace](../docs/editor-script-workspace.md) edits supported inline
+sources with Check/Apply/Revert/Remove and recoverable drafts. Script-bound
+inspector fields stay read-only. Syntax highlighting, API completion, lifecycle
+templates, find/replace and source-linked runtime diagnostics will follow in
+separate PRs; the current editor uses a native textarea.
 
 Use **File → New Project** or **Open Project**. Imports create complete owned
 copies. **Save** writes the Editor workspace; **Export** creates a standard scene
 folder without replacing an existing destination. Reopen `workspace.json` from
 the Editor's `Projects` directory to continue a saved workspace. User data is
 stored under `~/Library/Application Support/DynamicWallpaperEditor/`.
+
+## Edit SceneScript source
+
+Select a layer, choose **Script** beside **Properties / Model**, then choose a
+property or source. Type in the offline source field and use **Check** for real
+compiler diagnostics without execution or history changes. **Apply source**
+checks and commits the current text as one undoable edit; unchanged text creates
+no history. **Revert draft** discards pending text. **Remove script** explicitly
+discards that draft and removes the committed script while preserving its base
+and other wrapper metadata.
+
+Changing source, layer or workspace, editing another tool, saving, previewing and
+native history commands first flush a valid draft. Invalid input keeps its text
+and selection and blocks the affected operation. Save and preview cannot publish
+an invalid draft; closing still offers **Save / Discard / Cancel**, with explicit
+Discard allowed and Cancel or failed Save restoring editing. Local text undo
+stays in the textarea; toolbar/native Undo applies to project history.
+
+Imported source bytes remain exact until edited. Input retains consistent CRLF
+line endings; editing mixed imported line endings uses LF. Unsupported bindings,
+bases and discovered unknown source metadata remain read-only with their reason.
+Use **Run preview** to execute the captured revision; Apply alone never runs
+source. See the [workspace guide](../docs/editor-script-workspace.md) for conflict,
+empty-source and preview behavior.
 
 ## Preview the current revision without saving
 
