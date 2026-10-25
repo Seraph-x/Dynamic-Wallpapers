@@ -48,7 +48,7 @@ Files: `README.md`, `Editor/README.md`, `docs/editor-model-workspace.md`, `docs/
 
 - [x] Run focused JS and offline reproducibility, complete browser/native acceptance, independent Editor build/bridge and relevant product/configuration/source-export checks. Record failures honestly and keep existing budgets.
 - [x] Obtain independent code review; fix important findings with regression coverage. Inspect final diff and run the sanitized-public-export gate on changed owned files.
-- [ ] Update usage/limitations and test evidence, retain upstream attribution, commit with configured real email and create an English PR against merged main. Do not merge the new PR automatically.
+- [x] Update usage/limitations and test evidence, retain upstream attribution, commit with configured real email and create an English PR against merged main. Do not merge the new PR automatically.
 
 ## Baseline and source evidence
 
@@ -83,3 +83,7 @@ Files: `README.md`, `Editor/README.md`, `docs/editor-model-workspace.md`, `docs/
   snapshot, selection awaits command preparation, and native inputs wait for
   actual focused/typed input or trusted pointerup acknowledgement. No pixel
   tolerances, production freeze behavior or shutdown assertions were weakened.
+
+English pull request: [#19](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/19).
+Feature commit: `1181b7a`. The new PR remains open for review; it is not merged.
+Commits use the configured real author email.
