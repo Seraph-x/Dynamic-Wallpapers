@@ -14,8 +14,10 @@ Script and property-bound fields remain read-only in the inspector.
 Preview is muted with explicit zero
 system spectrum; exports preserve audio response for wallpaper playback.
 The [Model workspace](../docs/editor-model-workspace.md) uses immutable resource
-revisions for complete undo/save/export transactions. Direct glTF/GLB import,
-skeletal clip authoring and a script IDE remain separate roadmap work.
+revisions for complete undo/save/export transactions.
+[File → Import model…](../docs/editor-gltf-import.md) accepts local glTF/GLB
+models, retains originals and previews the conversion before publication.
+Skeletal clip authoring and a script IDE remain separate roadmap work.
 
 Use **File → New Project** or **Open Project**. Imports create complete owned
 copies. **Save** writes the Editor workspace; **Export** creates a standard scene
@@ -198,6 +200,10 @@ aliases fail explicitly rather than overwriting scene or project metadata.
 - WebWallGL's [lossless MDL codec](../docs/editor-model-resources.md#reused-source)
   is vendored at a recorded commit for skeleton/resource transactions, with its
   complete MIT license and source hashes in `ThirdParty/`.
+- Selected WebWallGL [glTF helpers](../docs/editor-gltf-import.md#source-references)
+  provide matrix/quaternion math, curve sampling and PNG encoding. The strict
+  importer and native file boundary are implemented here; provenance records
+  the exact upstream commit and selected-source checksum.
 - [DSH Wallpaper Engine](https://github.com/elysia395/dsh-wallpaper-engine):
   scene-hosting design reference; no DSH application source is vendored here.
 - [CEF](https://bitbucket.org/chromiumembedded/cef/): native browser runtime.

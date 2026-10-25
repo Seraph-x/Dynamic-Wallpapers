@@ -128,6 +128,21 @@ export class SceneDocument {
       return id;
     });
   }
+  addModel(model) {
+    safePath(model.model);
+    const bounds=model.bounds;
+    if(typeof model.name!=='string'||!model.name.trim()||!Array.isArray(bounds)||bounds.length!==6||!bounds.every(Number.isFinite)||
+        bounds.slice(0,3).some((min,index)=>min>bounds[index+3])||bounds.slice(0,3).every((min,index)=>min===bounds[index+3])||
+        ![bounds[3]-bounds[0],bounds[4]-bounds[1],bounds[5]-bounds[2]].every(Number.isFinite))throw new Error('Invalid model bounds or name');
+    if(model.origin!==undefined&&(!Array.isArray(model.origin)||model.origin.length!==3||!model.origin.every(Number.isFinite)))throw new Error('Invalid model origin');
+    return this.#change(value=>{
+      const id=this.#nextID(value),canvas=value.scene.general?.orthogonalprojection;
+      const origin=model.origin??[(canvas?.width??1920)/2,(canvas?.height??1080)/2,0];
+      (value.scene.objects??=[]).push({id,name:model.name,model:model.model,origin:origin.join(' '),scale:'1 1 1',angles:'0 0 0',
+        size:`${bounds[3]-bounds[0]} ${bounds[4]-bounds[1]}`,color:'1 1 1',alpha:1});
+      return id;
+    });
+  }
   retargetImage(id,expected,path) {
     safePath(expected);safePath(path);
     this.#change(value=>{

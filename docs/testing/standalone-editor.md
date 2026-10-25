@@ -6,14 +6,59 @@ PR 2 supplies the Editor; PR 3 supplies the optional Main handoff and packaging.
 
 ## Model workspace acceptance
 
-The current Model workspace is covered by 98 focused JavaScript checks,
-including image-grid generation, atomic conversion and resource-inventory RPC.
-The reproducible build verifies 29 offline resources. Complete protocol, real-browser, image/brush
-browser, rest browser, native, native-brush and native-rest acceptance passes
+The Editor/runtime checks contain 170 JavaScript tests, including glTF conversion,
+source/package decoding, atomic resources and the existing Model/Timeline tools.
+The reproducible build verifies 36 offline resources. Complete protocol, real-browser, image/brush
+browser, rest/glTF browser, native, native-brush, native-rest and native-glTF acceptance passes
 with the explicitly approved isolated test-keychain configuration.
 Product/source checks pass 3 Editor product tests, 42 product-configuration
 tests and 16 public-source export tests. These focused checks do not establish
 a full application-suite pass.
+
+## glTF import acceptance
+
+Run `node --test Editor/Web/gltf-*.test.mjs Editor/Web/package-archive.test.mjs`
+for strict owned-source parsing, interleaved/normalized/sparse accessors, hierarchy,
+inverse binds, weights, curve sampling and atomic import/history checks. The
+source reader additionally has 15 Swift tests for exact referenced files, pinned
+root ownership, symlinks, case/Unicode aliases and URI decoding/control characters.
+The real `EditorResourceBridgeTests` test verifies native blob/save round trips.
+
+`node Editor/Web/test-gltf-import.mjs` uses a real Chromium renderer to preview
+and import the candidate, require unchecked material conversion consent, cancel,
+edit the imported skeleton, undo/redo, reopen and export. It checks exact
+transparent/low-alpha texture RGB during OPAQUE conversion and preserved source
+pixels/orientation. All five languages, both themes and 850 × 540 with Timeline
+are exercised with associated labels, modal focus and keyboard cancellation.
+The fixture deliberately names its glTF binary buffer `rig.pkg`; source buffers,
+images and metadata must retain exact paths and bytes inside exported PKG, even
+though the upstream builder normally excludes files with that suffix.
+
+The full `scripts/test-editor-native.py` adds independent `browser-gltf` and
+`native-gltf` phases with the existing 60-second per-phase budgets. Native CEF
+uses the actual owned-bytes command and shader preview, AppKit keyboard input
+and trusted Escape/Return confirmation. It verifies source/resource hashes,
+MDL hierarchy and baked clips, saved acknowledgements, atomic history, actual
+0.2-second render pixels, per-page release and exactly one runtime shutdown.
+Main plays both loose and PKG exports with fixed green geometry, separate blue
+material and a known intermediate displacement. Only the previously approved
+test-host isolated Chromium keychain is enabled; production behavior is unchanged.
+
+Two initial native failures belonged to the new test harness: direct CEF key
+events did not follow the macOS child-view input path, and autoreleased synthetic
+AppKit events held native views until the outer pool drained. The harness now
+uses the existing AppKit input path and a local event autoreleasepool. Production
+timeouts, existing checks and phase budgets were not increased or removed.
+
+The final clean-directory run passed every build, protocol, browser and native
+phase. Editor's exact 0.2-second sample and Main loose/PKG intermediate motion
+assertions passed, with complete page release and one shutdown. Repeated focused
+browser runs additionally cover actual GLB preview and textured OPAQUE pixels.
+Product verification passes 3 independent-Editor tests, 42 configuration tests,
+16 source-export tests and reproducibility of all 36 offline resources. Root
+and standalone Editor builds pass; the 15 source-boundary tests and one real
+native resource bridge test pass. This remains focused feature acceptance,
+not a claim that every repository test suite was executed.
 
 The browser edits actual model forms and checks the measured linked GPU
 palette, bone picking without layer dragging, rename/create/reparent/delete,

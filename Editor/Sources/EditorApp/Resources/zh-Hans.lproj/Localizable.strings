@@ -1,6 +1,7 @@
 "new" = "新建工程";
 "open" = "打开工程…";
 "addImage" = "添加图片…";
+"importModel" = "导入模型…";
 "save" = "保存";
 "exportLoose" = "导出散装工程…";
 "exportPkg" = "导出 PKG 工程…";

@@ -198,5 +198,6 @@ export class ModelWorkspace {
   }
   async flush(){this.#brush?.assertIdle();await this.#brush?.settled();return this.#run(async()=>{if(document.querySelector('.model-dialog[open]'))throw new Error('Finish or cancel the model dialog before saving or changing the scene');await this.#prepare();},true);}
   setFrozen(value){this.#locked=value;this.#view.busy(value||this.#busy>0||this.#brush?.busy);}
+  async activate(id){this.#active=true;this.#toggle();this.update(this.#editor.document,id,true);const loaded=await this.#loading;if(!loaded.ok)throw loaded.error;}
   destroy(){this.#brush.destroy();this.#closed=true;this.#loadRevision++;this.#overlay.destroy();}
 }

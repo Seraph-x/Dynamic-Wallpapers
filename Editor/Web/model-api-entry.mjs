@@ -4,3 +4,6 @@ export { createImagePuppet,imagePuppetStats } from './image-puppet.mjs';
 export { captureImageSource,commitImagePuppet } from './image-puppet-edit.mjs';
 export { createWeightStroke } from './model-brush.mjs';
 export { restPose } from './model-math.mjs';
+export { parseGltfSource } from './gltf-source.mjs';
+export { buildGltfModel,prepareGltfCandidate } from './gltf-model.mjs';
+export { validateGltfRender } from './gltf-render-check.mjs';

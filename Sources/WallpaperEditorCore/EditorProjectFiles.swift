@@ -108,6 +108,14 @@ struct EditorProjectFiles {
             return try visit(root, "").sorted()
         }
     }
+    /// The scoped reader borrows this directory descriptor and must not escape the closure.
+    func withReadOnlyScope<T>(_ body: (Self) throws -> T) throws -> T {
+        try withDirectory { descriptor in
+            var scoped = Self(root: root)
+            scoped.scopedDescriptor = descriptor
+            return try body(scoped)
+        }
+    }
     func locked<T>(_ body: (Self) throws -> T) throws -> T {
         try withDirectory { parent in
             let descriptor = openat(parent, ".workspace-lock", O_RDWR | O_CREAT | O_NOFOLLOW | O_CLOEXEC, 0o600)

@@ -1,6 +1,7 @@
 "new" = "New Project";
 "open" = "Open Project…";
 "addImage" = "Add Image…";
+"importModel" = "Import Model…";
 "save" = "Save";
 "exportLoose" = "Export Loose Project…";
 "exportPkg" = "Export PKG Project…";

@@ -26,3 +26,7 @@ test('preview resolves versioned resources using the chosen snapshot', async () 
   value.resourceOverrides['a.bin'] = 'b'.repeat(64);
   assert.deepEqual(await (await source.sceneDir()).read('a.bin'),new Uint8Array([9]));
 });
+test('model import command accepts only an owned source payload field',()=>{
+ const config={session:'abc',generation:1},command={session:'abc',generation:1,id:'gltf',type:'import-model',source:{entry:'model.gltf',files:[]}};
+ assert.doesNotThrow(()=>validateEditorCommand(command,config));assert.throws(()=>validateEditorCommand({...command,source:undefined},config));assert.throws(()=>validateEditorCommand({...command,path:'/private/model.gltf'},config));
+});

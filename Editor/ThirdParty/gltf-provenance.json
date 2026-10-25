@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "project": "WebWallGL",
+  "commit": "197abe54266c31d346cebc314e49a26b70c960cc",
+  "source": "https://github.com/oneincase/webwallgl/blob/197abe54266c31d346cebc314e49a26b70c960cc/editor/gltf.ts",
+  "sourceSHA256": "c57cb61cf1aefd222a0ae981e80c410bcbcbd76ed142dc921b828322110e8b22",
+  "license": "MIT",
+  "adaptation": "Selected matrix/quaternion/sampling and PNG helpers only; TypeScript stripped with pinned esbuild. Sampler uses binary key search. Strict callers validate transforms/quaternions before helpers. No upstream parser, lookup, truncation, conversion or commit fallback is reused.",
+  "files": {
+    "Editor/Web/vendor/gltf-math.mjs": "d699bf221d2ff8e6ed42ca8b3c50946721d8d437063994b45ecbe7ce9d9036ff",
+    "Editor/Web/vendor/gltf-png.mjs": "87bbf50e30612b141beccd278c03d3b36a9e7d0c650ec23bda1697b18f52f21b",
+    "Editor/ThirdParty/WebWallGL-MDL-LICENSE": "857432ca4f48930e6079aca25164c27b791576ee2a7d3e3c9d6a92a089fe4948"
+  }
+}

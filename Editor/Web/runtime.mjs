@@ -1,6 +1,7 @@
 import { SceneDocument, safePath } from './document.mjs';
 import { createResourceClient, resourceReader, decodeResource } from './resources.mjs';
 import { observeModelCapacity } from './model-capacity.mjs';
+import { buildEditorPackage } from './package-archive.mjs';
 
 export function createEditorSource(value, readOriginal, readVersion) {
   const document = structuredClone(value), read = resourceReader(document,readOriginal,readVersion);
@@ -21,7 +22,7 @@ export function validateEditorCommand(command, config) {
       typeof command.id !== 'string' || !command.id) throw new Error('Stale Editor command');
   const fields = { snapshot: [], load: ['document'], 'mark-saved': ['document'], 'add-image': ['image'],
     'export-pkg': ['paths'], freeze: [], thaw: [], undo: [], redo: [],
-    'replace-resource':['path','data'], 'resource-reply':['requestID','result'], seek:['time'] }[command.type];
+    'replace-resource':['path','data'], 'import-model':['source'], 'resource-reply':['requestID','result'], seek:['time'] }[command.type];
   if (!fields || Object.keys(command).some(key => !['session', 'generation', 'id', 'type', ...fields].includes(key)) ||
       fields.some(key => command[key] === undefined)) throw new Error('Invalid Editor command');
 }
@@ -94,7 +95,7 @@ export function startEditor(config, options) {
         await report({type:'reply',id:value.id,payload:{}}); return;
       }
       await queue;
-      if(['load','add-image','replace-resource'].includes(value.type)&&options.snapshotError?.())throw options.snapshotError();
+      if(['load','add-image','replace-resource','import-model'].includes(value.type)&&options.snapshotError?.())throw options.snapshotError();
       let payload = {};
       switch (value.type) {
         case 'snapshot': if (options.snapshotError?.()) throw options.snapshotError(); payload = { document: document.snapshot() }; break;
@@ -103,6 +104,7 @@ export function startEditor(config, options) {
         case 'load': document = new SceneDocument(value.document,config.sourcePackage); await render(); break;
         case 'mark-saved': document.markSaved(value.document); options.onChange(document, controls); break;
         case 'add-image': await changed(doc => doc.addImage(value.image)); break;
+        case 'import-model': if(frozen)throw new Error('Editor is frozen for a native operation');await options.importModel(value.source);break;
         case 'undo': if(options.snapshotError?.())throw options.snapshotError();await changed(doc => doc.undo()); break;
         case 'redo': if(options.snapshotError?.())throw options.snapshotError();await changed(doc => doc.redo()); break;
         case 'seek': setPlaying(false); await seek(value.time); payload={time:controls.time}; break;
@@ -126,7 +128,7 @@ export function startEditor(config, options) {
             files.push({ path, data: bytes });
           }
           files.push({ path: 'scene.json', data: encode(snapshot.scene) });
-          const result = options.buildScenePkg(files);
+          const result = buildEditorPackage(files,options.buildScenePkg);
           // Upstream checkWeCompat resolves project.file as the entry *inside*
           // the container; exported Main metadata still declares scene.pkg.
           const report = await options.checkWeCompat([{ path: 'project.json', data: encode({ ...snapshot.project, file: 'scene.json' }) },
