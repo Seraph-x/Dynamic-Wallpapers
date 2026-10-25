@@ -3,6 +3,42 @@
 // This exercises the real CEF command receiver and actual Main pages. The
 // production Swift close/save owner remains covered by its separate store tests.
 
+@interface DWWebPage (CodeEditorAcceptance)
+- (void)codeTestShortcut:(NSString*)character code:(unsigned short)code;
+- (void)codeTestChord:(NSString*)character code:(unsigned short)code modifiers:(NSEventModifierFlags)modifiers;
+@end
+@implementation DWWebPage (CodeEditorAcceptance)
+- (void)codeTestShortcut:(NSString*)character code:(unsigned short)code {
+  [self codeTestChord:character code:code modifiers:NSEventModifierFlagCommand];
+}
+- (void)codeTestChord:(NSString*)character code:(unsigned short)code modifiers:(NSEventModifierFlags)modifiers {
+  @autoreleasepool {
+    _resources->state->browser->GetHost()->SetFocus(true);
+    NSView* child=(__bridge NSView*)_resources->state->browser->GetHost()->GetWindowHandle();
+    for(const NSEventType type:{NSEventTypeKeyDown,NSEventTypeKeyUp}){
+      NSEvent* event=[NSEvent keyEventWithType:type location:NSZeroPoint modifierFlags:modifiers timestamp:NSProcessInfo.processInfo.systemUptime windowNumber:child.window.windowNumber context:nil characters:character charactersIgnoringModifiers:character isARepeat:NO keyCode:code];
+      [NSApp sendEvent:event];
+    }
+  }
+}
+@end
+static void scriptWorkspaceInstallInspection(DWWebPage* page) {
+  // The imported public API is used only to read the real CodeMirror state.
+  [page editorTestScript:@"import(new URL('./code-editor-api.mjs',location.href)).then(api=>{window.__codeAcceptanceAPI=api;});"];
+  [page clipTestAwait:@"Boolean(window.__codeAcceptanceAPI?.EditorView&&document.querySelector('#script-source .cm-content'))"];
+}
+static void scriptWorkspaceAwaitSource(DWWebPage* page,NSString* source,BOOL focused=NO) {
+  NSString* json=[[NSString alloc]initWithData:[NSJSONSerialization dataWithJSONObject:@{@"source":source,@"focused":@(focused)} options:0 error:nil] encoding:NSUTF8StringEncoding];
+  try {
+    [page clipTestAwait:[NSString stringWithFormat:@"(()=>{const expected=%@,content=document.querySelector('#script-source .cm-content'),view=window.__codeAcceptanceAPI.EditorView.findFromDOM(content);return view&&view.state.sliceDoc()===expected.source&&(!expected.focused||document.activeElement===content);})()",json]];
+  } catch(...) {
+    id state=[page previewTestValue:@"(()=>{const {EditorView,EditorState}=window.__codeAcceptanceAPI,content=document.querySelector('#script-source .cm-content'),view=EditorView.findFromDOM(content);return {source:view.state.sliceDoc(),readOnly:view.state.facet(EditorState.readOnly),editable:view.state.facet(EditorView.editable),active:document.activeElement?.outerHTML,selectedCompletion:document.querySelector('.cm-tooltip-autocomplete [aria-selected=true]')?.textContent??null};})()"];
+    fprintf(stderr,"Native CodeMirror source mismatch: %s\n",[[NSString alloc]initWithData:[NSJSONSerialization dataWithJSONObject:state options:0 error:nil] encoding:NSUTF8StringEncoding].UTF8String);throw;
+  }
+}
+static BOOL scriptWorkspaceReadOnly(DWWebPage* page) {
+  return [[page previewTestValue:@"(()=>{const {EditorView,EditorState}=window.__codeAcceptanceAPI,content=document.querySelector('#script-source .cm-content'),view=EditorView.findFromDOM(content);return view.state.facet(EditorState.readOnly)&&view.state.facet(EditorView.editable)===false&&content.getAttribute('contenteditable')==='false';})()"] boolValue];
+}
 static NSString* scriptWorkspaceSource() {
   return @"// workspace authored — 雪\r\nexport function update(value){\r\n  return {x:1,y:0,z:0};\r\n}\r\n";
 }
@@ -14,16 +50,30 @@ static NSDictionary* scriptWorkspaceExpected(NSDictionary* original) {
   color[@"script"]=scriptWorkspaceSource();layer[@"color"]=color;objects[0]=layer;scene[@"objects"]=objects;result[@"scene"]=scene;return result;
 }
 static void scriptWorkspaceType(DWWebPage* page,NSString* source) {
-  [page editorTestScript:@"document.getElementById('script-source').focus();document.getElementById('script-source').select();"];
-  [page clipTestAwait:@"document.activeElement.id==='script-source'"];
-  // AppKit keyCode 0 inserts printable characters; textarea newlines require
-  // the real Return key (36). Sending LF as a printable event drops the line.
+  [page clipTestAwait:@"(()=>{const {EditorView,EditorState}=window.__codeAcceptanceAPI,view=EditorView.findFromDOM(document.querySelector('#script-source .cm-content'));return view&&!view.state.facet(EditorState.readOnly)&&view.state.facet(EditorView.editable);})()"];
+  [page editorTestScript:@"document.querySelector('#script-source .cm-content').focus();"];
+  [page clipTestAwait:@"document.activeElement===document.querySelector('#script-source .cm-content')"];
+  [page codeTestShortcut:@"a" code:0];
+  // Real Return invokes CodeMirror's indentation. Indent-on-input removes the
+  // closing brace's automatic indent; the independent oracle remains exact.
   NSArray<NSString*>* lines=[source componentsSeparatedByString:@"\n"];
   for(NSUInteger index=0;index<lines.count;++index){
     if(index>0)[page gltfTestReturn];
-    [page editorTestType:lines[index]];
+    [page editorTestType:[lines[index] stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceCharacterSet]];
   }
-  [page editorTestAwaitInput:@"#script-source" value:source focused:YES];
+  // Auto-close brackets may leave a generated suffix after all requested bytes.
+  // First prove the independently expected prefix/cursor, then remove only that
+  // generated tail with actual selection/Delete input, as an author would.
+  NSString* literal=[[NSString alloc]initWithData:[NSJSONSerialization dataWithJSONObject:@{@"source":source} options:0 error:nil] encoding:NSUTF8StringEncoding];
+  [page clipTestAwait:[NSString stringWithFormat:@"(()=>{const expected=%@,view=window.__codeAcceptanceAPI.EditorView.findFromDOM(document.querySelector('#script-source .cm-content')),source=view.state.sliceDoc(),selection=view.state.selection.main;return source.startsWith(expected.source)&&selection.empty&&selection.head===expected.source.length;})()",literal]];
+  NSString* tail=[page previewTestValue:[NSString stringWithFormat:@"(()=>{const expected=%@,view=window.__codeAcceptanceAPI.EditorView.findFromDOM(document.querySelector('#script-source .cm-content'));return view.state.sliceDoc().slice(expected.source.length);})()",literal]];
+  if(tail.length){
+    require([tail rangeOfCharacterFromSet:[NSCharacterSet characterSetWithCharactersInString:@"\n\r\t )]}"].invertedSet].location==NSNotFound,"Native source input left unexpected non-bracket text after its exact authored prefix");
+    unichar arrow=NSDownArrowFunctionKey;
+    [page codeTestChord:[NSString stringWithCharacters:&arrow length:1] code:125 modifiers:NSEventModifierFlagCommand|NSEventModifierFlagShift];
+    [page clipTestKey:@"\177" code:51];
+  }
+  scriptWorkspaceAwaitSource(page,source,YES);
 }
 static void verifyScriptWorkspace(DWWebRuntime* runtime,NSString* projectRoot,NSString* editorRuntime,NSString* cache,NSString* sourcePath,NSString* expectedPath) {
   NSDictionary* original=clipJSON(sourcePath),*expected=scriptWorkspaceExpected(original);require([clipJSON(expectedPath) isEqual:expected],"Browser output differs from independently known native source bytes");
@@ -38,13 +88,14 @@ static void verifyScriptWorkspace(DWWebRuntime* runtime,NSString* projectRoot,NS
   [page clipTestAwait:@"document.getElementById('script-panel')&&!document.getElementById('script-panel').hidden&&document.getElementById('script-target').options.length>0"];
   [page editorTestScript:@"(()=>{const target=document.getElementById('script-target');target.value='color';target.dispatchEvent(new Event('change',{bubbles:true}));})();"];
   fprintf(stderr,"Native Script workspace phase=initial-target\n");
-  [page editorTestAwaitInput:@"#script-source" value:[original[@"scene"][@"objects"][0][@"color"][@"script"] stringByReplacingOccurrencesOfString:@"\r\n" withString:@"\n"]];
+  scriptWorkspaceInstallInspection(page);
+  scriptWorkspaceAwaitSource(page,[original[@"scene"][@"objects"][0][@"color"][@"script"] stringByReplacingOccurrencesOfString:@"\r\n" withString:@"\n"]);
   fprintf(stderr,"Native Script workspace phase=type-authoring-source\n");
   scriptWorkspaceType(page,[scriptWorkspaceSource() stringByReplacingOccurrencesOfString:@"\r\n" withString:@"\n"]);
   // Freeze must flush the focused source before native ownership captures it.
   fprintf(stderr,"Native Script workspace phase=focused-freeze\n");
   NSDictionary* frozen=command(page,@{@"type":@"freeze"});require([frozen[@"dirty"] boolValue]&&[frozen[@"document"] isEqual:expected],"Focused native source did not commit exact CRLF/Unicode bytes before freeze");
-  require([[page previewTestValue:@"document.body.inert"] boolValue],"Native source freeze did not immediately lock authoring");
+  require([[page previewTestValue:@"document.body.inert"] boolValue]&&scriptWorkspaceReadOnly(page),"Native source freeze did not lock both CodeMirror state and DOM");
   require([command(page,@{@"type":@"snapshot"})[@"document"] isEqual:expected],"Native validated source snapshot differs from frozen revision");
   command(page,@{@"type":@"thaw"});command(page,@{@"type":@"undo"});require([command(page,@{@"type":@"snapshot"})[@"document"] isEqual:original],"Native source did not undo in exactly one document revision");
   command(page,@{@"type":@"redo"});require([command(page,@{@"type":@"snapshot"})[@"document"] isEqual:expected],"Native source redo lost exact expected bytes");
@@ -54,8 +105,8 @@ static void verifyScriptWorkspace(DWWebRuntime* runtime,NSString* projectRoot,NS
   __block BOOL done=NO;__block NSDictionary* rejected=nil;__block NSError* transport=nil;
   [page requestEditorCommand:@{@"type":@"snapshot"} completion:^(NSDictionary* value,NSError* error){rejected=value;transport=error;done=YES;}];
   waitUntil(^{return done;},8,"Invalid source snapshot did not respond");require(!transport&&[rejected[@"error"] length]>0,"Invalid source snapshot must explicitly reject its compiler error");
-  command(page,@{@"type":@"thaw"});[page editorTestAwaitInput:@"#script-source" value:@"export function update( {"];
-  [page clipTestAwait:@"!document.body.inert&&document.getElementById('script-source').getAttribute('aria-invalid')==='true'&&document.getElementById('script-diagnostics').textContent.trim().length>0"];
+  command(page,@{@"type":@"thaw"});scriptWorkspaceAwaitSource(page,@"export function update( {");
+  [page clipTestAwait:@"!document.body.inert&&document.querySelector('#script-source .cm-content').getAttribute('aria-invalid')==='true'&&document.getElementById('script-diagnostics').textContent.trim().length>0"];
   [page editorTestScript:@"document.getElementById('script-revert').click();"];
   require([command(page,@{@"type":@"snapshot"})[@"document"] isEqual:expected],"Native invalid-source recovery modified committed document");
   command(page,@{@"type":@"mark-saved",@"document":expected});require(![command(page,@{@"type":@"freeze"})[@"dirty"] boolValue],"Native source save acknowledgement remained dirty");command(page,@{@"type":@"thaw"});

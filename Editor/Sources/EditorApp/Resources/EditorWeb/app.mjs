@@ -132,7 +132,7 @@ try {
   });
   document.addEventListener('keydown', event => {
     if (document.body.inert||gltf.error) return;
-    if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'z' || /INPUT|TEXTAREA|SELECT/.test(event.target.tagName)) return;
+    if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'z' || /INPUT|TEXTAREA|SELECT/.test(event.target.tagName) || event.target.isContentEditable || event.target.closest('.cm-editor')) return;
     event.preventDefault(); void act(doc => event.shiftKey ? doc.redo() : doc.undo());
   });
   await editor.ready;

@@ -14,7 +14,7 @@ const provenancePath = path.join(repo,'Editor/ThirdParty/provenance.json');
 const expected = JSON.parse(await readFile(provenancePath));
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 await mkdir(output,{recursive:true});
-const pins = {'@webwallgl/editor':'3.0.0',webwallgl:'3.0.0',mediabunny:'1.56.0',esbuild:'0.28.2'};
+const pins = {'@webwallgl/editor':'3.0.0',webwallgl:'3.0.0',mediabunny:'1.56.0',esbuild:'0.28.2',codemirror:'6.0.2','@codemirror/lang-javascript':'6.2.5','@codemirror/autocomplete':'6.20.4','@codemirror/commands':'6.11.1','@codemirror/search':'6.7.2','@codemirror/view':'6.43.15','@codemirror/state':'6.7.6','@codemirror/language':'6.13.1','@lezer/highlight':'1.2.5'};
 for (const [name,version] of Object.entries(pins)) {
   const metadata = JSON.parse(await readFile(path.join(web,'.build/node_modules',name,'package.json')));
   if (metadata.version !== version) throw new Error(`Unpinned ${name}`);
@@ -45,12 +45,26 @@ await put('model-api.mjs',model.outputFiles[0].contents);
 const scripts=await build({entryPoints:[path.join(web,'script-api-entry.mjs')],nodePaths:[path.join(web,'.build/node_modules')],outfile:'script-api.mjs',bundle:true,platform:'browser',format:'esm',target:'chrome120',minify:true,legalComments:'eof',write:false,metafile:true});
 if(Object.values(scripts.metafile.outputs).some(file=>file.imports.length))throw new Error('Compile-only Script API must not load renderer or other modules');
 await put('script-api.mjs',scripts.outputFiles[0].contents);
+const codeEditor=await build({entryPoints:[path.join(web,'code-editor-entry.mjs')],nodePaths:[path.join(web,'.build/node_modules')],outfile:'code-editor-api.mjs',bundle:true,platform:'browser',format:'esm',target:'chrome120',minify:true,legalComments:'eof',write:false,metafile:true});
+if(Object.values(codeEditor.metafile.outputs).some(file=>file.imports.length))throw new Error('Code editor bundle must remain offline');
+await put('code-editor-api.mjs',codeEditor.outputFiles[0].contents);
 
 await put('webwallgl.bundle.mjs',engine);
-for (const name of ['index.html','editor.css','app.mjs','document.mjs','runtime.mjs','script-source.mjs','script-draft.mjs','script-workspace.mjs','script-workspace-view.mjs','script-workspace-messages.mjs','script-workspace.css','script-mode-messages.mjs','localization.mjs','interface.mjs','resources.mjs','animation.mjs','timeline-clock.mjs','timeline-view.mjs','timeline.mjs','timeline-messages.mjs','timeline.css','model-capacity.mjs','model-resource-edit.mjs','model-workspace.mjs','model-view.mjs','model-overlay.mjs','model-messages.mjs','model.css','image-puppet-view.mjs','model-brush-view.mjs','model-brush-controller.mjs','model-projection.mjs','model-rest-view.mjs','gltf.css','gltf-messages.mjs','gltf-import.mjs','gltf-import-view.mjs','gltf-import-edit.mjs','gltf-preview.mjs','package-archive.mjs','model-clip-tools.mjs','model-clips-view.mjs','model-clips-messages.mjs','model-clip-edit.mjs','model-pose-tools.mjs','model-pose-view.mjs','model-pose-messages.mjs','model-mixing.mjs','model-mixing-tools.mjs','model-mixing-view.mjs','model-mixing-messages.mjs','model-events-tools.mjs','model-events-view.mjs','model-events-messages.mjs','model-fk-tools.mjs','model-fk-view.mjs','model-fk-messages.mjs','model-ik-tools.mjs','model-ik-view.mjs','model-ik-messages.mjs','model-keys-tools.mjs','model-keys-view.mjs','model-keys-messages.mjs']) await put(name,await readFile(path.join(web,name)));
+for (const name of ['index.html','editor.css','app.mjs','document.mjs','runtime.mjs','script-source.mjs','script-draft.mjs','script-workspace.mjs','script-workspace-view.mjs','script-workspace-targets.mjs','code-editor.mjs','code-editor-messages.mjs','script-language.mjs','script-workspace-messages.mjs','script-workspace.css','script-mode-messages.mjs','localization.mjs','interface.mjs','resources.mjs','animation.mjs','timeline-clock.mjs','timeline-view.mjs','timeline.mjs','timeline-messages.mjs','timeline.css','model-capacity.mjs','model-resource-edit.mjs','model-workspace.mjs','model-view.mjs','model-overlay.mjs','model-messages.mjs','model.css','image-puppet-view.mjs','model-brush-view.mjs','model-brush-controller.mjs','model-projection.mjs','model-rest-view.mjs','gltf.css','gltf-messages.mjs','gltf-import.mjs','gltf-import-view.mjs','gltf-import-edit.mjs','gltf-preview.mjs','package-archive.mjs','model-clip-tools.mjs','model-clips-view.mjs','model-clips-messages.mjs','model-clip-edit.mjs','model-pose-tools.mjs','model-pose-view.mjs','model-pose-messages.mjs','model-mixing.mjs','model-mixing-tools.mjs','model-mixing-view.mjs','model-mixing-messages.mjs','model-events-tools.mjs','model-events-view.mjs','model-events-messages.mjs','model-fk-tools.mjs','model-fk-view.mjs','model-fk-messages.mjs','model-ik-tools.mjs','model-ik-view.mjs','model-ik-messages.mjs','model-keys-tools.mjs','model-keys-view.mjs','model-keys-messages.mjs']) await put(name,await readFile(path.join(web,name)));
 await mkdir(path.join(repo,'Editor/ThirdParty'),{recursive:true});
 if (!check) await copyFile(path.join(web,'.build/node_modules/@webwallgl/editor/LICENSE'),path.join(repo,'Editor/ThirdParty/WebWallGL-Editor-LICENSE'));
-const provenance={schema:1,packages:pins,editorEntrySHA256:hash(await readFile(entry)),engineSHA256:hash(engine),files};
+const codePackages={};
+for(const input of Object.keys(codeEditor.metafile.inputs)) {
+  const marker='node_modules/',offset=input.lastIndexOf(marker);if(offset<0)continue;
+  const parts=input.slice(offset+marker.length).split('/'),name=parts[0].startsWith('@')?parts.slice(0,2).join('/'):parts[0];
+  const metadata=JSON.parse(await readFile(path.join(web,'.build/node_modules',name,'package.json')));
+  codePackages[name]=metadata.version;
+}
+const codeLicenses=[];
+for(const name of Object.keys(codePackages).sort())codeLicenses.push(name+' '+codePackages[name]+'\n'+await readFile(path.join(web,'.build/node_modules',name,'LICENSE'),'utf8'));
+const licenseBytes=Buffer.from(codeLicenses.join('\n\n'));const codeLicensePath=path.join(repo,'Editor/ThirdParty/CodeMirror-LICENSES.txt');
+if(check){if(hash(await readFile(codeLicensePath))!==hash(licenseBytes))throw new Error('CodeMirror licenses differ');}else await writeFile(codeLicensePath,licenseBytes);
+const provenance={schema:1,packages:pins,codeEditorPackages:Object.fromEntries(Object.entries(codePackages).sort(([a],[b])=>a.localeCompare(b))),editorEntrySHA256:hash(await readFile(entry)),engineSHA256:hash(engine),files};
 const previewFiles={};
 await mkdir(previewOutput,{recursive:true});
 for(const name of ['index.html','scene.css','scene-runtime.mjs','scene-spectrum.mjs','scene-source.mjs','scene-shell.mjs','scene-protocol.mjs','webwallgl.bundle.mjs']){

@@ -34,6 +34,8 @@ commands = [
     ('browser-keys', ['node', str(root / 'Editor/Web/test-model-keys.mjs')], 60),
     ('browser-script-migration', ['node', str(root / 'Editor/Web/test-script-migration.mjs')], 60),
     ('browser-script-contracts', ['node', str(root / 'Editor/Web/test-script-contracts.mjs')], 60),
+    ('browser-script-language-runtime', ['node', str(root / 'Editor/Web/test-script-language-runtime.mjs')], 60),
+    ('browser-code-tools', ['node', str(root / 'Editor/Web/test-code-tools.mjs')], 60),
     ('browser-script-workspace', ['node', str(root / 'Editor/Web/test-script-workspace.mjs')], 60),
     ('native', [str(app / 'Contents/MacOS/EditorNativeTests'),
                 str(frameworks / 'Chromium Embedded Framework.framework'),
@@ -107,6 +109,11 @@ workspace_native = [native[0], '--script-workspace-only', native[1], native[2], 
                     str(run / 'browser-export/ScriptWorkspaceLoose'), str(run / 'browser-export/ScriptWorkspacePackage'),
                     str(run / 'browser-export/script-workspace-source.json'), str(run / 'browser-export/script-workspace-expected.json')]
 commands.append(('native-script-workspace', workspace_native, 60))
+code_tools_native = [native[0], '--code-tools-only', native[1], native[2], str(run / 'code-tools-context'), native[4],
+                     str(run / 'browser-export/CodeToolsLoose'), native[6],
+                     str(run / 'browser-export/CodeToolsLoose'), str(run / 'browser-export/CodeToolsPackage'),
+                     str(run / 'browser-export/code-tools-source.json'), str(run / 'browser-export/code-tools-expected.json')]
+commands.append(('native-code-tools', code_tools_native, 60))
 print(f'EDITOR_NATIVE artifacts={run}', flush=True)
 for name, command, budget in commands:
     print(f'EDITOR_NATIVE phase={name} budget={budget}s', flush=True)
