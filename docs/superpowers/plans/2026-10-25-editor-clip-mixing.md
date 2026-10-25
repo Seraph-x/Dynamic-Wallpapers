@@ -41,7 +41,7 @@ Files: new `Editor/Web/test-model-mixing.mjs`, `Tests/EditorRuntimeHarness/Mixin
 
 - [x] Add independent browser/native mixing phases at unchanged 60-second budgets; preserve all existing phases. Use fixture clips 7 (right Y 0/30/60) and 11 (90/120/150), both mirror/FPS2/2 intervals. Final rows: clip7 weight1, clip11 weight0.5, plus an invisible clip7 row retaining unknown metadata. Main must render 45..105 motion, known 75 interpolation and 105 peak. Native AppKit types second-row weight0.25 without blur, freezes to exact JSON only (no MDL override), saves/undoes/redoes, and previews 52.5 at .5s with Timeline visible. Every page releases and each runtime shuts down once.
 - [x] Full JS and complete browser/native runner, reproducible offline build, independent Editor build/resource bridge, 3/42/16 product checks, independent final code review and changed-file privacy gate. Record failures/root causes honestly. Only the approved isolated test-host keychain is used.
-- [ ] Update READMEs and reused-project attribution, commit with configured real email, submit English PR, and leave it open for separate merge authorization.
+- [x] Update READMEs and reused-project attribution, commit with configured real email, submit English PR, and leave it open for separate merge authorization. Submitted as [PR #23](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/23).
 
 ## Commands
 
