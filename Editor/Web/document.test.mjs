@@ -88,3 +88,15 @@ test('resource edits reject reserved aliases, duplicate identities and malformed
   const unicode=new SceneDocument({...initial(),entry:'scènes.json'});
   assert.throws(()=>unicode.resource('SCE\u0300NES.JSON',version));
 });
+test('model insertion validates bounds and placement before one undoable layer change', () => {
+  const input=initial(),doc=new SceneDocument(input),settings={model:'models/imported/scene.mdl',name:'Imported model',bounds:[-2,-1,0,2,3,0]};
+  const id=doc.addModel(settings),layer=doc.snapshot().scene.objects.find(value=>value.id===id);
+  assert.deepEqual(layer,{id:2,name:'Imported model',model:settings.model,origin:'400 300 0',scale:'1 1 1',angles:'0 0 0',size:'4 4',color:'1 1 1',alpha:1});
+  doc.undo();assert.deepEqual(doc.snapshot(),input);assert.equal(doc.canUndo,false);doc.redo();
+  assert.equal(doc.snapshot().scene.objects.at(-1).model,settings.model);
+  const next=doc.addModel({...settings,origin:[10,-20,3]});assert.equal(doc.snapshot().scene.objects.find(value=>value.id===next).origin,'10 -20 3');
+  const before=doc.snapshot();
+  for(const patch of [{model:'../escape.mdl'},{name:''},{bounds:[0,0,0,Infinity,1,1]},{bounds:[1,0,0,0,1,1]},{bounds:[0,0,0,0,0,0]},{bounds:[0,0,1,1,1]},{origin:[1,2]},{origin:[0,NaN,0]}]){
+    assert.throws(()=>doc.addModel({...settings,...patch}));assert.deepEqual(doc.snapshot(),before);
+  }
+});

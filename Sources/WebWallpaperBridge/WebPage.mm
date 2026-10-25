@@ -102,7 +102,7 @@ std::string entryURL(const std::string& host, const char* entry) {
   if (!state->editor || (!_ready && !resourceReply) || state->closing || !state->browser || !state->failure(false).empty()) {
     completion(nil, DWWebError(@"Editor is not ready")); return;
   }
-  if (![@[@"snapshot", @"freeze", @"thaw", @"load", @"mark-saved", @"add-image", @"export-pkg", @"undo", @"redo", @"resource-reply", @"replace-resource", @"seek"] containsObject:payload[@"type"]]) {
+  if (![@[@"snapshot", @"freeze", @"thaw", @"load", @"mark-saved", @"add-image", @"import-model", @"export-pkg", @"undo", @"redo", @"resource-reply", @"replace-resource", @"seek"] containsObject:payload[@"type"]]) {
     completion(nil, DWWebError(@"Unknown Editor command")); return;
   }
   NSString* identifier = NSUUID.UUID.UUIDString;

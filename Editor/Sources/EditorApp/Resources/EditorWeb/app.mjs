@@ -6,10 +6,11 @@ import { messages } from './localization.mjs';
 import { initializeInterface, renderWorkspace, setPlaybackState } from './interface.mjs';
 import { Timeline } from './timeline.mjs';
 import { ModelWorkspace } from './model-workspace.mjs';
+import { GltfImport } from './gltf-import.mjs';
 
 const $ = id => document.getElementById(id);
 let displayedError;
-let editor, selected, drag, editFailure, timeline, model, selectionPointer;
+let editor, selected, drag, editFailure, timeline, model, gltf, selectionPointer;
 const pendingActions=new Set();
 document.body.inert = true;
 const showError = error => { displayedError=error;$('diagnostics').textContent = String(error?.message ?? error); };
@@ -30,10 +31,10 @@ try {
     return promise;
   };
   const act = operation => runAction(async()=>{
-    await model?.flush();await timeline?.flush();editFailure=undefined;$('diagnostics').textContent='';
+    if(gltf?.error)throw gltf.error;await model?.flush();await timeline?.flush();editFailure=undefined;$('diagnostics').textContent='';
     await editor.change(operation);
   });
-  const selectLayer = id => runAction(async()=>{await model?.flush();await timeline?.flush();selected=id;update(editor.document);});
+  const selectLayer = id => runAction(async()=>{if(gltf?.error)throw gltf.error;await model?.flush();await timeline?.flush();selected=id;update(editor.document);});
   function update(doc) {
     renderWorkspace({doc,selected,t,onSelect:id => { void selectLayer(id); },
       onPatch:(id,patch) => void act(doc => doc.patch(id,patch))});
@@ -41,11 +42,13 @@ try {
     model?.update(doc,selected);
   }
   editor = startEditor(config, { createScene, editorOf, buildScenePkg, checkWeCompat, element:$('canvas'), report, onChange:update, onError:showError,
-    setEditingEnabled: value => { document.body.inert = !value;model?.setFrozen(!value); }, snapshotError: () => editFailure,
+    setEditingEnabled: value => { document.body.inert = !value;model?.setFrozen(!value);gltf?.setFrozen(!value); }, snapshotError: () => gltf?.error??editFailure,
+    importModel:source=>gltf.open(source),
     onPlaybackChange: value => setPlaybackState(value,t) });
   timeline = new Timeline({editor,t,beforeEdit:()=>model?.flush(),edit:(id,property,edit)=>editor.change(doc=>doc.animate(id,property,edit)),onError:showError,
     onResetInput:()=>{editFailure=undefined;$('diagnostics').textContent='';}});
   model=new ModelWorkspace({editor,t,onError:showError,onResetInput:expected=>{if(!expected||editFailure===expected)editFailure=undefined;if(expected&&displayedError!==expected)return;displayedError=undefined;$('diagnostics').textContent='';}});
+  gltf=new GltfImport({editor,t,onError:showError,onClose:(...expected)=>{if(expected.includes(editFailure))editFailure=undefined;if(expected.includes(displayedError)){displayedError=undefined;$('diagnostics').textContent='';}},onImported:async id=>{selected=id;update(editor.document);await model.activate(id);}});
   async function finishDrag() {
     if (!drag) return;
     const pending = drag; drag = undefined;
@@ -53,14 +56,14 @@ try {
   }
   window.__dynamicWallpaperEditor = Object.freeze({ command: async value => {
     try { validateEditorCommand(value,config); } catch { return editor.command(value); }
-    if (['snapshot','freeze','undo','redo','add-image','replace-resource','load'].includes(value.type)) {
+    if (['snapshot','freeze','undo','redo','add-image','replace-resource','load','import-model'].includes(value.type)) {
       // Native menu/close commands do not necessarily blur the CEF text field.
       // Commit the visible value and pending drag before taking its snapshot.
       const focused = document.activeElement;
       const invalid = !focused?.closest?.('#model-brush-form') && focused?.checkValidity && !focused.checkValidity() ? focused.validationMessage : undefined;
       focused?.blur();
-      if(value.type==='freeze'){document.body.inert=true;model.setFrozen(true);}
-      try { await Promise.all([...pendingActions]);await finishDrag();await model.flush();await timeline.flush(); } catch(error) { editFailure=error;showError(error); }
+      if(value.type==='freeze'){document.body.inert=true;model.setFrozen(true);gltf.setFrozen(true);}
+      try { await Promise.all([...pendingActions]);if(gltf.error)throw gltf.error;await finishDrag();await model.flush();await timeline.flush(); } catch(error) { editFailure=error;showError(error); }
       if (invalid) { editFailure = new Error(invalid); showError(editFailure); }
     }
     return editor.command(value);
@@ -105,10 +108,10 @@ try {
     void finishDrag().catch(showError);
   });
   document.addEventListener('keydown', event => {
-    if (document.body.inert) return;
+    if (document.body.inert||gltf.error) return;
     if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'z' || /INPUT|TEXTAREA|SELECT/.test(event.target.tagName)) return;
     event.preventDefault(); void act(doc => event.shiftKey ? doc.redo() : doc.undo());
   });
   await editor.ready;
-  window.addEventListener('pagehide', () => { model.destroy();timeline.destroy();editor.destroy(); }, { once:true });
+  window.addEventListener('pagehide', () => { gltf.destroy();model.destroy();timeline.destroy();editor.destroy(); }, { once:true });
 } catch (error) { showError(error); console.error('Editor preparation failed',error); }

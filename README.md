@@ -58,8 +58,10 @@ and wallpaper playback intact. See [installation and removal](docs/editor-instal
 The [Model workspace](docs/editor-model-workspace.md) creates skinned grids from
 ordinary images and edits model hierarchies, local rest transforms and
 painted/numeric skin weights,
-with bone/vertex picking, complete undo and resource export. Direct glTF/GLB
-import and skeletal clip tools remain under development.
+with bone/vertex picking, complete undo and resource export.
+[glTF/GLB import](docs/editor-gltf-import.md) preserves source files, converts
+hierarchy/skin/materials and bakes animation with explicit conversion consent.
+Skeletal clip authoring and the script IDE remain under development.
 
 The two applications share source modules in this repository and ship their own
 runtime dependencies. Editor has its own version (currently 0.1.0), bundle
@@ -123,6 +125,7 @@ The scene-wallpaper work draws on these projects:
 | --- | --- |
 | [DSH Wallpaper Engine](https://github.com/elysia395/dsh-wallpaper-engine) | Design reference for hosting WebWallGL scene wallpapers and supplying audio spectrum and pointer input from the host application. |
 | [WebWallGL](https://github.com/oneincase/webwallgl) | The bundled scene renderer: parses local Wallpaper Engine projects and renders them with WebGL. The current playback integration pins version 3.0.0. The standalone Editor uses the pinned `@webwallgl/editor` 3.0.0 API, image/text scene conventions and PKG builder. |
+| [WebWallGL glTF helpers](docs/editor-gltf-import.md#source-references) | Selected MIT matrix/quaternion, animation sampling and PNG helpers from a recorded source commit; our importer adds strict compatibility checks, explicit conversion and atomic resource history. |
 | [Chromium Embedded Framework](https://github.com/chromiumembedded/cef) | The embedded Chromium runtime used for web and scene wallpaper playback. |
 | [mpv](https://github.com/mpv-player/mpv) and [FFmpeg](https://ffmpeg.org/) | Extended media playback, probing and transcoding. |
 | [Mediabunny](https://github.com/Vanilagy/mediabunny) | Media handling included in the pinned WebWallGL bundle. |

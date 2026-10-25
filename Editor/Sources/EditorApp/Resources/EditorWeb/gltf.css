@@ -1,0 +1,13 @@
+.gltf-dialog { width:min(650px,calc(100vw - 48px)); max-height:85dvh; overflow:auto; background:var(--surface); color:var(--text); border:1px solid var(--line); border-radius:12px; padding:22px; }
+.gltf-dialog::backdrop { background:#0007; }
+.gltf-dialog h2 { font-size:18px; margin-top:0; }
+.gltf-dialog p,.gltf-dialog li,.gltf-dialog label,.gltf-dialog summary { font-size:12px; line-height:1.6; }
+.gltf-dialog ul { overflow-wrap:anywhere; padding-inline-start:20px; }
+.gltf-options { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px 16px; margin-block:16px; }
+.gltf-options input,.gltf-options select { width:100%; min-width:0; }
+.gltf-preview { position:relative; height:220px; border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+.gltf-preview canvas { display:block; width:100%; height:100%; }
+.gltf-consent { display:flex; align-items:flex-start; gap:8px; margin-block:16px; }
+.gltf-consent[hidden] { display:none; }
+.gltf-consent input { flex:none; margin-top:5px; }
+.gltf-dialog .model-actions { position:sticky; bottom:-22px; background:var(--surface); padding-block:12px; }

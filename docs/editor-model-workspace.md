@@ -7,8 +7,10 @@ Switching workspace, selecting bones/vertices and showing overlays are preview
 choices; they do not change the saved project.
 
 This checkpoint creates skinned grids from images and edits model hierarchies
-local rest transforms and painted/numeric skin weights. Direct glTF/GLB import,
-skeletal clip authoring and the Script IDE remain separate roadmap work.
+local rest transforms and painted/numeric skin weights.
+[File → Import model…](editor-gltf-import.md) adds local glTF/GLB models with
+explicit conversion and retained originals. Skeletal clip authoring and the
+Script IDE remain separate roadmap work.
 
 ## Create a mesh from an image
 

@@ -1,9 +1,9 @@
 # Edit model resources without losing references
 
 This is the resource layer used by the [Model workspace](editor-model-workspace.md)
-for skeleton hierarchy and numeric weights. Direct glTF/GLB import,
-image-to-puppet creation, painting and existing-bone rest editing remain part of
-the approved authoring roadmap.
+for skeleton hierarchy, numeric/painted weights and local rest editing.
+[glTF/GLB import](editor-gltf-import.md) and image-to-mesh creation publish through
+the same immutable resource history.
 
 `Editor/Web/model.mjs` exports pure operations over MDL bytes. The reproducible
 offline build exposes them in `model-api.mjs`. They use the existing immutable

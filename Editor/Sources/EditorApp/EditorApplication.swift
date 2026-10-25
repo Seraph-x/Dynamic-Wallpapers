@@ -81,7 +81,7 @@ enum EditorApplication {
         menu.items[0].submenu?.items[0].target = NSApp
         let file = submenu(text("file"))
         item(file,"new",#selector(newProject),"n"); item(file,"open",#selector(openProject),"o"); file.addItem(.separator())
-        item(file,"addImage",#selector(addImage)); item(file,"save",#selector(save),"s")
+        item(file,"addImage",#selector(addImage)); item(file,"importModel",#selector(importModel)); item(file,"save",#selector(save),"s")
         item(file,"exportLoose",#selector(exportLoose)); item(file,"exportPkg",#selector(exportPackage))
         file.addItem(.separator()); item(file,"importMain",#selector(importSharedScene)); item(file,"openMain",#selector(openInWallpaper))
         let edit = submenu(text("edit"))
@@ -91,7 +91,7 @@ enum EditorApplication {
     }
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         if menuItem.action == #selector(importSharedScene) { return !sharedSceneOffers.isEmpty && !terminating }
-        if [#selector(save),#selector(addImage),#selector(exportLoose),#selector(exportPackage),#selector(openInWallpaper)].contains(menuItem.action) {
+        if [#selector(save),#selector(addImage),#selector(importModel),#selector(exportLoose),#selector(exportPackage),#selector(openInWallpaper)].contains(menuItem.action) {
             return active?.ready == true && active?.busy == false
         }
         return !terminating
