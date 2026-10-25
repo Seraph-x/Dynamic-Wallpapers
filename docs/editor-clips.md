@@ -77,10 +77,13 @@ The confirmation explains this result. Cancel/Escape changes no content.
 
 [Bone pose frames](editor-bone-poses.md) edit native local samples, copy/paste/reset
 poses and bake interpolation between endpoints. [Clip layers](editor-clip-mixing.md)
-edit native ordered normal/additive mixing, speed and visibility. Sparse authoring keys,
-frame-event authoring and FK/IK tools remain
+edit native ordered normal/additive mixing, speed and visibility. Sparse authoring keys
+and FK/IK tools remain
 subsequent work in the [approved roadmap](superpowers/specs/2026-10-24-advanced-editor-roadmap-design.md).
 This clip library does not claim those tools are already available.
+
+[Frame events](editor-frame-events.md) now provide native marker authoring with
+lossless metadata. Clip timing reuses their unambiguous frame/name/time checks.
 
 The implementation uses the existing MIT [WebWallGL lossless MDL codec](editor-model-resources.md#reused-source)
 and pinned 3.0.0 editor/playback APIs. Clip editing is implemented here to preserve

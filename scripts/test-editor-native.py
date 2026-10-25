@@ -28,6 +28,7 @@ commands = [
     ('browser-clips', ['node', str(root / 'Editor/Web/test-model-clips.mjs')], 60),
     ('browser-poses', ['node', str(root / 'Editor/Web/test-model-poses.mjs')], 60),
     ('browser-mixing', ['node', str(root / 'Editor/Web/test-model-mixing.mjs')], 60),
+    ('browser-events', ['node', str(root / 'Editor/Web/test-model-events.mjs')], 60),
     ('native', [str(app / 'Contents/MacOS/EditorNativeTests'),
                 str(frameworks / 'Chromium Embedded Framework.framework'),
                 str(frameworks / f'{helper}.app/Contents/MacOS' / helper), str(run / 'context'),
@@ -63,6 +64,11 @@ mixing_native = [native[0], '--mixing-only', native[1], native[2], str(run / 'mi
                  str(run / 'browser-export/MixLoose'), native[6],
                  str(run / 'browser-export/MixLoose'), str(run / 'browser-export/MixPackage')]
 commands.append(('native-mixing', mixing_native, 60))
+events_native = [native[0], '--events-only', native[1], native[2], str(run / 'events-context'), native[4],
+                 str(run / 'browser-export/EventsLoose'), native[6],
+                 str(run / 'browser-export/EventsLoose'), str(run / 'browser-export/EventsPackage'),
+                 str(run / 'browser-export/event-native-expected.mdl')]
+commands.append(('native-events', events_native, 60))
 print(f'EDITOR_NATIVE artifacts={run}', flush=True)
 for name, command, budget in commands:
     print(f'EDITOR_NATIVE phase={name} budget={budget}s', flush=True)

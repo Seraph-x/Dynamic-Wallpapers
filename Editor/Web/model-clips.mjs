@@ -3,6 +3,7 @@ import { validateTables } from './model-tables.mjs';
 import { restPose, validateBindHierarchy } from './model-math.mjs';
 import { inspectModel } from './model.mjs';
 import { validateGltfPoses } from './gltf-pose-validation.mjs';
+import { readEventMetadata } from './event-json.mjs';
 
 // These are the pinned codec's header discovery limits, including subsequent
 // headers scanned through the preceding clip's opaque trailer.
@@ -83,9 +84,7 @@ function resizeTrack(track,oldCount,newCount) {
 }
 function retimeEvents(clip,next) {
  return clip.events.map(event=>{
-  let metadata;try{metadata=JSON.parse(event.json);}catch{throw new Error('Unreadable animation event metadata');}
-  if(!metadata||Array.isArray(metadata)||!Number.isInteger(metadata.frame)||metadata.frame<0||metadata.frame>clip.frameCount||typeof metadata.name!=='string'||metadata.name.includes('\0'))throw new Error('Animation timing requires readable event frame/name metadata');
-  if(event.time!==Math.fround(metadata.frame/clip.fps))throw new Error('Animation event time is inconsistent with its frame');
+  const metadata=readEventMetadata(event,clip);
   if(metadata.frame>next.frameCount)throw new Error('Resize would exclude an animation event');
   const time=Math.fround(metadata.frame/next.fps);
   if(!Number.isFinite(time))throw new Error('Animation event timing overflows Float32');

@@ -6,15 +6,61 @@ PR 2 supplies the Editor; PR 3 supplies the optional Main handoff and packaging.
 
 ## Model workspace acceptance
 
-The Editor/runtime checks contain 246 JavaScript tests, including native mixing, dense pose frames, clip authoring, glTF conversion,
+The Editor/runtime checks contain 261 JavaScript tests, including frame events, native mixing, dense pose frames, clip authoring, glTF conversion,
 source/package decoding, atomic resources and the existing Model/Timeline tools.
-The reproducible build verifies 47 offline resources. Complete protocol, real-browser, image/brush
-browser, rest/glTF/clip/pose/mixing browser, native, native-brush, native-rest, native-glTF,
-native-clip, native-pose and native-mixing acceptance passes
+The reproducible build verifies 50 offline resources. Complete protocol, real-browser, image/brush
+browser, rest/glTF/clip/pose/mixing/event browser, native, native-brush, native-rest, native-glTF,
+native-clip, native-pose, native-mixing and native-event acceptance passes
 with the explicitly approved isolated test-keychain configuration.
 Product/source checks pass 3 Editor product tests, 42 product-configuration
 tests and 16 public-source export tests. These focused checks do not establish
 a full application-suite pass.
+
+## Native animation frame events
+
+Run `node --test Editor/Web/event-json.test.mjs Editor/Web/model-events.test.mjs Editor/Web/model-clips.test.mjs`
+for exact JSON span edits, escaped keys/strings, whitespace, unknown nested data,
+large integer lexemes, opaque records, same-frame ordering and signed-zero native
+time. FPS/resize share the same duplicate-known-key/frame/name/time validation,
+so ambiguous metadata cannot bypass checks through another tool. The pinned
+codec's actual 4096-event limit is tested without inventing another count cap.
+
+`node Editor/Web/test-model-events.mjs` edits actual forms and verifies rendered
+green/red/green callbacks through the existing color SceneScript. It covers
+structural edits/cancellation, same-frame callback order, source byte retention,
+combined Model/mixing history, focused input, failed staging/independent recovery,
+opaque records and cross-tool FPS failures. Failed creation then Cancel retains
+the original selection; frame-only and displayed no-op edits retain canonical
+CR/LF names. Save/reload and loose/PKG exports retain native markers and original
+bindings. Without explicit playback layers, inspection creates no binding and
+does not fabricate a callback. Five languages, both themes and 850 × 540 with
+Timeline pass associated labels, modal focus and Escape.
+
+Independent `browser-events` and `native-events` phases each retain 60 seconds;
+all previous phases and budgets remain. Real AppKit types Native fire without
+blur, then freeze validates the entire MDL against an independently encoded
+expected fixture, its hash, exact scene/script/binding retention and atomic
+Save/Undo/Redo. The expected fixture uses the existing vendor codec directly,
+not the new event mutation function. Actual CEF pixels and native event names
+verify forward 0→0.5→1.5-second green/red/green dispatch. Main loose/PKG each
+show both actual colors and two transitions with both meshes stationary.
+Every page releases and each runtime shuts down once.
+
+Initial regressions found selection clamping during the temporary resource-load
+state and failure to restore selection after cancelled creation staging. These
+now preserve the actual original/new event selection as appropriate. Independent
+review also exposed text-input CR/LF sanitization; multiline controls retain the
+canonical original name when its displayed value is unchanged. Browser red/green
+regressions cover each fix. A test also incorrectly undid a no-op swap of exact
+duplicate records; no-op history remains unchanged, and distinct same-frame
+callback ordering is tested through actual color results.
+
+The complete new-directory runner passes every existing and new phase, alongside
+261 JS tests, 50 reproducible offline resources, independent Editor build and
+real resource-bridge/save checks, 3 product tests, 42 configuration tests and 16
+source-export tests. Independent review passed. Production keychain behavior is
+unchanged; native checks use only the approved isolated test-host keychain.
+This is focused Editor acceptance, not a full repository-suite claim.
 
 ## Native animation-layer mixing
 

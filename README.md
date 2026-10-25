@@ -66,8 +66,9 @@ clips, with temporary preview and explicit saved playback assignments.
 [Bone pose frames](docs/editor-bone-poses.md) edit local sampled TRS, copy/paste,
 reset to bind and bake between endpoints. [Clip layers](docs/editor-clip-mixing.md)
 edit ordered normal/additive blending, speed and visibility without rewriting
-model resources. Sparse authoring keys, frame events, FK/IK and the script IDE
-remain under development.
+model resources. [Frame events](docs/editor-frame-events.md) create, edit, copy
+and order native markers while preserving opaque metadata and imported callbacks.
+Sparse authoring keys, FK/IK and the script IDE remain under development.
 
 The two applications share source modules in this repository and ship their own
 runtime dependencies. Editor has its own version (currently 0.1.0), bundle
