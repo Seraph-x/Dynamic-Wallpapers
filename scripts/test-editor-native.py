@@ -27,6 +27,7 @@ commands = [
     ('browser-gltf', ['node', str(root / 'Editor/Web/test-gltf-import.mjs')], 60),
     ('browser-clips', ['node', str(root / 'Editor/Web/test-model-clips.mjs')], 60),
     ('browser-poses', ['node', str(root / 'Editor/Web/test-model-poses.mjs')], 60),
+    ('browser-mixing', ['node', str(root / 'Editor/Web/test-model-mixing.mjs')], 60),
     ('native', [str(app / 'Contents/MacOS/EditorNativeTests'),
                 str(frameworks / 'Chromium Embedded Framework.framework'),
                 str(frameworks / f'{helper}.app/Contents/MacOS' / helper), str(run / 'context'),
@@ -58,6 +59,10 @@ poses_native = [native[0], '--poses-only', native[1], native[2], str(run / 'pose
                 str(run / 'browser-export/PoseLoose'), native[6],
                 str(run / 'browser-export/PoseLoose'), str(run / 'browser-export/PosePackage')]
 commands.append(('native-poses', poses_native, 60))
+mixing_native = [native[0], '--mixing-only', native[1], native[2], str(run / 'mixing-context'), native[4],
+                 str(run / 'browser-export/MixLoose'), native[6],
+                 str(run / 'browser-export/MixLoose'), str(run / 'browser-export/MixPackage')]
+commands.append(('native-mixing', mixing_native, 60))
 print(f'EDITOR_NATIVE artifacts={run}', flush=True)
 for name, command, budget in commands:
     print(f'EDITOR_NATIVE phase={name} budget={budget}s', flush=True)

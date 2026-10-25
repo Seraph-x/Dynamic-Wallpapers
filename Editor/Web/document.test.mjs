@@ -118,3 +118,10 @@ test('model playback only accepts image/model layers and u32 clip identities wit
   assert.deepEqual(doc.snapshot(),input);assert.equal(doc.canUndo,false);
   doc.modelAnimation(2,2**32-1);assert.equal(doc.snapshot().scene.objects[1].animationlayers[0].animation,2**32-1);
 });
+test('native animation-layer table is owned and history retains controlled/unknown fields exactly',()=>{
+ const input=initial();input.scene.objects[0]={id:1,model:'rig.mdl',animationlayers:{value:[],script:'return [];'},future:9};const doc=new SceneDocument(input),layers=[{animation:7,blend:{script:'return 1;',value:1},future:{kept:true}},{animation:11,blend:.5}];
+ doc.modelAnimationLayers(1,layers);layers[0].future.kept=false;assert.equal(doc.snapshot().scene.objects[0].animationlayers[0].future.kept,true);doc.undo();assert.deepEqual(doc.snapshot(),input);doc.redo();doc.modelAnimationLayers(1,[]);assert.deepEqual(doc.snapshot().scene.objects[0].animationlayers,[]);
+});
+test('native table writer rejects malformed shape and non-model targets without publishing',()=>{
+ const input=initial(),doc=new SceneDocument(input);for(const table of [null,{},[{}],[{animation:'7'}],[{animation:NaN}]])assert.throws(()=>doc.modelAnimationLayers(1,table));assert.deepEqual(doc.snapshot(),input);assert.equal(doc.canUndo,false);
+});

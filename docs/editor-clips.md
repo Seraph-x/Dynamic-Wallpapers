@@ -76,7 +76,8 @@ clip leaves an empty native animation table and restores static bind geometry.
 The confirmation explains this result. Cancel/Escape changes no content.
 
 [Bone pose frames](editor-bone-poses.md) edit native local samples, copy/paste/reset
-poses and bake interpolation between endpoints. Sparse authoring keys, clip mixing,
+poses and bake interpolation between endpoints. [Clip layers](editor-clip-mixing.md)
+edit native ordered normal/additive mixing, speed and visibility. Sparse authoring keys,
 frame-event authoring and FK/IK tools remain
 subsequent work in the [approved roadmap](superpowers/specs/2026-10-24-advanced-editor-roadmap-design.md).
 This clip library does not claim those tools are already available.

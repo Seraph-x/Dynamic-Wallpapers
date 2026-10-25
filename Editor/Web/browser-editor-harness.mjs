@@ -54,7 +54,7 @@ export async function openEditorHarness(configuration) {
     while(!events.some(e=>e.type==='ready')){if(Date.now()>deadline)throw new Error('No real Editor ready: '+await page.locator('#diagnostics').textContent());await page.waitForTimeout(100);}
     return {page,resources,events,errors,artifactRoot,blobRoot,close,async command(payload){
       const id=String(++next);await page.evaluate(value=>window.__dynamicWallpaperEditor.command(value),{id,session:configuration.session,generation:configuration.generation,...payload});
-      const reply=events.find(e=>e.type==='reply'&&e.id===id);assert(reply,'Native reply missing');assert(!reply.payload.error,reply.payload.error);return reply.payload;
+      const reply=events.find(e=>e.type==='reply'&&e.id===id);assert(reply,'Native reply missing');assert(!Object.hasOwn(reply.payload,'error'),reply.payload.error);return reply.payload;
     }};
   }catch(error){await close();throw error;}
 }

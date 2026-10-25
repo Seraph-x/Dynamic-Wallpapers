@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { SceneDocument } from './document.mjs';
-import { captureClipSource,inspectClipReferences,commitClipResource,commitClipPlayback } from './model-clip-edit.mjs';
+import { captureClipSource,inspectClipReferences,commitClipResource,commitClipPlayback,commitClipLayers } from './model-clip-edit.mjs';
 import { modelFixture } from './model-fixtures.mjs';
 
 const encode=value=>new TextEncoder().encode(JSON.stringify(value));
@@ -24,6 +24,22 @@ function fixture() {
   return {editor,input,files,calls};
 }
 const settle=()=>new Promise(resolve=>setImmediate(resolve));
+test('table-only publication owns the native table, preserves other layers and never stages MDL',async()=>{
+ const {editor,input,calls}=fixture(),source=captureClipSource(editor,1,modelBytes),table=[{animation:7,blend:.5,future:{kept:true}}];const pending=commitClipLayers(editor,source,table);table[0].future.kept=false;await pending;
+ assert.equal(calls.stages,0);assert.equal(calls.changes,1);assert.deepEqual(editor.document.snapshot().scene.objects[0].animationlayers,[{animation:7,blend:.5,future:{kept:true}}]);assert.deepEqual(editor.document.snapshot().scene.objects.slice(1),input.scene.objects.slice(1));editor.document.undo();assert.deepEqual(editor.document.snapshot(),input);
+});
+test('resource and native mixing table publish as one complete history revision',async()=>{
+ const {editor,input,calls}=fixture(),source=captureClipSource(editor,1,modelBytes),table=[{animation:7,blend:.25,future:19}];const pending=commitClipResource(editor,source,new Uint8Array([2,3]),{animationLayers:table});table[0].blend=.75;await pending;
+ const saved=editor.document.snapshot();assert.equal(saved.scene.objects[0].animationlayers[0].blend,.25);assert.equal(saved.resourceOverrides['models/rig.mdl'],'a'.repeat(64));assert.equal(calls.stages,1);assert.equal(calls.changes,1);editor.document.undo();assert.deepEqual(editor.document.snapshot(),input);assert.equal(editor.document.canUndo,false);editor.document.redo();assert.deepEqual(editor.document.snapshot(),saved);
+});
+test('failed combined staging or stale layer publication cannot publish partial JSON',async()=>{
+ const {editor,input,calls}=fixture(),source=captureClipSource(editor,1,modelBytes);editor.stageResource=async()=>{throw new Error('intentional mixing stage failure');};await assert.rejects(commitClipResource(editor,source,new Uint8Array([2]),{animationLayers:[{animation:7}]}),/mixing stage/);assert.deepEqual(editor.document.snapshot(),input);assert.equal(calls.changes,0);
+ editor.document.patch(1,{name:'Other action'});await assert.rejects(commitClipLayers(editor,source,[{animation:7}]),/stale|changed/);assert.equal(calls.changes,0);
+});
+test('mixing publication rejects changed MDL bytes and malformed tables before publication',async()=>{
+ const {editor,calls,files}=fixture(),source=captureClipSource(editor,1,modelBytes);files.set('models/rig.mdl',new Uint8Array([1]));await assert.rejects(commitClipLayers(editor,source,[{animation:7}]),/bytes|stale/);assert.equal(calls.changes,0);assert.equal(calls.stages,0);
+ for(const table of [{value:[]},[{}]])await assert.rejects(commitClipResource(editor,source,new Uint8Array([2]),{animationLayers:table}),/table|animation/i);assert.equal(calls.stages,0);
+});
 test('clip source captures an immutable document pin and scans hidden shared puppets and direct model defaults',async()=>{
   const {editor,input,calls}=fixture(),source=captureClipSource(editor,1,modelBytes);
   assert(Object.isFrozen(source));assert(Object.isFrozen(source.snapshot.scene.objects[0].future));

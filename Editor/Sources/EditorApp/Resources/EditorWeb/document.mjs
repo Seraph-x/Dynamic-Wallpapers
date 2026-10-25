@@ -1,4 +1,5 @@
 import { editAnimation } from './animation.mjs';
+import { assertMixTable } from './model-mixing.mjs';
 
 export function safePath(value) {
   if (typeof value !== 'string' || !value || /[\\:\0]/.test(value) || value.split('/').some(p => !p || p === '.' || p === '..')) throw new Error('Invalid project resource path');
@@ -105,12 +106,19 @@ export class SceneDocument {
   modelAnimation(id,clipID) {
     if(clipID!==null&&(!Number.isInteger(clipID)||clipID<0||clipID>0xffffffff))throw new Error('Invalid model animation clip ID');
     this.#change(value=>{
-      const layer=this.#layer(value,id),image=typeof layer.image==='string',model=typeof layer.model==='string';
-      if(layer.text!==undefined||image===model||(image&&layer.model!==undefined)||(model&&layer.image!==undefined))throw new Error('Select an image or model layer');
-      safePath(image?layer.image:layer.model);
+      const layer=this.#modelLayer(value,id);
       if(clipID===null)delete layer.animationlayers;
       else layer.animationlayers=[{animation:clipID,blend:1,rate:1,visible:true}];
     });
+  }
+  #modelLayer(value,id) {
+    const layer=this.#layer(value,id),image=typeof layer.image==='string',model=typeof layer.model==='string';
+    if(layer.text!==undefined||image===model||(image&&layer.model!==undefined)||(model&&layer.image!==undefined))throw new Error('Select an image or model layer');
+    safePath(image?layer.image:layer.model);return layer;
+  }
+  modelAnimationLayers(id,layers) {
+    const owned=clone(assertMixTable(layers));
+    this.#change(value=>{this.#modelLayer(value,id).animationlayers=owned;});
   }
   rename(title) {
     if (typeof title !== 'string' || !title.trim()) throw new Error('A project title is required');
