@@ -50,7 +50,7 @@ Files: `Editor/Web/build.mjs`, copied `Editor/Sources/EditorApp/Resources/SceneP
 - [x] Update both READMEs and preview/source/native-validation docs. State snapshot ownership, no automatic saving, mute/zero spectrum, explicit restart semantics, source attribution and remaining full-IDE/workbench-isolation scope.
 - [x] Run independent plan/code review, focused TDD checks, independent Editor build/tests, all Node/offline/product/config/export checks and the full fresh-directory native runner. Do not represent focused checks as a full Main application test-suite pass.
 - [x] Apply the sanitization skill to a changed-file copy; preserve upstream licenses and explicitly requested real author email. Inspect final diff and commit.
-- [ ] Submit an English PR and leave it open; record actual verification and link. PR #28 was merged before this work.
+- [x] Submit an English PR and leave it open; record actual verification and link. PR #28 was merged before this work.
 
 Plan review approved with the two explicit ownership/revalidation additions above.
 
@@ -73,3 +73,4 @@ Plan review approved with the two explicit ownership/revalidation additions abov
 - Final changed-file gate: 39 files clean, zero unexpected findings. The existing packaging scanner regex is classified as a detector fixture; author commits retain the explicitly requested real email.
 - Final independent review found no unresolved issues in source, native probes, packaging, localization or layout checks.
 - The exact copied engine retains upstream shader-string whitespace. Its generated-file whitespace attribute follows the existing Main bundle convention; the remaining authored diff and offline byte checks pass.
+- English PR submitted and left open: https://github.com/Seraph-x/Dynamic-Wallpapers/pull/29.
