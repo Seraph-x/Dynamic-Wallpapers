@@ -6,15 +6,46 @@ PR 2 supplies the Editor; PR 3 supplies the optional Main handoff and packaging.
 
 ## Model workspace acceptance
 
-The Editor/runtime checks contain 279 JavaScript tests, including FK deltas, frame events, native mixing, dense pose frames, clip authoring, glTF conversion,
+The Editor/runtime checks contain 302 JavaScript tests, including two-segment IK, FK deltas, frame events, native mixing, dense pose frames, clip authoring, glTF conversion,
 source/package decoding, atomic resources and the existing Model/Timeline tools.
-The reproducible build verifies 53 offline resources. Complete protocol, real-browser, image/brush
-browser, rest/glTF/clip/pose/mixing/event/FK browser, native, native-brush, native-rest, native-glTF,
-native-clip, native-pose, native-mixing, native-event and native-FK acceptance passes
+The reproducible build verifies 56 offline resources. Complete protocol, real-browser, image/brush
+browser, rest/glTF/clip/pose/mixing/event/FK/IK browser, native, native-brush, native-rest, native-glTF,
+native-clip, native-pose, native-mixing, native-event, native-FK and native-IK acceptance passes
 with the explicitly approved isolated test-keychain configuration.
 Product/source checks pass 3 Editor product tests, 42 product-configuration
 tests and 16 public-source export tests. These focused checks do not establish
 a full application-suite pass.
+
+## Native two-segment IK
+
+Run `node --test Editor/Web/model-ik.test.mjs Editor/Web/runtime-model-preview.test.mjs`
+for analytic geometry, exact Float32 preview/bake deltas, range continuity,
+3D/rotated chains, scale representability, reach/degeneracy errors, byte ownership
+and queued batch poses. These 30 targeted checks include a nonzero-start range
+crossing Euler wrap/gimbal boundaries and native precision residual rejection. Default bent poses retain exact bytes,
+while later default samples still respect continuity after an earlier sample was
+modified. Changing draft fields clears the previous preview residual.
+
+`node Editor/Web/test-model-ik.mjs` edits the actual modal and reads real WebGL
+pixels for root/middle/end markers. Its independent right-angle solution encodes
+root +π/2 and middle -π/2 without calling the new solver. It compares the entire
+MDL, verifies sample-only interpolation, repeated preview, Cancel/Escape and
+clock/play restoration, unreachable/collinear errors, failed-stage retry/cancel,
+external source-byte drift, freeze/thaw, history/save/reopen/exports, loop-terminal
+behavior and five-language light/dark layout at 850×540 with Timeline.
+
+Native puppet rendering shares one image texture, so the fixture uses a UV
+atlas with separate blue/red/green markers. The markers are large enough to
+retain measured pixels in the reduced Editor viewport. The test never treats
+absence of a color as proof that another marker reached its target.
+
+Separate `browser-ik` and `native-ik` phases retain 60-second budgets. The native
+host opens the original source, types target coordinates through trusted AppKit
+input and checks actual GPU marker placement before committing. It verifies the
+whole MDL against independently encoded bytes/hash, one-step history, saved
+resource reopen and unchanged source. Main loose and PKG playback checks all
+three actual colored centroids, continued frames, zero active pages after each
+close and exactly one runtime shutdown.
 
 ## Native FK local deltas
 

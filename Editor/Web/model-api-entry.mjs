@@ -11,3 +11,4 @@ export { inspectClips,editModelClips } from './model-clips.mjs';
 export { inspectBonePose,editBonePose } from './model-poses.mjs';
 export { bakeBoneDelta } from './model-fk.mjs';
 export { inspectFrameEvents,editFrameEvents } from './model-events.mjs';
+export { inspectIkChain,solveTwoBoneIk,bakeTwoBoneIk } from './model-ik.mjs';

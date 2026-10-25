@@ -7,21 +7,23 @@ import { ModelBoneOverlay,drawWeightMap } from './model-overlay.mjs';
 import { ModelClipTools } from './model-clip-tools.mjs';
 import { ModelPoseTools } from './model-pose-tools.mjs';
 import { ModelMixingTools } from './model-mixing-tools.mjs';
+import { ModelIkTools } from './model-ik-tools.mjs';
 import { ModelFkTools } from './model-fk-tools.mjs';
 import { ModelEventsTools } from './model-events-tools.mjs';
 
 const $=id=>document.getElementById(id);
 export class ModelWorkspace {
   #editor;#t;#error;#reset;#view;#overlay;#active=false;#id;#source;#bytes;#data;#bone=0;#mesh=0;#vertex=0;#points;
-  #boneDraft=false;#weightDraft=false;#restDraft=false;#failure;#loadError;#operations=Promise.resolve();#loading=Promise.resolve({ok:true});#loadRevision=0;#busy=0;#closed=false;#locked=false;#dialogTarget;#imageSource;#brush;#clips;#poses;#mixing;#events;#fk;
+  #boneDraft=false;#weightDraft=false;#restDraft=false;#failure;#loadError;#operations=Promise.resolve();#loading=Promise.resolve({ok:true});#loadRevision=0;#busy=0;#closed=false;#locked=false;#dialogTarget;#imageSource;#brush;#clips;#poses;#mixing;#events;#fk;#ik;
   constructor({editor,t,onError,onResetInput}) {
     this.#editor=editor;this.#t=t;this.#error=onError;this.#reset=onResetInput;this.#view=initializeModelView(t);
     const reset=expected=>{if(this.#failure===expected)this.#failure=undefined;this.#reset(expected);};
-    this.#clips=new ModelClipTools({editor,t,parent:$('model-body'),prepare:()=>this.#prepare(),run:operation=>this.#run(operation),state:()=>({id:this.#id,source:this.#source,bytes:this.#bytes}),write:(bytes,commit)=>this.#write(bytes,undefined,false,commit),reset,onSelection:()=>{this.#poses?.render();this.#events?.render();this.#fk?.render();}});
+    this.#clips=new ModelClipTools({editor,t,parent:$('model-body'),prepare:()=>this.#prepare(),run:operation=>this.#run(operation),state:()=>({id:this.#id,source:this.#source,bytes:this.#bytes}),write:(bytes,commit)=>this.#write(bytes,undefined,false,commit),reset,onSelection:()=>{this.#poses?.render();this.#events?.render();this.#fk?.render();this.#ik?.render();}});
     this.#poses=new ModelPoseTools({editor,t,parent:$('model-body'),prepare:()=>this.#prepare(),run:operation=>this.#run(operation),state:()=>({id:this.#id,source:this.#source,bytes:this.#bytes,bone:this.#bone,boneName:this.#data?.bones[this.#bone]?.name,clip:this.#clips.selected}),write:(bytes,commit)=>this.#write(bytes,undefined,false,commit),reset});
     this.#mixing=new ModelMixingTools({editor,t,parent:$('model-body'),prepare:()=>this.#prepare(),run:operation=>this.#run(operation),state:()=>({id:this.#id,source:this.#source,bytes:this.#bytes,clips:editor.controls?.getModelInfo(this.#id)?.animations??[]}),reset});
     this.#events=new ModelEventsTools({editor,t,parent:$('model-body'),prepare:()=>this.#prepare(),run:operation=>this.#run(operation),state:()=>({id:this.#id,source:this.#source,bytes:this.#bytes,clip:this.#clips.selected,clipName:editor.controls?.getModelInfo(this.#id)?.animations.find(c=>c.id===this.#clips.selected)?.name}),write:(bytes,commit)=>this.#write(bytes,undefined,false,commit),reset});
     this.#fk=new ModelFkTools({editor,t,parent:$('model-body'),prepare:()=>this.#prepare(),run:operation=>this.#run(operation),state:()=>({id:this.#id,source:this.#source,bytes:this.#bytes,bone:this.#bone,boneName:this.#data?.bones[this.#bone]?.name,clip:this.#clips.selected}),write:(bytes,commit)=>this.#write(bytes,undefined,false,commit),reset});
+    this.#ik=new ModelIkTools({editor,t,parent:$('model-body'),prepare:()=>this.#prepare(),run:operation=>this.#run(operation),state:()=>({id:this.#id,source:this.#source,bytes:this.#bytes,bone:this.#bone,boneName:this.#data?.bones[this.#bone]?.name,clip:this.#clips.selected}),write:(bytes,commit)=>this.#write(bytes,undefined,false,commit),reset});
     const bind=(id,event,operation)=>$(id).addEventListener(event,e=>{e.preventDefault();void this.#run(()=>operation(e));});
     bind('model-workspace','click',async()=>{await this.#prepare();this.#active=true;this.#toggle();this.update(editor.document,this.#id,true);await this.#loading;});
     bind('properties-workspace','click',async()=>{await this.#prepare();this.#active=false;this.#toggle();});
@@ -129,7 +131,7 @@ export class ModelWorkspace {
     const canCreateImage=!this.#source&&!this.#loadError&&typeof layer?.image==='string'&&layer.text===undefined&&layer.model===undefined;
     this.#view.render({data:this.#data,bone:this.#bone,mesh:this.#mesh,vertex:this.#vertex,capacity,boneDraft:this.#boneDraft,weightDraft:this.#weightDraft,restDraft:this.#restDraft,onBone:i=>this.#selectBone(i),loading,error:error??this.#loadError?.message,canCreateImage});
     if(this.#data)this.#points=drawWeightMap($('model-weight-map'),this.#data.meshes[this.#mesh],this.#bone,this.#vertex);
-    this.#clips.render();this.#poses.render();this.#mixing.render();this.#events.render();this.#fk.render();this.#busyView(this.#busy>0||this.#locked||this.#brush?.busy);
+    this.#clips.render();this.#poses.render();this.#mixing.render();this.#events.render();this.#fk.render();this.#ik.render();this.#busyView(this.#busy>0||this.#locked||this.#brush?.busy);
   }
   #selectBone(bone){void this.#run(async()=>{await this.#prepare();this.#bone=bone;this.#render();});}
   #validate(id) {
@@ -214,9 +216,9 @@ export class ModelWorkspace {
       else {if(mixDraft)await this.#mixing.commit(layers);this.#failure=undefined;this.#reset();this.#render();}
     }catch(error){this.#boneDraft=boneDraft;this.#weightDraft=weightDraft;this.#restDraft=restDraft;this.#clips.draft=clipDraft;this.#poses.draft=poseDraft;this.#mixing.draft=mixDraft;this.#events.draft=eventDraft;throw error;}
   }
-  async flush(){this.#brush?.assertIdle();await this.#brush?.settled();return this.#run(async()=>{if(document.querySelector('.model-dialog[open]'))throw this.#fk.barrier??this.#events.barrier??this.#mixing.barrier??this.#clips.barrier??new Error('Finish or cancel the model dialog before saving or changing the scene');await this.#prepare();},true);}
-  #busyView(value){this.#view.busy(value);this.#clips?.busy(value);this.#poses?.busy(value);this.#mixing?.busy(value);this.#events?.busy(value);this.#fk?.busy(value);}
+  async flush(){this.#brush?.assertIdle();await this.#brush?.settled();return this.#run(async()=>{if(document.querySelector('.model-dialog[open]'))throw this.#ik.barrier??this.#fk.barrier??this.#events.barrier??this.#mixing.barrier??this.#clips.barrier??new Error('Finish or cancel the model dialog before saving or changing the scene');await this.#prepare();},true);}
+  #busyView(value){this.#view.busy(value);this.#clips?.busy(value);this.#poses?.busy(value);this.#mixing?.busy(value);this.#events?.busy(value);this.#fk?.busy(value);this.#ik?.busy(value);}
   setFrozen(value){this.#locked=value;this.#busyView(value||this.#busy>0||this.#brush?.busy);}
   async activate(id){this.#active=true;this.#toggle();this.update(this.#editor.document,id,true);const loaded=await this.#loading;if(!loaded.ok)throw loaded.error;}
-  destroy(){this.#fk.destroy();this.#brush.destroy();this.#closed=true;this.#loadRevision++;this.#overlay.destroy();}
+  destroy(){this.#ik.destroy();this.#fk.destroy();this.#brush.destroy();this.#closed=true;this.#loadRevision++;this.#overlay.destroy();}
 }
