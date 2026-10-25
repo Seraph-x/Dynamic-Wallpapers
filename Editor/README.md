@@ -17,7 +17,9 @@ The [Model workspace](../docs/editor-model-workspace.md) uses immutable resource
 revisions for complete undo/save/export transactions.
 [File → Import model…](../docs/editor-gltf-import.md) accepts local glTF/GLB
 models, retains originals and previews the conversion before publication.
-Skeletal clip authoring and a script IDE remain separate roadmap work.
+[Skeletal clip tools](../docs/editor-clips.md) provide creation, duplication,
+deletion, timing, preview and saved playback assignments. Pose keys, mixing,
+FK/IK and the script IDE remain subsequent roadmap work.
 
 Use **File → New Project** or **Open Project**. Imports create complete owned
 copies. **Save** writes the Editor workspace; **Export** creates a standard scene

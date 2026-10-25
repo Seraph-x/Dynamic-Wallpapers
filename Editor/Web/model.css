@@ -43,3 +43,7 @@
 #model-panel .model-trs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
 #model-rest-details summary { cursor:pointer; font-size:11px; padding-block:10px; }
 #model-rest-error { color:var(--danger); }
+#model-clips-details { border-top:1px solid var(--line); margin-top:18px; padding-top:8px; }
+#model-clips-details summary { cursor:pointer; font-size:12px; padding-block:10px; }
+#model-clip-status,#model-clip-delete-impact { white-space:pre-wrap; overflow-wrap:anywhere; }
+#model-clip-playback-dialog p,#model-clip-delete-dialog p { overflow-wrap:anywhere; }

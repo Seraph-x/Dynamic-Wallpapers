@@ -174,14 +174,26 @@ static void verifyModelWorkbench(DWWebRuntime* runtime,NSString* projectRoot,NSS
 #include "ImagePuppetAcceptance.h"
 #include "RestAcceptance.h"
 #include "GltfAcceptance.h"
+#include "ClipAcceptance.h"
 int main(int argc,char**argv) { @autoreleasepool {
-  const bool brushOnly=argc>1&&std::string(argv[1])=="--brush-only",restOnly=argc>1&&std::string(argv[1])=="--rest-only",gltfOnly=argc>1&&std::string(argv[1])=="--gltf-only";if(brushOnly||restOnly||gltfOnly){++argv;--argc;}
-  if(gltfOnly?argc!=10:argc!=6 && argc!=9 && argc!=11 && argc!=14 && argc!=16){fprintf(stderr,"usage: EditorHarness FRAMEWORK HELPER CACHE RUNTIME PROJECT [MAIN_RUNTIME LOOSE_EXPORT PKG_EXPORT [MODEL_LOOSE MODEL_PKG [IMAGE_SOURCE IMAGE_LOOSE IMAGE_PKG [BRUSH_LOOSE BRUSH_PKG]]]]\n       EditorHarness --gltf-only FRAMEWORK HELPER CACHE RUNTIME SOURCE_PROJECT MAIN_RUNTIME GLTF_LOOSE GLTF_PKG SOURCE_COMMAND\n");return 64;}
+  const bool brushOnly=argc>1&&std::string(argv[1])=="--brush-only",restOnly=argc>1&&std::string(argv[1])=="--rest-only",gltfOnly=argc>1&&std::string(argv[1])=="--gltf-only",clipsOnly=argc>1&&std::string(argv[1])=="--clips-only";if(brushOnly||restOnly||gltfOnly||clipsOnly){++argv;--argc;}
+  if(gltfOnly?argc!=10:clipsOnly?argc!=11:argc!=6 && argc!=9 && argc!=11 && argc!=14 && argc!=16){fprintf(stderr,"usage: EditorHarness FRAMEWORK HELPER CACHE RUNTIME PROJECT [MAIN_RUNTIME LOOSE_EXPORT PKG_EXPORT [MODEL_LOOSE MODEL_PKG [IMAGE_SOURCE IMAGE_LOOSE IMAGE_PKG [BRUSH_LOOSE BRUSH_PKG]]]]\n       EditorHarness --gltf-only FRAMEWORK HELPER CACHE RUNTIME SOURCE_PROJECT MAIN_RUNTIME GLTF_LOOSE GLTF_PKG SOURCE_COMMAND\n       EditorHarness --clips-only FRAMEWORK HELPER CACHE RUNTIME CLIP_LOOSE MAIN_RUNTIME CLIP_LOOSE CLIP_PKG STATIC_LOOSE STATIC_PKG\n");return 64;}
   DWWebCreateApplication(); [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory]; [NSApp finishLaunching];
   DWWebRuntime* runtime=[[DWWebRuntime alloc]initWithFrameworkDirectory:@(argv[1]) helperExecutable:@(argv[2]) cacheDirectory:@(argv[3])];
   NSError* error=nil;
   try {
     require([runtime startWithError:&error],error.localizedDescription.UTF8String ?: "CEF start failed");
+    if(clipsOnly){
+      @autoreleasepool{
+        verifyClipWorkbench(runtime,@(argv[5]),@(argv[4]),[@(argv[3]) stringByAppendingPathComponent:@"ClipResources"]);
+        verifyClipExport(runtime,@(argv[7]),@(argv[6]),NO);
+        verifyClipExport(runtime,@(argv[8]),@(argv[6]),YES);
+        verifyClipExport(runtime,@(argv[9]),@(argv[6]),NO,YES);
+        verifyClipExport(runtime,@(argv[10]),@(argv[6]),YES,YES);
+      }
+      require([runtime shutdownWithError:&error],error.localizedDescription.UTF8String ?: "Clip CEF shutdown failed");
+      require(runtime.shutdownCount==1,"Clip runtime shutdown was not exactly once");puts("Native clips: trusted keyboard, focused freeze, exact MDL/history, moving/static Main exports and full release passed");return 0;
+    }
     if(gltfOnly){
       @autoreleasepool{
         verifyGltfWorkbench(runtime,@(argv[5]),@(argv[4]),[@(argv[3]) stringByAppendingPathComponent:@"GltfResources"],@(argv[9]));

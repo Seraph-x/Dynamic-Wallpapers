@@ -9,8 +9,9 @@ choices; they do not change the saved project.
 This checkpoint creates skinned grids from images and edits model hierarchies
 local rest transforms and painted/numeric skin weights.
 [File → Import model…](editor-gltf-import.md) adds local glTF/GLB models with
-explicit conversion and retained originals. Skeletal clip authoring and the
-Script IDE remain separate roadmap work.
+explicit conversion and retained originals. The [Animation clips library](editor-clips.md)
+manages clips and their saved playback assignments. Pose keys, mixing, FK/IK and
+the Script IDE remain subsequent roadmap work.
 
 ## Create a mesh from an image
 

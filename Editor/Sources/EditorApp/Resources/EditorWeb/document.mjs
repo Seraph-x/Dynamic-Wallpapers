@@ -102,6 +102,16 @@ export class SceneDocument {
       layer[property] = editAnimation(layer,property,edit);
     });
   }
+  modelAnimation(id,clipID) {
+    if(clipID!==null&&(!Number.isInteger(clipID)||clipID<0||clipID>0xffffffff))throw new Error('Invalid model animation clip ID');
+    this.#change(value=>{
+      const layer=this.#layer(value,id),image=typeof layer.image==='string',model=typeof layer.model==='string';
+      if(layer.text!==undefined||image===model||(image&&layer.model!==undefined)||(model&&layer.image!==undefined))throw new Error('Select an image or model layer');
+      safePath(image?layer.image:layer.model);
+      if(clipID===null)delete layer.animationlayers;
+      else layer.animationlayers=[{animation:clipID,blend:1,rate:1,visible:true}];
+    });
+  }
   rename(title) {
     if (typeof title !== 'string' || !title.trim()) throw new Error('A project title is required');
     this.#change(value => { value.title = title; });
