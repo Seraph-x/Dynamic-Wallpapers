@@ -48,7 +48,7 @@ Files: new `Editor/Web/script-migration-fixture.mjs`, `test-script-migration.mjs
 - [x] Update both READMEs plus source/preview/native-testing docs: distinguish edit animation from independent script playback, explain Run action and remaining full IDE work, retain WebWallGL attribution. Do not claim OS-process isolation or full IDE completion.
 - [x] Verify all Node/offline checks, independent Editor build/tests, focused core/protocol checks, product/config/export checks and full real browser/native phases. Report actual counts; no full Main application suite claim.
 - [x] Scan a changed-file copy with the sanitization skill, retaining explicitly requested real author email; inspect final diff.
-- [ ] Submit an English PR and leave it open. PR #29 was merged before this work.
+- [x] Submit an English PR and leave it open. PR #29 was merged before this work.
 
 Plan reviewed with the glTF subpreview, transport-only acknowledgement, actual controller wiring/draft checks and help-text audit additions above.
 
@@ -62,3 +62,4 @@ Plan reviewed with the glTF subpreview, transport-only acknowledgement, actual c
 - Corrected native migration target and the full fresh-directory 29-phase browser/native run passed. The test-only isolated keychain stays out of production.
 - Independent production-boundary review found no remaining blockers. No Main scene or independent preview runtime bytes changed.
 - A changed-file export passed the sanitization gate; final staged content is scanned again before publishing. The user-requested real commit identity is retained.
+- Published English [PR #30](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/30); it remains open for review.
