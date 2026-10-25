@@ -20,8 +20,9 @@ models, retains originals and previews the conversion before publication.
 [Skeletal clip tools](../docs/editor-clips.md) provide creation, duplication,
 deletion, timing, preview and saved playback assignments.
 [Bone pose frames](../docs/editor-bone-poses.md) edit local sampled TRS,
-copy/paste/reset poses and bake between endpoints. Sparse authoring keys,
-mixing, events, FK/IK and the script IDE remain subsequent roadmap work.
+copy/paste/reset poses and bake between endpoints. [Clip layers](../docs/editor-clip-mixing.md)
+edit ordered normal/additive blending, speed and visibility. Sparse authoring
+keys, events, FK/IK and the script IDE remain subsequent roadmap work.
 
 Use **File → New Project** or **Open Project**. Imports create complete owned
 copies. **Save** writes the Editor workspace; **Export** creates a standard scene

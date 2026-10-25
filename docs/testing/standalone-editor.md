@@ -6,15 +6,57 @@ PR 2 supplies the Editor; PR 3 supplies the optional Main handoff and packaging.
 
 ## Model workspace acceptance
 
-The Editor/runtime checks contain 230 JavaScript tests, including dense pose frames, clip authoring, glTF conversion,
+The Editor/runtime checks contain 246 JavaScript tests, including native mixing, dense pose frames, clip authoring, glTF conversion,
 source/package decoding, atomic resources and the existing Model/Timeline tools.
-The reproducible build verifies 43 offline resources. Complete protocol, real-browser, image/brush
-browser, rest/glTF/clip/pose browser, native, native-brush, native-rest, native-glTF,
-native-clip and native-pose acceptance passes
+The reproducible build verifies 47 offline resources. Complete protocol, real-browser, image/brush
+browser, rest/glTF/clip/pose/mixing browser, native, native-brush, native-rest, native-glTF,
+native-clip, native-pose and native-mixing acceptance passes
 with the explicitly approved isolated test-keychain configuration.
 Product/source checks pass 3 Editor product tests, 42 product-configuration
 tests and 16 public-source export tests. These focused checks do not establish
 a full application-suite pass.
+
+## Native animation-layer mixing
+
+Run `node --test Editor/Web/model-mixing.test.mjs Editor/Web/model-clip-edit.test.mjs Editor/Web/document.test.mjs`
+for native table operations, optional defaults, unknown/controlled row retention,
+owned asynchronous candidates and one-revision resource/table history. The
+combined transaction stages once; a table-only change stages no MDL resource.
+Stale document/MDL/puppet content or a failed stage cannot publish partial JSON.
+
+`node Editor/Web/test-model-mixing.mjs` verifies actual sequential ordering,
+weights, rate, visibility and additive pixels. It covers zero/negative additive
+totals, first-additive reference initialization, totals above one, extrapolating
+ordinary weights, zero rate and all explicit rows hidden. Actual forms exercise
+structural edits, confirmed removal/cancellation, invalid focused inputs,
+selection restoration, failed staging, independent draft recovery, controlled
+rows, malformed whole tables, save/reload and both exports. Five languages,
+both themes and 850 × 540 with Timeline pass layout, labels, modal focus and Escape.
+
+The complete runner includes independent `browser-mixing` and `native-mixing`
+phases, each at 60 seconds, retaining every previous phase and budget. Real
+AppKit changes the second native row's weight from 0.5 to 0.25 without blur.
+The frozen document must differ only at that JSON value; staging stays empty
+and original MDL bytes/hash remain exact. Save/Undo/Redo retain the full table.
+Actual persisted mixing renders 52.5 units at 0.5 seconds; Main loose/PKG
+playback independently shows 45..105 motion, known 75-unit interpolation and
+the 105-unit peak. All pages release and each runtime shuts down exactly once.
+
+Initial browser regressions found two new form issues: querying `:invalid`
+selected a fieldset with an empty validation message, and async modal creation
+left focus on the dialog while buttons were temporarily disabled. Validation
+now targets the invalid input/select with a nonempty error; the Cancel button
+regains focus when the operation finishes. The browser harness also checks the
+presence of an `error` field, so an empty error can never count as success.
+The new standalone core module is explicitly included in the offline build.
+
+After these corrections, repeated focused browser runs and the complete new-
+directory browser/native runner passed. The final source also passes 246 JS
+tests, 47 reproducible offline resources, independent Editor build and real
+resource-bridge/save checks, 3 product tests, 42 configuration tests and 16
+source-export tests. Independent code review passed. Production keychain
+behavior is unchanged; only the approved isolated test-host keychain is used.
+These are focused Editor checks, not a full repository-suite claim.
 
 ## Native bone pose frames
 

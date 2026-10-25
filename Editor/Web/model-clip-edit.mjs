@@ -1,5 +1,6 @@
 import { safePath } from './document.mjs';
 import { modelResourceSource } from './model-resource-edit.mjs';
+import { assertMixTable } from './model-mixing.mjs';
 
 const pins=new WeakMap();
 const object=value=>value!==null&&typeof value==='object'&&!Array.isArray(value);
@@ -102,8 +103,9 @@ export async function inspectClipReferences(editor,source) {
   return {referenced:[...new Set(layers.flatMap(layer=>layer.referenced))],
     defaults:layers.filter(layer=>layer.default).map(({id,name})=>({id,name})),layers};
 }
-export async function commitClipResource(editor,source,bytes,{deletedID}={}) {
+export async function commitClipResource(editor,source,bytes,{deletedID,animationLayers}={}) {
   assertCurrent(editor,source);
+  const table=animationLayers===undefined?undefined:structuredClone(assertMixTable(animationLayers));
   if(!(bytes instanceof Uint8Array))throw new Error('Expected edited model bytes');
   if(deletedID!==undefined&&!clipID(deletedID))throw new Error('Invalid deleted model clip ID');
   // Own the candidate before any resource read yields to another editor action.
@@ -117,7 +119,15 @@ export async function commitClipResource(editor,source,bytes,{deletedID}={}) {
   const version=await editor.stageResource(candidate);await assertModelCurrent(editor,source);
   // JSON can be read from a host resource as well as an immutable override. Pin its actual bytes too.
   await sharingLayers(editor,source);await assertModelCurrent(editor,source);
-  await editor.change(doc=>{assertCurrent(editor,source);doc.resource(source.path,version);});
+  await editor.change(doc=>{assertCurrent(editor,source);
+    if(table===undefined)doc.resource(source.path,version);
+    else doc.transaction(value=>{value.resource(source.path,version);value.modelAnimationLayers(source.id,table);});
+  });
+}
+export async function commitClipLayers(editor,source,layers) {
+  assertCurrent(editor,source);const table=structuredClone(assertMixTable(layers));
+  await sharingLayers(editor,source);await assertModelCurrent(editor,source);
+  await editor.change(doc=>{assertCurrent(editor,source);doc.modelAnimationLayers(source.id,table);});
 }
 export async function commitClipPlayback(editor,source,id) {
   assertCurrent(editor,source);

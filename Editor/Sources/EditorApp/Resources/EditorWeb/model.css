@@ -51,3 +51,8 @@
 #model-poses-details summary { cursor:pointer; font-size:12px; padding-block:10px; }
 #model-poses-details button { max-width:100%; white-space:normal; overflow-wrap:anywhere; }
 #model-pose-error { color:var(--danger); }
+#model-mixing-details { border-top:1px solid var(--line); margin-top:18px; padding-top:8px; }
+#model-mixing-details summary { cursor:pointer; font-size:12px; padding-block:10px; }
+#model-mixing-details button { max-width:100%; white-space:normal; overflow-wrap:anywhere; }
+#model-mixing-details input[type="checkbox"] { width:auto; }
+#model-mix-raw { max-height:180px; overflow:auto; font:10px/1.6 var(--mono); background:var(--field); padding:8px; }

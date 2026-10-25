@@ -11,7 +11,9 @@ local rest transforms and painted/numeric skin weights.
 [File → Import model…](editor-gltf-import.md) adds local glTF/GLB models with
 explicit conversion and retained originals. The [Animation clips library](editor-clips.md)
 manages clips and their saved playback assignments. [Bone pose frames](editor-bone-poses.md)
-edit native local samples with copy/paste/reset and range baking. Sparse keys, mixing, FK/IK and
+edit native local samples with copy/paste/reset and range baking.
+[Clip layers](editor-clip-mixing.md) edit native mixing order, weights, speed and
+visibility. Sparse keys, FK/IK and
 the Script IDE remain subsequent roadmap work.
 
 ## Create a mesh from an image
