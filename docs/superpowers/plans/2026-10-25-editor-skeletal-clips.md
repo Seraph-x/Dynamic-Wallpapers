@@ -51,7 +51,7 @@ Files: new `Editor/Web/test-model-clips.mjs`; new `Tests/EditorRuntimeHarness/Cl
 - [x] Real browser: create rest clip, duplicate moving clip, edit settings, known intermediate poses, preview versus saved assignment, cancellation, first/default/last and referenced deletion, invalid focused drafts, failed stage, atomic combined history, save/reopen and both exports. Check five languages/themes/minimum window with Timeline and keyboard modal focus.
 - [x] Native CEF: real AppKit typing, trusted confirmation, focused freeze, resource hash and saved binding/history; actual Main loose/PKG pixels show the authored assigned clip at known intermediate motion. Normal page release and exactly one shutdown. Add independent 60-second phases; preserve existing coverage/budgets. Use only approved test-host isolated keychain.
 - [x] Run relevant JS checks, reproducible offline build, independent Editor build, product/configuration/source-export checks, independent code review and changed-file privacy gate. Document exact scope, limitations and upstream references.
-- [ ] Commit using configured real author email and submit an English PR against merged main; do not merge this new PR automatically.
+- [x] Commit using configured real author email and submit an English PR against merged main; do not merge this new PR automatically. Submitted as [PR #21](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/21).
 
 ## Baseline and commands
 
