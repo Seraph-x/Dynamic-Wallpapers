@@ -6,15 +6,45 @@ PR 2 supplies the Editor; PR 3 supplies the optional Main handoff and packaging.
 
 ## Model workspace acceptance
 
-The Editor/runtime checks contain 302 JavaScript tests, including two-segment IK, FK deltas, frame events, native mixing, dense pose frames, clip authoring, glTF conversion,
+The Editor/runtime checks contain 322 JavaScript tests, including sparse bone keys, two-segment IK, FK deltas, frame events, native mixing, dense pose frames, clip authoring, glTF conversion,
 source/package decoding, atomic resources and the existing Model/Timeline tools.
-The reproducible build verifies 56 offline resources. Complete protocol, real-browser, image/brush
-browser, rest/glTF/clip/pose/mixing/event/FK/IK browser, native, native-brush, native-rest, native-glTF,
-native-clip, native-pose, native-mixing, native-event, native-FK and native-IK acceptance passes
+The reproducible build verifies 59 offline resources. Complete protocol, real-browser, image/brush
+browser, rest/glTF/clip/pose/mixing/event/FK/IK/keys browser, native, native-brush, native-rest, native-glTF,
+native-clip, native-pose, native-mixing, native-event, native-FK, native-IK and native-keys acceptance passes
 with the explicitly approved isolated test-keychain configuration.
 Product/source checks pass 3 Editor product tests, 42 product-configuration
 tests and 16 public-source export tests. These focused checks do not establish
 a full application-suite pass.
+
+## Sparse bone authoring keys
+
+Run `node --test Editor/Web/model-keys.test.mjs Editor/Web/model-clips.test.mjs`
+for lossless metadata spans, weighted native interpolation/Euler order, signed
+zero, adoption/reduction, CRUD, stale dense/FK/IK maps and clip ID lifecycle.
+These 41 checks include a cancellation case that distinguishes native weighted
+interpolation from algebraically equivalent delta interpolation.
+
+`node Editor/Web/test-model-keys.mjs` uses the actual engine and panel. It
+compares independently encoded whole MDL bytes, exercises every key operation,
+ruler selection, exact history, stale adoption/forgetting and saved exports,
+and verifies known 0/30/60/120px displacement at exact preview times. Failed
+stages, focused invalid fields, independent draft Revert, source drift and
+five-language light/dark layout at 850×540 with Timeline are covered.
+
+A test-only HTTP route exposes the actual Editor instance to simulate an
+asynchronous resource revision without the native menu’s normal draft flush.
+This does not change production resources or bridge permissions. The regression
+first reproduced a blocked save after key Revert; source invalidation now remains
+owned by all pending Model drafts and releases after the last is discarded.
+Another check verifies focus returns to the enabled frame selector when Stop
+sparse authoring disables its former opening button.
+
+Separate `browser-keys` and `native-keys` phases retain 60-second budgets. The
+native host confirms adoption/reduction, uses trusted unblurred AppKit input,
+compares full expected MDL/metadata/hash and checks exact one-step edit history.
+Real saved-resource reopen must recover two authored keys and actual known
+preview samples. Main loose and PKG check the stationary left mesh and the
+right’s known sampled motion. Each page releases and runtime shutdown is once.
 
 ## Native two-segment IK
 

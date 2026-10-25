@@ -4,6 +4,7 @@ import { restPose, validateBindHierarchy } from './model-math.mjs';
 import { inspectModel } from './model.mjs';
 import { validateGltfPoses } from './gltf-pose-validation.mjs';
 import { readEventMetadata } from './event-json.mjs';
+import { syncBoneKeyClips } from './bone-key-metadata.mjs';
 
 // These are the pinned codec's header discovery limits, including subsequent
 // headers scanned through the preceding clip's opaque trailer.
@@ -120,15 +121,17 @@ export function editModelClips(bytes,operation) {
  const model=read(bytes);let clip,id;
  if(operation.type==='create'){
   clip=newClip(model,operation);model.clips.push(clip);id=clip.id;
+  syncBoneKeyClips(model.bones,{type:'create',id});
  } else {
   if(!uint32(operation.id))throw new Error('Invalid animation ID');
   const index=model.clips.findIndex(clip=>clip.id===operation.id),source=model.clips[index];
   if(!source)throw new Error('Animation ID was not found');id=source.id;
   if(operation.type==='duplicate'){
    requireCapacity(model.clips);clip={...source,id:nextID(model.clips),name:name(operation.name)};model.clips.push(clip);id=clip.id;
+   syncBoneKeyClips(model.bones,{type:'duplicate',id,sourceID:source.id});
   } else if(operation.type==='update'){
    clip=updateClip(source,operation);model.clips[index]=clip;
-  } else if(operation.type==='delete')model.clips=deleteClip(model,source,operation);
+  } else if(operation.type==='delete'){model.clips=deleteClip(model,source,operation);syncBoneKeyClips(model.bones,{type:'delete',id});}
   else throw new Error('Unsupported animation operation');
  }
  if(model.section)model.section.anims=model.clips;

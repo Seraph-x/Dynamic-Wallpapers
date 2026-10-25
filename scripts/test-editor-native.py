@@ -31,6 +31,7 @@ commands = [
     ('browser-events', ['node', str(root / 'Editor/Web/test-model-events.mjs')], 60),
     ('browser-fk', ['node', str(root / 'Editor/Web/test-model-fk.mjs')], 60),
     ('browser-ik', ['node', str(root / 'Editor/Web/test-model-ik.mjs')], 60),
+    ('browser-keys', ['node', str(root / 'Editor/Web/test-model-keys.mjs')], 60),
     ('native', [str(app / 'Contents/MacOS/EditorNativeTests'),
                 str(frameworks / 'Chromium Embedded Framework.framework'),
                 str(frameworks / f'{helper}.app/Contents/MacOS' / helper), str(run / 'context'),
@@ -81,6 +82,11 @@ ik_native = [native[0], '--ik-only', native[1], native[2], str(run / 'ik-context
              str(run / 'browser-export/IkLoose'), str(run / 'browser-export/IkPackage'),
              str(run / 'browser-export/ik-native-expected.mdl')]
 commands.append(('native-ik', ik_native, 60))
+keys_native = [native[0], '--keys-only', native[1], native[2], str(run / 'keys-context'), native[4],
+               str(run / 'browser-export/KeysSource'), native[6],
+               str(run / 'browser-export/KeysLoose'), str(run / 'browser-export/KeysPackage'),
+               str(run / 'browser-export/keys-native-expected.mdl')]
+commands.append(('native-keys', keys_native, 60))
 print(f'EDITOR_NATIVE artifacts={run}', flush=True)
 for name, command, budget in commands:
     print(f'EDITOR_NATIVE phase={name} budget={budget}s', flush=True)
