@@ -58,7 +58,7 @@ Files: README, Editor README, `docs/editor-bone-keys.md`, native testing docs an
 - [x] Document metadata/source reuse, adoption/lossless reduction, native interpolation, endpoints, external-edit staleness and recovery, clip lifecycle and save/export. Do not claim a new runtime or minimal-key optimizer.
 - [x] Independent review of metadata compatibility, numerical behavior, immutable transactions and UI lifecycle; fix material findings with regression tests.
 - [x] Verify independent Editor build/resource bridge, product/configuration/source-export checks, offline hashes and final diff. Gate a changed-file copy with sanitized-public-export and keep the user-requested real commit email.
-- [ ] Submit a new English PR, leave it open and record verified evidence/link.
+- [x] Submit a new English PR, leave it open and record verified evidence/link.
 
 ## Verification and review record
 
@@ -68,4 +68,4 @@ Files: README, Editor README, `docs/editor-bone-keys.md`, native testing docs an
 - Independent review found a workspace-owned source invalidation error that key Revert could not release. A test-only route exposing the actual Editor instance reproduced the failure using real staging and document revision changes. The fix retains invalidation until all affected Model drafts are discarded, and does not let another draft reset release stale inputs. Both single-key and multiple-draft/ruler regressions passed; final read-only review approved the changes. Forget also restores focus to the enabled frame selector when its former opener becomes disabled.
 - The complete fresh-directory runner passed all original phases plus separate 60-second browser-keys/native-keys phases with the approved test-host isolated keychain. Native checks passed confirmed adoption/reduction, trusted unblurred endpoint typing, full independent MDL/map/hash, exact pre-edit history, real saved-resource reopen and known 0/30/60/120px Editor samples. Main loose/PKG observed the expected motion levels and stationary left mesh; pages fully released and runtime shutdown was exactly once.
 - Independent Editor build passed (66.28 seconds), and its real resource-bridge test passed (one test). Product checks passed 3/3, configuration 42/42 and public-source export 16/16. Reproducible build verified all 59 resource hashes; final diff is clean.
-- Documentation links and upstream attribution are retained. Final changed-file privacy gate and PR submission are recorded after completion below.
+- Documentation links and upstream attribution are retained. The changed-file privacy gate passed all 32 files. Submitted [PR #27](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/27) from `feat/editor-bone-keys`; it remains open for review. Commits retain the configured real author email per user instruction.
