@@ -152,7 +152,7 @@ Files: README, Editor README, `docs/editor-script-contracts.md`, native testing 
 - [x] Verify independent Editor build/resource bridge, product/config/source-export
   checks, offline hashes and final diff; scan a changed-file copy with the requested
   sanitization skill while retaining the explicitly requested real author email.
-- [ ] Submit an English PR, leave it open and record actual verification/link.
+- [x] Submit an English PR, leave it open and record actual verification/link.
 
 ## Verification record
 
@@ -179,3 +179,4 @@ Files: README, Editor README, `docs/editor-script-contracts.md`, native testing 
   interpreting them as raw scene metadata; a real side-effect file probe remained absent.
 - Documentation example executed and relative links verified.
 - Changed-file public copy: 23 files scanned, RESULT clean; real author identity retained as explicitly requested.
+- English PR submitted and left open: https://github.com/Seraph-x/Dynamic-Wallpapers/pull/28.
