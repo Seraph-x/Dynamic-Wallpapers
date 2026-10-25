@@ -84,6 +84,15 @@ export function startEditor(config, options) {
     if (!Number.isFinite(time) || time < 0) return Promise.reject(new Error('Invalid timeline time'));
     return enqueue(()=>controls.seek(time));
   }
+  function previewModelClip(id,animation) {
+    if(destroyed||frozen)return Promise.reject(new Error('Editor is closed or frozen'));
+    const source=document;
+    return enqueue(async()=>{
+      const info=controls?.getModelInfo(id);
+      if(document!==source||!info?.animations.some(clip=>clip.id===animation))throw new Error('Model document changed or animation clip is unavailable');
+      setPlaying(false);await controls.setAnimationLayers(id,[{animation,blend:1,rate:1,visible:true}]);await controls.seek(0);
+    });
+  }
   const ready = enqueue(async () => { await render(); await report({ type: 'ready', frame: 1 }); });
   async function applyCommand(value) {
     try {
@@ -151,7 +160,7 @@ export function startEditor(config, options) {
     const result = commandQueue.then(() => applyCommand(value)); commandQueue = result.catch(options.onError); return result;
   }
   return { ready, command, change: changed, get controls() { return controls; }, get document() { return document; },
-    get playing() { return playing; }, get frozen() { return frozen; }, setPlaying, seek,
+    get playing() { return playing; }, get frozen() { return frozen; }, setPlaying, seek,previewModelClip,
     stageResource:resources.stage,resourcePaths:resources.paths,
     readResource(path) {if(destroyed)return Promise.reject(new Error('Editor closed'));return resourceReader(document.snapshot(),read,resources.read)(path);},
     get modelBoneCapacity(){if(modelCapacity?.error)throw modelCapacity.error;return modelCapacity?.capacity;},

@@ -100,3 +100,21 @@ test('model insertion validates bounds and placement before one undoable layer c
     assert.throws(()=>doc.addModel({...settings,...patch}));assert.deepEqual(doc.snapshot(),before);
   }
 });
+test('explicit model playback replaces the native table and undo restores every unknown binding field', () => {
+  const input=initial();input.scene.objects[0]={id:1,image:'rig.json',animationlayers:{value:[{animation:7}],script:'return userProperties.clip;'},future:{opaque:true}};
+  const doc=new SceneDocument(input);
+  doc.modelAnimation(1,0);
+  assert.deepEqual(doc.snapshot().scene.objects[0],{...input.scene.objects[0],animationlayers:[{animation:0,blend:1,rate:1,visible:true}]});
+  doc.undo();assert.deepEqual(doc.snapshot(),input);doc.redo();
+  doc.modelAnimation(1,null);assert.equal(Object.hasOwn(doc.snapshot().scene.objects[0],'animationlayers'),false);
+  doc.undo();assert.deepEqual(doc.snapshot().scene.objects[0].animationlayers,[{animation:0,blend:1,rate:1,visible:true}]);
+  doc.undo();assert.deepEqual(doc.snapshot(),input);
+});
+test('model playback only accepts image/model layers and u32 clip identities without changing history on failure', () => {
+  const input=initial();input.scene.objects.push({id:2,model:'rig.mdl'},{id:3,text:'Text'},{id:4,image:'rig.json',model:'rig.mdl'},{id:5,image:{value:'rig.json'}});
+  const doc=new SceneDocument(input);
+  for(const id of [1,3,4,5,99])assert.throws(()=>doc.modelAnimation(id,2));
+  for(const clip of [-1,2**32,1.5,NaN,undefined,'1',{}])assert.throws(()=>doc.modelAnimation(2,clip));
+  assert.deepEqual(doc.snapshot(),input);assert.equal(doc.canUndo,false);
+  doc.modelAnimation(2,2**32-1);assert.equal(doc.snapshot().scene.objects[1].animationlayers[0].animation,2**32-1);
+});

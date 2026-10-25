@@ -25,6 +25,7 @@ commands = [
     ('browser-image', ['node', str(root / 'Editor/Web/test-image-puppet.mjs')], 60),
     ('browser-rest', ['node', str(root / 'Editor/Web/test-model-rest.mjs')], 60),
     ('browser-gltf', ['node', str(root / 'Editor/Web/test-gltf-import.mjs')], 60),
+    ('browser-clips', ['node', str(root / 'Editor/Web/test-model-clips.mjs')], 60),
     ('native', [str(app / 'Contents/MacOS/EditorNativeTests'),
                 str(frameworks / 'Chromium Embedded Framework.framework'),
                 str(frameworks / f'{helper}.app/Contents/MacOS' / helper), str(run / 'context'),
@@ -47,6 +48,11 @@ gltf_native = [native[0], '--gltf-only', native[1], native[2], str(run / 'gltf-c
                str(run / 'browser-export/GltfLoose'), str(run / 'browser-export/GltfPackage'),
                str(run / 'browser-export/gltf-source-command.json')]
 commands.append(('native-gltf', gltf_native, 60))
+clips_native = [native[0], '--clips-only', native[1], native[2], str(run / 'clips-context'), native[4],
+                str(run / 'browser-export/ClipLoose'), native[6],
+                str(run / 'browser-export/ClipLoose'), str(run / 'browser-export/ClipPackage'),
+                str(run / 'browser-export/ClipStaticLoose'), str(run / 'browser-export/ClipStaticPackage')]
+commands.append(('native-clips', clips_native, 60))
 print(f'EDITOR_NATIVE artifacts={run}', flush=True)
 for name, command, budget in commands:
     print(f'EDITOR_NATIVE phase={name} budget={budget}s', flush=True)

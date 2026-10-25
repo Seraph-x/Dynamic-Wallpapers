@@ -6,14 +6,53 @@ PR 2 supplies the Editor; PR 3 supplies the optional Main handoff and packaging.
 
 ## Model workspace acceptance
 
-The Editor/runtime checks contain 170 JavaScript tests, including glTF conversion,
+The Editor/runtime checks contain 214 JavaScript tests, including clip authoring, glTF conversion,
 source/package decoding, atomic resources and the existing Model/Timeline tools.
-The reproducible build verifies 36 offline resources. Complete protocol, real-browser, image/brush
-browser, rest/glTF browser, native, native-brush, native-rest and native-glTF acceptance passes
+The reproducible build verifies 40 offline resources. Complete protocol, real-browser, image/brush
+browser, rest/glTF/clip browser, native, native-brush, native-rest, native-glTF and native-clip acceptance passes
 with the explicitly approved isolated test-keychain configuration.
 Product/source checks pass 3 Editor product tests, 42 product-configuration
 tests and 16 public-source export tests. These focused checks do not establish
 a full application-suite pass.
+
+## Skeletal clip acceptance
+
+Run `node --test Editor/Web/model-clips.test.mjs Editor/Web/model-clip-edit.test.mjs Editor/Web/runtime-model-preview.test.mjs`
+for lossless clip operations, event metadata, normalized samples, source-byte
+ownership, hidden shared-model references, staging failures and queued preview
+ordering. Default deletion requires a surviving replacement; final deletion is
+verified as an empty MDLA with static bind geometry. Unchanged source metadata,
+native playback tables and all original binding fields survive Undo exactly.
+
+`node Editor/Web/test-model-clips.mjs` exercises real create/duplicate/settings,
+temporary preview versus saved assignment, first/default/last deletion, explicit
+reference protection, invalid focused input, failed native freeze recovery,
+combined bone/clip history, saved reload and both exports. Known intermediate
+motion samples are checked with rendered mesh pixels. A failed clip selection
+must restore the visible old selection. Five languages, both themes and
+850 × 540 with Timeline cover associated labels, modal focus and Escape.
+
+The full native runner adds separate `browser-clips` and `native-clips` phases,
+each retaining a 60-second budget. Native CEF types the clip name and FPS through
+AppKit, freezes without blur, verifies the actual MDL/hash and unchanged bind
+section, saves, undoes/redoes and uses trusted dialog input to restore default
+playback. Actual renderer pixels verify the authored 8-FPS clip at 0.25 seconds.
+Main exercises both assigned-motion exports and both static exports after final
+clip deletion; static geometry is checked again over at least 0.5 seconds.
+Every page must close completely and each phase must shut down its runtime once.
+
+The first native attempt exposed repeated top-level `const` declarations in two
+new test-injected focus scripts. Local function scopes fixed that test-host
+failure; no production deadlines, existing coverage or budgets were changed.
+The focused native clip phase passed all keyboard, motion/static export and
+lifetime checks, followed by a fresh-directory complete runner pass covering
+every existing and new browser/native phase. Production keychain behavior remains unchanged; native tests
+use only the already approved isolated test-host keychain.
+
+Independent Editor builds and its real resource-bridge round trip pass, together
+with 3 independent-product, 42 configuration and 16 source-export checks. The
+offline resources reproduce at 40 files. These are focused feature checks,
+not a claim that every repository test suite was run.
 
 ## glTF import acceptance
 
