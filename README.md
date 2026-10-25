@@ -72,7 +72,9 @@ and order native markers while preserving opaque metadata and imported callbacks
 to inclusive native sample ranges, with child bones following their parent.
 [Two-segment IK](docs/editor-ik-posing.md) solves a model-space target and pole,
 previews both joints, and bakes native rotation samples with undo/save/export.
-Sparse authoring keys and the script IDE remain under development.
+[Sparse bone keys](docs/editor-bone-keys.md) add/edit/move/copy/delete native
+pose keys, reduce them losslessly and retain authoring locations through save/export.
+The script IDE remains under development.
 
 The two applications share source modules in this repository and ship their own
 runtime dependencies. Editor has its own version (currently 0.1.0), bundle

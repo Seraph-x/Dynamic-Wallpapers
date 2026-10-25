@@ -71,3 +71,11 @@
 #model-ik-entry button,#model-ik-dialog button { max-width:100%; white-space:normal; overflow-wrap:anywhere; }
 #model-ik-dialog fieldset { min-width:0; }
 #model-ik-context { overflow-wrap:anywhere; }
+
+#model-keys-details { border-top:1px solid var(--line); margin-top:18px; padding-top:8px; }
+#model-keys-details summary { cursor:pointer; font-size:12px; padding-block:10px; }
+#model-keys-details button { max-width:100%; white-space:normal; overflow-wrap:anywhere; }
+#model-key-dialog-note { overflow-wrap:anywhere; }
+#model-key-ruler { width:100%; height:34px; cursor:crosshair; display:block; }
+#model-key-ruler path { stroke:var(--muted); fill:none; stroke-width:1; }
+#model-key-ruler line { stroke:var(--accent); stroke-width:2; }

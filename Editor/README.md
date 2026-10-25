@@ -21,14 +21,17 @@ models, retains originals and previews the conversion before publication.
 deletion, timing, preview and saved playback assignments.
 [Bone pose frames](../docs/editor-bone-poses.md) edit local sampled TRS,
 copy/paste/reset poses and bake between endpoints. [Clip layers](../docs/editor-clip-mixing.md)
-edit ordered normal/additive blending, speed and visibility. Sparse authoring
-keys and the script IDE remain subsequent roadmap work.
+edit ordered normal/additive blending, speed and visibility.
+The script IDE remains subsequent roadmap work.
 [Frame events](../docs/editor-frame-events.md) create/edit/copy/order native
 markers, preserve opaque metadata and trigger existing imported handlers.
 [FK local deltas](../docs/editor-fk-posing.md) provide cancellable native preview
 and inclusive sample-range baking of local translation, rotation and scale.
 [Two-segment IK](../docs/editor-ik-posing.md) provides model-space target/pole
 posing, cancellable preview and native rotation-sample baking for a root/middle/end chain.
+[Sparse bone keys](../docs/editor-bone-keys.md) provide adoption/lossless reduction,
+key editing and relocation, clipboard operations and native sample baking, with
+authoring locations retained through save/reopen and export.
 
 Use **File → New Project** or **Open Project**. Imports create complete owned
 copies. **Save** writes the Editor workspace; **Export** creates a standard scene
