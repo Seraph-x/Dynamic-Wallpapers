@@ -6,14 +6,61 @@ PR 2 supplies the Editor; PR 3 supplies the optional Main handoff and packaging.
 
 ## Model workspace acceptance
 
-The Editor/runtime checks contain 214 JavaScript tests, including clip authoring, glTF conversion,
+The Editor/runtime checks contain 230 JavaScript tests, including dense pose frames, clip authoring, glTF conversion,
 source/package decoding, atomic resources and the existing Model/Timeline tools.
-The reproducible build verifies 40 offline resources. Complete protocol, real-browser, image/brush
-browser, rest/glTF/clip browser, native, native-brush, native-rest, native-glTF and native-clip acceptance passes
+The reproducible build verifies 43 offline resources. Complete protocol, real-browser, image/brush
+browser, rest/glTF/clip/pose browser, native, native-brush, native-rest, native-glTF,
+native-clip and native-pose acceptance passes
 with the explicitly approved isolated test-keychain configuration.
 Product/source checks pass 3 Editor product tests, 42 product-configuration
 tests and 16 public-source export tests. These focused checks do not establish
 a full application-suite pass.
+
+## Native bone pose frames
+
+Run `node --test Editor/Web/model-poses.test.mjs Editor/Web/runtime-model-preview.test.mjs`
+for exact one-bone/sample changes, source immutability, bind reset, canonical
+Float32 radians, endpoint-preserving interpolation, native Euler wrapping,
+invalid indices/transforms and sampled world overflow. Preview replacement and
+target seeking must remain one runtime queue task before later Timeline seeks.
+
+`node Editor/Web/test-model-poses.mjs` edits the actual forms and renderer. It
+checks Copy/Paste/Reset, known exact/intermediate pixels, native loop wrapping,
+canonical degree no-ops, combined bone/clip/pose history, hierarchy reindexing,
+empty focused inputs, failed staging and independent draft recovery. Save/reload
+and loose/PKG export use the actual authored MDL. Five languages, both themes
+and 850 × 540 with Timeline cover associated labels, keyboard access and layout.
+
+Separate `browser-poses` and `native-poses` phases retain a 60-second budget each;
+no existing phase or budget is removed. Native CEF uses trusted AppKit input
+and freezes without blur, checking that precisely one Float32 value changes in
+the complete MDL, while scene assignments and all other bytes remain exact.
+Hash, saved acknowledgment and complete Undo/Redo are required. Actual preview
+pixels must show 140 units at 0.5 seconds. Main must independently render both
+exports in the authored 90..120 range, including known 105-unit interpolation
+and the 120-unit peak, with stationary bind placement, complete page release
+and exactly one runtime shutdown.
+
+Browser regressions exposed a French nowrap button wider than the minimum
+inspector and duplicated ownership of an empty focused pose-input error.
+Scoped wrapping fixes the first; the Model pose tool now owns its validation
+and recovery, while unused bake-range settings do not block saving. These
+regressions passed after correction. Production keychain behavior is unchanged;
+only the already approved isolated test-host keychain is used for native checks.
+
+The first native pose run failed its combined pixel/time assertion because the
+test read the hidden Timeline's unrefreshed time field. Native diagnostics showed
+the actual pose at 139.74 units for the requested 140, with the Timeline hidden
+and its input still at zero. The harness now opens Timeline before checking its
+time; both the original 140-unit pixel and 0.5-second assertions remain intact.
+No production timeout, previous coverage or phase budget is changed.
+
+After that harness correction, both the focused native pose phase and a new-
+directory complete runner passed all existing and new phases. The final build
+also passed 230 JavaScript tests, all 43 offline resource hashes, the independent
+Editor build/resource-bridge round trip and the 3/42/16 product checks listed
+above. Independent code review and the changed-file privacy gate passed. This
+is focused Editor acceptance, not a full repository-suite claim.
 
 ## Skeletal clip acceptance
 

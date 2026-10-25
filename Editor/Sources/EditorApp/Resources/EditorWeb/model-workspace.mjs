@@ -5,14 +5,17 @@ import { modelResourceSource,commitModelResource } from './model-resource-edit.m
 import { initializeModelView } from './model-view.mjs';
 import { ModelBoneOverlay,drawWeightMap } from './model-overlay.mjs';
 import { ModelClipTools } from './model-clip-tools.mjs';
+import { ModelPoseTools } from './model-pose-tools.mjs';
 
 const $=id=>document.getElementById(id);
 export class ModelWorkspace {
   #editor;#t;#error;#reset;#view;#overlay;#active=false;#id;#source;#bytes;#data;#bone=0;#mesh=0;#vertex=0;#points;
-  #boneDraft=false;#weightDraft=false;#restDraft=false;#failure;#loadError;#operations=Promise.resolve();#loading=Promise.resolve({ok:true});#loadRevision=0;#busy=0;#closed=false;#locked=false;#dialogTarget;#imageSource;#brush;#clips;
+  #boneDraft=false;#weightDraft=false;#restDraft=false;#failure;#loadError;#operations=Promise.resolve();#loading=Promise.resolve({ok:true});#loadRevision=0;#busy=0;#closed=false;#locked=false;#dialogTarget;#imageSource;#brush;#clips;#poses;
   constructor({editor,t,onError,onResetInput}) {
     this.#editor=editor;this.#t=t;this.#error=onError;this.#reset=onResetInput;this.#view=initializeModelView(t);
-    this.#clips=new ModelClipTools({editor,t,parent:$('model-body'),prepare:()=>this.#prepare(),run:operation=>this.#run(operation),state:()=>({id:this.#id,source:this.#source,bytes:this.#bytes}),write:(bytes,commit)=>this.#write(bytes,undefined,false,commit),reset:expected=>{if(this.#failure===expected)this.#failure=undefined;this.#reset(expected);}});
+    const reset=expected=>{if(this.#failure===expected)this.#failure=undefined;this.#reset(expected);};
+    this.#clips=new ModelClipTools({editor,t,parent:$('model-body'),prepare:()=>this.#prepare(),run:operation=>this.#run(operation),state:()=>({id:this.#id,source:this.#source,bytes:this.#bytes}),write:(bytes,commit)=>this.#write(bytes,undefined,false,commit),reset,onSelection:()=>this.#poses?.render()});
+    this.#poses=new ModelPoseTools({editor,t,parent:$('model-body'),prepare:()=>this.#prepare(),run:operation=>this.#run(operation),state:()=>({id:this.#id,source:this.#source,bytes:this.#bytes,bone:this.#bone,boneName:this.#data?.bones[this.#bone]?.name,clip:this.#clips.selected}),write:(bytes,commit)=>this.#write(bytes,undefined,false,commit),reset});
     const bind=(id,event,operation)=>$(id).addEventListener(event,e=>{e.preventDefault();void this.#run(()=>operation(e));});
     bind('model-workspace','click',async()=>{await this.#prepare();this.#active=true;this.#toggle();this.update(editor.document,this.#id,true);await this.#loading;});
     bind('properties-workspace','click',async()=>{await this.#prepare();this.#active=false;this.#toggle();});
@@ -99,7 +102,7 @@ export class ModelWorkspace {
     }catch(error){this.#loadRevision++;this.#data=undefined;this.#source=undefined;this.#loadError=error;this.#loading=Promise.resolve({ok:false,error});this.#render(false,error.message);this.#error(error);return;}
     if(!force&&this.#source?.document===document&&this.#source.id===id&&this.#source.path===source.path&&this.#source.version===source.version){this.#render();return;}
     const loadRevision=++this.#loadRevision;
-    if((this.#boneDraft||this.#weightDraft||this.#restDraft||this.#clips.draft)&&this.#source)this.#failure=new Error('Model changed while inputs were pending; revert them before continuing');
+    if((this.#boneDraft||this.#weightDraft||this.#restDraft||this.#clips.draft||this.#poses.draft)&&this.#source)this.#failure=new Error('Model changed while inputs were pending; revert them before continuing');
     const hadLoadError=Boolean(this.#loadError);
     this.#source=source;this.#data=undefined;this.#bytes=undefined;this.#loadError=undefined;this.#render(true);
     const loading=this.#editor.readResource(source.path).then(bytes=>{
@@ -120,7 +123,7 @@ export class ModelWorkspace {
     const canCreateImage=!this.#source&&!this.#loadError&&typeof layer?.image==='string'&&layer.text===undefined&&layer.model===undefined;
     this.#view.render({data:this.#data,bone:this.#bone,mesh:this.#mesh,vertex:this.#vertex,capacity,boneDraft:this.#boneDraft,weightDraft:this.#weightDraft,restDraft:this.#restDraft,onBone:i=>this.#selectBone(i),loading,error:error??this.#loadError?.message,canCreateImage});
     if(this.#data)this.#points=drawWeightMap($('model-weight-map'),this.#data.meshes[this.#mesh],this.#bone,this.#vertex);
-    this.#clips.render();this.#busyView(this.#busy>0||this.#locked||this.#brush?.busy);
+    this.#clips.render();this.#poses.render();this.#busyView(this.#busy>0||this.#locked||this.#brush?.busy);
   }
   #selectBone(bone){void this.#run(async()=>{await this.#prepare();this.#bone=bone;this.#render();});}
   #validate(id) {
@@ -172,10 +175,10 @@ export class ModelWorkspace {
   async #prepare(brushPreparation=false) {
     if(!brushPreparation)this.#brush?.assertIdle();
     const loaded=await this.#loading;
-    if(!loaded.ok&&(this.#boneDraft||this.#weightDraft||this.#restDraft||this.#clips.draft))throw loaded.error;
+    if(!loaded.ok&&(this.#boneDraft||this.#weightDraft||this.#restDraft||this.#clips.draft||this.#poses.draft))throw loaded.error;
     if(this.#failure)throw this.#failure;
-    if(!this.#boneDraft&&!this.#weightDraft&&!this.#restDraft&&!this.#clips.draft)return;
-    const boneDraft=this.#boneDraft,weightDraft=this.#weightDraft,restDraft=this.#restDraft,clipDraft=this.#clips.draft;let bytes=this.#bytes,map;
+    if(!this.#boneDraft&&!this.#weightDraft&&!this.#restDraft&&!this.#clips.draft&&!this.#poses.draft)return;
+    const boneDraft=this.#boneDraft,weightDraft=this.#weightDraft,restDraft=this.#restDraft,clipDraft=this.#clips.draft,poseDraft=this.#poses.draft;let bytes=this.#bytes,map;
     if(this.#weightDraft){
       this.#validate('model-weights-form');const influences=[];
       for(let i=0;i<4;i++){
@@ -193,14 +196,15 @@ export class ModelWorkspace {
       bytes=result.bytes;map=result.oldToNew;
     }else if(this.#restDraft)bytes=setBoneRestTransform(bytes,{bone:this.#bone,pose,boneLimit:this.#editor.modelBoneCapacity});
     if(clipDraft)bytes=this.#clips.applyDraft(bytes);
+    if(poseDraft)bytes=this.#poses.applyDraft(bytes,map?.[this.#bone]??this.#bone);
     // Weights use original IDs; rest/hierarchy build one final candidate.
     // All Model forms publish one revision so combined drafts undo together.
-    this.#boneDraft=false;this.#weightDraft=false;this.#restDraft=false;this.#clips.draft=false;
+    this.#boneDraft=false;this.#weightDraft=false;this.#restDraft=false;this.#clips.draft=false;this.#poses.draft=false;
     if(bytes.length===this.#bytes.length&&bytes.every((value,i)=>value===this.#bytes[i])){this.#reset();this.#render();return;}
-    try{await this.#write(bytes,map,false,clipDraft?bytes=>this.#clips.commit(bytes):undefined);}catch(error){this.#boneDraft=boneDraft;this.#weightDraft=weightDraft;this.#restDraft=restDraft;this.#clips.draft=clipDraft;throw error;}
+    try{await this.#write(bytes,map,false,poseDraft?bytes=>this.#poses.commit(bytes):clipDraft?bytes=>this.#clips.commit(bytes):undefined);}catch(error){this.#boneDraft=boneDraft;this.#weightDraft=weightDraft;this.#restDraft=restDraft;this.#clips.draft=clipDraft;this.#poses.draft=poseDraft;throw error;}
   }
   async flush(){this.#brush?.assertIdle();await this.#brush?.settled();return this.#run(async()=>{if(document.querySelector('.model-dialog[open]'))throw this.#clips.barrier??new Error('Finish or cancel the model dialog before saving or changing the scene');await this.#prepare();},true);}
-  #busyView(value){this.#view.busy(value);this.#clips?.busy(value);}
+  #busyView(value){this.#view.busy(value);this.#clips?.busy(value);this.#poses?.busy(value);}
   setFrozen(value){this.#locked=value;this.#busyView(value||this.#busy>0||this.#brush?.busy);}
   async activate(id){this.#active=true;this.#toggle();this.update(this.#editor.document,id,true);const loaded=await this.#loading;if(!loaded.ok)throw loaded.error;}
   destroy(){this.#brush.destroy();this.#closed=true;this.#loadRevision++;this.#overlay.destroy();}

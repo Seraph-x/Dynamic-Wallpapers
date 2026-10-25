@@ -114,6 +114,7 @@ function validatePoses(bytes,clip) {
  const meshes=model.meshes.map(mesh=>{if(mesh.error)throw new Error(mesh.error);return {...mesh,boneIdx:mesh.joints};});
  validateGltfPoses({bones:model.bones,meshes,animations:clip?[{...clip,tracks:clip.tracks.map(track=>track.data)}]:[]});
 }
+export { read as readClipModel,validatePoses as validateClipPoses };
 /** Pure transaction: parsing owns all buffers, and failures never mutate input. */
 export function editModelClips(bytes,operation) {
  if(!operation||typeof operation!=='object')throw new Error('Expected an animation operation');

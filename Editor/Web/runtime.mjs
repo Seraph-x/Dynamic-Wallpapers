@@ -84,13 +84,14 @@ export function startEditor(config, options) {
     if (!Number.isFinite(time) || time < 0) return Promise.reject(new Error('Invalid timeline time'));
     return enqueue(()=>controls.seek(time));
   }
-  function previewModelClip(id,animation) {
+  function previewModelClip(id,animation,time=0) {
     if(destroyed||frozen)return Promise.reject(new Error('Editor is closed or frozen'));
+    if(!Number.isFinite(time)||time<0)return Promise.reject(new Error('Invalid model preview time'));
     const source=document;
     return enqueue(async()=>{
       const info=controls?.getModelInfo(id);
       if(document!==source||!info?.animations.some(clip=>clip.id===animation))throw new Error('Model document changed or animation clip is unavailable');
-      setPlaying(false);await controls.setAnimationLayers(id,[{animation,blend:1,rate:1,visible:true}]);await controls.seek(0);
+      setPlaying(false);await controls.setAnimationLayers(id,[{animation,blend:1,rate:1,visible:true}]);await controls.seek(time);
     });
   }
   const ready = enqueue(async () => { await render(); await report({ type: 'ready', frame: 1 }); });

@@ -62,8 +62,10 @@ with bone/vertex picking, complete undo and resource export.
 [glTF/GLB import](docs/editor-gltf-import.md) preserves source files, converts
 hierarchy/skin/materials and bakes animation with explicit conversion consent.
 [Skeletal clip tools](docs/editor-clips.md) create, duplicate, delete and retime
-clips, with temporary preview and explicit saved playback assignments. Bone pose
-keys, mixing, FK/IK and the script IDE remain under development.
+clips, with temporary preview and explicit saved playback assignments.
+[Bone pose frames](docs/editor-bone-poses.md) edit local sampled TRS, copy/paste,
+reset to bind and bake between endpoints. Sparse authoring keys, mixing, frame
+events, FK/IK and the script IDE remain under development.
 
 The two applications share source modules in this repository and ship their own
 runtime dependencies. Editor has its own version (currently 0.1.0), bundle
