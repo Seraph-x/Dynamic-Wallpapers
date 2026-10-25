@@ -1,5 +1,5 @@
 import { readMdlDoc, writeMdlDoc, meshVertexLayout } from './vendor/mdl-codec.mjs';
-import { restPose } from './model-math.mjs';
+import { restPose,restMatrix,validateBindHierarchy } from './model-math.mjs';
 import { validateTables, remapSkeletonTail, remapBindPose } from './model-tables.mjs';
 
 const view=bytes=>new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength);
@@ -27,20 +27,28 @@ function skinLayout(mesh) {
   if(layout.bone<0 || layout.weight<0 || mesh.vertexData.length%layout.stride!==0)throw new Error('Unsupported skinned vertex layout');
   return {...layout,count:mesh.vertexData.length/layout.stride};
 }
+function editedRestMatrix(previous,pose) {
+  const matrix=restMatrix(pose).map(value=>value===0?0:value),original=restPose(previous);
+  // Unchanged displayed values preserve exact matrix bits. Changed Euler input
+  // must not be quantized: the matrix can represent finer angular changes.
+  return pose.every((value,i)=>value===original[i])||equalBytes(matrix,previous)?previous:matrix;
+}
 function destinationBones(input,previous) {
   if(!Array.isArray(input) || !input.length)throw new Error('A skeleton must contain bones');
   if(input.length>1024)throw new Error('The pinned renderer supports at most 1024 bones');
   const map=Array(previous.length).fill(-1),sources=[];
   const bones=input.map((bone,i)=>{
-    if(!bone || Object.keys(bone).some(k=>!['source','parent','name','matrix'].includes(k)) || !Number.isInteger(bone.parent) || bone.parent< -1 || bone.parent>=i)throw new Error('Parents must precede children; cycles are invalid');
+    if(!bone || Object.keys(bone).some(k=>!['source','parent','name','matrix','pose'].includes(k)) || !Number.isInteger(bone.parent) || bone.parent< -1 || bone.parent>=i)throw new Error('Parents must precede children; cycles are invalid');
     sources.push(bone.source);
     if(bone.source===null){
+      if(bone.pose!==undefined)throw new Error('New bones require a matrix, not a rest edit');
       const pose=restPose(bone.matrix);
       return {name:name(bone.name),parent:bone.parent,matrix:Float32Array.from(bone.matrix),head0:1,meta:'',pose};
     }
     if(!index(bone.source,previous.length) || map[bone.source]!==-1 || bone.matrix!==undefined)throw new Error('Invalid or duplicate bone source');
     map[bone.source]=i;
-    return {...previous[bone.source],name:bone.name===undefined?previous[bone.source].name:name(bone.name),parent:bone.parent};
+    return {...previous[bone.source],name:bone.name===undefined?previous[bone.source].name:name(bone.name),parent:bone.parent,
+      matrix:bone.pose===undefined?previous[bone.source].matrix:editedRestMatrix(previous[bone.source].matrix,bone.pose)};
   });
   return {bones,map,sources};
 }
@@ -77,13 +85,16 @@ function requireBoneCapacity(limit,count) {
 }
 /** Pure resource transaction. Existing local transforms/tracks retain their
  * values when reparented; this API does not bake world-space motion. */
-export function rewriteSkeleton(bytes,{bones:input,replacements={},boneLimit}) {
-  const {doc,skeleton}=readModel(bytes),previous=skeleton.bones;
+export function rewriteSkeleton(bytes,options) {return rewriteModel(readModel(bytes),options);}
+function rewriteModel({doc,skeleton},{bones:input,replacements={},boneLimit}) {
+  const previous=skeleton.bones;
   const {bones,map,sources}=destinationBones(input,previous);
   const resolve=replacementResolver(map,replacements);validateReplacements(replacements,map,bones.length);
   const structural=sources.length!==previous.length || sources.some((source,i)=>source!==i || bones[i].parent!==previous[i].parent);
+  const restEdited=input.some(bone=>bone.pose!==undefined);
+  if(restEdited&&(doc.trailing.length!==1||doc.trailing[0]!==0))throw new Error('Unsupported or incomplete MDL section-chain ending');
+  if(structural||restEdited){requireBoneCapacity(boneLimit,bones.length);validateBindHierarchy(bones);}
   if(structural){
-    requireBoneCapacity(boneLimit,bones.length);
     validateTables(doc,previous);
     previous.forEach((bone,i)=>{if(!Number.isInteger(bone.parent) || bone.parent< -1 || bone.parent>=i)throw new Error('Unsupported source skeleton hierarchy');});
     for(const mesh of doc.meshes)remapSkin(mesh,previous.length,resolve);
@@ -103,6 +114,14 @@ export function rewriteSkeleton(bytes,{bones:input,replacements={},boneLimit}) {
   const result=writeMdlDoc(doc);
   if(!equalBytes(writeMdlDoc(readMdlDoc(result)),result))throw new Error('Edited model failed lossless verification');
   return {bytes:result,oldToNew:map};
+}
+/** Edit only the selected local bind matrix. Authored poses/tracks stay absolute. */
+export function setBoneRestTransform(bytes,{bone,pose,boneLimit}) {
+  if(pose===undefined)throw new Error('Expected nine finite local TRS components');
+  const model=readModel(bytes);
+  if(!index(bone,model.skeleton.bones.length))throw new Error('Invalid rest-transform bone');
+  const bones=model.skeleton.bones.map((value,source)=>({source,parent:value.parent,...(source===bone?{pose}:{})}));
+  return rewriteModel(model,{bones,boneLimit}).bytes;
 }
 export function setSkinInfluences(bytes,{mesh:meshIndex,edits,boneLimit}) {
   const {doc,skeleton}=readModel(bytes);

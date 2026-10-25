@@ -7,9 +7,8 @@ Switching workspace, selecting bones/vertices and showing overlays are preview
 choices; they do not change the saved project.
 
 This checkpoint creates skinned grids from images and edits model hierarchies
-and painted/numeric skin weights. Direct glTF/GLB import, editing an
-existing bone's rest transform, skeletal clip authoring and the Script IDE
-remain separate roadmap work. Existing bind matrices are displayed read-only.
+local rest transforms and painted/numeric skin weights. Direct glTF/GLB import,
+skeletal clip authoring and the Script IDE remain separate roadmap work.
 
 ## Create a mesh from an image
 
@@ -71,6 +70,49 @@ Undo restores the complete previous resource, including references and tracks.
 
 All layers sharing an MDL resource receive its edit. The workspace calls this
 out because the file belongs to the project rather than to one layer instance.
+
+## Edit local rest transforms
+
+Select a bone, expand **Local rest transform**, and edit local XYZ position,
+Euler rotation in degrees (Rz × Ry × Rx) or XYZ scale. **Apply** commits the
+pending Model forms as one resource revision; **Revert** discards those pending
+Model inputs. Save also prepares valid focused input. Opening the disclosure,
+selecting a bone or inspecting its original matrix does not dirty the document.
+Unchanged displayed TRS values retain the exact original matrix, avoiding drift
+from decomposing and recomposing imported matrices. Changed angles are not
+rounded to Float32 before composing their stored matrix.
+
+This edits MDLS's local **bind** matrix, not a pose key. The renderer recomputes
+world bind and inverse-bind matrices along the parent chain. Mesh vertices,
+weights, other bones' local matrices, animation samples/events, attachment
+matrices, the static-pose tail and MDLE authored-pose data remain unchanged.
+Existing absolute poses can therefore deform differently against the new bind,
+including descendants. Clips are not silently retargeted. A rest-only edit does
+not move the original surface when playback is evaluating that same bind pose.
+
+Require the actual GPU bone capacity, finite Float32 matrices and renderer-valid
+world inverses. Zero scales, non-finite values, a composed matrix/inverse that
+overflows Float32, or an inverse pivot below the pinned renderer's 1e-12 limit
+are explicit failures. Valid local TRS can produce world shear under a scaled
+parent; that world shear is supported. A source local matrix containing shear
+or perspective cannot be edited through TRS: a localized explanation appears
+and the original matrix remains available. Unsupported/incomplete MDL section
+endings are rejected, rather than modifying a partially parsed section chain.
+
+Rest, hierarchy and weight drafts publish atomically. Weights use the original
+joint IDs; rest and parent changes produce a single final candidate before
+world-inverse validation, so a valid simultaneous parent/rest correction is
+accepted even if an intermediate combination would be invalid. An invalid final
+combination remains editable and stages no bytes. Existing structural format
+restrictions still apply when the hierarchy also changes.
+
+Invalid drafts block saved snapshots, Timeline content edits and native image
+insertion. Native **freeze** is a close-state inspection: it retains the last
+valid document and reports dirty for an invalid pending draft; it does not save
+that draft. After thaw, correct or explicitly Revert the input. Staging failure
+publishes no partial revision and remains visible until recovery. A rest commit
+preserves an unrelated Timeline key draft. Undo/redo, saved reopen and both
+loose/PKG exports retain the actual authored bind matrix for Main playback.
 
 ## Change numeric weights
 

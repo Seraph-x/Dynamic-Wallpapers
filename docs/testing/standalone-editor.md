@@ -6,11 +6,11 @@ PR 2 supplies the Editor; PR 3 supplies the optional Main handoff and packaging.
 
 ## Model workspace acceptance
 
-The current Model workspace is covered by 88 focused JavaScript checks,
+The current Model workspace is covered by 98 focused JavaScript checks,
 including image-grid generation, atomic conversion and resource-inventory RPC.
-The reproducible build verifies 28 offline resources. Complete real-browser
-and native CEF acceptance passes with the explicitly approved isolated test
-keychain mode described below.
+The reproducible build verifies 29 offline resources. Complete protocol, real-browser, image/brush
+browser, rest browser, native, native-brush and native-rest acceptance passes
+with the explicitly approved isolated test-keychain configuration.
 Product/source checks pass 3 Editor product tests, 42 product-configuration
 tests and 16 public-source export tests. These focused checks do not establish
 a full application-suite pass.
@@ -98,6 +98,46 @@ integration. Real CEF rendering, resource transactions and shutdown assertions
 still run. Unset `EDITOR_NATIVE_TEST_KEYCHAIN` or set it to `system` to use the
 normal system keychain; unknown values fail the build. Production app builders
 do not define this test macro and omit the switch entirely.
+
+## Local rest-transform acceptance
+
+The focused tests cover exact selected-matrix edits, source/unknown-data
+preservation, canonical no-op precision, reflections and gimbal cases, malformed
+inputs and renderer-matched Float32 parent composition/inversion. A combined
+rest/parent transaction validates the final candidate, covering both a rejected
+singular combination and a successful repair whose intermediate state is invalid.
+
+A dedicated real-browser phase changes Right bind X from 35 to 45 and verifies
+its mesh shifts left by ten scene units while Left and the existing Y animation
+remain unchanged. It checks focused freeze, one-step history, invalid scale and
+Timeline/native insertion barriers, combined numeric weights, staging failure,
+selection preparation, unrelated Timeline drafts, saved reload, both exports and
+an explicitly read-only sheared source. Existing layout acceptance opens the nine
+rest fields in all five languages, both themes and 850 × 540 with Timeline.
+
+Early pixel assertions included the bone editing overlay; the test now compares
+scene pixels in the same workspace with Show bones disabled. Tolerances are
+unchanged. Another test incorrectly expected freeze to reject an invalid draft;
+the existing close-state protocol returns the valid document with dirty=true.
+The regression now checks that exact contract, then requires a saved snapshot
+to fail and explicit thaw/Revert recovery. Production freeze behavior is unchanged.
+
+An initial complete native execution failed in the existing brush phase because
+no authored weight change was observed. The harness now awaits the actual
+trusted pointerup target before freezing, and sets host focus before measuring
+map coordinates. The rest harness similarly waits for the actual focused input
+before sending AppKit keyboard events. These are test-host synchronization checks;
+they do not synthesize successful application replies or bypass content checks.
+That failed execution remains failed. A fresh complete run passed all phases
+within unchanged budgets, including original brush history/export coverage and
+the new rest keyboard/matrix/hash/history assertions. Main rendered both rest
+exports with the right mesh shifted ten pixels and known intermediate Y motion;
+the left mesh stayed fixed. All three native phases closed normally with exactly
+one runtime shutdown each. The independent Editor build and real resource-bridge
+test passed; its production executable omits the native-test keychain marker.
+A second native brush/rest run with fresh contexts also passed actual inputs,
+history, both exports and normal single shutdowns. These remain focused results,
+not a full application-suite or system-keychain integration pass.
 
 ## Reproducible checks
 

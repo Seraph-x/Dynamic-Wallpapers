@@ -8,6 +8,11 @@ export function editModelHierarchy(bytes,edit) {
   const parent=value=>{if(value!==-1&&!valid(value,count))throw new Error('Invalid parent bone');return value;};
   let removed;
   switch(edit.type){
+    case 'update':
+      if(!valid(edit.bone,count))throw new Error('Invalid bone');
+      if(edit.name!==undefined)nodes[edit.bone].name=edit.name;
+      if(edit.parent!==undefined)nodes[edit.bone].parent=parent(edit.parent);
+      if(edit.pose!==undefined)nodes[edit.bone].pose=edit.pose;break;
     case 'rename':
       if(!valid(edit.bone,count))throw new Error('Invalid bone');nodes[edit.bone].name=edit.name;break;
     case 'reparent':

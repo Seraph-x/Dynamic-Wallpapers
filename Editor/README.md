@@ -9,14 +9,13 @@ The initial version supports new scenes; importing loose or PKG projects;
 image/text layers; layer ordering, visibility and duplication; position, scale,
 rotation, color and opacity; canvas picking/dragging; live preview with
 play/pause; property keyframe animation; image-to-mesh creation; model hierarchy
-and painted/numeric skin weights; undo/redo; save/reopen; and loose/PKG export.
+and local rest transforms; painted/numeric skin weights; undo/redo; save/reopen; and loose/PKG export.
 Script and property-bound fields remain read-only in the inspector.
 Preview is muted with explicit zero
 system spectrum; exports preserve audio response for wallpaper playback.
 The [Model workspace](../docs/editor-model-workspace.md) uses immutable resource
 revisions for complete undo/save/export transactions. Direct glTF/GLB import,
-existing-bone rest editing, skeletal clip
-authoring and a script IDE remain separate roadmap work.
+skeletal clip authoring and a script IDE remain separate roadmap work.
 
 Use **File → New Project** or **Open Project**. Imports create complete owned
 copies. **Save** writes the Editor workspace; **Export** creates a standard scene
@@ -55,7 +54,11 @@ Select a puppet/skinned model layer and choose **Model** beside **Properties**.
 Pick bones in the outline or canvas; rename, create, reparent or delete them.
 Deletion asks for confirmation and an explicit replacement for weighted vertices
 or attachments. Parent changes retain local transforms and animation samples,
-which can change world-space motion. Existing local bind matrices are read-only.
+which can change world-space motion. Expand **Local rest transform** to edit
+local XYZ position, Euler rotation in degrees and scale. Apply publishes one
+resource revision; Revert discards pending Model input. This changes binding,
+while keeping mesh data and existing animation/static poses; their deformation
+can change. Unsupported source shear/perspective remains explicitly read-only.
 
 Choose a mesh/vertex in the bind-space map and edit up to four normalized joint
 weights. **Paint weights** adds a radius/target/strength brush for the selected

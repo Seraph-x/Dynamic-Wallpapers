@@ -4,16 +4,25 @@
 @end
 @implementation DWWebPage (BrushAcceptance)
 - (void)editorTestPaintCorner {
-  __block NSDictionary* point=nil;__block NSError* failure=nil;NSString* identifier=NSUUID.UUID.UUIDString;
+  __block NSDictionary* point=nil;__block NSDictionary* received=nil;__block NSError* failure=nil;NSString* identifier=NSUUID.UUID.UUIDString,*pointerID=NSUUID.UUID.UUIDString;
   _editorCompletions[identifier]=^(NSDictionary* reply,NSError* error){point=reply;failure=error;};
   _editorDeadlines[identifier]=@(NSProcessInfo.processInfo.systemUptime+5);
+  _editorCompletions[pointerID]=^(NSDictionary* reply,NSError* error){received=reply;failure=error;};
+  _editorDeadlines[pointerID]=@(NSProcessInfo.processInfo.systemUptime+5);
   NSDictionary* envelope=@{@"type":@"reply",@"id":identifier,@"session":@(_resources->state->editor->session.c_str()),@"generation":@1};
   NSString* json=[[NSString alloc]initWithData:[NSJSONSerialization dataWithJSONObject:envelope options:0 error:nil] encoding:NSUTF8StringEncoding];
-  [self editorTestScript:[NSString stringWithFormat:@"(()=>{const envelope=%@,canvas=document.getElementById('model-weight-map');canvas.scrollIntoView({block:'center'});requestAnimationFrame(()=>{const r=canvas.getBoundingClientRect();envelope.payload={x:r.left+12*r.width/320,y:r.top+16*r.height/180};fetch('/__editor/event',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(envelope)});});})();",json]];
+  NSMutableDictionary* pointerEnvelope=[envelope mutableCopy];pointerEnvelope[@"id"]=pointerID;
+  NSString* pointerJSON=[[NSString alloc]initWithData:[NSJSONSerialization dataWithJSONObject:pointerEnvelope options:0 error:nil] encoding:NSUTF8StringEncoding];
+  auto host=_resources->state->browser->GetHost();host->SetFocus(true);
+  [self editorTestScript:[NSString stringWithFormat:@"(()=>{const envelope=%@,pointer=%@,canvas=document.getElementById('model-weight-map');window.addEventListener('pointerup',e=>{pointer.payload={target:e.target.id,trusted:e.isTrusted,x:e.clientX,y:e.clientY};fetch('/__editor/event',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pointer)});},{once:true});canvas.scrollIntoView({block:'center'});requestAnimationFrame(()=>{const r=canvas.getBoundingClientRect();envelope.payload={x:r.left+12*r.width/320,y:r.top+16*r.height/180};fetch('/__editor/event',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(envelope)});});})();",json,pointerJSON]];
   waitUntil(^{return point!=nil||failure!=nil;},6,"Native brush map measurement timed out");require(!failure&&point!=nil,"Native brush coordinate acknowledgement failed");
   CefMouseEvent mouse;mouse.x=[point[@"x"] intValue];mouse.y=[point[@"y"] intValue];mouse.modifiers=0;
-  auto host=_resources->state->browser->GetHost();host->SetFocus(true);host->SendMouseMoveEvent(mouse,false);
+  host->SendMouseMoveEvent(mouse,false);
   host->SendMouseClickEvent(mouse,MBT_LEFT,false,1);host->SendMouseClickEvent(mouse,MBT_LEFT,true,1);
+  waitUntil(^{return received!=nil||failure!=nil;},6,"Native brush pointerup did not reach the renderer before freeze");
+  require(!failure&&[received[@"trusted"] boolValue],"Native brush pointer acknowledgement failed");
+  fprintf(stderr,"Native brush pointer target=%s at %.1f,%.1f\n",[received[@"target"] UTF8String],[received[@"x"] doubleValue],[received[@"y"] doubleValue]);
+  require([received[@"target"] isEqual:@"model-weight-map"],"Native brush pointer missed the measured weight map");
 }
 @end
 static NSArray* imageQuadrants(DWWebPage* page) {

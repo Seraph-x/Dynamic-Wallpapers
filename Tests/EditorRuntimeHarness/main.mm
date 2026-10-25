@@ -32,7 +32,7 @@ static NSArray* modelPixels(DWWebPage* page) {
   return @[@(count[0]),@(count[1]),@(count[0]?xTotal[0]/count[0]:0),@(count[1]?xTotal[1]/count[1]:0),
            @(count[0]?yTotal[0]/count[0]:0),@(count[1]?yTotal[1]/count[1]:0)];
 }
-static void verifyModelExport(DWWebRuntime* runtime,NSString* projectRoot,NSString* runtimeRoot,BOOL package) {
+static void verifyModelExport(DWWebRuntime* runtime,NSString* projectRoot,NSString* runtimeRoot,BOOL package,double bindShift=0) {
   NSError* error=nil;__block NSError* failure=nil;
   DWWebPage* page=[runtime scenePageWithProjectRoot:projectRoot runtimeRoot:runtimeRoot entry:package?@"scene.pkg":@"scene.json"
     representation:package?@"package":@"loose" sceneID:NSUUID.UUID.UUIDString generation:1 size:NSMakeSize(640,360) scale:1 error:&error];
@@ -44,7 +44,7 @@ static void verifyModelExport(DWWebRuntime* runtime,NSString* projectRoot,NSStri
   waitUntil(^{
     NSArray* p=modelPixels(page);
     if([p[0] unsignedLongValue]<=100||[p[1] unsignedLongValue]<=100)return NO;
-    require(std::abs([p[2] doubleValue]-284.5)<3&&std::abs([p[3] doubleValue]-354.5)<3,"Model joint reindex changed horizontal bind placement");
+    require(std::abs([p[2] doubleValue]-284.5)<3&&std::abs([p[3] doubleValue]-(354.5-bindShift))<3,"Model joint reindex changed horizontal bind placement");
     require(std::abs([p[4] doubleValue]-179.5)<3,"Stationary model bone moved in Main");
     const double delta=[p[4] doubleValue]-[p[5] doubleValue];
     require(delta>=-2&&delta<=62,"Model deformation left the known 0..60 pixel range");
@@ -62,6 +62,7 @@ static void verifyModelExport(DWWebRuntime* runtime,NSString* projectRoot,NSStri
 - (BOOL)editorTestNativeViewIsAttached;
 - (void)editorTestAwaitTitle:(NSString*)expected;
 - (void)editorTestAwaitInput:(NSString*)selector value:(NSString*)expected;
+- (void)editorTestAwaitInput:(NSString*)selector value:(NSString*)expected focused:(BOOL)focused;
 @end
 @implementation DWWebPage (EditorAcceptance)
 - (void)editorTestScript:(NSString*)script {
@@ -84,12 +85,15 @@ static void verifyModelExport(DWWebRuntime* runtime,NSString* projectRoot,NSStri
   [self editorTestAwaitInput:@"#project-title" value:expected];
 }
 - (void)editorTestAwaitInput:(NSString*)selector value:(NSString*)expected {
+  [self editorTestAwaitInput:selector value:expected focused:NO];
+}
+- (void)editorTestAwaitInput:(NSString*)selector value:(NSString*)expected focused:(BOOL)focused {
   __block BOOL done=NO; __block NSError* failure=nil; NSString* identifier=NSUUID.UUID.UUIDString;
   _editorCompletions[identifier]=^(NSDictionary* reply,NSError* error){failure=error;done=[reply[@"typed"] boolValue]||error!=nil;};
   _editorDeadlines[identifier]=@(NSProcessInfo.processInfo.systemUptime+5);
-  NSDictionary* value=@{@"selector":selector,@"expected":expected,@"payload":@{@"type":@"reply",@"id":identifier,@"session":@(_resources->state->editor->session.c_str()),@"generation":@1,@"payload":@{@"typed":@YES}}};
+  NSDictionary* value=@{@"selector":selector,@"expected":expected,@"focused":@(focused),@"payload":@{@"type":@"reply",@"id":identifier,@"session":@(_resources->state->editor->session.c_str()),@"generation":@1,@"payload":@{@"typed":@YES}}};
   NSString* json=[[NSString alloc]initWithData:[NSJSONSerialization dataWithJSONObject:value options:0 error:nil] encoding:NSUTF8StringEncoding];
-  [self editorTestScript:[NSString stringWithFormat:@"(()=>{const test=%@;const check=()=>{if(document.querySelector(test.selector).value===test.expected)fetch('/__editor/event',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(test.payload)});else requestAnimationFrame(check);};check();})();",json]];
+  [self editorTestScript:[NSString stringWithFormat:@"(()=>{const test=%@;const check=()=>{if(document.querySelector(test.selector).value===test.expected&&(!test.focused||document.activeElement===document.querySelector(test.selector)))fetch('/__editor/event',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(test.payload)});else requestAnimationFrame(check);};check();})();",json]];
   waitUntil(^{return done;},6,"Native keyboard input did not reach the renderer before blur"); require(!failure,"Keyboard input acknowledgement failed");
 }
 - (BOOL)editorTestNativeViewIsAttached {
@@ -168,14 +172,25 @@ static void verifyModelWorkbench(DWWebRuntime* runtime,NSString* projectRoot,NSS
   fprintf(stderr,"Native Model workspace: actual keyboard, unblurred freeze, staged MDL name/hash, save acknowledgement and undo/redo passed\n");
 }
 #include "ImagePuppetAcceptance.h"
+#include "RestAcceptance.h"
 int main(int argc,char**argv) { @autoreleasepool {
-  const bool brushOnly=argc>1&&std::string(argv[1])=="--brush-only";if(brushOnly){++argv;--argc;}
+  const bool brushOnly=argc>1&&std::string(argv[1])=="--brush-only",restOnly=argc>1&&std::string(argv[1])=="--rest-only";if(brushOnly||restOnly){++argv;--argc;}
   if(argc!=6 && argc!=9 && argc!=11 && argc!=14 && argc!=16){fprintf(stderr,"usage: EditorHarness FRAMEWORK HELPER CACHE RUNTIME PROJECT [MAIN_RUNTIME LOOSE_EXPORT PKG_EXPORT [MODEL_LOOSE MODEL_PKG [IMAGE_SOURCE IMAGE_LOOSE IMAGE_PKG [BRUSH_LOOSE BRUSH_PKG]]]]\n");return 64;}
   DWWebCreateApplication(); [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory]; [NSApp finishLaunching];
   DWWebRuntime* runtime=[[DWWebRuntime alloc]initWithFrameworkDirectory:@(argv[1]) helperExecutable:@(argv[2]) cacheDirectory:@(argv[3])];
   NSError* error=nil;
   try {
     require([runtime startWithError:&error],error.localizedDescription.UTF8String ?: "CEF start failed");
+    if(restOnly){
+      require(argc==9,"Rest acceptance requires source and both authored exports");
+      @autoreleasepool{
+        verifyRestWorkbench(runtime,@(argv[5]),@(argv[4]),[@(argv[3]) stringByAppendingPathComponent:@"RestResources"]);
+        verifyModelExport(runtime,@(argv[7]),@(argv[6]),NO,10);
+        verifyModelExport(runtime,@(argv[8]),@(argv[6]),YES,10);
+      }
+      require([runtime shutdownWithError:&error],error.localizedDescription.UTF8String ?: "Rest CEF shutdown failed");
+      require(runtime.shutdownCount==1,"Rest runtime shutdown not observed");puts("Native rest: actual keyboard, bind history, shifted animated exports and full release passed");return 0;
+    }
     if(brushOnly){
       require(argc==16,"Brush acceptance requires image source and both brush exports");
       @autoreleasepool{
