@@ -78,11 +78,13 @@ errors. In particular, interpolating scales through zero fails rather than
 accepting the renderer's singular-transform substitution.
 
 Saving/reopening and loose/PKG export preserve the actual authored MDL. Sparse
-authoring keys, event authoring and FK/IK remain subsequent
+authoring keys and FK/IK remain subsequent
 parts of the [approved roadmap](superpowers/specs/2026-10-24-advanced-editor-roadmap-design.md).
 
 [Clip layers](editor-clip-mixing.md) can now edit native ordered normal/additive
 mixing, rate and visibility independently of these pose samples.
+[Frame events](editor-frame-events.md) author native markers without changing
+these samples or binding transforms.
 
 This implementation reuses the existing MIT
 [WebWallGL lossless MDL codec](editor-model-resources.md#reused-source), pinned

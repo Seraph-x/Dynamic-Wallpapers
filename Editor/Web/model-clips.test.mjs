@@ -71,6 +71,20 @@ test('timing edits require readable frame/name, consistent encoded time and pres
  const inconsistent=change((d,s)=>{s.anims[0].events[0].time=0.75;});rejectsUnchanged(inconsistent,{type:'update',id:7,fps:3},/event/i);
  const excluded=change((d,s)=>{s.anims[0].events[0]={time:1,json:'{"frame":2,"name":"end","unknown":9}'};});rejectsUnchanged(excluded,{type:'update',id:7,frameCount:1},/event/i);
 });
+test('FPS and resize reject duplicate known event keys instead of using the last value',()=>{
+ for(const json of ['{"frame":0,"frame":1,"name":"middle"}','{"frame":1,"name":"first","n\\u0061me":"middle"}']){
+  const bytes=change((d,s)=>{s.anims[0].events[0].json=json;});
+  rejectsUnchanged(bytes,{type:'update',id:7,fps:4},/duplicate/i);
+  rejectsUnchanged(bytes,{type:'update',id:7,frameCount:4},/duplicate/i);
+ }
+});
+test('clip timing rejects invalid Unicode names and preserves unknown duplicate keys and large lexemes',()=>{
+ const invalid=change((d,s)=>{s.anims[0].events[0].json='{"frame":1,"name":"\\ud800"}';});
+ rejectsUnchanged(invalid,{type:'update',id:7,fps:4},/name|Unicode/i);
+ const raw=' { "frame":1,"name":"middle", "x":900719925474099312345, "x":[{"nested":1e+99}] } ';
+ const bytes=change((d,s)=>{s.anims[0].events[0].json=raw;});
+ assert.equal(animation(editModelClips(bytes,{type:'update',id:7,fps:4}).bytes).anims[0].events[0].json,raw);
+});
 test('invalid bind transforms and overflowing sampled world transforms fail observably',()=>{
  const badBind=change(d=>{d.sections.find(s=>s.type==='MDLS').bones[0].matrix[0]=0;});rejectsUnchanged(badBind,create);
  const overflow=change((d,s)=>{for(const t of s.anims[0].tracks)for(let f=0;f<3;f++)t.data[f*9+6]=1e20;});rejectsUnchanged(overflow,{type:'update',id:7,frameCount:4});

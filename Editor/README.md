@@ -22,7 +22,9 @@ deletion, timing, preview and saved playback assignments.
 [Bone pose frames](../docs/editor-bone-poses.md) edit local sampled TRS,
 copy/paste/reset poses and bake between endpoints. [Clip layers](../docs/editor-clip-mixing.md)
 edit ordered normal/additive blending, speed and visibility. Sparse authoring
-keys, events, FK/IK and the script IDE remain subsequent roadmap work.
+keys, FK/IK and the script IDE remain subsequent roadmap work.
+[Frame events](../docs/editor-frame-events.md) create/edit/copy/order native
+markers, preserve opaque metadata and trigger existing imported handlers.
 
 Use **File → New Project** or **Open Project**. Imports create complete owned
 copies. **Save** writes the Editor workspace; **Export** creates a standard scene

@@ -13,7 +13,8 @@ explicit conversion and retained originals. The [Animation clips library](editor
 manages clips and their saved playback assignments. [Bone pose frames](editor-bone-poses.md)
 edit native local samples with copy/paste/reset and range baking.
 [Clip layers](editor-clip-mixing.md) edit native mixing order, weights, speed and
-visibility. Sparse keys, FK/IK and
+visibility. [Frame events](editor-frame-events.md) author native markers while
+preserving opaque metadata. Sparse keys, FK/IK and
 the Script IDE remain subsequent roadmap work.
 
 ## Create a mesh from an image

@@ -56,3 +56,8 @@
 #model-mixing-details button { max-width:100%; white-space:normal; overflow-wrap:anywhere; }
 #model-mixing-details input[type="checkbox"] { width:auto; }
 #model-mix-raw { max-height:180px; overflow:auto; font:10px/1.6 var(--mono); background:var(--field); padding:8px; }
+#model-events-details { border-top:1px solid var(--line); margin-top:18px; padding-top:8px; }
+#model-events-details summary { cursor:pointer; font-size:12px; padding-block:10px; }
+#model-events-details button { max-width:100%; white-space:normal; overflow-wrap:anywhere; }
+#model-event-raw { max-height:180px; overflow:auto; font:10px/1.6 var(--mono); background:var(--field); padding:8px; }
+#model-event-delete-impact { overflow-wrap:anywhere; }

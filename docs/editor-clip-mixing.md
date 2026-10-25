@@ -80,7 +80,9 @@ revision. Mixing **Revert** preserves another tool's valid pending draft.
 Other scene layers, including layers sharing the MDL, retain their own tables;
 their explicit references continue to protect clips from deletion.
 
-Sparse authoring keys, frame-event authoring, FK/IK and SceneScript IDE remain
+[Frame events](editor-frame-events.md) now author native markers consumed by
+existing callbacks on these explicitly bound clip layers.
+Sparse authoring keys, FK/IK and SceneScript IDE remain
 subsequent parts of the [approved roadmap](superpowers/specs/2026-10-24-advanced-editor-roadmap-design.md).
 This feature reuses the MIT [WebWallGL](editor-model-resources.md#reused-source)
 3.0.0 native animation-layer parser, blending and scene playback APIs, plus this
