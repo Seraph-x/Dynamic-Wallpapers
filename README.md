@@ -74,7 +74,10 @@ to inclusive native sample ranges, with child bones following their parent.
 previews both joints, and bakes native rotation samples with undo/save/export.
 [Sparse bone keys](docs/editor-bone-keys.md) add/edit/move/copy/delete native
 pose keys, reduce them losslessly and retain authoring locations through save/export.
-The script IDE remains under development.
+[SceneScript source contracts](docs/editor-script-contracts.md) provide data-only
+source transactions and an offline syntax-check command using the pinned native
+compiler. The script IDE and its isolated execution host remain under development;
+this foundation does not add a source editing UI.
 
 The two applications share source modules in this repository and ship their own
 runtime dependencies. Editor has its own version (currently 0.1.0), bundle

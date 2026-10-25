@@ -1,0 +1,135 @@
+# Check and preserve SceneScript source
+
+This foundation provides source transactions and offline syntax diagnostics for
+inline native layer/effect scripts. It does not add a source editing UI or change
+the Editor's existing script execution behavior. The full IDE and its isolated
+execution host remain in development. Import only projects you trust: the pinned
+engine's in-page script sandbox is not a security boundary.
+
+## Check a scene without running its scripts
+
+From the repository root, with Node installed:
+
+```sh
+node Editor/Web/check-scene-scripts.mjs Tests/Fixtures/SceneAnimatedLoose/scene.json
+```
+
+The command also accepts an Editor `workspace.json` (schema 1 or 2) or browser
+document snapshot. It reads the JSON once, prints a JSON report and does not
+modify the file. The checked-in compiler bundle works offline and needs no DOM,
+renderer, npm installation or network requests. Node is needed for this developer
+command, not for either application's normal operation.
+
+| Report field | Meaning |
+| --- | --- |
+| `scope` | `inline-native-scene-scripts`; external resource scripts are outside this scan |
+| `discovered` | Number of inline members named `script`, including custom metadata |
+| `checked` | Number of registered native anchors actually passed to the compiler |
+| `unvalidated` | Unknown script-like metadata retained with `checked:false` |
+| `errors` / `warnings` | Native syntax/type errors and explicit no-entry warnings |
+| `results` | Per-source structural path, layer/target, editability, native check and diagnostics |
+
+Exit **0** means no checked-source syntax/type errors; **1** means source errors
+were reported; **2** means usage, input or I/O failed and stderr explains why.
+Zero checked sources is reported as zero. Unknown metadata is not treated as
+source or as an error: for example, a custom `scriptproperties.script` object
+remains unvalidated. A registered source is checked even if another binding
+prevents editing it.
+
+The compiler is the actual `checkSceneScript` from pinned
+[@webwallgl/editor](https://github.com/oneincase/webwallgl). Its import/export
+transform and lifecycle-entry detection define these diagnostics. A valid
+`noEntry` result carries `NO_ENTRY`: the native runtime can discard source with
+no recognized entry or engine clock use. Native message/line/entries are returned
+without rewriting them; source-line location follows the upstream checker.
+Checking constructs functions but never calls supplied code, imports modules or
+runs source bodies. A syntax pass does not establish runtime API availability,
+module support, visual correctness or security.
+
+## Store a checked edit in a standalone document
+
+This Node example uses the checked-in offline bundle and operates on an owned
+document only; it does not connect to the live Editor renderer:
+
+```js
+import { SceneDocument } from './Editor/Web/document.mjs';
+import {
+  prepareSceneScript, applySceneScript,
+} from './Editor/Sources/EditorApp/Resources/EditorWeb/script-api.mjs';
+
+const doc = new SceneDocument({
+  title: 'Script source', entry: 'scene.json',
+  project: { type: 'scene', file: 'scene.json' },
+  scene: { objects: [{ id: 1, alpha: 1 }] },
+});
+const proposal = prepareSceneScript(doc, {
+  layerId: 1, target: 'alpha', type: 'set',
+  source: 'export function update(value){return value;}',
+});
+applySceneScript(doc, proposal);
+doc.undo();
+doc.redo();
+console.log(JSON.stringify(doc.snapshot()));
+```
+
+`prepareSceneScript` validates the target and returns an immutable proposal with
+the actual native check and diagnostics. Syntax failure throws
+`SceneScriptSyntaxError` with `layerId`, `target`, `line` and `check`, without
+changing history. A proposal owns its input and is tied to that document and its
+captured snapshot. Apply rejects another document, changed content, a forged
+proposal or replay. JSON object member order does not make a snapshot stale;
+array order/length do. A successful apply consumes the proposal once and creates
+one history step; an identical source produces no history step.
+
+Use `{layerId:1,target:'alpha',type:'remove'}` to remove only the `script` member.
+Removal is a data operation and has `check:null`. It preserves the wrapper's
+base, `scriptproperties` and unknown members. Source strings preserve CRLF and
+Unicode exactly; malformed Unicode, NUL and non-string source are explicit errors.
+
+The pure `script-source.mjs` exports `inspectSceneScript`, `editSceneScript` and
+`listSceneScripts`; the compiled bundle re-exports them plus
+`checkSceneScriptSources`. `SceneDocument.script(edit)` is deliberately a lower
+level data-only operation: it validates source/target shape but does not compile
+or evaluate source. Use prepare/apply when syntax diagnostics are required.
+
+## Supported source anchors
+
+| Target | Base requirements |
+| --- | --- |
+| `origin`, `scale`, `angles`, `color` | Finite three-component string or numeric array |
+| `alpha`, `brightness`, `maxwidth`, `pointsize`, `volume`, `intensity`, `exponent` | Existing finite numeric base; absent `alpha` uses native default 1 |
+| `visible` | Boolean; absent field uses native default true |
+| `text` | Existing text field with a string base |
+| `effects[N].visible` | Existing effect with boolean visibility, or native default true |
+
+Absent origin/angles use `0 0 0`; absent scale/color use `1 1 1`.
+Existing script wrappers without a base remain without a base; no value is
+invented. Wrappers controlled by a user property or animation, malformed bases,
+duplicate/missing layer IDs and unsupported anchors remain read-only with an
+explicit reason. There is no automatic replacement of another binding.
+Only the selected structural anchor changes, including when API input shares
+wrappers/effects elsewhere. Returned data is owned; cyclic input is rejected.
+
+Discovery preserves unknown inline script-like metadata and its structural path.
+It does not resolve referenced material/particle/package-resource scripts, load
+assets or claim those sources have been checked.
+
+## Verification and remaining IDE work
+
+The browser and native tests keep the live workbench blank while preparing,
+checking and editing standalone source documents. They assert no probe execution,
+no resource staging, exact history and independently expected serialized data.
+The real native workspace store preserves CRLF/Unicode/unknown wrapper fields on
+save/reopen and source removal. Standard loose/PKG exports run in Main's actual
+CEF scene runtime, where two stationary meshes must show green, red, then green;
+Main has no Editor authoring session and releases every page before shutdown.
+See [native validation](testing/standalone-editor.md).
+
+Before a source Apply UI is connected, runtime script execution must be isolated
+from the workbench's native write/control channel. Syntax highlighting,
+completion, templates, find/replace, linked runtime diagnostics and preview
+restart are subsequent IDE work. This PR does not claim that boundary is fixed.
+
+The compiler, runtime semantics and package writer come from the pinned WebWallGL
+project; see [Editor provenance](../Editor/ThirdParty/provenance.json) and
+[third-party license](../Editor/ThirdParty/WebWallGL-Editor-LICENSE).

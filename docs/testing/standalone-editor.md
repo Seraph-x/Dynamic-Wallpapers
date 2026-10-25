@@ -6,15 +6,50 @@ PR 2 supplies the Editor; PR 3 supplies the optional Main handoff and packaging.
 
 ## Model workspace acceptance
 
-The Editor/runtime checks contain 322 JavaScript tests, including sparse bone keys, two-segment IK, FK deltas, frame events, native mixing, dense pose frames, clip authoring, glTF conversion,
+The Editor/runtime checks contain 350 JavaScript tests, including SceneScript source contracts, sparse bone keys, two-segment IK, FK deltas, frame events, native mixing, dense pose frames, clip authoring, glTF conversion,
 source/package decoding, atomic resources and the existing Model/Timeline tools.
-The reproducible build verifies 59 offline resources. Complete protocol, real-browser, image/brush
+The reproducible build verifies 61 offline resources. Complete protocol, real-browser, image/brush
 browser, rest/glTF/clip/pose/mixing/event/FK/IK/keys browser, native, native-brush, native-rest, native-glTF,
-native-clip, native-pose, native-mixing, native-event, native-FK, native-IK and native-keys acceptance passes
+native-clip, native-pose, native-mixing, native-event, native-FK, native-IK, native-keys
+and browser/native-script-contracts acceptance passes
 with the explicitly approved isolated test-keychain configuration.
 Product/source checks pass 3 Editor product tests, 42 product-configuration
 tests and 16 public-source export tests. These focused checks do not establish
 a full application-suite pass.
+
+## SceneScript source contracts
+
+Run `node --test Editor/Web/script-source.test.mjs Editor/Web/script-api.test.mjs Editor/Web/check-scene-scripts.test.mjs`
+for 28 source/compiler/CLI checks. They cover native target/default parity,
+unknown metadata, CRLF/Unicode, ownership/cycles/deep discovery, shared
+wrapper/effect/list aliases, source-only history, real syntax/no-entry diagnostics,
+forged/replayed/stale proposals and object-order/array-length semantics. The
+actual pinned compiler loads in Node without DOM globals; assignments, throws,
+Function escapes, dynamic imports, timers and fetch source are compiled without
+being called. Real CLI temporary files verify reports, exit codes, snapshot/
+workspace recognition and unchanged source bytes.
+
+`node Editor/Web/test-script-contracts.mjs` starts a blank workbench and applies
+checked edits only to standalone documents. Real browser checking, exact
+undo/redo, independent expected data, serialization and actual package building
+must leave the live document and native staging unchanged. The browser artifact
+store is shared with preceding phases; its existing blobs must remain unchanged.
+
+Separate `browser-script-contracts` and `native-script-contracts` phases retain
+60-second budgets. The native phase checks real CEF compile-only probes,
+structured syntax failure and exact standalone history/reparse with a blank
+workbench and zero stage requests. Main's actual loose and PKG scene pages must
+render green/red/green pixels in both stationary meshes, have no Editor session,
+release to zero active pages and shut the runtime down once. These are playback
+checks, not claims that the current in-page script sandbox is a security boundary.
+
+`EditorScriptDocumentTests` runs the actual native workspace store, reads the
+saved file, reopens through a new store and uses the browser document serializer
+to verify CRLF, Chinese/astral Unicode and unknown wrapper metadata. Removing
+only source and saving/reopening must preserve all other members. This test
+instantiates no renderer or controller; it is distinct from a complete UI Save
+workflow. `EditorResourceBridgeTests` also remains covered in the independent
+Editor package. See [the source API and its limits](../editor-script-contracts.md).
 
 ## Sparse bone authoring keys
 

@@ -32,6 +32,7 @@ commands = [
     ('browser-fk', ['node', str(root / 'Editor/Web/test-model-fk.mjs')], 60),
     ('browser-ik', ['node', str(root / 'Editor/Web/test-model-ik.mjs')], 60),
     ('browser-keys', ['node', str(root / 'Editor/Web/test-model-keys.mjs')], 60),
+    ('browser-script-contracts', ['node', str(root / 'Editor/Web/test-script-contracts.mjs')], 60),
     ('native', [str(app / 'Contents/MacOS/EditorNativeTests'),
                 str(frameworks / 'Chromium Embedded Framework.framework'),
                 str(frameworks / f'{helper}.app/Contents/MacOS' / helper), str(run / 'context'),
@@ -87,6 +88,11 @@ keys_native = [native[0], '--keys-only', native[1], native[2], str(run / 'keys-c
                str(run / 'browser-export/KeysLoose'), str(run / 'browser-export/KeysPackage'),
                str(run / 'browser-export/keys-native-expected.mdl')]
 commands.append(('native-keys', keys_native, 60))
+scripts_native = [native[0], '--scripts-only', native[1], native[2], str(run / 'script-contracts-context'), native[4],
+                  str(run / 'browser-export/ScriptLoose'), native[6],
+                  str(run / 'browser-export/ScriptLoose'), str(run / 'browser-export/ScriptPackage'),
+                  str(run / 'browser-export/script-contract-source.json'), str(run / 'browser-export/script-contract-expected.json')]
+commands.append(('native-script-contracts', scripts_native, 60))
 print(f'EDITOR_NATIVE artifacts={run}', flush=True)
 for name, command, budget in commands:
     print(f'EDITOR_NATIVE phase={name} budget={budget}s', flush=True)
