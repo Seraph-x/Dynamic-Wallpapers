@@ -54,6 +54,7 @@ std::string entryURL(const std::string& host, const char* entry) {
   NSMutableArray<void (^)(NSError*)>* _completions;
   void (^_onReady)(void);
   void (^_onError)(NSError*);
+  void (^_onDiagnostic)(NSDictionary<NSString*, id>*);
   void (^_onEditorDirty)(BOOL);
   void (^_onEditorResource)(NSDictionary<NSString*, id>*);
   NSMutableDictionary<NSString*, void (^)(NSDictionary*, NSError*)>* _editorCompletions;
@@ -157,6 +158,8 @@ std::string entryURL(const std::string& host, const char* entry) {
 - (void)setOnReady:(void (^)(void))callback { DWRequireWebMainThread(); _onReady = [callback copy]; }
 - (void (^)(NSError*))onError { DWRequireWebMainThread(); return _onError; }
 - (void)setOnError:(void (^)(NSError*))callback { DWRequireWebMainThread(); _onError = [callback copy]; }
+- (void (^)(NSDictionary<NSString*, id>*))onDiagnostic { DWRequireWebMainThread(); return _onDiagnostic; }
+- (void)setOnDiagnostic:(void (^)(NSDictionary<NSString*, id>*))callback { DWRequireWebMainThread(); _onDiagnostic = [callback copy]; }
 - (instancetype)initWithRuntime:(DWWebRuntime*)runtime root:(NSString*)root entry:(NSString*)entry
                           size:(NSSize)size scale:(CGFloat)scale {
   DWRequireWebMainThread();
@@ -172,6 +175,15 @@ std::string entryURL(const std::string& host, const char* entry) {
         int(std::ceil(size.width)), int(std::ceil(size.height)), float(scale));
     __weak DWWebPage* weakSelf = self;
     _resources->state->paint = [weakSelf](const void* buffer, int width, int height) { return bool([weakSelf commitFrame:buffer width:width height:height]); };
+    _resources->state->consoleDiagnostic = [weakSelf](int severity, const std::string& message, const std::string& source, int line) {
+      NSDictionary* diagnostic = @{@"level": severity >= LOGSEVERITY_ERROR ? @"error" : @"warn",
+          @"message": @(message.c_str()), @"source": @(source.c_str()), @"line": @(line)};
+      dispatch_async(dispatch_get_main_queue(), ^{
+        DWWebPage* owner = weakSelf;
+        if (!owner || owner->_closed || owner->_resources->state->closing) return;
+        if (owner->_onDiagnostic) owner->_onDiagnostic(diagnostic);
+      });
+    };
     _completions = [NSMutableArray array];
   }
   return self;

@@ -9,6 +9,8 @@ import WebWallpaperBridge
     private var project: EditorOwnedProject
     private var workspace: EditorProjectDocument
     private let page: DWWebPage
+    private let runtime: DWWebRuntime
+    private var previews: [UUID: EditorScenePreviewWindowController] = [:]
     private(set) var ready = false
     private(set) var busy = false
     private var dirty = false
@@ -16,7 +18,7 @@ import WebWallpaperBridge
     private var editingWasEnabled = false
 
     init(project: EditorOwnedProject, coordinator: EditorApplicationDelegate, runtime: DWWebRuntime) throws {
-        self.project = project; workspace = project.document; self.coordinator = coordinator
+        self.project = project; workspace = project.document; self.coordinator = coordinator; self.runtime = runtime
         guard let resources = Bundle.module.url(forResource: "EditorWeb", withExtension: nil) else { throw WallpaperError("Editor browser resources are missing") }
         var configuration: [String: Any] = ["language": Bundle.module.preferredLocalizations.first ?? "en", "document": try Self.browserDocument(project.document)]
         if let package = project.document.sourcePackage { configuration["sourcePackage"] = package }
@@ -61,6 +63,20 @@ import WebWallpaperBridge
         if !workspace.resourceOverrides.isEmpty { result["resourceOverrides"] = workspace.resourceOverrides.mapValues(\.id) }
         return result
     }
+    static func snapshotDocument(_ snapshot: [String: Any], basedOn baseline: EditorProjectDocument) throws -> EditorProjectDocument {
+        guard let scene = snapshot["scene"] as? [String: Any], let project = snapshot["project"] as? [String: Any],
+              let title = snapshot["title"] as? String, snapshot["entry"] as? String == baseline.sceneEntry else {
+            throw WallpaperError("Invalid Editor snapshot")
+        }
+        let overrides: [String: EditorResourceVersion]
+        if let raw = snapshot["resourceOverrides"] as? [String: String] { overrides = try raw.mapValues { try EditorResourceVersion(id: $0) } }
+        else if snapshot["resourceOverrides"] == nil { overrides = [:] }
+        else { throw WallpaperError("Invalid Editor resource overrides") }
+        return try EditorProjectDocument(id: baseline.id, revision: baseline.revision, title: title,
+            sceneEntry: baseline.sceneEntry, sourcePackage: baseline.sourcePackage,
+            scene: JSONSerialization.data(withJSONObject: scene), project: JSONSerialization.data(withJSONObject: project),
+            resourceOverrides: overrides, schemaVersion: baseline.schemaVersion == 2 || !overrides.isEmpty ? 2 : 1)
+    }
     func command(_ payload: [String: Any]) async throws -> [String: Any] {
         try await withCheckedThrowingContinuation { continuation in
             page.requestEditorCommand(payload) { reply, error in
@@ -80,14 +96,9 @@ import WebWallpaperBridge
         guard let snapshot = state["document"] as? [String:Any] else { throw WallpaperError("Missing save snapshot") }
         do {
         if state["dirty"] as? Bool == true { _ = try await self.snapshot() } // Surfaces invalid visible input before any write.
-        guard let scene = snapshot["scene"] as? [String: Any], let metadata = snapshot["project"] as? [String: Any],
-              let title = snapshot["title"] as? String, snapshot["entry"] as? String == workspace.sceneEntry else { throw WallpaperError("Invalid Editor snapshot") }
-        let overrides: [String:EditorResourceVersion]
-        if let raw = snapshot["resourceOverrides"] as? [String:String] { overrides = try raw.mapValues { try EditorResourceVersion(id:$0) } }
-        else if snapshot["resourceOverrides"] == nil { overrides = [:] }
-        else { throw WallpaperError("Invalid Editor resource overrides") }
-        workspace = try await coordinator.store.save(workspace, scene: JSONSerialization.data(withJSONObject: scene),
-            project: JSONSerialization.data(withJSONObject: metadata), title: title, resourceOverrides:overrides)
+        let draft = try Self.snapshotDocument(snapshot, basedOn: workspace)
+        workspace = try await coordinator.store.save(workspace, scene: draft.scene,
+            project: draft.project, title: draft.title, resourceOverrides:draft.resourceOverrides)
         _ = try await command(["type":"mark-saved", "document":snapshot])
         window?.title = workspace.title
         if !closing { _ = try await command(["type":"thaw"]) }
@@ -137,6 +148,32 @@ import WebWallpaperBridge
         // Keep the immutable export after sending: Main imports asynchronously and owns its own copy.
         return try await coordinator.store.exportLoose(workspace,to:handoffs.appendingPathComponent(UUID().uuidString))
     }
+    func previewSnapshot() {
+        perform { controller in
+            let state = try await controller.command(["type": "freeze"])
+            do {
+                if state["dirty"] as? Bool == true { _ = try await controller.snapshot() }
+                guard let snapshot = state["document"] as? [String: Any] else { throw WallpaperError("Missing preview snapshot") }
+                let draft = try Self.snapshotDocument(snapshot, basedOn: controller.workspace)
+                let directory = controller.coordinator.dataRoot.appendingPathComponent("Previews")
+                try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+                let id = UUID()
+                let project = try await controller.coordinator.store.exportPreview(draft, basedOn: controller.workspace,
+                    to: directory.appendingPathComponent(id.uuidString))
+                let preview = EditorScenePreviewWindowController(project: project, title: draft.title, runtime: controller.runtime)
+                controller.previews[id] = preview
+                preview.onClosed = { [weak controller] in controller?.previews[id] = nil }
+                preview.onError = { [weak controller] error, window in controller?.coordinator.show(error, window: window) }
+                // The retained controller owns cleanup even if factory/start fails.
+                try preview.start()
+                _ = try await controller.command(["type": "thaw"])
+            } catch {
+                do { _ = try await controller.command(["type": "thaw"]) }
+                catch let thaw { throw WallpaperErrorGroup([error, thaw]) }
+                throw error
+            }
+        }
+    }
     func windowShouldClose(_ sender: NSWindow) -> Bool {
         Task { do { _ = try await requestClose() } catch { coordinator.show(error,window: window) } }
         return false
@@ -172,6 +209,7 @@ import WebWallpaperBridge
                 return false
             }
         }
+        for preview in Array(previews.values) { try await preview.requestClose() }
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             page.close { error in if let error { continuation.resume(throwing:error) } else { continuation.resume() } }
         }

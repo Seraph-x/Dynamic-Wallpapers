@@ -35,3 +35,17 @@
 "downloadMain" = "Dynamic Wallpaper をダウンロード";
 "invalidMain" = "この壁紙アプリはファイル連携に対応していません。";
 "noSharedScenes" = "壁紙アプリの Editor メニューから開くと、シーンを共有できます。";
+
+"previewSnapshot" = "スナップショットをプレビュー";
+"previewPause" = "一時停止";
+"previewResume" = "再生を再開";
+"previewRestart" = "最初から再起動";
+"previewStatus" = "プレビューの状態";
+"previewSnapshotNote" = "このミュートプレビューは現在のリビジョンのコピーを使用します。後の変更を含めるには新しいプレビューを開いてください。";
+"previewState_idle" = "プレビューの準備完了";
+"previewState_loading" = "スナップショットを読み込み中…";
+"previewState_playing" = "再生中";
+"previewState_paused" = "一時停止中";
+"previewState_failed" = "プレビューに失敗しました";
+"previewState_closing" = "プレビューを閉じています…";
+"previewState_closed" = "終了";

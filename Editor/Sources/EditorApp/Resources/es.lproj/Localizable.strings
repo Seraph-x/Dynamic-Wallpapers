@@ -35,3 +35,17 @@
 "downloadMain" = "Descargar Dynamic Wallpaper";
 "invalidMain" = "Esta aplicación no admite la interfaz de archivos.";
 "noSharedScenes" = "Abre Editor desde el menú de Dynamic Wallpaper para compartir escenas.";
+
+"previewSnapshot" = "Vista previa de la instantánea";
+"previewPause" = "Pausar";
+"previewResume" = "Reanudar";
+"previewRestart" = "Reiniciar desde el principio";
+"previewStatus" = "Estado de la vista previa";
+"previewSnapshotNote" = "Esta vista previa silenciada usa una copia de la revisión actual. Abre otra vista previa para incluir los cambios posteriores.";
+"previewState_idle" = "Preparado para la vista previa";
+"previewState_loading" = "Cargando instantánea…";
+"previewState_playing" = "Reproduciendo";
+"previewState_paused" = "En pausa";
+"previewState_failed" = "Error en la vista previa";
+"previewState_closing" = "Cerrando la vista previa…";
+"previewState_closed" = "Cerrado";

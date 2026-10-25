@@ -70,5 +70,15 @@
     "model-keys-tools.mjs": "fd51ffd1b93878aad390b7be76473cfc3e52001414a58ebe27b12f15851dc2fd",
     "model-keys-view.mjs": "3dc522528169f7f69ba0e505b953dcd6eaa11d7dacd63efaeba776ea180462f7",
     "model-keys-messages.mjs": "df63a7e0933621b1c38cfa0e3f1e71ae6e7cbe4b640b5c2af9c1eea21557d964"
+  },
+  "previewFiles": {
+    "index.html": "f83588dc86ce34f285b0439dba688429dd55ca8b7aa1211e2261ca9df18d6413",
+    "scene.css": "e3124aebf699467a70770a53ed3d898250f6149a67a8332bef225750ece98aae",
+    "scene-runtime.mjs": "a68194a11480b1c1636f1b864f146009ab8812aae3ce92e2eefacc87986473df",
+    "scene-spectrum.mjs": "2882906abf50b1de963cfc7338a0b37fcccefddf5345cc4bdfa98697b1688811",
+    "scene-source.mjs": "6e71f9ceefce7b91f2e91de2f987ccb09a58848fd8e272c8768fc9ac95d162fd",
+    "scene-shell.mjs": "6e1a450d6ae1004eafc002ce092bc29d4b2eb005b6485b9d1e83b8333c3fa9e9",
+    "scene-protocol.mjs": "cb49b8aad8fc98d0d055372efc16db12b1db4abe33cfea8138d0082d4cfc44b0",
+    "webwallgl.bundle.mjs": "17c85a29c11b1a783f79f4351df00497217b1af76c4b457ca9422c21dbae8fa3"
   }
 }

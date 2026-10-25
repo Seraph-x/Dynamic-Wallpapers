@@ -35,3 +35,17 @@
 "downloadMain" = "Download Dynamic Wallpaper";
 "invalidMain" = "This wallpaper application does not support the file interface.";
 "noSharedScenes" = "Open Editor from Dynamic Wallpaper’s menu to share scene projects.";
+
+"previewSnapshot" = "Preview snapshot";
+"previewPause" = "Pause";
+"previewResume" = "Resume";
+"previewRestart" = "Restart from beginning";
+"previewStatus" = "Preview status";
+"previewSnapshotNote" = "This muted preview uses a captured revision. Open a new preview to include later edits.";
+"previewState_idle" = "Ready to preview";
+"previewState_loading" = "Loading snapshot…";
+"previewState_playing" = "Playing";
+"previewState_paused" = "Paused";
+"previewState_failed" = "Preview failed";
+"previewState_closing" = "Closing preview…";
+"previewState_closed" = "Closed";

@@ -10,7 +10,7 @@ let package = Package(
         .product(name: "WallpaperCore", package: "DynamicWallpaperShared"),
         .product(name: "WallpaperEditorCore", package: "DynamicWallpaperShared"),
         .product(name: "WebWallpaperBridge", package: "DynamicWallpaperShared")
-    ], resources: [.copy("Resources/EditorWeb"), .process("Resources/en.lproj"), .process("Resources/zh-Hans.lproj"),
+    ], resources: [.copy("Resources/EditorWeb"), .copy("Resources/ScenePreviewWeb"), .process("Resources/en.lproj"), .process("Resources/zh-Hans.lproj"),
                     .process("Resources/es.lproj"), .process("Resources/ja.lproj"), .process("Resources/fr.lproj")]),
         .testTarget(name:"EditorAppTests",dependencies:["EditorApp",.product(name:"WallpaperEditorCore",package:"DynamicWallpaperShared")])],
     swiftLanguageModes: [.v5]
