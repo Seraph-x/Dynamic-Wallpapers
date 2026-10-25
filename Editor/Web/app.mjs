@@ -10,6 +10,7 @@ import { GltfImport } from './gltf-import.mjs';
 
 const $ = id => document.getElementById(id);
 let displayedError;
+let previewRequestFailure;
 let editor, selected, drag, editFailure, timeline, model, gltf, selectionPointer;
 const pendingActions=new Set();
 document.body.inert = true;
@@ -71,6 +72,14 @@ try {
   setPlaybackState(true,t);
   $('playback').addEventListener('click', () => {
     editor.setPlaying(!editor.playing); setPlaybackState(editor.playing,t);
+  });
+  $('run-preview').addEventListener('click', () => {
+    if (previewRequestFailure && displayedError === previewRequestFailure) {
+      displayedError = undefined; $('diagnostics').textContent = '';
+    }
+    // This is a read-only request, not a pending document edit. The native owner
+    // freezes/flushes all actual drafts before capturing its independent scene.
+    void editor.requestPreview().catch(error => { previewRequestFailure=error; showError(error); });
   });
   $('project-title').addEventListener('change', event => { const title=event.target.value;void act(doc => doc.rename(title)); });
   for (const [id, operation] of Object.entries({ undo:doc => doc.undo(),redo:doc => doc.redo(),

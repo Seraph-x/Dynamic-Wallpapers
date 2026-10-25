@@ -16,6 +16,7 @@
   <button id="timeline-toggle" class="quiet-button" aria-expanded="false" aria-controls="timeline" data-text="timeline">Timeline</button>
   <span class="toolbar-hint" data-text="canvasHint">Click to select · Drag to move</span>
   <button id="playback" class="playback-button" aria-pressed="true"><span id="playback-icon" aria-hidden="true"></span><span id="playback-label">Pause</span></button>
+  <button id="run-preview" type="button" class="primary-button" aria-describedby="script-mode-note"><span data-icon="play" aria-hidden="true"></span><span data-text="runPreview">Run preview</span></button>
 </nav>
 <main>
   <aside class="panel layers-panel" aria-labelledby="layers-heading">
@@ -24,9 +25,9 @@
     <div class="layer-actions"><button id="duplicate" class="icon-button" data-label="duplicate" aria-label="Duplicate"><span data-icon="copy" aria-hidden="true"></span></button><button id="up" class="icon-button" data-label="up" aria-label="Move up"><span data-icon="up" aria-hidden="true"></span></button><button id="down" class="icon-button" data-label="down" aria-label="Move down"><span data-icon="down" aria-hidden="true"></span></button><button id="remove" class="icon-button danger-button" data-label="remove" aria-label="Delete"><span data-icon="trash" aria-hidden="true"></span></button></div>
   </aside>
   <section id="preview" class="preview-panel" data-label="canvas" aria-label="Canvas">
-    <div class="canvas-heading"><h2><span data-icon="canvas" aria-hidden="true"></span><span data-text="canvas">Canvas</span></h2><span id="canvas-size" class="canvas-size"></span></div>
+    <div class="canvas-heading"><h2><span data-icon="canvas" aria-hidden="true"></span><span data-text="editCanvas">Edit canvas</span></h2><span id="canvas-size" class="canvas-size"></span></div>
     <div class="canvas-stage"><div id="canvas"></div><svg id="model-bone-overlay" hidden></svg></div>
-    <div class="canvas-footer"><span class="preview-status"><i aria-hidden="true"></i><span id="preview-state" data-text="livePreview">Live preview</span></span><span class="canvas-caption" data-text="localWorkspace">Local scene workspace</span></div>
+    <div class="canvas-footer"><span class="preview-status"><i aria-hidden="true"></i><span id="preview-state" data-text="animationPlaying">Animation playing</span></span><span id="script-mode-note" class="script-mode-note" data-text="scriptModeNote">SceneScript runs only in a separate preview window.</span></div>
   </section>
   <aside class="panel properties-panel" aria-labelledby="properties-heading">
     <div class="panel-heading"><h2 id="properties-heading" data-text="properties">Properties</h2><span id="selection-kind" class="selection-kind"></span></div>

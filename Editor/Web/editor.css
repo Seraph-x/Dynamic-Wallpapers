@@ -99,7 +99,8 @@ h2 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 12px; f
 .canvas-size { font: 10px var(--mono); letter-spacing: .01em; color: var(--muted); }
 .canvas-stage { position: relative; flex: 1; min-height: 0; min-width: 0; overflow: hidden; border-radius: 9px; background: #1c1d1b; box-shadow: 0 0 0 1px #17171312, 0 8px 26px #15140f14; }
 #canvas { position: absolute; inset: 0; }
-.canvas-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 34px; padding: 10px 4px 0; color: var(--muted); font-size: 10px; }
+.canvas-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; min-height: 34px; padding: 10px 4px 0; color: var(--muted); font-size: 10px; }
+.script-mode-note { flex: 1 1 150px; min-width: 0; line-height: 1.5; }
 .preview-status { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
 .preview-status i { width: 5px; height: 5px; border-radius: 50%; background: var(--success); }
 .preview-status[data-paused="true"] i { background: var(--muted); }

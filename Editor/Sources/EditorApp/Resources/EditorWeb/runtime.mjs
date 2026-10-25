@@ -3,6 +3,12 @@ import { createResourceClient, resourceReader, decodeResource } from './resource
 import { observeModelCapacity } from './model-capacity.mjs';
 import { buildEditorPackage } from './package-archive.mjs';
 
+// All renderers in the privileged authoring page share this execution policy.
+// SceneScript playback belongs to the independent native scene page.
+export function createWorkbenchScene(createScene, element, options) {
+  return createScene(element,{...options,scripts:false});
+}
+
 export function createEditorSource(value, readOriginal, readVersion) {
   const document = structuredClone(value), read = resourceReader(document,readOriginal,readVersion);
   const encode = value => new TextEncoder().encode(JSON.stringify(value));
@@ -56,7 +62,7 @@ export function startEditor(config, options) {
     const canvas=options.element.ownerDocument.createElement('canvas');
     canvas.style.cssText='position:absolute;inset:0;width:100%;height:100%;display:block';options.element.append(canvas);
     modelCapacity=observeModelCapacity(canvas);
-    instance = options.createScene(canvas, sceneOptions);
+    instance = createWorkbenchScene(options.createScene,canvas,sceneOptions);
     try {await instance.load(createEditorSource(document.snapshot(), read,resources.read));}
     finally {modelCapacity.dispose();}
     instance.setVolume(0); controls = options.editorOf(instance);
@@ -78,6 +84,11 @@ export function startEditor(config, options) {
   }
   function setPlaying(value) {
     playing=value; controls?.setTimeScale(value ? 1 : 0); options.onPlaybackChange?.(playing);
+  }
+  async function requestPreview() {
+    if (destroyed || frozen) throw new Error('Editor is closed or frozen');
+    // Wait only for transport: native capture must be able to freeze this page.
+    await report({type:'preview'});
   }
   function seek(time) {
     if (destroyed || frozen) return Promise.reject(new Error('Editor is closed or frozen'));
@@ -182,7 +193,7 @@ export function startEditor(config, options) {
     const result = commandQueue.then(() => applyCommand(value)); commandQueue = result.catch(options.onError); return result;
   }
   return { ready, command, change: changed, get controls() { return controls; }, get document() { return document; },
-    get playing() { return playing; }, get frozen() { return frozen; }, setPlaying, seek,previewModelClip,previewModelBonePose,previewModelBonePoses,restoreModelPreview,
+    get playing() { return playing; }, get frozen() { return frozen; }, setPlaying,requestPreview,seek,previewModelClip,previewModelBonePose,previewModelBonePoses,restoreModelPreview,
     stageResource:resources.stage,resourcePaths:resources.paths,
     readResource(path) {if(destroyed)return Promise.reject(new Error('Editor closed'));return resourceReader(document.snapshot(),read,resources.read)(path);},
     get modelBoneCapacity(){if(modelCapacity?.error)throw modelCapacity.error;return modelCapacity?.capacity;},

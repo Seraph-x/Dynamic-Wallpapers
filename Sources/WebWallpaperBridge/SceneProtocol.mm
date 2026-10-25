@@ -106,7 +106,8 @@ bool EditorSession::receive(const std::string& body) { @autoreleasepool {
   NSString* type = object[@"type"];
   NSMutableSet* keys = [NSMutableSet setWithArray:@[@"type", @"session", @"generation"]];
   EditorEvent event{type.UTF8String, {}, {}, false};
-  if ([type isEqual:@"ready"] && integer(object[@"frame"], 1, 9007199254740991ULL)) [keys addObject:@"frame"];
+  if ([type isEqual:@"preview"]) { /* Payload-free native snapshot request. */ }
+  else if ([type isEqual:@"ready"] && integer(object[@"frame"], 1, 9007199254740991ULL)) [keys addObject:@"frame"];
   else if ([type isEqual:@"dirty"] && [object[@"dirty"] isKindOfClass:NSNumber.class] &&
            CFGetTypeID((__bridge CFTypeRef)object[@"dirty"]) == CFBooleanGetTypeID()) {
     [keys addObject:@"dirty"]; event.dirty = [object[@"dirty"] boolValue];

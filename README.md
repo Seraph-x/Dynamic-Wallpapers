@@ -79,8 +79,13 @@ source transactions and an offline syntax-check command using the pinned native
 compiler. [Snapshot preview](docs/editor-scene-preview.md) opens an unsaved revision
 in an independent native scene window with pause/resume, restart and visible
 runtime diagnostics. It neither saves the workspace nor applies wallpaper.
-The script IDE and migration of workbench script execution remain under development;
-source editing UI is not included yet.
+The edit canvas and model-import preview disable SceneScript with the pinned
+engine's `scripts:false` option; property curves and skeletal animation still
+play while editing. **Run preview** opens the current valid edits in that
+independent script-enabled window. [Execution migration](docs/editor-script-migration.md)
+separates pages, origins and authoring channels within CEF, without promising
+operating-system process isolation. The source editing UI and full script IDE
+remain later work.
 
 The two applications share source modules in this repository and ship their own
 runtime dependencies. Editor has its own version (currently 0.1.0), bundle

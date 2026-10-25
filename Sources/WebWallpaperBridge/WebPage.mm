@@ -56,11 +56,14 @@ std::string entryURL(const std::string& host, const char* entry) {
   void (^_onError)(NSError*);
   void (^_onDiagnostic)(NSDictionary<NSString*, id>*);
   void (^_onEditorDirty)(BOOL);
+  void (^_onEditorPreview)(void);
   void (^_onEditorResource)(NSDictionary<NSString*, id>*);
   NSMutableDictionary<NSString*, void (^)(NSDictionary*, NSError*)>* _editorCompletions;
   NSMutableDictionary<NSString*, NSNumber*>* _editorDeadlines;
   NSMutableSet<NSString*>* _editorResourceRequests;
 }
+- (void (^)(void))onEditorPreview { DWRequireWebMainThread(); return _onEditorPreview; }
+- (void)setOnEditorPreview:(void (^)(void))callback { DWRequireWebMainThread(); _onEditorPreview = [callback copy]; }
 - (void (^)(BOOL))onEditorDirty { DWRequireWebMainThread(); return _onEditorDirty; }
 - (void)setOnEditorDirty:(void (^)(BOOL))callback { DWRequireWebMainThread(); _onEditorDirty = [callback copy]; }
 - (void (^)(NSDictionary<NSString*, id>*))onEditorResource { DWRequireWebMainThread(); return _onEditorResource; }
@@ -128,6 +131,10 @@ std::string entryURL(const std::string& host, const char* entry) {
       if (state->engineReady) { state->fail("Duplicate Editor ready"); break; }
       state->engineReady = true;
     } else if (event.type == "dirty") { if (_onEditorDirty) _onEditorDirty(event.dirty); }
+    else if (event.type == "preview") {
+      if (!_onEditorPreview) { state->fail("Editor preview handler unavailable"); break; }
+      _onEditorPreview();
+    }
     else if (event.type == "resource") {
       if (!_onEditorResource) { state->fail("Editor resource handler unavailable"); break; }
       NSString* identifier = @(event.id.c_str());

@@ -64,25 +64,25 @@ static void verifyEventWorkbench(DWWebRuntime* runtime,NSString* projectRoot,NSS
   command(page,@{@"type":@"mark-saved",@"document":saved});require(![command(page,@{@"type":@"freeze"})[@"dirty"] boolValue],"Native event save acknowledgement remained dirty");
   command(page,@{@"type":@"thaw"});command(page,@{@"type":@"undo"});require([command(page,@{@"type":@"snapshot"})[@"document"] isEqual:original],"Native event undo did not restore the complete original document");
   command(page,@{@"type":@"redo"});require([command(page,@{@"type":@"snapshot"})[@"document"] isEqual:saved],"Native event redo lost its exact resource revision");
-  fprintf(stderr,"Native events phase=actual-callback-colors\n");
+  fprintf(stderr,"Native events phase=scripts-skipped-edit-colors\n");
   [page clipTestAwait:@"(()=>{const playback=document.getElementById('playback');if(playback.getAttribute('aria-pressed')==='true')playback.click();return playback.getAttribute('aria-pressed')==='false';})()"];
   [page editorTestScript:@"(()=>{document.getElementById('timeline-toggle').click();})();"];[page clipTestAwait:@"!document.getElementById('timeline').hidden"];
-  // Observe actual WebGL draws. Red requires red channel pixels in both meshes;
-  // a missing green mesh alone cannot satisfy an event callback assertion.
+  // Observe actual WebGL draws. Both meshes must stay green at callback
+  // frames in edit mode, while Main export tests below require real red pixels.
   [page clipTestAwait:@"(()=>{const canvas=document.querySelector('#canvas canvas'),gl=canvas.getContext('webgl2');window.__eventPixels=null;window.__eventRestore=[];for(const name of ['drawElements','drawArrays']){const original=gl[name];window.__eventRestore.push(()=>gl[name]=original);gl[name]=function(...args){const result=original.apply(this,args),bytes=new Uint8Array(canvas.width*canvas.height*4),green=[0,0],red=[0,0],count=[0,0],xs=[0,0],ys=[0,0];gl.readPixels(0,0,canvas.width,canvas.height,gl.RGBA,gl.UNSIGNED_BYTE,bytes);for(let y=0;y<canvas.height;y++)for(let x=0;x<canvas.width;x++){const at=(y*canvas.width+x)*4,half=x<canvas.width/2?0:1,isGreen=bytes[at]<70&&bytes[at+1]>180&&bytes[at+2]<70,isRed=bytes[at]>180&&bytes[at+1]<70&&bytes[at+2]<70;if(isGreen)green[half]++;if(isRed)red[half]++;if(isGreen||isRed){count[half]++;xs[half]+=x;ys[half]+=y;}}if(count.every(n=>n>100))window.__eventPixels={green,red,count,x:xs.map((v,i)=>v/count[i]),y:ys.map((v,i)=>v/count[i])};return result;};}return true;})()"];
   require(std::abs([command(page,@{@"type":@"seek",@"time":@0})[@"time"] doubleValue])<1e-8,"Native event seek did not acknowledge 0s");
   NSDictionary* initial=[page clipTestAwait:@"window.__eventPixels&&window.__eventPixels.green.every(n=>n>100)&&window.__eventPixels"][@"value"];
   require(std::abs([command(page,@{@"type":@"seek",@"time":@.5})[@"time"] doubleValue]-.5)<1e-8,"Native event seek did not acknowledge 0.5s");
-  NSDictionary* red=[page clipTestAwait:@"window.__eventPixels&&window.__eventPixels.red.every(n=>n>100)&&Math.abs(Number(document.getElementById('timeline-time').value)-.5)<1e-8&&window.__eventPixels"][@"value"];
-  verifyEventStationary(initial,red);[page clipTestAwait:@"Array.isArray(window.__animEventLog)&&window.__animEventLog.some(event=>event.n==='Native fire'&&event.f===2)"];
+  NSDictionary* middle=[page clipTestAwait:@"window.__eventPixels&&window.__eventPixels.green.every(n=>n>100)&&window.__eventPixels.red.every(n=>n<10)&&Math.abs(Number(document.getElementById('timeline-time').value)-.5)<1e-8&&window.__eventPixels"][@"value"];
+  verifyEventStationary(initial,middle);[page clipTestAwait:@"!window.__animEventLog||window.__animEventLog.length===0"];
   require(std::abs([command(page,@{@"type":@"seek",@"time":@1.5})[@"time"] doubleValue]-1.5)<1e-8,"Native event seek did not acknowledge 1.5s");
   NSDictionary* green=[page clipTestAwait:@"window.__eventPixels&&window.__eventPixels.green.every(n=>n>100)&&Math.abs(Number(document.getElementById('timeline-time').value)-1.5)<1e-8&&window.__eventPixels"][@"value"];
-  verifyEventStationary(initial,green);[page clipTestAwait:@"Array.isArray(window.__animEventLog)&&window.__animEventLog.some(event=>event.n==='reset'&&event.f===6)"];
+  verifyEventStationary(initial,green);[page clipTestAwait:@"!window.__animEventLog||window.__animEventLog.length===0"];
   [page editorTestScript:@"(()=>{for(const restore of window.__eventRestore)restore();delete window.__eventRestore;delete window.__eventPixels;})();"];
   require([command(page,@{@"type":@"snapshot"})[@"document"] isEqual:saved],"Native event playback changed document content");
   __block BOOL released=NO;[page closeWithCompletion:^(NSError* value){failure=value;released=YES;}];waitUntil(^{return released;},7,"Native event editor close timed out");
   require(!failure&&page.closed&&runtime.activePageCount==0,"Native event editor resources were not released");[window close];
-  fprintf(stderr,"Native events: trusted focused input, exact independent MDL/hash/history, save and actual green/red/green callback pixels passed\n");
+  fprintf(stderr,"Native events: trusted focused input, exact independent MDL/hash/history, save and constant green edit pixels without callbacks passed\n");
 }
 
 static void verifyEventExport(DWWebRuntime* runtime,NSString* projectRoot,NSString* runtimeRoot,BOOL package) {

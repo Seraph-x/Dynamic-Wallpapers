@@ -32,6 +32,7 @@ commands = [
     ('browser-fk', ['node', str(root / 'Editor/Web/test-model-fk.mjs')], 60),
     ('browser-ik', ['node', str(root / 'Editor/Web/test-model-ik.mjs')], 60),
     ('browser-keys', ['node', str(root / 'Editor/Web/test-model-keys.mjs')], 60),
+    ('browser-script-migration', ['node', str(root / 'Editor/Web/test-script-migration.mjs')], 60),
     ('browser-script-contracts', ['node', str(root / 'Editor/Web/test-script-contracts.mjs')], 60),
     ('native', [str(app / 'Contents/MacOS/EditorNativeTests'),
                 str(frameworks / 'Chromium Embedded Framework.framework'),
@@ -96,6 +97,10 @@ commands.append(('native-script-contracts', scripts_native, 60))
 preview_native = [native[0], '--preview-only', native[1], native[2], str(run / 'preview-context'), native[4],
                   str(run / 'browser-export/ScriptLoose'), str(root / 'Editor/Sources/EditorApp/Resources/ScenePreviewWeb')]
 commands.append(('native-preview', preview_native, 60))
+migration_native = [native[0], '--migration-only', native[1], native[2], str(run / 'migration-context'), native[4],
+                    str(run / 'browser-export/MigrationLoose'), str(root / 'Editor/Sources/EditorApp/Resources/ScenePreviewWeb'),
+                    native[6], str(run / 'browser-export/MigrationPackage'), str(run / 'browser-export/script-migration-document.json')]
+commands.append(('native-script-migration', migration_native, 60))
 print(f'EDITOR_NATIVE artifacts={run}', flush=True)
 for name, command, budget in commands:
     print(f'EDITOR_NATIVE phase={name} budget={budget}s', flush=True)

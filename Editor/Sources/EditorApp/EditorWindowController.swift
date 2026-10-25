@@ -5,25 +5,34 @@ import WallpaperEditorCore
 import WebWallpaperBridge
 
 @MainActor final class EditorWindowController: NSWindowController, NSWindowDelegate {
-    private unowned let coordinator: EditorApplicationDelegate
+    private unowned let coordinator: any EditorWindowCoordinator
     private var project: EditorOwnedProject
     private var workspace: EditorProjectDocument
-    private let page: DWWebPage
-    private let runtime: DWWebRuntime
-    private var previews: [UUID: EditorScenePreviewWindowController] = [:]
+    private let page: any EditorAuthoringPage
+    private let makePreview: (SceneProjectReference, String) -> any EditorPreviewWindow
+    private var previews: [UUID: any EditorPreviewWindow] = [:]
     private(set) var ready = false
     private(set) var busy = false
     private var dirty = false
     private var closing = false
     private var editingWasEnabled = false
 
-    init(project: EditorOwnedProject, coordinator: EditorApplicationDelegate, runtime: DWWebRuntime) throws {
-        self.project = project; workspace = project.document; self.coordinator = coordinator; self.runtime = runtime
+    convenience init(project: EditorOwnedProject, coordinator: EditorApplicationDelegate, runtime: DWWebRuntime) throws {
         guard let resources = Bundle.module.url(forResource: "EditorWeb", withExtension: nil) else { throw WallpaperError("Editor browser resources are missing") }
         var configuration: [String: Any] = ["language": Bundle.module.preferredLocalizations.first ?? "en", "document": try Self.browserDocument(project.document)]
         if let package = project.document.sourcePackage { configuration["sourcePackage"] = package }
-        page = try runtime.editorPage(withProjectRoot: project.resources.path, runtimeRoot: resources.path,
+        let page = try runtime.editorPage(withProjectRoot: project.resources.path, runtimeRoot: resources.path,
             configuration: configuration, size: NSSize(width: 1180,height: 760))
+        try self.init(project: project, coordinator: coordinator, page: page, makePreview: {
+            EditorScenePreviewWindowController(project: $0, title: $1, runtime: runtime)
+        })
+    }
+
+    init(project: EditorOwnedProject, coordinator: any EditorWindowCoordinator,
+         page: any EditorAuthoringPage,
+         makePreview: @escaping (SceneProjectReference, String) -> any EditorPreviewWindow) throws {
+        self.project = project; workspace = project.document; self.coordinator = coordinator
+        self.page = page; self.makePreview = makePreview
         let window = NSWindow(contentRect: NSRect(x: 0,y: 0,width: 1180,height: 760),
             styleMask: [.titled,.closable,.miniaturizable,.resizable], backing: .buffered, defer: false)
         window.minSize = NSSize(width: 850,height: 540); window.isReleasedWhenClosed = false
@@ -38,6 +47,13 @@ import WebWallpaperBridge
                 _ = try await self.command(["type":"thaw"])
                 if !self.closing { self.ready = true; self.window?.title = self.workspace.title }
             } catch { self.coordinator.show(error,window:self.window) } }
+        }
+        page.onEditorPreview = { [weak self] in
+            guard let self else { return }
+            guard self.ready, !self.busy, !self.closing else {
+                self.coordinator.show(WallpaperError(text("busy")), window: self.window); return
+            }
+            self.previewSnapshot()
         }
         page.onEditorDirty = { [weak self] dirty in self?.dirty = dirty; self?.window?.isDocumentEdited = dirty }
         page.onEditorResource = { [weak self] request in
@@ -160,7 +176,7 @@ import WebWallpaperBridge
                 let id = UUID()
                 let project = try await controller.coordinator.store.exportPreview(draft, basedOn: controller.workspace,
                     to: directory.appendingPathComponent(id.uuidString))
-                let preview = EditorScenePreviewWindowController(project: project, title: draft.title, runtime: controller.runtime)
+                let preview = controller.makePreview(project, draft.title)
                 controller.previews[id] = preview
                 preview.onClosed = { [weak controller] in controller?.previews[id] = nil }
                 preview.onError = { [weak controller] error, window in controller?.coordinator.show(error, window: window) }
