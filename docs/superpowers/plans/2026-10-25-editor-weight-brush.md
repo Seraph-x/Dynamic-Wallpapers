@@ -52,7 +52,7 @@ Files: `README.md`, `Editor/README.md`, `docs/editor-model-workspace.md`, `docs/
 
 - [x] Run all focused JS tests and reproducible offline build, complete protocol/browser/image-browser/native acceptance, relevant product/source checks. Run existing standalone Editor bridge checks if native integration changes. No full application-suite claim without its evidence.
 - [x] Obtain independent code review, resolve important findings with regression tests; inspect final diff and run the sanitized-public-export gate on changed owned files.
-- [ ] Document usage, exact stroke/normalization/cancellation semantics, XY projection and unsupported cases; preserve upstream source/license references. Commit with the configured real email and open an English PR against merged main. Do not merge this new PR automatically.
+- [x] Document usage, exact stroke/normalization/cancellation semantics, XY projection and unsupported cases; preserve upstream source/license references. Commit with the configured real email and open an English PR against merged main. Do not merge this new PR automatically.
 
 ## Verification record
 
@@ -79,3 +79,7 @@ Files: `README.md`, `Editor/README.md`, `docs/editor-model-workspace.md`, `docs/
 - A separate sandboxed run could not launch the real browser, and the product
   configuration check hit SwiftPM's nested sandbox restriction. Both remain
   failed attempts; the explicit outside-sandbox executions above passed.
+
+English pull request: [#18](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/18).
+Feature commit: `34a5261`. The preceding image-to-mesh PR #17 is merged;
+this brush PR remains open for review. Commits use the configured real email.
