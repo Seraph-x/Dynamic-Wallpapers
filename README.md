@@ -70,7 +70,9 @@ model resources. [Frame events](docs/editor-frame-events.md) create, edit, copy
 and order native markers while preserving opaque metadata and imported callbacks.
 [FK local deltas](docs/editor-fk-posing.md) preview and bake local transforms
 to inclusive native sample ranges, with child bones following their parent.
-Sparse authoring keys, IK and the script IDE remain under development.
+[Two-segment IK](docs/editor-ik-posing.md) solves a model-space target and pole,
+previews both joints, and bakes native rotation samples with undo/save/export.
+Sparse authoring keys and the script IDE remain under development.
 
 The two applications share source modules in this repository and ship their own
 runtime dependencies. Editor has its own version (currently 0.1.0), bundle

@@ -84,25 +84,32 @@ export function startEditor(config, options) {
     if (!Number.isFinite(time) || time < 0) return Promise.reject(new Error('Invalid timeline time'));
     return enqueue(()=>controls.seek(time));
   }
-  function previewModel(id,animation,time,pose) {
+  function previewModel(id,animation,time,poses=[]) {
     if(destroyed||frozen)return Promise.reject(new Error('Editor is closed or frozen'));
     if(!Number.isFinite(time)||time<0)return Promise.reject(new Error('Invalid model preview time'));
     const source=document;
     return enqueue(async()=>{
       const info=controls?.getModelInfo(id);
       if(document!==source||!info?.animations.some(clip=>clip.id===animation))throw new Error('Model document changed or animation clip is unavailable');
-      if(pose&&(!Number.isInteger(pose.bone)||pose.bone<0||pose.bone>=info.bones.length))throw new Error('Invalid FK bone');
+      if(poses.some(pose=>!Number.isInteger(pose.bone)||pose.bone<0||pose.bone>=info.bones.length))throw new Error('Invalid preview bone');
       setPlaying(false);await controls.setAnimationLayers(id,[{animation,blend:1,rate:1,visible:true}]);await controls.seek(time);
-      if(pose)await controls.setBonePose(id,pose.bone,pose.value);
+      for(const pose of poses)await controls.setBonePose(id,pose.bone,pose.value);
     });
   }
   function previewModelClip(id,animation,time=0){return previewModel(id,animation,time);}
-  function previewModelBonePose(id,{animation,bone,time,delta}) {
-    if(!Array.isArray(delta)||delta.length!==9||!delta.every(Number.isFinite))return Promise.reject(new Error('Invalid FK delta'));
-    const values=Array.from(Float32Array.from(delta));
-    if(values.some((v,i)=>!Number.isFinite(v)||v===0&&(delta[i]!==0||i>=6)))return Promise.reject(new Error('FK delta is singular or cannot be represented in Float32'));
-    return previewModel(id,animation,time,{bone,value:{t:values.slice(0,3),r:values.slice(3,6),s:values.slice(6)}});
+  function previewModelBonePoses(id,{animation,time,poses}) {
+    if(!Array.isArray(poses)||!poses.length||new Set(poses.map(pose=>pose?.bone)).size!==poses.length)return Promise.reject(new Error('Expected distinct preview bones'));
+    const values=[];
+    for(const pose of poses){
+      const delta=pose?.delta;
+      if(!Array.isArray(delta)||delta.length!==9||!delta.every(Number.isFinite))return Promise.reject(new Error('Invalid bone delta'));
+      const encoded=Array.from(Float32Array.from(delta));
+      if(encoded.some((v,i)=>!Number.isFinite(v)||v===0&&(delta[i]!==0||i>=6)))return Promise.reject(new Error('Bone delta is singular or cannot be represented in Float32'));
+      values.push({bone:pose.bone,value:{t:encoded.slice(0,3),r:encoded.slice(3,6),s:encoded.slice(6)}});
+    }
+    return previewModel(id,animation,time,values);
   }
+  function previewModelBonePose(id,{animation,bone,time,delta}){return previewModelBonePoses(id,{animation,time,poses:[{bone,delta}]});}
   function restoreModelPreview({time,playing:resume}) {
     if(destroyed||frozen)return Promise.reject(new Error('Editor is closed or frozen'));
     if(!Number.isFinite(time)||time<0||typeof resume!=='boolean')return Promise.reject(new Error('Invalid model playback state'));
@@ -175,7 +182,7 @@ export function startEditor(config, options) {
     const result = commandQueue.then(() => applyCommand(value)); commandQueue = result.catch(options.onError); return result;
   }
   return { ready, command, change: changed, get controls() { return controls; }, get document() { return document; },
-    get playing() { return playing; }, get frozen() { return frozen; }, setPlaying, seek,previewModelClip,previewModelBonePose,restoreModelPreview,
+    get playing() { return playing; }, get frozen() { return frozen; }, setPlaying, seek,previewModelClip,previewModelBonePose,previewModelBonePoses,restoreModelPreview,
     stageResource:resources.stage,resourcePaths:resources.paths,
     readResource(path) {if(destroyed)return Promise.reject(new Error('Editor closed'));return resourceReader(document.snapshot(),read,resources.read)(path);},
     get modelBoneCapacity(){if(modelCapacity?.error)throw modelCapacity.error;return modelCapacity?.capacity;},

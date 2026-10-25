@@ -66,3 +66,8 @@
 #model-fk-entry button,#model-fk-dialog button { max-width:100%; white-space:normal; overflow-wrap:anywhere; }
 #model-fk-dialog fieldset { min-width:0; }
 #model-fk-context { overflow-wrap:anywhere; }
+
+#model-ik-entry { border-top:1px solid var(--line); margin-top:18px; padding-top:16px; }
+#model-ik-entry button,#model-ik-dialog button { max-width:100%; white-space:normal; overflow-wrap:anywhere; }
+#model-ik-dialog fieldset { min-width:0; }
+#model-ik-context { overflow-wrap:anywhere; }

@@ -10,14 +10,14 @@
   "engineSHA256": "17c85a29c11b1a783f79f4351df00497217b1af76c4b457ca9422c21dbae8fa3",
   "files": {
     "editor-api.mjs": "01ad2136319122edc3cf473322ee258df8adf49068e1228c6fcf6762969a4bd6",
-    "model-api.mjs": "dcf5340afe8329de4f4b76b92443d24d005d80ed3900a9f4873c399557b0acd1",
+    "model-api.mjs": "93c3eebe961805ae1a81389579ff0f15daf020e9cc8f68c01b730ee2e90623dd",
     "webwallgl.bundle.mjs": "17c85a29c11b1a783f79f4351df00497217b1af76c4b457ca9422c21dbae8fa3",
     "index.html": "7de78814d52045ac30f262a105a9058a029f0ecfb5d1f1f9dfa0bc44037a728c",
     "editor.css": "8a1c828b216b5c9a237bba370b641097ae8dde13ff47e250d61bca5979fd1b6e",
     "app.mjs": "1f6207d9cce682ab60ff00b3ceecf51ac8f35aa31763649832361fb46fe45e49",
     "document.mjs": "3c8ba1dd2264cd1e689c676d692f94bb8530d45c4debfde67fc163f0ca3a5d7a",
-    "runtime.mjs": "8d902e4f0da4ed7f2129c14e0b17f8ca0b4b8641507db710778b321cde376abf",
-    "localization.mjs": "6e97e1d61d51ef7d14bd6b37c4ab2d6e9b8d90110c49152d7a316d9bc3288f45",
+    "runtime.mjs": "36464097a83be20a4204ed19ba570b925abb5eb9dbeb9ad6a42b7b892287151d",
+    "localization.mjs": "38a3b4557b3316e605059ed3b3ee3c82400123b4998ac1e9c28af67f7c29a953",
     "interface.mjs": "3e26d871b5253ac2b1a31cfc847f358574b25db19d920cdaea3dd4583600ce7b",
     "resources.mjs": "69ce9f036098872a7b9dfba160c4c5cf2f917cf5c4cefb9881443ce42a248fd6",
     "animation.mjs": "cbb3d8d2a6101b13d3555f3bbe8d6c23a310d26714203f0960b25b0ce24cc570",
@@ -28,11 +28,11 @@
     "timeline.css": "8fb3f08671c69ac6e93f24b4e15993a1e393bc8f76d661b447fee1890ccf55df",
     "model-capacity.mjs": "fecd0bb299e246154c9dc5f5196bd828eaa945dc643b903ceeafc368dec3fdac",
     "model-resource-edit.mjs": "4639b807243959e7762d5c4f52b9fdafc56662110c8ce3f7fe77ee2303208131",
-    "model-workspace.mjs": "2b0c82e24de74af9e9ec885e6a5cdb43e4b78bcd981137ab1c5c8fde701f8df0",
+    "model-workspace.mjs": "b5ce6acdad1180604c047a9ddcf94b5f46287275cc8973cf6200cca36839f3df",
     "model-view.mjs": "a4b7d3b55497cc945457ad1c1caefa22d008454d14f9fa54b6e11080d4ea4b80",
     "model-overlay.mjs": "7fe09299e139b1eae087a03a8b1bb2974f6400dd154c6f5665f011613c9349a3",
     "model-messages.mjs": "4ef2d7babd55ac747a84d76cfa4cbf79529cef31f0bb8939eab90a84709f0b28",
-    "model.css": "1b4c94049070cac71ce9762bcee1f31b6ea94ef43805da50f14ff88366441405",
+    "model.css": "2b25d396ab3e3bf42357c8ea788829a217af60c5742214d15d086967608524b5",
     "image-puppet-view.mjs": "c295e65fb4988a08595fc2e4e7bd5764eda0f013496ea8300077f72bebc2be8c",
     "model-brush-view.mjs": "7fafb1ef1cf09b19522c51290013653a138875d2fa443b554d44ab53fe839c94",
     "model-brush-controller.mjs": "3bcbb1de9270bad7a6851d8f0acd3b5708e7846daacf0b29b10ad0b78c3decc0",
@@ -61,6 +61,9 @@
     "model-events-messages.mjs": "2b92e1254e0f81a78f23bfd57b66f18eeda546c1f3b4b033214901e21d4862e8",
     "model-fk-tools.mjs": "a3b09cf2eee3b92dee9ed236554eb99b4ac58ad307d3c80ac69047b4f2299c66",
     "model-fk-view.mjs": "9fcd05b1d3f78751e7009d093ca9e6bc01e267130c1e8ae1503e606126ac4b82",
-    "model-fk-messages.mjs": "4f16abb55860cbb3625143c23d3c10f74d5c290346da4934916f9c639e9aab49"
+    "model-fk-messages.mjs": "4f16abb55860cbb3625143c23d3c10f74d5c290346da4934916f9c639e9aab49",
+    "model-ik-tools.mjs": "24ae6314171d1c029e7fee68bfb121d052b46b36984480d9c70416cdc7a80b7e",
+    "model-ik-view.mjs": "613af6415f8de194657868942770a482079d9e351715e198e6caae27254acd1d",
+    "model-ik-messages.mjs": "9a1d507c069412913edf8ca1dcb3db19e3bdc9b2625f0d57c7280130d8af41a0"
   }
 }
