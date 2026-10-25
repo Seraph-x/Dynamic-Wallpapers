@@ -52,6 +52,8 @@ NS_SWIFT_UI_ACTOR @interface DWWebPage : NSObject
 /// Keys: level (warn/error), message, source and line. Does not acknowledge commands.
 @property(nonatomic, copy, nullable) void (^onDiagnostic)(NSDictionary<NSString*, id>* diagnostic);
 @property(nonatomic, copy, nullable) void (^onEditorDirty)(BOOL dirty);
+/// Payload-free snapshot request from an Editor page; scene pages cannot emit this event.
+@property(nonatomic, copy, nullable) void (^onEditorPreview)(void);
 /// Fixed workspace resource requests; the owning Editor supplies the storage implementation.
 @property(nonatomic, copy, nullable) void (^onEditorResource)(NSDictionary<NSString*, id>* request);
 /// Fixed data commands; replies are paired with unpredictable native request IDs.

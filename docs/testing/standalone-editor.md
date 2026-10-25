@@ -6,16 +6,57 @@ PR 2 supplies the Editor; PR 3 supplies the optional Main handoff and packaging.
 
 ## Model workspace acceptance
 
-The Editor/runtime checks contain 350 JavaScript tests, including SceneScript source contracts, sparse bone keys, two-segment IK, FK deltas, frame events, native mixing, dense pose frames, clip authoring, glTF conversion,
+The current focused checks pass 353 JavaScript tests and 19 independent Editor
+tests, including SceneScript execution policy/source contracts, sparse bone keys,
+two-segment IK, FK deltas, frame events, native mixing, dense pose frames, clip authoring, glTF conversion,
 source/package decoding, atomic resources and the existing Model/Timeline tools.
-The reproducible build verifies 69 offline resources (61 workbench and 8 independent preview). Complete protocol, real-browser, image/brush
-browser, rest/glTF/clip/pose/mixing/event/FK/IK/keys browser, native, native-brush, native-rest, native-glTF,
-native-clip, native-pose, native-mixing, native-event, native-FK, native-IK, native-keys
-and browser/native-script-contracts plus native-preview acceptance passes
-with the explicitly approved isolated test-keychain configuration.
-Product/source checks pass 3 Editor product tests, 42 product-configuration
-tests and 16 public-source export tests. These focused checks do not establish
-a full application-suite pass.
+The reproducible build verifies 70 offline resources (62 workbench and 8 independent preview).
+The fresh-directory 29-phase browser/native run passed, retaining all earlier
+phases and adding browser/native script-migration acceptance. It used the
+explicitly approved isolated test-keychain configuration. The root test build
+and 41 Editor Core tests, 3 Editor product checks, 42 product configuration
+checks and 16 public-source export checks also passed. Earlier feature-specific
+results below describe their recorded runs.
+These focused checks do not establish a full Main application-suite pass.
+
+## Workbench script execution migration
+
+`node --test Editor/Web/workbench-execution.test.mjs` checks the centralized
+`scripts:false` authoring policy, every document
+rebuild remains disabled, source data is unchanged, and Run sends only its fixed
+transport event without editing history. The real import-preview mount is also
+covered by the retained glTF acceptance phase.
+
+`node Editor/Web/test-script-migration.mjs` supplies the same exact scene and
+resource bytes to the workbench and a separate script-enabled engine host.
+Object, text, effect, material and general anchors must each execute top-level,
+init and update probes in the latter; unsupported anchors cannot manufacture a
+quiet-workbench success. Authoring mounts, seek, edits, undo/redo, reload and
+exports must execute no probes or source network calls and stage no resources.
+Actual property-curve motion and MDL mesh deformation must continue. Loose/PKG
+exports retain inline source and original resource bytes. Real button clicks,
+Return/Space, transport failure/retry, and five-language light/dark layout at
+850 × 540 with Timeline retain separate assertions.
+
+Four `EditorPreviewRequestTests` invoke the actual owning Swift controller's
+installed callback. They use the real `EditorProjectStore` to verify unsaved
+JSON/title/resource export without saving, invalid-draft rejection with thaw,
+requests before readiness, and duplicate requests while freeze is pending.
+Only external page acknowledgements and preview-window opening are injected;
+these tests do not claim to render CEF pixels or synthesize a successful native
+scene runtime.
+
+The `native-script-migration` harness independently exercises the real CEF
+button, fixed protocol and callback receiver. Its native test receiver requests
+freeze, validated snapshot and thaw to check trusted focused input, invalid
+draft rejection, history and resource preservation. It is not the Swift
+controller; the four owner tests above cover that production wiring and export
+policy. Captured scene playback and both Main export forms must execute all
+five supported probes and show real scripted green/red transitions; preview
+authoring endpoints remain denied. A missing preview handler fails explicitly.
+Both migration phases retain their 60-second budgets. This establishes separate
+pages/origins/authoring channels, not operating-system process isolation. See
+[the migration contract](../editor-script-migration.md).
 
 ## Independent snapshot preview
 
@@ -29,7 +70,8 @@ the baseline or resource during an actor boundary. Removing revalidation made
 both negative controls fail; restoring it passed the suite within its 60-second
 test budget.
 
-The independent Editor build and 15 tests include 13 preview/session checks.
+The independent Editor build and 19 tests include 13 preview/session checks,
+four actual owner request checks, the native resource bridge and source-document store checks.
 An explicit external native-page fixture controls readiness, acknowledgement
 and release failures; it does not fabricate rendering. Checks cover old callback
 generations, close while loading, restart release ordering, factory/start/restart
@@ -56,7 +98,7 @@ responses match the actual automatically assigned message ID. They create no
 production JavaScript evaluation or authoring endpoint. The approved isolated
 keychain remains limited to the native test host.
 
-See [preview behavior and remaining IDE boundary](../editor-scene-preview.md).
+See [preview behavior and execution boundary](../editor-scene-preview.md).
 
 ## SceneScript source contracts
 
@@ -192,8 +234,10 @@ time. FPS/resize share the same duplicate-known-key/frame/name/time validation,
 so ambiguous metadata cannot bypass checks through another tool. The pinned
 codec's actual 4096-event limit is tested without inventing another count cap.
 
-`node Editor/Web/test-model-events.mjs` edits actual forms and verifies rendered
-green/red/green callbacks through the existing color SceneScript. It covers
+`node Editor/Web/test-model-events.mjs` edits actual forms and requires constant
+green workbench pixels with no script callback log. Independent scene playback
+verifies real green/red callback behavior and same-frame callback order through
+the existing color SceneScript. It covers
 structural edits/cancellation, same-frame callback order, source byte retention,
 combined Model/mixing history, focused input, failed staging/independent recovery,
 opaque records and cross-tool FPS failures. Failed creation then Cancel retains
@@ -208,9 +252,11 @@ all previous phases and budgets remain. Real AppKit types Native fire without
 blur, then freeze validates the entire MDL against an independently encoded
 expected fixture, its hash, exact scene/script/binding retention and atomic
 Save/Undo/Redo. The expected fixture uses the existing vendor codec directly,
-not the new event mutation function. Actual CEF pixels and native event names
-verify forward 0→0.5→1.5-second green/red/green dispatch. Main loose/PKG each
-show both actual colors and two transitions with both meshes stationary.
+not the new event mutation function. Actual CEF workbench pixels remain green
+at 0→0.5→1.5 seconds and its script event log stays empty. Main loose/PKG each
+verify real callback names, both actual colors and two transitions with both
+meshes stationary. Script playback coverage is retained in the independent
+runtime rather than removed to accommodate the script-disabled edit canvas.
 Every page releases and each runtime shuts down once.
 
 Initial regressions found selection clamping during the temporary resource-load

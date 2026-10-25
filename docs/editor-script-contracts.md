@@ -1,10 +1,11 @@
 # Check and preserve SceneScript source
 
 This foundation provides source transactions and offline syntax diagnostics for
-inline native layer/effect scripts. It does not add a source editing UI or change
-the Editor's existing script execution behavior. The full IDE and workbench
-execution migration remain in development. Import only projects you trust: the pinned
-engine's in-page script sandbox is not a security boundary.
+inline native layer/effect scripts. It does not add a source editing UI. The
+[execution migration](editor-script-migration.md) disables SceneScript in every
+authoring-page mount and runs captured revisions in an independent scene page
+through **Run preview**. The full IDE remains in development. The pinned engine's
+in-page script sandbox is not itself a security boundary.
 
 ## Check a scene without running its scripts
 
@@ -126,11 +127,15 @@ Main has no Editor authoring session and releases every page before shutdown.
 See [native validation](testing/standalone-editor.md).
 
 The [snapshot preview host](editor-scene-preview.md) supplies a separate scene
-page without Editor authoring channels. Before a source Apply UI is connected,
-runtime script execution must also be isolated
-from the workbench's native write/control channel. Syntax highlighting,
-completion, templates, find/replace, linked runtime diagnostics and preview
-restart are subsequent IDE work. This PR does not claim that boundary is fixed.
+page without Editor authoring channels. Both authoring renderers use the pinned
+`scripts:false` option, preserving source wrappers/resources and animation data.
+**Run preview** requests the native owner's freeze/snapshot/thaw flow without
+saving. The fixed request contains no source, path or native command. This
+separates script execution from the workbench's native write/control channel
+within the existing CEF runtime, without claiming operating-system process
+isolation. Syntax highlighting, completion, templates, find/replace, source
+Apply/Revert and linked runtime diagnostics remain subsequent IDE work. The
+independent preview already supports restarting its captured revision.
 
 The compiler, runtime semantics and package writer come from the pinned WebWallGL
 project; see [Editor provenance](../Editor/ThirdParty/provenance.json) and

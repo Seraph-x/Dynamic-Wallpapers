@@ -23,7 +23,8 @@ deletion, timing, preview and saved playback assignments.
 copy/paste/reset poses and bake between endpoints. [Clip layers](../docs/editor-clip-mixing.md)
 edit ordered normal/additive blending, speed and visibility.
 [Frame events](../docs/editor-frame-events.md) create/edit/copy/order native
-markers, preserve opaque metadata and trigger existing imported handlers.
+markers and preserve opaque metadata; imported handlers run in independent
+scene preview and exported playback.
 [FK local deltas](../docs/editor-fk-posing.md) provide cancellable native preview
 and inclusive sample-range baking of local translation, rotation and scale.
 [Two-segment IK](../docs/editor-ik-posing.md) provides model-space target/pole
@@ -33,9 +34,11 @@ key editing and relocation, clipboard operations and native sample baking, with
 authoring locations retained through save/reopen and export.
 [SceneScript source contracts](../docs/editor-script-contracts.md) add source-only
 document/history transactions and an offline syntax-check CLI. These developer
-tools use the actual pinned compiler without executing supplied source. The
-source editing UI, workbench execution migration and full script IDE remain roadmap work;
-script-bound inspector fields stay read-only.
+tools use the actual pinned compiler without executing supplied source. All
+authoring-page scene mounts, including model-import preview, use `scripts:false`.
+Property curves and skeletal animation remain active; imported SceneScript runs
+through **Run preview** in a separate scene page. The source editing UI and full
+script IDE remain roadmap work; script-bound inspector fields stay read-only.
 
 Use **File → New Project** or **Open Project**. Imports create complete owned
 copies. **Save** writes the Editor workspace; **Export** creates a standard scene
@@ -45,7 +48,8 @@ stored under `~/Library/Application Support/DynamicWallpaperEditor/`.
 
 ## Preview the current revision without saving
 
-Choose **File → Preview snapshot** to open an independent native scene window.
+Choose **Run preview** in the workbench or **File → Preview snapshot** to open an
+independent native scene window.
 The captured revision includes valid pending edits and staged resource versions;
 it does not save the project or apply wallpaper. **Pause/Resume** acknowledges
 the actual scene clock, while **Restart from beginning** releases the old page
@@ -56,9 +60,13 @@ the latest actual runtime warning/error as selectable plain text.
 The window owns a private scene copy and has no Editor authoring session or
 resource-write channel. Closing it releases the page before removing that copy;
 closing its project or quitting Editor closes its previews first. Cleanup errors
-stay visible and keep ownership for retry. This supplies the future IDE's preview
-host; the existing workbench can still execute imported scripts, so the complete
-IDE isolation boundary is not finished. See [snapshot ownership and limits](../docs/editor-scene-preview.md).
+stay visible and keep ownership for retry. Run sends a fixed, payload-free event
+to the owning native controller, which freezes and flushes the workbench,
+validates the snapshot, exports its private copy and thaws editing. Source,
+paths and commands are never supplied by that event. This separates pages,
+origins and authoring channels in the existing CEF runtime; it does not promise
+separate operating-system processes. See [execution migration](../docs/editor-script-migration.md)
+and [snapshot ownership and limits](../docs/editor-scene-preview.md).
 
 ## Workbench appearance
 
@@ -143,7 +151,8 @@ imported handles and unknown fields are preserved until an explicit edit changes
 them. Linked, script-started or unrecognized animations remain intact and show a
 reason instead of being flattened. Replacing a script/user binding or unsupported
 animation requires **Replace binding… → Replace** and is undoable. Seeking samples
-property curves; it does not rewind the history of stateful scripts or particles.
+property curves and skeletal animation in the edit canvas, without executing
+SceneScript. Restart the independent Run preview to reset its scripts and particles.
 
 The timeline starts collapsed. It scrolls independently and can be closed to
 restore canvas space; the compact layout keeps the canvas visible at the

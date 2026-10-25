@@ -39,10 +39,10 @@ export function initializeInterface(t) {
   });
 }
 export function setPlaybackState(playing, t) {
-  $('playback-label').textContent = playing ? t.pause : t.play;
+  $('playback-label').textContent = playing ? t.pauseAnimation : t.playAnimation;
   $('playback-icon').replaceChildren(icon(playing ? 'pause' : 'play'));
   $('playback').setAttribute('aria-pressed',String(playing));
-  $('preview-state').textContent = playing ? t.livePreview : t.paused;
+  $('preview-state').textContent = playing ? t.animationPlaying : t.animationPaused;
   document.querySelector('.preview-status').dataset.paused = String(!playing);
 }
 function emptySelection(t) {
