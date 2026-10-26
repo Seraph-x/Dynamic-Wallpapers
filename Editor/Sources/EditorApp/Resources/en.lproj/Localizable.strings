@@ -49,3 +49,22 @@
 "previewState_failed" = "Preview failed";
 "previewState_closing" = "Closing preview…";
 "previewState_closed" = "Closed";
+
+// Captured SceneScript diagnostics
+"diagnosticIssues" = "Script issues";
+"diagnosticOpenSource" = "Open source";
+"diagnosticNoLayer" = "No layer";
+"diagnosticNoLine" = "Unavailable";
+"diagnosticLine" = "Line";
+"diagnosticConsole" = "Console / engine";
+"diagnosticSelectIssue" = "Select an issue to inspect its captured source.";
+"diagnosticConsoleUnmapped" = "Console / engine entry has no script identity.";
+"diagnosticCapturedSource" = "Captured source; current source is checked when opened.";
+"diagnosticReadOnlySource" = "Captured source · read-only target.";
+"diagnosticUnknownSource" = "Captured source could not be identified.";
+"diagnosticAmbiguousSource" = "Captured layer or source identity is ambiguous.";
+"diagnosticMissingCapture" = "Preview snapshot is missing its document identity.";
+"diagnosticInvalidIssue" = "The runtime returned an invalid script issue.";
+
+"diagnosticRawJSON" = "Original JSON escape representation";
+"diagnosticRawJSONReason" = "The engine returned incomplete UTF16 characters. Original JSON escapes are preserved; source navigation is unavailable.";

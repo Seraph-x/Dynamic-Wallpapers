@@ -124,6 +124,7 @@ export class ModelWorkspace {
       return {ok:false,error}; // Failed inspection is an explicit read-only state, not an accepted edit.
     });
   }
+  get hasPendingInput(){return this.#hasDrafts()||this.#busy>0||Boolean(this.#brush?.busy)||Boolean(document.querySelector('.model-dialog[open]'));}
   #hasDrafts(){return this.#boneDraft||this.#weightDraft||this.#restDraft||this.#clips?.draft||this.#poses?.draft||this.#mixing?.draft||this.#events?.draft||this.#keys?.draft;}
   #releaseSourceFailure(){const error=this.#sourceFailure;if(error&&!this.#hasDrafts()){this.#sourceFailure=undefined;if(this.#failure===error)this.#failure=undefined;this.#reset(error);}}
   #render(loading=false,error) {

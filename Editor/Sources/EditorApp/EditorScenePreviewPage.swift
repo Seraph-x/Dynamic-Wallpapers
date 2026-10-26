@@ -12,6 +12,9 @@ import WebWallpaperBridge
     var onError: ((Error) -> Void)?
     var onDiagnostic: (([String: Any]) -> Void)?
 
+    var onSceneScriptIssue: (([String: Any]) -> Void)?
+    var onSceneScriptRawIssue: ((String) -> Void)?
+
     init(runtime: DWWebRuntime, project: SceneProjectReference) throws {
         page = try runtime.scenePage(withProjectRoot: project.root.path,
             runtimeRoot: Self.runtimeDirectory().path, entry: project.entry,
@@ -19,6 +22,8 @@ import WebWallpaperBridge
             generation: 1, size: NSSize(width: 960, height: 540), scale: 1)
         page.onReady = { [weak self] in self?.onReady?() }
         page.onError = { [weak self] error in self?.onError?(error) }
+        page.onSceneScriptIssue = { [weak self] issue in self?.onSceneScriptIssue?(issue) }
+        page.onSceneScriptRawIssue = { [weak self] rawJSON in self?.onSceneScriptRawIssue?(rawJSON) }
         page.onDiagnostic = { [weak self] diagnostic in self?.onDiagnostic?(diagnostic) }
     }
 

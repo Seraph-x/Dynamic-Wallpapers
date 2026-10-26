@@ -3,8 +3,9 @@
 The Editor's **Edit canvas** plays property curves and skeletal animation without
 evaluating imported SceneScript. Choose **Run preview** to execute the current
 valid revision in an independent native scene window without saving it.
-**File → Preview snapshot** remains available for the same operation. The full
-source editor, Apply/Revert UI, completion and linked diagnostics are later IDE work.
+**File → Preview snapshot** remains available for the same operation. The
+[source workspace](editor-script-workspace.md) and
+[linked runtime diagnostics](editor-script-diagnostics.md) build on this execution separation.
 
 ## Editing and running a revision
 

@@ -241,6 +241,10 @@ static void previewVerifyScriptDiagnostic(DWWebRuntime* runtime, NSString* sourc
   [page start];
   waitUntil(^{return diagnostic!=nil||failure!=nil;},20,"Actual preview init exception was not reported to native diagnostics");
   require(diagnostic && [diagnostic[@"level"] isEqual:@"warn"],"Actual preview script exception did not retain its visible engine warning");
+  // init diagnostics can arrive before the real first frame. This test closes
+  // a running diagnostic preview, so finish preparation before its close check.
+  waitUntil(^{return page.ready||failure!=nil;},20,"Script diagnostic preview did not finish its actual first frame");
+  require(!failure,"Script diagnostic preview failed during preparation");
   require([previewFileBytes(root) isEqual:original],"Script diagnostic execution changed captured project bytes");
   previewClose(page,1,runtime);
   require([NSFileManager.defaultManager removeItemAtPath:root error:&error],error.localizedDescription.UTF8String ?: "Cannot remove released script diagnostic fixture");

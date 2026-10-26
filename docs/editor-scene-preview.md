@@ -107,3 +107,12 @@ and requires silence there plus execution in independent hosts. Four Swift
 controller tests exercise actual owner wiring, snapshot policy and store export;
 the CEF harness receiver separately covers real event delivery and DOM draft
 flushing. See [validation commands and evidence](testing/standalone-editor.md).
+
+## Retained issues and source navigation
+
+The native preview now retains actual script issues and generic renderer
+warnings. Select an issue and choose Open source; exact current source opens
+in the Script workspace, while stale or pending input opens a read-only
+captured view without discarding the draft. Restart resets the issue collection
+for the same captured revision. See [runtime diagnostics](editor-script-diagnostics.md)
+for available lines, unavailable source identities and pinned engine limits.

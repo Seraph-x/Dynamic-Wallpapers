@@ -55,6 +55,8 @@ std::string entryURL(const std::string& host, const char* entry) {
   void (^_onReady)(void);
   void (^_onError)(NSError*);
   void (^_onDiagnostic)(NSDictionary<NSString*, id>*);
+  void (^_onSceneScriptIssue)(NSDictionary<NSString*, id>*);
+  void (^_onSceneScriptRawIssue)(NSString*);
   void (^_onEditorDirty)(BOOL);
   void (^_onEditorPreview)(void);
   void (^_onEditorResource)(NSDictionary<NSString*, id>*);
@@ -106,7 +108,7 @@ std::string entryURL(const std::string& host, const char* entry) {
   if (!state->editor || (!_ready && !resourceReply) || state->closing || !state->browser || !state->failure(false).empty()) {
     completion(nil, DWWebError(@"Editor is not ready")); return;
   }
-  if (![@[@"snapshot", @"freeze", @"thaw", @"load", @"mark-saved", @"add-image", @"import-model", @"export-pkg", @"undo", @"redo", @"resource-reply", @"replace-resource", @"seek"] containsObject:payload[@"type"]]) {
+  if (![@[@"snapshot", @"freeze", @"thaw", @"load", @"mark-saved", @"add-image", @"import-model", @"export-pkg", @"undo", @"redo", @"resource-reply", @"replace-resource", @"seek", @"reveal-script"] containsObject:payload[@"type"]]) {
     completion(nil, DWWebError(@"Unknown Editor command")); return;
   }
   NSString* identifier = NSUUID.UUID.UUIDString;
@@ -167,6 +169,10 @@ std::string entryURL(const std::string& host, const char* entry) {
 - (void)setOnError:(void (^)(NSError*))callback { DWRequireWebMainThread(); _onError = [callback copy]; }
 - (void (^)(NSDictionary<NSString*, id>*))onDiagnostic { DWRequireWebMainThread(); return _onDiagnostic; }
 - (void)setOnDiagnostic:(void (^)(NSDictionary<NSString*, id>*))callback { DWRequireWebMainThread(); _onDiagnostic = [callback copy]; }
+- (void (^)(NSDictionary<NSString*, id>*))onSceneScriptIssue { DWRequireWebMainThread(); return _onSceneScriptIssue; }
+- (void)setOnSceneScriptIssue:(void (^)(NSDictionary<NSString*, id>*))callback { DWRequireWebMainThread(); _onSceneScriptIssue = [callback copy]; }
+- (void (^)(NSString*))onSceneScriptRawIssue { DWRequireWebMainThread(); return _onSceneScriptRawIssue; }
+- (void)setOnSceneScriptRawIssue:(void (^)(NSString*))callback { DWRequireWebMainThread(); _onSceneScriptRawIssue = [callback copy]; }
 - (instancetype)initWithRuntime:(DWWebRuntime*)runtime root:(NSString*)root entry:(NSString*)entry
                           size:(NSSize)size scale:(CGFloat)scale {
   DWRequireWebMainThread();
@@ -309,6 +315,13 @@ std::string entryURL(const std::string& host, const char* entry) {
     else if (event.type == "ready" && !state->engineReady) {
       state->engineReady = true; state->engineReadyAfterPaint = state->committedPaints;
       if (state->browser) state->browser->GetHost()->Invalidate(PET_VIEW);
+    } else if (event.type == "script-issue") {
+      NSData* data = [NSData dataWithBytes:event.payload.data() length:event.payload.size()];
+      NSDictionary* issue = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+      if (_onSceneScriptIssue) _onSceneScriptIssue(issue);
+    } else if (event.type == "script-issue-raw") {
+      NSString* rawJSON = [[NSString alloc] initWithBytes:event.payload.data() length:event.payload.size() encoding:NSUTF8StringEncoding];
+      if (_onSceneScriptRawIssue) _onSceneScriptRawIssue(rawJSON);
     } else if (event.type == "command-ack") {
       NSString* identifier = @(event.commandID.c_str());
       void (^completion)(NSError*) = _sceneCompletions[identifier];
@@ -472,11 +485,11 @@ std::string entryURL(const std::string& host, const char* entry) {
   auto state = _resources->state;
   if (state->closing.exchange(true)) return;
   [_audioOutput close];
-  if (state->scene) { std::lock_guard lock(state->scene->mutex); state->scene->retired = true; state->scene->events.clear(); }
+  if (state->scene) state->scene->retire();
   if (state->editor) { std::lock_guard lock(state->editor->mutex); state->editor->retired = true; state->editor->events.clear(); }
   [self failEditorCommands:DWWebError(@"Editor command cancelled because page is closing")];
   [self failSceneCommands:DWWebError(@"Scene command cancelled because the page is closing")];
-  _ready = NO; self.onReady = nil;
+  _ready = NO; self.onReady = nil; self.onSceneScriptIssue = nil; self.onSceneScriptRawIssue = nil;
   _closeDeadline = NSProcessInfo.processInfo.systemUptime + 5;
   if (state->browser) state->browser->GetHost()->CloseBrowser(true);
   [self tick];

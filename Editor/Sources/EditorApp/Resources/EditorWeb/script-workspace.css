@@ -33,3 +33,6 @@ body.script-workspace-active main { grid-template-columns: 172px minmax(180px, .
 #script-template-confirm::backdrop { background: #0006; }
 #script-template-confirm h3 { margin-top: 0; font: 21px/1.3 var(--serif); }
 #script-template-confirm p { color: var(--secondary); }
+
+#script-captured-dialog{width:min(760px,calc(100vw - 48px));max-height:calc(100vh - 48px);overflow:auto;box-sizing:border-box;background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:18px}#script-captured-dialog::backdrop{background:#0007}#script-captured-dialog h2{font-size:18px;margin:0 0 10px}#script-captured-dialog p{font-size:12px;overflow-wrap:anywhere}#script-captured-source{height:clamp(100px,38vh,400px);min-width:0;border:1px solid var(--line);border-radius:8px;overflow:hidden}#script-captured-source .cm-editor{height:100%}#script-captured-source:focus-within{outline:2px solid var(--accent)}
+#script-captured-dialog:not(:modal){position:fixed;top:50%;left:50%;margin:0;transform:translate(-50%,-50%)}

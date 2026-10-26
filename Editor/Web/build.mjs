@@ -50,7 +50,7 @@ if(Object.values(codeEditor.metafile.outputs).some(file=>file.imports.length))th
 await put('code-editor-api.mjs',codeEditor.outputFiles[0].contents);
 
 await put('webwallgl.bundle.mjs',engine);
-for (const name of ['index.html','editor.css','app.mjs','document.mjs','runtime.mjs','script-source.mjs','script-draft.mjs','script-workspace.mjs','script-workspace-view.mjs','script-workspace-targets.mjs','code-editor.mjs','code-editor-messages.mjs','script-language.mjs','script-workspace-messages.mjs','script-workspace.css','script-mode-messages.mjs','localization.mjs','interface.mjs','resources.mjs','animation.mjs','timeline-clock.mjs','timeline-view.mjs','timeline.mjs','timeline-messages.mjs','timeline.css','model-capacity.mjs','model-resource-edit.mjs','model-workspace.mjs','model-view.mjs','model-overlay.mjs','model-messages.mjs','model.css','image-puppet-view.mjs','model-brush-view.mjs','model-brush-controller.mjs','model-projection.mjs','model-rest-view.mjs','gltf.css','gltf-messages.mjs','gltf-import.mjs','gltf-import-view.mjs','gltf-import-edit.mjs','gltf-preview.mjs','package-archive.mjs','model-clip-tools.mjs','model-clips-view.mjs','model-clips-messages.mjs','model-clip-edit.mjs','model-pose-tools.mjs','model-pose-view.mjs','model-pose-messages.mjs','model-mixing.mjs','model-mixing-tools.mjs','model-mixing-view.mjs','model-mixing-messages.mjs','model-events-tools.mjs','model-events-view.mjs','model-events-messages.mjs','model-fk-tools.mjs','model-fk-view.mjs','model-fk-messages.mjs','model-ik-tools.mjs','model-ik-view.mjs','model-ik-messages.mjs','model-keys-tools.mjs','model-keys-view.mjs','model-keys-messages.mjs']) await put(name,await readFile(path.join(web,name)));
+for (const name of ['index.html','editor.css','app.mjs','document.mjs','runtime.mjs','script-source.mjs','script-draft.mjs','script-workspace.mjs','script-workspace-view.mjs','script-workspace-targets.mjs','script-navigation.mjs','script-navigation-messages.mjs','captured-script-view.mjs','code-editor.mjs','code-editor-messages.mjs','script-language.mjs','script-workspace-messages.mjs','script-workspace.css','script-mode-messages.mjs','localization.mjs','interface.mjs','resources.mjs','animation.mjs','timeline-clock.mjs','timeline-view.mjs','timeline.mjs','timeline-messages.mjs','timeline.css','model-capacity.mjs','model-resource-edit.mjs','model-workspace.mjs','model-view.mjs','model-overlay.mjs','model-messages.mjs','model.css','image-puppet-view.mjs','model-brush-view.mjs','model-brush-controller.mjs','model-projection.mjs','model-rest-view.mjs','gltf.css','gltf-messages.mjs','gltf-import.mjs','gltf-import-view.mjs','gltf-import-edit.mjs','gltf-preview.mjs','package-archive.mjs','model-clip-tools.mjs','model-clips-view.mjs','model-clips-messages.mjs','model-clip-edit.mjs','model-pose-tools.mjs','model-pose-view.mjs','model-pose-messages.mjs','model-mixing.mjs','model-mixing-tools.mjs','model-mixing-view.mjs','model-mixing-messages.mjs','model-events-tools.mjs','model-events-view.mjs','model-events-messages.mjs','model-fk-tools.mjs','model-fk-view.mjs','model-fk-messages.mjs','model-ik-tools.mjs','model-ik-view.mjs','model-ik-messages.mjs','model-keys-tools.mjs','model-keys-view.mjs','model-keys-messages.mjs']) await put(name,await readFile(path.join(web,name)));
 await mkdir(path.join(repo,'Editor/ThirdParty'),{recursive:true});
 if (!check) await copyFile(path.join(web,'.build/node_modules/@webwallgl/editor/LICENSE'),path.join(repo,'Editor/ThirdParty/WebWallGL-Editor-LICENSE'));
 const codePackages={};
@@ -67,12 +67,23 @@ if(check){if(hash(await readFile(codeLicensePath))!==hash(licenseBytes))throw ne
 const provenance={schema:1,packages:pins,codeEditorPackages:Object.fromEntries(Object.entries(codePackages).sort(([a],[b])=>a.localeCompare(b))),editorEntrySHA256:hash(await readFile(entry)),engineSHA256:hash(engine),files};
 const previewFiles={};
 await mkdir(previewOutput,{recursive:true});
-for(const name of ['index.html','scene.css','scene-runtime.mjs','scene-spectrum.mjs','scene-source.mjs','scene-shell.mjs','scene-protocol.mjs','webwallgl.bundle.mjs']){
-  const bytes=await readFile(path.join(repo,'Sources/WallpaperApp/Resources/SceneRuntime',name));
+async function putPreview(name,bytes) {
   previewFiles[name]=hash(bytes);
-  if(check){if(hash(await readFile(path.join(previewOutput,name)))!==previewFiles[name])throw new Error(`Editor preview resource differs from Main: ${name}`);}
+  if(check){if(hash(await readFile(path.join(previewOutput,name)))!==previewFiles[name])throw new Error(`Editor preview resource differs from reproducible build: ${name}`);}
   else await writeFile(path.join(previewOutput,name),bytes);
 }
+// Preserve Main's trusted entry and playback modules byte-for-byte. Only the
+// Editor shell selects the closure-scoped, read-only issue observer wrapper.
+for(const name of ['index.html','scene.css','scene-runtime.mjs','scene-spectrum.mjs','scene-source.mjs','scene-protocol.mjs','webwallgl.bundle.mjs']) {
+  await putPreview(name,await readFile(path.join(repo,'Sources/WallpaperApp/Resources/SceneRuntime',name)));
+}
+await putPreview('scene-shell.mjs',await readFile(path.join(web,'scene-preview-shell.mjs')));
+const previewObserver=await build({entryPoints:[path.join(web,'scene-preview-script.mjs')],nodePaths:[path.join(web,'.build/node_modules')],outfile:'scene-preview-api.mjs',bundle:true,platform:'browser',format:'esm',target:'chrome120',minify:true,legalComments:'eof',write:false,metafile:true,
+  plugins:[{name:'shared-preview-engine',setup(builder){builder.onResolve({filter:/^webwallgl$/},()=>({path:'./webwallgl.bundle.mjs',external:true}));}}]});
+for(const file of Object.values(previewObserver.metafile.outputs)) {
+  if(file.imports.some(item=>item.path!=='./webwallgl.bundle.mjs'||item.kind!=='import-statement')||file.exports.some(name=>name!=='createPreviewSceneFactory'))throw new Error('Preview observer must expose only its playback factory and share the pinned offline engine');
+}
+await putPreview('scene-preview-api.mjs',previewObserver.outputFiles[0].contents);
 provenance.previewFiles=previewFiles;
 if (check) { if (JSON.stringify(expected) !== JSON.stringify(provenance)) throw new Error('Editor provenance differs from reproducible build'); }
 else await writeFile(provenancePath,JSON.stringify(provenance,null,2)+'\n');

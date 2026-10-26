@@ -4,12 +4,21 @@
 #include <optional>
 #include <stdexcept>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 namespace dw {
 enum class SceneMount { runtime, project, config, event, spectrum };
 struct SceneRoute { SceneMount mount; std::string path; };
-struct SceneEvent { std::string type, message, commandID; };
+struct SceneScriptIssuePart {
+  std::string transferID, bytes;
+  uint64_t ordinal;
+  bool final;
+};
+struct SceneEvent {
+  std::string type, message, commandID, payload;
+  std::optional<SceneScriptIssuePart> issuePart;
+};
 SceneRoute sceneRoute(const std::string& path, const std::string& method, bool mainFrame);
 SceneEvent parseSceneEvent(const std::string& body, const std::string& sceneID, uint64_t generation);
 struct EditorEvent { std::string type, id, payload; bool dirty = false; };
@@ -38,12 +47,14 @@ struct SceneSession final {
   std::optional<std::string> spectrumJSON();
   /// A valid in-flight event may finish after close cancelled its command.
   /// Return false so the caller records cancellation without reviving the page.
-  bool receive(const std::string& body) {
-    auto event = parseSceneEvent(body, sceneID, generation);
-    std::lock_guard lock(mutex);
-    if (retired) return false;
-    events.push_back(std::move(event));
-    return true;
-  }
+  bool receive(const std::string& body);
+  void retire();
+ private:
+  struct IssueTransfer {
+    std::string id, bytes;
+    uint64_t nextOrdinal = 0;
+  };
+  std::optional<IssueTransfer> issueTransfer;
+  std::unordered_set<std::string> completedIssueTransfers;
 };
 }  // namespace dw

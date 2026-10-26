@@ -111,3 +111,11 @@ Published source SHA256: engine `f838e70347df8205edca5f3fc04dbb7c56b31738b5785b2
 The app's actual host options are in [scene-runtime.mjs](../Sources/WallpaperApp/Resources/SceneRuntime/scene-runtime.mjs), with real-or-silent audio in [scene-spectrum.mjs](../Sources/WallpaperApp/Resources/SceneRuntime/scene-spectrum.mjs). Workbench source remains non-executing; native snapshot preview and Main run captured source through the shared pinned engine.
 
 Reproduce pure checks with `node --test Editor/Web/script-language.test.mjs`. The independent headless runtime phase is `node Editor/Web/test-script-language-runtime.mjs`; it runs real starter modules through the pinned renderer, with explicit spectrum input, scene events and pointer commands. Browser test debug inspection is not a production API or a replacement for visible CodeMirror editing acceptance.
+
+## Inspect actual runtime issues
+
+The independent preview retains actual `getScriptIssues()` records and generic
+renderer warnings. See [runtime diagnostics](editor-script-diagnostics.md) for
+captured-source identity, unmapped lines, restart behavior and the pinned
+500-issue/200-character/repeated-failure limits. Timer failures do not have
+structured source identities in this runtime.

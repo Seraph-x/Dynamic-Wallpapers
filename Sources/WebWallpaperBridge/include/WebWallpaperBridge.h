@@ -51,6 +51,13 @@ NS_SWIFT_UI_ACTOR @interface DWWebPage : NSObject
 /// Read-only renderer warnings/errors; values are untrusted display text.
 /// Keys: level (warn/error), message, source and line. Does not acknowledge commands.
 @property(nonatomic, copy, nullable) void (^onDiagnostic)(NSDictionary<NSString*, id>* diagnostic);
+/// Complete validated script issues from the trusted scene channel, separate from console diagnostics.
+/// Exact keys: layerId, layerName, target, phase, message, line, count; display text is untrusted.
+/// Data-only observation: this callback grants no Editor commands or resource access.
+@property(nonatomic, copy, nullable) void (^onSceneScriptIssue)(NSDictionary<NSString*, id>* issue);
+/// Original complete JSON when isolated UTF16 escapes prevent Foundation decoding.
+/// Display only as explicitly labelled raw JSON; no source location can be inferred.
+@property(nonatomic, copy, nullable) void (^onSceneScriptRawIssue)(NSString* rawJSON);
 @property(nonatomic, copy, nullable) void (^onEditorDirty)(BOOL dirty);
 /// Payload-free snapshot request from an Editor page; scene pages cannot emit this event.
 @property(nonatomic, copy, nullable) void (^onEditorPreview)(void);

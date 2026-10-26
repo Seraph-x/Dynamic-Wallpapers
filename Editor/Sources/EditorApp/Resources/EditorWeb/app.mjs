@@ -1,3 +1,5 @@
+import { resolveScriptLink } from './script-navigation.mjs';
+import { createCapturedScriptView } from './captured-script-view.mjs';
 import { ScriptWorkspace } from './script-workspace.mjs';
 import { createScene } from './webwallgl.bundle.mjs';
 import { editorOf, buildScenePkg, checkWeCompat } from './editor-api.mjs';
@@ -12,7 +14,7 @@ import { GltfImport } from './gltf-import.mjs';
 const $ = id => document.getElementById(id);
 let displayedError;
 let previewRequestFailure;
-let editor, selected, drag, editFailure, timeline, model, gltf, script, selectionPointer;
+let capturedView, editor, selected, drag, editFailure, timeline, model, gltf, script, selectionPointer;
 const pendingActions=new Set();
 document.body.inert = true;
 const showError = error => { displayedError=error;$('diagnostics').textContent = String(error?.message ?? error); };
@@ -23,6 +25,7 @@ try {
   document.documentElement.lang = config.language ?? 'en';
   for (const element of document.querySelectorAll('[data-text]')) element.textContent = t[element.dataset.text];
   initializeInterface(t);
+  capturedView=createCapturedScriptView(t);
   const report = async payload => {
     const response = await fetch('/__editor/event', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), redirect: 'error' });
     if (!response.ok) throw new Error(`Editor event: HTTP ${response.status}`);
@@ -47,6 +50,14 @@ try {
   }
   editor = startEditor(config, { createScene, editorOf, buildScenePkg, checkWeCompat, element:$('canvas'), report, onChange:update, onError:showError,
     setEditingEnabled: value => { document.body.inert = !value;model?.setFrozen(!value);gltf?.setFrozen(!value);script?.setFrozen(!value); }, snapshotError: () => gltf?.error??script?.error??editFailure, draftDirty:()=>script?.dirty??false,
+    onRevealScript:async link=>{
+      const focusedInput=document.activeElement?.matches?.('#project-title,#inspector input,#inspector textarea,#inspector select');
+      const pending=Boolean(focusedInput||pendingActions.size||drag||selectionPointer?.down||editFailure||script.hasPendingInput||model.hasPendingInput||timeline.hasPendingInput||gltf.error||document.querySelector('dialog[open]'));
+      const result=resolveScriptLink(link,{scene:editor.document.snapshot().scene,documentIdentity:editor.documentIdentity,pending});
+      if(result.kind==='captured')capturedView.show(result,{preserveFocus:Boolean(focusedInput)});
+      else {capturedView.close();selected=link.layerId;model.deactivate();update(editor.document);script.reveal(link);}
+      return {kind:result.kind,...(result.reason?{reason:result.reason}:{})};
+    },
     importModel:source=>gltf.open(source),
     onPlaybackChange: value => setPlaybackState(value,t) });
   timeline = new Timeline({editor,t,beforeEdit:async()=>{await script?.flush();await model?.flush();},edit:(id,property,edit)=>editor.change(doc=>doc.animate(id,property,edit)),onError:showError,
@@ -136,5 +147,5 @@ try {
     event.preventDefault(); void act(doc => event.shiftKey ? doc.redo() : doc.undo());
   });
   await editor.ready;
-  window.addEventListener('pagehide', () => { script.destroy();gltf.destroy();model.destroy();timeline.destroy();editor.destroy(); }, { once:true });
+  window.addEventListener('pagehide', () => { capturedView.destroy();script.destroy();gltf.destroy();model.destroy();timeline.destroy();editor.destroy(); }, { once:true });
 } catch (error) { showError(error); console.error('Editor preparation failed',error); }

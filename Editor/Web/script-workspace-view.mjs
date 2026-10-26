@@ -7,7 +7,7 @@ export function initializeScriptView(t,{onError,onResolved}) {
     <p id="script-note" class="script-note" data-script-text="scriptDraftNote"></p>
     <p id="script-source-label" class="script-source-label" data-script-text="scriptSource"></p><div id="script-source"></div>
     <div class="script-actions"><button id="script-check" type="button" data-script-text="scriptCheck"></button><button id="script-apply" type="button" class="primary-button" data-script-text="scriptApply"></button><button id="script-revert" type="button" data-script-text="scriptRevert"></button><button id="script-remove" type="button" data-script-text="scriptRemove"></button></div>
-    <p id="script-state" class="script-note"></p><pre id="script-diagnostics" class="script-diagnostics" aria-live="polite"></pre>
+    <p id="script-runtime-location" class="script-note" role="status" hidden></p><p id="script-state" class="script-note"></p><pre id="script-diagnostics" class="script-diagnostics" aria-live="polite"></pre>
     <div class="script-actions"><button id="script-complete" type="button" data-script-text="codeComplete"></button><button id="script-find" type="button" data-script-text="codeFind"></button></div>
     <label for="script-template" data-script-text="codeTemplate"></label><div class="script-template-controls"><select id="script-template"></select><button id="script-use-template" type="button" data-script-text="codeUseTemplate"></button></div>
     <p class="script-note" data-script-text="codeTemplateNote"></p><p class="script-note" data-script-text="codeHostNote"></p>`;
@@ -38,6 +38,7 @@ export function initializeScriptView(t,{onError,onResolved}) {
     targets(records,key){target.replaceChildren(...records.map(record=>{const option=document.createElement('option');option.value=record.key;option.textContent=record.label+(record.state.editable?'':` · ${t.scriptReadOnly}`);return option;}));target.value=key??'';},
     render({source='',state,dirty=false,locked:blocked=false,failure,diagnostics:issues=[],context,key,target:sourceTarget}) {
       locked=blocked;editable=Boolean(state?.editable);
+      $('script-runtime-location').hidden=true;
       code.setSource(source,context,key,sourceTarget);code.setAccess(editable&&!locked,Boolean(failure));
       target.disabled=locked||!target.options.length;
       for(const name of ['check','apply','remove'])$('script-'+name).disabled=locked||!editable||(name==='remove'&&state.kind!=='script'&&!dirty);
@@ -53,6 +54,8 @@ export function initializeScriptView(t,{onError,onResolved}) {
       const message=failure?`${failure.line?`${t.scriptLine} ${failure.line}: `:''}${failure.message}`:!editable?state?.reason??t.scriptChooseLayer:issues.map(issue=>`${issue.line?`${t.scriptLine} ${issue.line}: `:''}${issue.message}`).join('\n');
       if(diagnostics.textContent!==message)diagnostics.textContent=message;
     },
+    get pending(){return dialog.open;},
+    reveal:location=>{const note=$('script-runtime-location');note.hidden=false;note.textContent=location.available?`${t.lineReported} ${location.line}`:t[{missing:'lineMissing',outside:'lineOutside',transformed:'lineTransformed'}[location.reason]];code.reveal(location);},
     assertSettled(){if(dialog.open)throw templateBarrier;},
     destroy(){code.destroy();dialog.remove();},
   };

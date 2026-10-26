@@ -13,6 +13,8 @@ import WebWallpaperBridge
     var onReady: (() -> Void)?
     var onError: ((Error) -> Void)?
     var onDiagnostic: (([String: Any]) -> Void)?
+    var onSceneScriptIssue: (([String: Any]) -> Void)?
+    var onSceneScriptRawIssue: ((String) -> Void)?
     var startError: Error?
     var closeError: Error?
     var playError: Error?
@@ -198,14 +200,116 @@ import WebWallpaperBridge
         try await session.close()
     }
 
+    func testRetainedIssuesUseActualCountsAndRestartRejectsOldDelivery() async throws {
+        let first = PreviewPageFixture(), second = PreviewPageFixture(); var pages = [first, second]
+        let session = EditorScenePreviewSession(makePage: { pages.removeFirst() }, cleanup: {})
+        try session.start()
+        let record: [String: Any] = ["layerId": 1, "layerName": "", "target": "alpha", "phase": "update", "message": "failure", "line": NSNull(), "count": 1]
+        first.onSceneScriptIssue?(record)
+        first.onDiagnostic?(["message": "generic one"]); first.onDiagnostic?(["message": "generic two"])
+        var refreshed = record; refreshed["count"] = 8; first.onSceneScriptIssue?(refreshed)
+        XCTAssertEqual(session.scriptIssues.count, 1); XCTAssertEqual(session.scriptIssues.first?.count, 8)
+        XCTAssertEqual(session.consoleDiagnostics.count, 2)
+        let old = first.onSceneScriptIssue, oldConsole = first.onDiagnostic
+        try await session.restart()
+        XCTAssertTrue(session.scriptIssues.isEmpty); XCTAssertTrue(session.consoleDiagnostics.isEmpty)
+        old?(refreshed); oldConsole?(["message": "stale"])
+        XCTAssertTrue(session.scriptIssues.isEmpty); XCTAssertTrue(session.consoleDiagnostics.isEmpty)
+        second.onSceneScriptIssue?(record)
+        XCTAssertEqual(session.scriptIssues.first?.count, 1)
+        try await session.close(); old?(refreshed)
+        XCTAssertTrue(session.scriptIssues.isEmpty)
+    }
+
+    func testFailedClosePreservesIssuesAndInvalidatesCallbacksUntilCleanupSucceeds() async throws {
+        let page = PreviewPageFixture(); var cleanups = 0
+        let session = EditorScenePreviewSession(makePage: { page }, cleanup: {
+            cleanups += 1
+            if cleanups == 1 { throw self.failure }
+        })
+        try session.start()
+        let record: [String: Any] = ["layerId": NSNull(), "layerName": "", "target": "general.zoom", "phase": "update", "message": "retained", "line": NSNull(), "count": 7]
+        page.onSceneScriptIssue?(record); page.onDiagnostic?(["message": "generic"])
+        let stale = page.onSceneScriptIssue
+        page.closeError = failure
+        do { try await session.close(); XCTFail("Expected close failure") } catch {}
+        XCTAssertEqual(cleanups, 0); XCTAssertEqual(session.scriptIssues.first?.count, 7)
+        var changed = record; changed["count"] = 100; stale?(changed)
+        XCTAssertEqual(session.scriptIssues.first?.count, 7)
+        page.closeError = nil
+        do { try await session.close(); XCTFail("Expected cleanup failure") } catch {}
+        XCTAssertNil(session.view); XCTAssertEqual(session.consoleDiagnostics.count, 1)
+        XCTAssertEqual(session.scriptIssues.first?.count, 7)
+        try await session.close()
+        XCTAssertEqual(cleanups, 2); XCTAssertTrue(session.scriptIssues.isEmpty)
+    }
+
+    func testRawJSONReportsPreserveExactBytesAndDistinctCountSnapshots() async throws {
+        let page = PreviewPageFixture()
+        let session = EditorScenePreviewSession(makePage: { page }, cleanup: {})
+        try session.start()
+        let first = #"{"layerId":1,"layerName":"","target":"alpha","phase":"update","message":"\ud83d","line":2,"count":1}"#
+        let refreshed = first.replacingOccurrences(of: #""count":1"#, with: #""count":3"#)
+        page.onSceneScriptRawIssue?(first); page.onSceneScriptRawIssue?(first)
+        page.onSceneScriptRawIssue?(refreshed)
+        let composed = #"{"message":"é","raw":"\ud83d"}"#
+        let decomposed = composed.replacingOccurrences(of: "é", with: "e\u{301}")
+        page.onSceneScriptRawIssue?(composed); page.onSceneScriptRawIssue?(decomposed)
+        XCTAssertEqual(session.rawJSONReports.count, 4)
+        XCTAssertEqual(session.rawJSONReports.map { Data($0.utf8) }, [first, refreshed, composed, decomposed].map { Data($0.utf8) })
+        XCTAssertTrue(session.scriptIssues.isEmpty); XCTAssertNil(session.failure)
+        try await session.close(); XCTAssertTrue(session.rawJSONReports.isEmpty)
+    }
+
+    func testRawJSONReportsResetAtRestartAndRetiredCallbacksCannotPublish() async throws {
+        let first = PreviewPageFixture(), second = PreviewPageFixture(); var pages = [first, second]
+        let session = EditorScenePreviewSession(makePage: { pages.removeFirst() }, cleanup: {})
+        try session.start(); first.onSceneScriptRawIssue?(#"{"message":"\ud83d","count":1}"#)
+        XCTAssertEqual(session.rawJSONReports.count, 1)
+        let stale = first.onSceneScriptRawIssue
+        try await session.restart(); XCTAssertTrue(session.rawJSONReports.isEmpty)
+        stale?(#"{"message":"\ud83d","count":2}"#); XCTAssertTrue(session.rawJSONReports.isEmpty)
+        second.onSceneScriptRawIssue?(#"{"message":"\ud83d","count":3}"#)
+        XCTAssertEqual(session.rawJSONReports.count, 1)
+        try await session.close(); second.onSceneScriptRawIssue?("late")
+        XCTAssertTrue(session.rawJSONReports.isEmpty)
+    }
+
+    func testRawJSONListIsExplicitSelectableUnmappedAndKeepsSelectionIdentity() async throws {
+        _ = NSApplication.shared
+        let page = PreviewPageFixture()
+        let session = EditorScenePreviewSession(makePage: { page }, cleanup: {})
+        let controller = EditorScenePreviewWindowController(session: session, title: "Raw diagnostics")
+        controller.capturedScripts = try EditorCapturedScriptSnapshot(documentIdentity: "capture", scene: ["objects": [["id": 1, "alpha": ["script": "captured"]]]])
+        controller.onSource = { _ in XCTFail("Raw JSON cannot navigate to guessed source") }
+        try controller.start()
+        let raw = #"{"layerId":1,"layerName":"","target":"alpha","phase":"update","message":"\ud83d","line":2,"count":3}"#
+        page.onSceneScriptRawIssue?(raw)
+        func children(_ view: NSView) -> [NSView] { [view] + view.subviews.flatMap(children) }
+        let controls = children(try XCTUnwrap(controller.window?.contentView))
+        let table = try XCTUnwrap(controls.compactMap { $0 as? NSTableView }.first)
+        let open = try XCTUnwrap(controls.compactMap { $0 as? NSButton }.first { $0.title == text("diagnosticOpenSource") })
+        let status = try XCTUnwrap(controls.compactMap { $0 as? NSTextView }.first)
+        XCTAssertEqual(table.numberOfRows, 1); XCTAssertFalse(open.isEnabled)
+        XCTAssertTrue(status.isSelectable); XCTAssertFalse(status.isEditable)
+        XCTAssertTrue(status.string.contains(raw)); XCTAssertTrue(status.string.contains(text("diagnosticRawJSON")))
+        XCTAssertTrue(controls.compactMap { $0 as? NSTextField }.contains { $0.stringValue == text("diagnosticRawJSONReason") })
+        page.onDiagnostic?(["message": "later console"])
+        page.onSceneScriptIssue?(["layerId": 1, "layerName": "", "target": "alpha", "phase": "update", "message": "later script", "line": 1, "count": 1])
+        XCTAssertEqual(table.selectedRow, 2); XCTAssertFalse(open.isEnabled)
+        XCTAssertTrue(status.string.contains(raw))
+        open.performClick(nil)
+        try await controller.requestClose()
+    }
+
     func testPreviewRuntimeIsPackagedWithTheExactMainRuntimeBytes() throws {
         let bundled = try EditorNativeScenePreviewPage.runtimeDirectory()
         let repository = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
             .deletingLastPathComponent().deletingLastPathComponent()
         let original = repository.appendingPathComponent("Sources/WallpaperApp/Resources/SceneRuntime")
         let names = try FileManager.default.contentsOfDirectory(atPath: original.path).sorted()
-        XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: bundled.path).sorted(), names)
-        for name in names {
+        XCTAssertTrue(try FileManager.default.contentsOfDirectory(atPath: bundled.path).contains("scene-preview-api.mjs"))
+        for name in names where name != "scene-shell.mjs" {
             XCTAssertEqual(try Data(contentsOf: bundled.appendingPathComponent(name)),
                            try Data(contentsOf: original.appendingPathComponent(name)), name)
         }
@@ -229,6 +333,59 @@ import WebWallpaperBridge
         XCTAssertThrowsError(try EditorWindowController.snapshotDocument(invalid, basedOn: baseline))
     }
 
+    func testNativeRetainedListSelectsCapturedSourceAndLeavesGenericEntriesUnmapped() async throws {
+        _ = NSApplication.shared
+        let page = PreviewPageFixture()
+        let session = EditorScenePreviewSession(makePage: { page }, cleanup: {})
+        let controller = EditorScenePreviewWindowController(session: session, title: "Issues")
+        controller.capturedScripts = try EditorCapturedScriptSnapshot(documentIdentity: "capture", scene: ["objects": [["id": 1, "alpha": ["script": "// 世界😀\r\nthrow Error()"]]]])
+        var opened: [EditorCapturedScriptLink] = []; controller.onSource = { opened.append($0) }
+        try controller.start()
+        page.onSceneScriptIssue?(["layerId": 1, "layerName": "", "target": "alpha", "phase": "update", "message": "first issue", "line": 2, "count": 3])
+        page.onDiagnostic?(["message": "generic issue"])
+        func children(_ view: NSView) -> [NSView] { [view] + view.subviews.flatMap(children) }
+        let controls = children(try XCTUnwrap(controller.window?.contentView))
+        let table = try XCTUnwrap(controls.compactMap { $0 as? NSTableView }.first)
+        let open = try XCTUnwrap(controls.compactMap { $0 as? NSButton }.first { $0.title == text("diagnosticOpenSource") })
+        XCTAssertEqual(table.numberOfRows, 2); XCTAssertTrue(open.isEnabled)
+        XCTAssertEqual(open.keyEquivalent, "o"); XCTAssertEqual(open.keyEquivalentModifierMask, [.command, .shift])
+        open.performClick(nil)
+        XCTAssertEqual(opened.count, 1); XCTAssertEqual(opened.first?.line, 2)
+        XCTAssertEqual(opened.first?.source, "// 世界😀\r\nthrow Error()")
+        table.selectRowIndexes(IndexSet(integer: 1), byExtendingSelection: false)
+        XCTAssertFalse(open.isEnabled)
+        let status = try XCTUnwrap(controls.compactMap { $0 as? NSTextView }.first)
+        XCTAssertTrue(status.string.contains("generic issue"))
+        table.selectRowIndexes(IndexSet(integer: 0), byExtendingSelection: false)
+        XCTAssertTrue(status.string.contains("first issue")); XCTAssertTrue(status.string.contains("×3"))
+        try await controller.requestClose()
+        XCTAssertNil(controller.onSource); XCTAssertNil(controller.capturedScripts)
+    }
+
+    func testConsoleSelectionRemainsUnmappedWhenScriptIssueIsInsertedAheadOfIt() async throws {
+        _ = NSApplication.shared
+        let page = PreviewPageFixture()
+        let session = EditorScenePreviewSession(makePage: { page }, cleanup: {})
+        let controller = EditorScenePreviewWindowController(session: session, title: "Stable selection")
+        controller.capturedScripts = try EditorCapturedScriptSnapshot(documentIdentity: "capture", scene: ["objects": [["id": 1, "alpha": ["script": "captured"]]]])
+        controller.onSource = { _ in XCTFail("Console selection cannot open source") }
+        try controller.start()
+        page.onDiagnostic?(["message": "selected console warning"])
+        func children(_ view: NSView) -> [NSView] { [view] + view.subviews.flatMap(children) }
+        let controls = children(try XCTUnwrap(controller.window?.contentView))
+        let table = try XCTUnwrap(controls.compactMap { $0 as? NSTableView }.first)
+        let open = try XCTUnwrap(controls.compactMap { $0 as? NSButton }.first { $0.title == text("diagnosticOpenSource") })
+        let status = try XCTUnwrap(controls.compactMap { $0 as? NSTextView }.first)
+        table.selectRowIndexes(IndexSet(integer: 0), byExtendingSelection: false)
+        XCTAssertFalse(open.isEnabled)
+        page.onSceneScriptIssue?(["layerId": 1, "layerName": "", "target": "alpha", "phase": "update", "message": "script failure", "line": NSNull(), "count": 1])
+        XCTAssertEqual(table.numberOfRows, 2)
+        XCTAssertEqual(table.selectedRow, 1, "A new script issue must not replace the selected console entry")
+        XCTAssertFalse(open.isEnabled, "Retained console entries remain unmapped")
+        XCTAssertTrue(status.string.contains("selected console warning"))
+        try await controller.requestClose()
+    }
+
     func testNativeWindowMinimumLayoutInFiveLanguagesAndBothAppearances() async throws {
         DWWebCreateApplication()
         let resourceRoot = try EditorNativeScenePreviewPage.runtimeDirectory().deletingLastPathComponent()
@@ -248,8 +405,8 @@ import WebWallpaperBridge
                 window.appearance = NSAppearance(named: appearance); content.layoutSubtreeIfNeeded()
                 let controls = children(content)
                 let buttons = controls.compactMap { $0 as? NSButton }.filter { $0.target === controller }
-                XCTAssertEqual(buttons.count, 2)
-                XCTAssertEqual(Set(buttons.map(\.title)), Set([localize("previewPause"), localize("previewRestart")]))
+                XCTAssertEqual(buttons.count, 3)
+                XCTAssertEqual(Set(buttons.map(\.title)), Set([localize("previewPause"), localize("previewRestart"), localize("diagnosticOpenSource")]))
                 let labels = controls.compactMap { $0 as? NSTextField }
                 XCTAssertTrue(labels.contains { $0.stringValue == localize("previewSnapshotNote") })
                 let visible: [NSView] = buttons + labels + controls.compactMap({ $0 as? NSScrollView })
