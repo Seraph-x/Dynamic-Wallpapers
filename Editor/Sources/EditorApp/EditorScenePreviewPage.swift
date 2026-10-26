@@ -46,6 +46,16 @@ import WebWallpaperBridge
             }
         }
     }
+    func setUserProperties(_ values: [String: Any]) async throws {
+        try await setUserPropertyData(JSONSerialization.data(withJSONObject: values))
+    }
+    func setUserPropertyData(_ data: Data) async throws {
+        try await withCheckedThrowingContinuation { (reply: CheckedContinuation<Void, Error>) in
+            page.setSceneUserPropertiesJSONData(data) { error in
+                if let error { reply.resume(throwing: error) } else { reply.resume() }
+            }
+        }
+    }
     func close() async throws {
         try await withCheckedThrowingContinuation { (reply: CheckedContinuation<Void, Error>) in
             page.close { error in

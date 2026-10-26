@@ -82,3 +82,23 @@
 "previewAudioUnavailable" = "システム音声は利用できません。このプレビューにアプリの音声コントローラがありません。";
 "previewAudioErrorDetail" = "エラーの詳細：";
 "previewAudioDisclosure" = "すべての Editor プレビューで共有されます。macOS の許可はメインアプリとは別です。再生中のみ音声を解析し、マイク、録音ファイル、アップロードは使用しません。出力は常にミュートです。";
+
+/* Transient independent-preview user properties. */
+"previewProperties" = "ユーザープロパティ";
+"previewPropertiesNote" = "値はこのプレビューだけに適用され、保存されません。再起動で取得時の既定値に戻ります。テキストと数値は Return または「適用」で確定します。";
+"previewPropertiesReset" = "取得時の既定値に戻す";
+"previewPropertiesApply" = "適用";
+"previewPropertiesEmpty" = "ユーザープロパティの宣言がありません。";
+"previewPropertiesReadOnly" = "読み取り専用：";
+"previewPropertiesInvalid" = "無効な入力：";
+"previewPropertiesCommandError" = "プロパティの更新に失敗：";
+"previewPropertyBool" = "有効";
+"previewPropertyRGB" = "RGB：0〜1 の数値を3つ入力";
+"previewPropertyNumber" = "有限の数値。宣言された範囲が適用されます";
+"previewPropertyInvalidNumber" = "有限の数値を入力してください";
+"previewPropertyReason_preset-only" = "一般宣言のないプリセット値です。";
+"previewPropertyReason_unsupported-name" = "固定版のレンダラーでは __proto__ という名前を表現できません。";
+"previewPropertyReason_unsupported-condition" = "この条件はライブプレビュー編集に対応していません。";
+"previewPropertyReason_unsupported-type" = "この種類はライブプレビュー編集に対応していません。";
+"previewPropertyReason_invalid-declaration" = "宣言または取得時の既定値が無効です。";
+"previewPropertiesInspectionFailed" = "プロパティの検査に失敗：";

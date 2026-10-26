@@ -184,6 +184,10 @@ import WebWallpaperBridge
                 guard let snapshot = state["document"] as? [String: Any],
                       let identity = state["documentIdentity"] as? String,
                       let scene = snapshot["scene"] as? [String: Any] else { throw WallpaperError(text("diagnosticMissingCapture")) }
+                guard let metadata = snapshot["project"] as? [String: Any] else { throw WallpaperError("Captured project metadata is missing") }
+                // Inspection belongs to the optional live inputs. Preserve its
+                // actual error in the preview while the original scene still runs.
+                let propertyInspection = Result { try EditorPreviewProperties(project: metadata) }
                 let capture = try EditorCapturedScriptSnapshot(documentIdentity: identity, scene: scene)
                 let draft = try Self.snapshotDocument(snapshot, basedOn: controller.workspace)
                 let directory = controller.coordinator.dataRoot.appendingPathComponent("Previews")
@@ -192,6 +196,7 @@ import WebWallpaperBridge
                 let project = try await controller.coordinator.store.exportPreview(draft, basedOn: controller.workspace,
                     to: directory.appendingPathComponent(id.uuidString))
                 let preview = controller.makePreview(project, draft.title)
+                preview.capturedPropertyInspection = propertyInspection
                 preview.capturedScripts = capture
                 controller.previews[id] = preview
                 preview.onSource = { [weak controller] link in

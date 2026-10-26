@@ -27,7 +27,7 @@ const stringMembers = [field('length','number'),...methods('includes startsWith 
 const arrayMembers = [field('length','number'),...methods('slice map forEach includes join','Array operation')];
 const engine = [
   ...fields('runtime frametime timeOfDay','number'),field('canvasSize','Vec3 with width/height; scene design size'),
-  field('screenResolution','{x:number,y:number}; screen pixels'),field('userProperties','Initial user-property values','The current app does not dispatch live property changes.'),
+  field('screenResolution','{x:number,y:number}; screen pixels'),field('userProperties','User-property values','Main supplies initial values; independent Editor previews can test live values without saving the project.'),
   method('registerAudioBuffers','(resolution:number) => {left,right,average:Float32Array}','Main supplies real spectrum or silence; Editor snapshot preview supplies real spectrum only after its separate opt-in is enabled.'),
   ...['16','32','64'].map(n => ({label:'AUDIO_RESOLUTION_'+n,type:'constant',detail:n})),
   method('setTimeout','(callback, milliseconds) => cancel function'),method('setInterval','(callback, milliseconds) => cancel function'),
@@ -127,7 +127,7 @@ export function lifecycleTemplates(target) {
   const sources = {
     init: missingInitialScalars.has(target) ? passthrough() : initial + '\nexport function update(value) {\n  return initial;\n}\n',
     update: missingInitialScalars.has(target) ? passthrough() : initial + `\nexport function update(value) {\n  return ${updateExpression(target)};\n}\n`,
-    properties: passthrough('export function applyUserProperties(properties) {\n  // The host delivers initial values; live changes are not wired in this app.\n  shared.userPropertyKeys = Object.keys(properties);\n}'),
+    properties: passthrough('export function applyUserProperties(properties) {\n  // Receives initial values and live test changes from independent Editor previews.\n  shared.userPropertyKeys = Object.keys(properties);\n}'),
     cursor: passthrough('export function cursorClick(event) {\n  // The selected layer must be rendered and hit-testable.\n  shared.cursorWorldPosition = {x: event.worldPosition.x, y: event.worldPosition.y, z: event.worldPosition.z};\n}'),
     media: stateStarter(kind, 'export function mediaPropertiesChanged(event) {\n  shared.mediaTitle = event.title;\n}'),
     animation: stateStarter(kind, `export function animationEvent(event, value) {\n  // Requires an authored event on this layer.\n  current = ${changed};\n  return current;\n}`),

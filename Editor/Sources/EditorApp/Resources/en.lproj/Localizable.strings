@@ -82,3 +82,23 @@
 "previewAudioUnavailable" = "System audio is unavailable: this preview has no application audio owner.";
 "previewAudioErrorDetail" = "Error details:";
 "previewAudioDisclosure" = "Shared across all Editor previews. macOS permission is separate from Main. Analyzes system sound while a preview plays; no microphone, files or upload. Preview output stays muted.";
+
+/* Transient independent-preview user properties. */
+"previewProperties" = "User properties";
+"previewPropertiesNote" = "Values affect only this preview and are never saved. Restart restores captured defaults. Apply text and number edits with Return or Apply.";
+"previewPropertiesReset" = "Reset captured defaults";
+"previewPropertiesApply" = "Apply";
+"previewPropertiesEmpty" = "No declared user properties.";
+"previewPropertiesReadOnly" = "Read only:";
+"previewPropertiesInvalid" = "Invalid input:";
+"previewPropertiesCommandError" = "Property command failed:";
+"previewPropertyBool" = "Enabled";
+"previewPropertyRGB" = "RGB: three values from 0 to 1";
+"previewPropertyNumber" = "Finite number; declared bounds apply";
+"previewPropertyInvalidNumber" = "Enter a finite number";
+"previewPropertyReason_preset-only" = "Preset value without a general declaration.";
+"previewPropertyReason_unsupported-name" = "The pinned renderer cannot represent the name __proto__.";
+"previewPropertyReason_unsupported-condition" = "This condition is not supported for live preview edits.";
+"previewPropertyReason_unsupported-type" = "This property type is not supported for live preview edits.";
+"previewPropertyReason_invalid-declaration" = "The declaration or captured default is invalid.";
+"previewPropertiesInspectionFailed" = "Property inspection failed:";

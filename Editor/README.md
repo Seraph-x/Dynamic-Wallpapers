@@ -80,7 +80,10 @@ actual host/target limitation. See the [API and starter catalogue](../docs/edito
 for the pinned numeric/event restrictions.
 
 The current host passes `media: null`, so system-media starters are unavailable.
-User-property callbacks receive initial values; live host changes are not wired.
+User-property callbacks receive initial values. Independent previews can also
+[test live values](../docs/editor-preview-properties.md), including while paused.
+These per-preview values are not saved or exported; restart restores captured
+defaults. Main's ordinary playback still uses authored defaults.
 Audio starters read real spectrum or silence. Independent muted previews can
 receive live spectrum after enabling their separate System audio response switch. These limits do not disable editing existing
 author-written source.

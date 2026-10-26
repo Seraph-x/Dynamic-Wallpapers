@@ -50,6 +50,8 @@ the official releases page. The published 1.0.0 binaries predate this feature;
 an independent Editor release has not been published yet. Independent preview
 windows support optional [system audio response](docs/editor-preview-audio.md)
 on macOS 14.2+, with a separate default-off Editor setting.
+They also provide [live user-property tests](docs/editor-preview-properties.md)
+for captured declarations, without changing saved projects or exports.
 
 Create or import loose/PKG scenes, edit image/text layers with live preview,
 animate transforms/color/opacity on a keyframe timeline, undo/redo, save projects

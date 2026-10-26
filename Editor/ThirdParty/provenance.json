@@ -57,8 +57,8 @@
     "script-navigation-messages.mjs": "ca2db1b8311937a163d4e7bd9a22e7784121151278964b85928587ad42d31fcb",
     "captured-script-view.mjs": "b03c31e49c39ade597cf0c480dca8648bc43280a0f142f21fbf5e4c510881646",
     "code-editor.mjs": "f46e8b30b74677e88bafa33738ac1c025f7274a1773e6eb17704724932c7adcb",
-    "code-editor-messages.mjs": "d3fce9357cc88c89babf80a966485ed90cbbff4ad4f1d36e7eb6a2662f0260c3",
-    "script-language.mjs": "d3efcd24bc82a37bddca35851d35cc2e71c1bcd5414992f91e64e453f947f8f6",
+    "code-editor-messages.mjs": "96f01105619eeb80333673b19333d421de51f7add362cdd2adcf9951207b78c9",
+    "script-language.mjs": "565f03d0e58d06f983c4384e4e5848348dcfef91502c7fcde936852015960022",
     "script-workspace-messages.mjs": "eb714263433b2457cd5a375c0c3794e5ec26c7896ce8af747dfb3cb17666a071",
     "script-workspace.css": "15ea7956607b892f29adfb40ead048e2b69ae7ba7170a79ea48b98c3e61cdd1b",
     "script-mode-messages.mjs": "bd9d6e4a07ad700bb43187264f22c18b54d675a2662e11e00c11cf0519c970c2",
@@ -117,12 +117,13 @@
   "previewFiles": {
     "index.html": "f83588dc86ce34f285b0439dba688429dd55ca8b7aa1211e2261ca9df18d6413",
     "scene.css": "e3124aebf699467a70770a53ed3d898250f6149a67a8332bef225750ece98aae",
-    "scene-runtime.mjs": "a68194a11480b1c1636f1b864f146009ab8812aae3ce92e2eefacc87986473df",
+    "scene-runtime.mjs": "25e386b63fa815f2f074c2409adee9396beb2e217aba12104545e25d400c8492",
     "scene-spectrum.mjs": "2882906abf50b1de963cfc7338a0b37fcccefddf5345cc4bdfa98697b1688811",
     "scene-source.mjs": "6e71f9ceefce7b91f2e91de2f987ccb09a58848fd8e272c8768fc9ac95d162fd",
-    "scene-protocol.mjs": "cb49b8aad8fc98d0d055372efc16db12b1db4abe33cfea8138d0082d4cfc44b0",
+    "scene-protocol.mjs": "b43d5a14121eaacc6b30872369cb9f2bebea890c053fb0aea22f9026105bbf84",
+    "scene-properties.mjs": "608336b3ae80015fff1bd5d7ede83b822b814ec980e2d65b8414a18080adab89",
     "webwallgl.bundle.mjs": "17c85a29c11b1a783f79f4351df00497217b1af76c4b457ca9422c21dbae8fa3",
     "scene-shell.mjs": "0dfd597e56d0af3f27b189fc8962a95199ad34f8a3d01ed881f0cc88c239a979",
-    "scene-preview-api.mjs": "a872b80efb6846fe5dc5d0ba0de436cbf158442aed2e1a4349d5b57b9f26c8aa"
+    "scene-preview-api.mjs": "b2e2a3535b2b86550a83a5f0c9bd2117795db18d14be2dffccb8b38ebdd4d64a"
   }
 }

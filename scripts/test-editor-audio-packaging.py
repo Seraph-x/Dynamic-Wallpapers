@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Verify real Editor resource variants and top-level audio permission strings."""
 from pathlib import Path
+import json
 import runpy
 import shutil
 import tempfile
@@ -61,6 +62,20 @@ class EditorAudioPackagingTests(unittest.TestCase):
             (bundle / 'EditorWeb/runtime.mjs').write_text('throw Error("tampered");')
             with self.assertRaisesRegex(ValueError, 'resource|provenance|differs'):
                 PACKAGING['verify_offline_resources'](resources, ROOT)
+
+    def test_offline_gate_requires_property_module_in_shared_provenance(self):
+        with tempfile.TemporaryDirectory() as directory:
+            resources, _ = self.fixture(directory)
+            source = Path(directory) / 'Source'
+            runtime = 'Sources/WallpaperApp/Resources/SceneRuntime'
+            shutil.copytree(ROOT / runtime, source / runtime)
+            provenance = json.loads((ROOT / 'Editor/ThirdParty/provenance.json').read_text())
+            provenance['previewFiles'].pop('scene-properties.mjs', None)
+            manifest = source / 'Editor/ThirdParty/provenance.json'
+            manifest.parent.mkdir(parents=True)
+            manifest.write_text(json.dumps(provenance))
+            with self.assertRaisesRegex(ValueError, 'Missing Editor preview resource provenance'):
+                PACKAGING['verify_offline_resources'](resources, source)
 
 
 if __name__ == '__main__':

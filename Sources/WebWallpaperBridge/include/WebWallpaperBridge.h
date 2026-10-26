@@ -77,6 +77,12 @@ NS_SWIFT_UI_ACTOR @interface DWWebPage : NSObject
 /// fit is exactly cover or contain.
 - (void)setSceneFit:(NSString *)fit completion:(void (^)(NSError * _Nullable error))completion;
 - (void)setSceneFrameRate:(NSUInteger)frameRate completion:(void (^)(NSError * _Nullable error))completion;
+/// Data-only runtime values. The trusted scene validates declarations before applying the full patch.
+- (void)setSceneUserProperties:(NSDictionary<NSString*, id>*)properties
+                   completion:(void (^)(NSError * _Nullable error))completion;
+/// JSON object bytes retain exact property names across Swift dictionary bridging.
+- (void)setSceneUserPropertiesJSONData:(NSData*)data
+                           completion:(void (^)(NSError * _Nullable error))completion;
 /// Replace the latest stereo spectrum. Exactly 64 finite values in [0,1] per channel.
 - (BOOL)setSceneSpectrumLeft:(NSArray<NSNumber*>*)left right:(NSArray<NSNumber*>*)right
                        error:(NSError * _Nullable * _Nullable)error;

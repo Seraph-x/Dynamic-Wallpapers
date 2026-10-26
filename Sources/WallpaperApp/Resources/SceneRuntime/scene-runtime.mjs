@@ -1,6 +1,7 @@
 import { validateConfig, validateCommand } from './scene-protocol.mjs';
 import { createProjectSource } from './scene-source.mjs';
 import { createSpectrumSource } from './scene-spectrum.mjs';
+import { createPropertyCatalog, validatePropertyPatch } from './scene-properties.mjs';
 
 function errorMessage(error) {
   const text = String(error?.message ?? error);
@@ -16,6 +17,7 @@ export function startSceneRuntime(value, options) {
   let fps = config.fps;
   const spectrum = createSpectrumSource(config);
   let stopSpectrum;
+  let propertyCatalog;
   const event = payload => options.report({ ...payload, sceneID: config.sceneID, generation: config.generation });
   const destroy = () => {
     if (destroyed) return;
@@ -66,6 +68,14 @@ export function startSceneRuntime(value, options) {
       case 'volume': instance.setVolume(command.muted ? 0 : command.volume); break;
       case 'fit': instance.setFit(command.fit); break;
       case 'fps': fps = command.fps; instance.setFps(fps); break;
+      case 'properties': {
+        propertyCatalog ??= createPropertyCatalog(await source.project());
+        if (destroyed || failed) throw new Error('Scene destroyed during property preparation');
+        const patch = validatePropertyPatch(command.properties, propertyCatalog);
+        await instance.setProperties(patch);
+        if (destroyed || failed) throw new Error('Scene destroyed during property update');
+        break;
+      }
       case 'pointer':
         if (command.kind === 'click' && instance.paused) throw new Error('Cannot dispatch a scene click while playback is paused');
         if (command.kind === 'leave') instance.pointerLeave();
