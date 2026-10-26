@@ -91,7 +91,9 @@ find/replace. Check/Apply/Revert/Remove, recoverable drafts and ordinary
 history/save/export retain their source contracts. Starters replace nonempty
 drafts only after confirmation; hints and Check do not prove runtime types or
 capabilities. See the [supported API catalogue](docs/editor-script-api.md).
-Retained source-linked runtime diagnostics remain separate IDE work.
+[Runtime diagnostics](docs/editor-script-diagnostics.md) retain genuine script
+issues and renderer warnings, link to matching current source or a read-only
+captured view, and preserve invalid drafts when viewing older previews.
 
 The two applications share source modules in this repository and ship their own
 runtime dependencies. Editor has its own version (currently 0.1.0), bundle

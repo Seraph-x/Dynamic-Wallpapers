@@ -49,3 +49,22 @@
 "previewState_failed" = "Échec de l’aperçu";
 "previewState_closing" = "Fermeture de l’aperçu…";
 "previewState_closed" = "Fermé";
+
+// Captured SceneScript diagnostics
+"diagnosticIssues" = "Problèmes de script";
+"diagnosticOpenSource" = "Ouvrir le code";
+"diagnosticNoLayer" = "Aucun calque";
+"diagnosticNoLine" = "Indisponible";
+"diagnosticLine" = "Ligne";
+"diagnosticConsole" = "Console / moteur";
+"diagnosticSelectIssue" = "Sélectionnez un problème pour examiner le code capturé.";
+"diagnosticConsoleUnmapped" = "Cette entrée console / moteur ne possède aucune identité de script.";
+"diagnosticCapturedSource" = "Code capturé ; le code actuel sera vérifié à l’ouverture.";
+"diagnosticReadOnlySource" = "Code capturé · cible en lecture seule.";
+"diagnosticUnknownSource" = "Impossible d’identifier le code capturé.";
+"diagnosticAmbiguousSource" = "L’identité du calque ou du code capturé est ambiguë.";
+"diagnosticMissingCapture" = "L’instantané ne contient pas l’identité du document.";
+"diagnosticInvalidIssue" = "Le moteur a renvoyé un problème de script invalide.";
+
+"diagnosticRawJSON" = "Représentation JSON échappée originale";
+"diagnosticRawJSONReason" = "Le moteur a renvoyé des caractères UTF16 incomplets. Les échappements JSON originaux sont préservés ; la navigation vers la source est indisponible.";

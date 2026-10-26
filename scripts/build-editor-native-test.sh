@@ -15,6 +15,9 @@ clang++ -std=c++20 -mmacosx-version-min=14.0 -fobjc-arc -frtti -Wall -Wextra -We
   -framework Foundation -I Sources/WebWallpaperBridge Tests/EditorRuntimeHarness/protocol-tests.mm \
   Sources/WebWallpaperBridge/SceneProtocol.mm -o "$RUN_ROOT/protocol-tests"
 clang++ -std=c++20 -mmacosx-version-min=14.0 -fobjc-arc -frtti -Wall -Wextra -Werror \
+  -framework Foundation -I Sources/WebWallpaperBridge Tests/SceneRuntimeHarness/protocol-tests.mm \
+  Sources/WebWallpaperBridge/SceneProtocol.mm Sources/WebWallpaperBridge/LocalProjectFiles.cpp -o "$RUN_ROOT/scene-protocol-tests"
+clang++ -std=c++20 -mmacosx-version-min=14.0 -fobjc-arc -frtti -Wall -Wextra -Werror \
   "$KEYCHAIN_TEST_FLAG" -isystem "$CEF_ROOT" -I Sources/WebWallpaperBridge/include -I Sources/WebWallpaperBridge \
   Tests/EditorRuntimeHarness/main.mm Sources/WebWallpaperBridge/WebRuntime.mm Sources/WebWallpaperBridge/WebClient.cpp \
   Sources/WebWallpaperBridge/WebAudioOutput.mm Sources/WebWallpaperBridge/LocalProjectFiles.cpp \

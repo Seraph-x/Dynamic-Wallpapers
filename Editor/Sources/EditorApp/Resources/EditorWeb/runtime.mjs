@@ -1,3 +1,4 @@
+import { validateScriptLink } from './script-navigation.mjs';
 import { SceneDocument, safePath } from './document.mjs';
 import { createResourceClient, resourceReader, decodeResource } from './resources.mjs';
 import { observeModelCapacity } from './model-capacity.mjs';
@@ -26,16 +27,18 @@ export function createEditorSource(value, readOriginal, readVersion) {
 export function validateEditorCommand(command, config) {
   if (!command || command.session !== config.session || command.generation !== config.generation ||
       typeof command.id !== 'string' || !command.id) throw new Error('Stale Editor command');
-  const fields = { snapshot: [], load: ['document'], 'mark-saved': ['document'], 'add-image': ['image'],
+  const fields = { snapshot: [], 'reveal-script':['link'], load: ['document'], 'mark-saved': ['document'], 'add-image': ['image'],
     'export-pkg': ['paths'], freeze: [], thaw: [], undo: [], redo: [],
     'replace-resource':['path','data'], 'import-model':['source'], 'resource-reply':['requestID','result'], seek:['time'] }[command.type];
   if (!fields || Object.keys(command).some(key => !['session', 'generation', 'id', 'type', ...fields].includes(key)) ||
       fields.some(key => command[key] === undefined)) throw new Error('Invalid Editor command');
+  if(command.type==='reveal-script')validateScriptLink(command.link);
 }
 
 export function startEditor(config, options) {
   if (config.version !== 1 || !config.session || !Number.isSafeInteger(config.generation) || config.generation < 1) throw new Error('Invalid Editor configuration');
   let document = new SceneDocument(config.document,config.sourcePackage), queue = Promise.resolve(), destroyed = false;
+  let documentIdentity=crypto.randomUUID();
   let controls, instance, playing = true, frozen = true, modelCapacity;
   const report = payload => options.report({ ...payload, session: config.session, generation: config.generation });
   const resources = createResourceClient(report);
@@ -142,10 +145,11 @@ export function startEditor(config, options) {
       if(['load','add-image','replace-resource','import-model','export-pkg'].includes(value.type)&&options.snapshotError?.())throw options.snapshotError();
       let payload = {};
       switch (value.type) {
-        case 'snapshot': if (options.snapshotError?.()) throw options.snapshotError(); payload = { document: document.snapshot() }; break;
-        case 'freeze': frozen = true; options.setEditingEnabled(false); payload = { document:document.snapshot(), dirty:isDirty() || Boolean(options.snapshotError?.()) }; break;
+        case 'snapshot': if (options.snapshotError?.()) throw options.snapshotError(); payload = { document: document.snapshot(),documentIdentity }; break;
+        case 'freeze': frozen = true; options.setEditingEnabled(false); payload = { document:document.snapshot(),documentIdentity, dirty:isDirty() || Boolean(options.snapshotError?.()) }; break;
         case 'thaw': frozen = false; options.setEditingEnabled(true); break;
-        case 'load': document = new SceneDocument(value.document,config.sourcePackage); await render(); break;
+        case 'load': document = new SceneDocument(value.document,config.sourcePackage);documentIdentity=crypto.randomUUID(); await render(); break;
+        case 'reveal-script': payload={navigation:await options.onRevealScript(value.link)};break;
         case 'mark-saved': document.markSaved(value.document); options.onChange(document, controls); break;
         case 'add-image': await changed(doc => doc.addImage(value.image)); break;
         case 'import-model': if(frozen)throw new Error('Editor is frozen for a native operation');await options.importModel(value.source);break;
@@ -195,7 +199,7 @@ export function startEditor(config, options) {
     const result = commandQueue.then(() => applyCommand(value)); commandQueue = result.catch(options.onError); return result;
   }
   return { ready, command, change: changed, get controls() { return controls; }, get document() { return document; },
-    get playing() { return playing; }, get frozen() { return frozen; }, setPlaying,requestPreview,notifyDirty,seek,previewModelClip,previewModelBonePose,previewModelBonePoses,restoreModelPreview,
+    get documentIdentity(){return documentIdentity;},get playing() { return playing; }, get frozen() { return frozen; }, setPlaying,requestPreview,notifyDirty,seek,previewModelClip,previewModelBonePose,previewModelBonePoses,restoreModelPreview,
     stageResource:resources.stage,resourcePaths:resources.paths,
     readResource(path) {if(destroyed)return Promise.reject(new Error('Editor closed'));return resourceReader(document.snapshot(),read,resources.read)(path);},
     get modelBoneCapacity(){if(modelCapacity?.error)throw modelCapacity.error;return modelCapacity?.capacity;},

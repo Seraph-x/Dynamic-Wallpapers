@@ -9,7 +9,7 @@ authoring-page mount and runs captured revisions in an independent scene page
 through **Run preview**. The workspace also provides highlighting, conservative
 API hints, complete starter templates and find/replace; see the
 [API catalogue](editor-script-api.md) for actual target/host restrictions.
-Retained source-linked runtime diagnostics remain separate IDE work. The pinned engine's
+[Runtime diagnostics](editor-script-diagnostics.md) retain actual issues and link to captured source. The pinned engine's
 in-page script sandbox is not itself a security boundary.
 
 ## Check a scene without running its scripts

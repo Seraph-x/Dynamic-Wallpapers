@@ -36,7 +36,7 @@ Files: new code-editor-entry.mjs + code-editor.mjs; build.mjs, package.json/lock
 
 - [x] Plan review then implementation review focused on source data loss, readonly/frozen editor behavior, composition, local/document histories, escape surfaces and truthful API hints.
 - [x] Update both READMEs/source/API/validation docs, credit CodeMirror alongside pinned WebWallGL, distinguish completion from runtime/type guarantee and retain explicit unsupported host/hook details.
-- [ ] Gate changed-file public export, real author email, final diff and checks; submit English PR, verify remote exact head, self-merge only verified content, sync clean main. Then implement source-linked runtime diagnostics as the final planned PR.
+- [x] Gate changed-file public export, real author email, final diff and checks; submit English PR, verify remote exact head, self-merge only verified content, sync clean main. Then implement source-linked runtime diagnostics as the final planned PR.
 
 
 ## Plan review resolutions
@@ -55,3 +55,5 @@ Files: new code-editor-entry.mjs + code-editor.mjs; build.mjs, package.json/lock
 - Actual pinned factory tests distinguish Vec3 from vector snapshots/live angle proxies and reject nonexistent helper members. Supported templates execute through the real renderer; compilation alone is not runtime validation.
 
 Verified delivery: 384 JavaScript tests; independent Editor build and 30 tests; 41 targeted Editor Core tests; 80 reproducible offline resources (72 workbench, eight preview); full fresh-directory 34-phase browser/native acceptance; three product, 42 configuration and 16 public-source checks. Main/independent preview runtime files remain unchanged.
+
+Merged delivery: [PR #32](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/32), merge commit `696434a0f130eaa7ed291278ed9102bc77b65252`.

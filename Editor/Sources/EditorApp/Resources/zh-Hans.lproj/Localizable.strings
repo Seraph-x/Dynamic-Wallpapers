@@ -49,3 +49,22 @@
 "previewState_failed" = "预览失败";
 "previewState_closing" = "正在关闭预览…";
 "previewState_closed" = "已关闭";
+
+// Captured SceneScript diagnostics
+"diagnosticIssues" = "脚本问题";
+"diagnosticOpenSource" = "打开源码";
+"diagnosticNoLayer" = "无图层";
+"diagnosticNoLine" = "不可用";
+"diagnosticLine" = "行";
+"diagnosticConsole" = "控制台 / 引擎";
+"diagnosticSelectIssue" = "选择问题以查看捕获的源码。";
+"diagnosticConsoleUnmapped" = "此控制台 / 引擎条目没有脚本身份。";
+"diagnosticCapturedSource" = "捕获的源码；打开时将检查当前源码。";
+"diagnosticReadOnlySource" = "捕获的源码 · 只读属性。";
+"diagnosticUnknownSource" = "无法识别捕获的源码。";
+"diagnosticAmbiguousSource" = "捕获的图层或源码身份不明确。";
+"diagnosticMissingCapture" = "预览快照缺少文档身份。";
+"diagnosticInvalidIssue" = "运行时返回了无效的脚本问题。";
+
+"diagnosticRawJSON" = "原始 JSON 转义表示";
+"diagnosticRawJSONReason" = "引擎返回了不完整的 UTF16 字符。完整保留原始 JSON 转义文本；无法定位源码。";

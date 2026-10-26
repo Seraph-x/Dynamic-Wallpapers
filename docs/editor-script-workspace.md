@@ -2,8 +2,8 @@
 
 The Script workspace is an offline CodeMirror source editor with JavaScript
 highlighting, local undo/redo, SceneScript API hints, lifecycle starters and
-find/replace. Checked drafts retain normal project history/save/export. Retained
-source-linked runtime diagnostics remain separate work. Breakpoint debugging is
+find/replace. Checked drafts retain normal project history/save/export. [Runtime diagnostics](editor-script-diagnostics.md) retain actual issues and
+open current or captured source. Breakpoint debugging is
 outside the approved IDE scope.
 
 Source never executes in the workbench. **Run preview** captures valid current
@@ -140,9 +140,13 @@ captures the current valid revision without saving or applying wallpaper.
 later source edits require a new Run preview. Seeking an animation does not
 reverse stateful scripts or particles.
 
-The preview's current runtime warning/error is visible as selectable plain text.
-The retained issue list and links to captured source locations are later work;
-current runtime messages do not imply a source location. The independent preview
+The preview retains actual script issues and renderer warnings in a selectable
+list. Open source navigates only when the owning document, unique anchor and
+exact source still match; otherwise it shows an independent read-only capture
+without flushing or overwriting a pending draft. Missing, transformed or
+out-of-range locations remain explicitly unmapped. See
+[runtime diagnostics](editor-script-diagnostics.md) for line, count and upstream
+retention limits. The independent preview
 and Main receive no Editor authoring session. Exported loose/PKG projects use
 native SceneScript and play without installing Editor. Page/origin/channel
 separation within CEF does not imply operating-system process isolation. See

@@ -181,7 +181,10 @@ import WebWallpaperBridge
             let state = try await controller.command(["type": "freeze"])
             do {
                 if state["dirty"] as? Bool == true { _ = try await controller.snapshot() }
-                guard let snapshot = state["document"] as? [String: Any] else { throw WallpaperError("Missing preview snapshot") }
+                guard let snapshot = state["document"] as? [String: Any],
+                      let identity = state["documentIdentity"] as? String,
+                      let scene = snapshot["scene"] as? [String: Any] else { throw WallpaperError(text("diagnosticMissingCapture")) }
+                let capture = try EditorCapturedScriptSnapshot(documentIdentity: identity, scene: scene)
                 let draft = try Self.snapshotDocument(snapshot, basedOn: controller.workspace)
                 let directory = controller.coordinator.dataRoot.appendingPathComponent("Previews")
                 try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
@@ -189,7 +192,22 @@ import WebWallpaperBridge
                 let project = try await controller.coordinator.store.exportPreview(draft, basedOn: controller.workspace,
                     to: directory.appendingPathComponent(id.uuidString))
                 let preview = controller.makePreview(project, draft.title)
+                preview.capturedScripts = capture
                 controller.previews[id] = preview
+                preview.onSource = { [weak controller] link in
+                    guard let controller, controller.previews[id] != nil, controller.ready,
+                          !controller.closing, !controller.page.closed, link.documentIdentity == capture.documentIdentity else { return }
+                    Task {
+                        guard controller.previews[id] != nil, !controller.closing, !controller.page.closed else { return }
+                        do {
+                            _ = try await controller.command(["type": "reveal-script", "link": link.dictionary])
+                            if controller.previews[id] != nil, !controller.closing, !controller.page.closed {
+                                controller.window?.makeKeyAndOrderFront(nil)
+                            }
+                        }
+                        catch { controller.coordinator.show(error, window: controller.window) }
+                    }
+                }
                 preview.onClosed = { [weak controller] in controller?.previews[id] = nil }
                 preview.onError = { [weak controller] error, window in controller?.coordinator.show(error, window: window) }
                 // The retained controller owns cleanup even if factory/start fails.

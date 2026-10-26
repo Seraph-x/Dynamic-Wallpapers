@@ -7,6 +7,8 @@ import WallpaperCore
     var onReady: (() -> Void)? { get set }
     var onError: ((Error) -> Void)? { get set }
     var onDiagnostic: (([String: Any]) -> Void)? { get set }
+    var onSceneScriptIssue: (([String: Any]) -> Void)? { get set }
+    var onSceneScriptRawIssue: ((String) -> Void)? { get set }
     func start() throws
     func setPlaying(_ value: Bool) async throws
     func close() async throws
@@ -23,6 +25,10 @@ import WallpaperCore
     private(set) var busy = false
     private(set) var failure: Error?
     private(set) var diagnostic: [String: Any]?
+    private(set) var scriptIssues: [EditorScriptDiagnostic] = []
+    private(set) var consoleDiagnostics: [[String: Any]] = []
+    private(set) var rawJSONReports: [String] = []
+    private var rawJSONIdentities: Set<Data> = []
     var onChange: (() -> Void)?
     var view: NSView? { page?.view }
     var origin: String? { page?.origin }
@@ -39,7 +45,7 @@ import WallpaperCore
 
     private func mount() throws {
         generation = UUID(); let capturedGeneration = generation
-        failure = nil; diagnostic = nil; state = .loading
+        failure = nil; diagnostic = nil; scriptIssues = []; consoleDiagnostics = []; rawJSONReports = []; rawJSONIdentities = []; state = .loading
         do {
             let acquired = try makePage(); page = acquired
             acquired.onReady = { [weak self] in
@@ -54,7 +60,26 @@ import WallpaperCore
             acquired.onDiagnostic = { [weak self] diagnostic in
                 guard let self, self.generation == capturedGeneration,
                       self.state != .closing, self.state != .closed else { return }
-                self.diagnostic = diagnostic; self.onChange?()
+                self.diagnostic = diagnostic; self.consoleDiagnostics.append(diagnostic); self.onChange?()
+            }
+            acquired.onSceneScriptIssue = { [weak self] raw in
+                guard let self, self.generation == capturedGeneration,
+                      self.state != .closing, self.state != .closed else { return }
+                do {
+                    let issue = try EditorScriptDiagnostic(validated: raw)
+                    if let index = self.scriptIssues.firstIndex(where: { $0.key == issue.key }) { self.scriptIssues[index] = issue }
+                    else { self.scriptIssues.append(issue) }
+                    self.onChange?()
+                } catch { self.fail(error) }
+            }
+            acquired.onSceneScriptRawIssue = { [weak self] rawJSON in
+                guard let self, self.generation == capturedGeneration,
+                      self.state != .closing, self.state != .closed else { return }
+                // The bridge validated the exact schema. Keep its original JSON
+                // bytes because malformed UTF16 cannot be decoded losslessly.
+                if self.rawJSONIdentities.insert(Data(rawJSON.utf8)).inserted {
+                    self.rawJSONReports.append(rawJSON); self.onChange?()
+                }
             }
             onChange?() // Attach the native view before starting its child browser.
             try acquired.start()
@@ -89,7 +114,7 @@ import WallpaperCore
         do {
             try await releasePage()
             try await cleanup()
-            state = .closed; failure = nil; diagnostic = nil
+            state = .closed; failure = nil; diagnostic = nil; scriptIssues = []; consoleDiagnostics = []; rawJSONReports = []; rawJSONIdentities = []
         } catch { fail(error); throw error }
     }
 

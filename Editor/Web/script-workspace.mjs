@@ -1,3 +1,4 @@
+import { scriptLineSelection } from './script-navigation.mjs';
 import { ScriptDraft } from './script-draft.mjs';
 import { initializeScriptView } from './script-workspace-view.mjs';
 import { scriptTargets,scriptInputSource } from './script-workspace-targets.mjs';
@@ -26,6 +27,8 @@ export class ScriptWorkspace {
     bind('remove',async()=>{this.#clearFailure();this.#diagnostics=[];this.#diagnosticSource=undefined;await editor.change(doc=>this.#draft.remove(doc));this.#onDraft();});
     bind('revert',()=>{this.#clearFailure();this.#diagnostics=[];this.#diagnosticSource=undefined;this.#draft?.revert(editor.document);this.#load(editor.document,this.#id,this.#record?.key);this.#onDraft();});
   }
+  get hasPendingInput(){return this.dirty||Boolean(this.#failure)||this.#locked||this.#busy>0||this.#view.pending;}
+  reveal(link){if(this.hasPendingInput)throw new Error(this.#t.navPending);this.#load(this.#editor.document,link.layerId,link.target);this.activate();this.#view.reveal(scriptLineSelection(link.source,link.line));}
   get dirty(){return this.#draft?.dirty??false;}
   get error(){return this.#failure;}
   #clearFailure(){const previous=this.#failure;this.#failure=undefined;if(previous)this.#reset(previous);}

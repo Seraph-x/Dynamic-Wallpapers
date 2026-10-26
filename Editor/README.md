@@ -42,8 +42,8 @@ through **Run preview** in a separate scene page. The
 sources with Check/Apply/Revert/Remove and recoverable drafts. Its bundled
 CodeMirror editor adds JavaScript highlighting, local undo/redo, target-aware
 API hints, lifecycle starters and find/replace without network dependencies.
-Script-bound inspector fields stay read-only. Retained source-linked runtime
-diagnostics remain separate IDE work.
+Script-bound inspector fields stay read-only. [Runtime diagnostics](../docs/editor-script-diagnostics.md) retain actual issues and
+open current or read-only captured source without discarding pending drafts.
 
 Use **File → New Project** or **Open Project**. Imports create complete owned
 copies. **Save** writes the Editor workspace; **Export** creates a standard scene

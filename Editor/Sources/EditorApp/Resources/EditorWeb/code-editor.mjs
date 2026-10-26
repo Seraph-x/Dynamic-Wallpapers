@@ -8,12 +8,12 @@ const highlights=HighlightStyle.define([
 ]);
 
 export class CodeEditor {
-  #view;#t;#onInput;#access=new Compartment();#attributes=new Compartment();#context;#key;#rawSource;#target;#editable=false;#invalid=false;#closed=false;
-  constructor(parent,{t,onInput}) {
-    this.#t=t;this.#onInput=onInput;
+  #view;#t;#onInput;#access=new Compartment();#attributes=new Compartment();#context;#key;#rawSource;#target;#editable=false;#invalid=false;#closed=false;#labelID;#descriptionID;
+  constructor(parent,{t,onInput,labelID='script-source-label',descriptionID='script-note script-diagnostics'}) {
+    this.#t=t;this.#onInput=onInput;this.#labelID=labelID;this.#descriptionID=descriptionID;
     this.#view=new EditorView({parent,state:this.#state('')});
   }
-  #attributesValue(){return {"aria-labelledby":"script-source-label","aria-describedby":"script-note script-diagnostics","aria-invalid":String(this.#invalid),"aria-readonly":String(!this.#editable),tabindex:'0',spellcheck:'false',autocapitalize:'off',autocomplete:'off'};}
+  #attributesValue(){return {"aria-labelledby":this.#labelID,"aria-describedby":this.#descriptionID,"aria-invalid":String(this.#invalid),"aria-readonly":String(!this.#editable),tabindex:'0',spellcheck:'false',autocapitalize:'off',autocomplete:'off'};}
   #completion(context) {
     if(!this.#editable)return null;
     const node=syntaxTree(context.state).resolveInner(context.pos,-1);
@@ -62,5 +62,6 @@ export class CodeEditor {
     if(this.#closed||!this.#editable)throw new Error(this.#t.codeReadOnly);
     this.#view.dispatch({changes:{from:0,to:this.#view.state.doc.length,insert:normalized(source)},selection:{anchor:0},userEvent:'input.template',annotations:isolateHistory.of('full')});this.#view.focus();
   }
+  reveal(location,{focus=true}={}){if(this.#closed)throw new Error(this.#t.codeReadOnly);if(location.available)this.#view.dispatch({selection:{anchor:location.from,head:location.to},effects:EditorView.scrollIntoView(location.from,{y:'center'})});if(focus)this.#view.focus();}
   destroy(){this.#closed=true;this.#view.destroy();}
 }

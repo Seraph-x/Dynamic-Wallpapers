@@ -21,6 +21,8 @@ import WebWallpaperBridge
 extension DWWebPage: EditorAuthoringPage {}
 
 @MainActor protocol EditorPreviewWindow: AnyObject {
+    var capturedScripts: EditorCapturedScriptSnapshot? { get set }
+    var onSource: ((EditorCapturedScriptLink) -> Void)? { get set }
     var onClosed: (() -> Void)? { get set }
     var onError: ((Error, NSWindow?) -> Void)? { get set }
     func start() throws

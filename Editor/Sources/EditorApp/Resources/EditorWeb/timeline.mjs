@@ -58,6 +58,7 @@ export class Timeline {
       this.#frame=requestAnimationFrame(tick);
     };tick();
   }
+  get hasPendingInput(){return this.hasDraft||this.#pending.size>0;}
   get hasDraft(){return this.#keyDraft||this.#settingsDraft||Boolean(this.#drag);}
   #run(operation) {
     const promise=this.#operations.then(operation);this.#pending.add(promise);

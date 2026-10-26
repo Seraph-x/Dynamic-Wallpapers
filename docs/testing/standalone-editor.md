@@ -4,6 +4,54 @@ The Editor is a separate Swift package/application. Main does not depend on its
 authoring target, UI resources or installation. PR 1 supplies file contracts;
 PR 2 supplies the Editor; PR 3 supplies the optional Main handoff and packaging.
 
+## Source-linked runtime diagnostics acceptance
+
+The diagnostics revision adds the scene protocol executable, actual preview
+observer browser fixture, source-navigation browser fixture and native CEF
+script-diagnostics phase to the preceding 34-phase suite (38 phases total).
+Run the same full `EDITOR_NATIVE_TEST_KEYCHAIN=isolated python3 scripts/test-editor-native.py`
+command; each execution phase retains its existing 60-second budget and native
+compilation retains 180 seconds. Do not count a timeout or partial run as a pass.
+
+```sh
+node --test Editor/Web/script-diagnostics.test.mjs Editor/Web/script-navigation.test.mjs Editor/Web/script-navigation-runtime.test.mjs
+node Editor/Web/test-scene-preview-script-runtime.mjs
+node Editor/Web/test-script-navigation.mjs
+node Editor/Web/build.mjs --check
+swift test --package-path Editor
+```
+
+The actual pinned renderer must provide independently expected parse/init/update,
+cursor/animation, effect and general issues, precise available lines and actual
+repetition counts. Timer failures are verified as generic warnings with no
+invented structured identity. The native fixture sends a real >8192-byte Unicode
+layer name through the lossless transport and opens source through the real
+native Editor command path. No issue injection or model source write substitutes
+for renderer/event/navigation acceptance.
+
+Pure protocol tests cover strict JSON/UTF8 and exact fields, wrong type or
+scene/generation, fragment ordering/interleaving, canonical base64, full replay,
+retirement and no publication before final. Swift tests cover immutable captured
+anchors, missing/default/string/duplicate IDs, raw Unicode identity, actual
+count updates, restart/old callbacks, native list selection/buttons, owning-window
+routing and invalid cleanup. Browser navigation checks exact CRLF source lines,
+stale document identities, invalid source and property input preservation,
+read-only Find/copy/local Undo isolation, unavailable/transformed line reasons,
+and five-language light/dark minimum layouts. Raw-mode protocol/native checks
+use an actual truncated emoji error, retain the original JSON escape bytes and
+actual count snapshots, and keep source navigation unavailable with a visible
+reason.
+
+The build records 84 resources: 75 workbench and nine preview. Main runtime is
+unchanged. Seven shared preview files remain exact Main copies; the Editor shell
+and read-only observer bundle are explicitly validated variants. The final revision passed all 38 phases in a fresh directory, 397 JavaScript
+checks, 44 independent Editor tests and 41 targeted Editor Core tests. All 84
+resources reproduced exactly. Product (3), configuration (42) and public-source
+export (16) checks also passed. The first targeted Core command exceeded its
+60-second budget during a cold build; a separate complete build and the same
+60-second skip-build selection then passed. These focused checks do not establish
+a full Main application-suite pass.
+
 ## Offline code tools acceptance
 
 The code-tools runner retains all earlier phases and adds

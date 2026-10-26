@@ -17,8 +17,11 @@ import WebWallpaperBridge
     var onEditorResource: (([String: Any]) -> Void)?
     var onEditorPreview: (() -> Void)?
     var document: [String: Any] = [:]
+    var documentIdentity = "fixture-document"
+    var payloads: [[String: Any]] = []
     var commands: [String] = []
     var invalidDraft = false
+    var revealError: Error?
     var onThaw: (() -> Void)?
     var holdFreeze = false
     var pendingFreeze: (() -> Void)?
@@ -27,13 +30,14 @@ import WebWallpaperBridge
     func close(completion: @escaping (Error?) -> Void) { closed = true; completion(nil) }
     func requestEditorCommand(_ payload: [String: Any], completion: @escaping DWEditorCommandCompletion) {
         let type = payload["type"] as! String
-        commands.append(type)
+        commands.append(type); payloads.append(payload)
+        if type == "reveal-script", let revealError { completion(nil, revealError); return }
         if type == "freeze" && holdFreeze {
-            pendingFreeze = { [document] in completion(["document": document, "dirty": true], nil) }
+            pendingFreeze = { [document, documentIdentity] in completion(["document": document, "documentIdentity": documentIdentity, "dirty": true], nil) }
             onFreeze?(); return
         }
         if type == "snapshot" && invalidDraft { completion(["error": "Invalid visible draft"], nil); return }
-        completion(type == "freeze" ? ["document": document, "dirty": true] : ["document": document], nil)
+        completion(type == "freeze" ? ["document": document, "documentIdentity": documentIdentity, "dirty": true] : ["document": document, "documentIdentity": documentIdentity], nil)
         if type == "thaw" { onThaw?() }
     }
 }
@@ -42,6 +46,8 @@ import WebWallpaperBridge
     var onClosed: (() -> Void)?
     var onError: ((Error, NSWindow?) -> Void)?
     var started = false
+    var capturedScripts: EditorCapturedScriptSnapshot?
+    var onSource: ((EditorCapturedScriptLink) -> Void)?
     func start() throws { started = true }
     func requestClose() async throws { onClosed?() }
 }
@@ -186,6 +192,67 @@ import WebWallpaperBridge
         XCTAssertEqual(page.commands, ["freeze", "snapshot", "thaw"])
         XCTAssertEqual(creations, 1)
         XCTAssertEqual(coordinator.errors.count, 1)
+    }
+
+    func testCapturedSourceNavigationBelongsOnlyToItsOwnerAndIgnoresClosedPreview() async throws {
+        let coordinator = PreviewCoordinatorFixture(root: temporary)
+        let owned = try await coordinator.store.create(title: "Saved", width: 32, height: 32)
+        let page = AuthoringPageFixture(), otherPage = AuthoringPageFixture(), preview = PreviewWindowFixture()
+        page.document = try EditorWindowController.browserDocument(owned.document)
+        page.document["scene"] = ["objects": [["id": 1, "alpha": ["script": "// captured😀\r\nthrow Error()"]]]]
+        page.documentIdentity = "owning-document"
+        let controller = try EditorWindowController(project: owned, coordinator: coordinator, page: page, makePreview: { _, _ in preview })
+        let other = try EditorWindowController(project: owned, coordinator: coordinator, page: otherPage, makePreview: { _, _ in PreviewWindowFixture() })
+        defer { controller.window?.delegate = nil; controller.window?.close(); other.window?.delegate = nil; other.window?.close() }
+        let ready = expectation(description: "Ready"); page.onThaw = { ready.fulfill() }
+        page.onReady?(); await fulfillment(of: [ready], timeout: 2)
+        let captured = expectation(description: "Captured"); page.onThaw = { captured.fulfill() }
+        page.onEditorPreview?(); await fulfillment(of: [captured], timeout: 2)
+        let snapshot = try XCTUnwrap(preview.capturedScripts)
+        let issue = try EditorScriptDiagnostic(validated: ["layerId": 1, "layerName": "", "target": "alpha", "phase": "update", "message": "error", "line": 2, "count": 1])
+        let link = try XCTUnwrap(snapshot.resolve(issue).link)
+        XCTAssertEqual(link.documentIdentity, "owning-document"); XCTAssertEqual(link.source, "// captured😀\r\nthrow Error()")
+        page.document["scene"] = ["objects": []]; page.commands.removeAll()
+        let callback = try XCTUnwrap(preview.onSource)
+        XCTAssertFalse(controller.window?.isVisible ?? true)
+        callback(link)
+        for _ in 0..<20 { await Task.yield() }
+        XCTAssertEqual(page.commands, ["reveal-script"]); XCTAssertTrue(otherPage.commands.isEmpty)
+        XCTAssertTrue(controller.window?.isVisible ?? false, "A successful source link must show its owning Editor")
+        let payload = try XCTUnwrap(page.payloads.last?["link"] as? [String: Any])
+        XCTAssertEqual(payload["source"] as? String, link.source)
+        controller.window?.orderOut(nil); page.revealError = WallpaperError("Intentional navigation failure")
+        let failed = expectation(description: "Failed navigation is surfaced")
+        coordinator.onError = { failed.fulfill() }; callback(link)
+        await fulfillment(of: [failed], timeout: 2)
+        XCTAssertFalse(controller.window?.isVisible ?? true, "Failed navigation must not fabricate a successful focus change")
+        XCTAssertEqual(coordinator.errors.last?.localizedDescription, "Intentional navigation failure")
+        try await preview.requestClose(); callback(link)
+        for _ in 0..<20 { await Task.yield() }
+        XCTAssertEqual(page.commands, ["reveal-script", "reveal-script"], "A closed preview cannot navigate its former owner")
+    }
+
+    func testPreviewNavigationDoesNotRetainReleasedOwner() async throws {
+        let coordinator = PreviewCoordinatorFixture(root: temporary)
+        let owned = try await coordinator.store.create(title: "Saved", width: 32, height: 32)
+        let page = AuthoringPageFixture(), preview = PreviewWindowFixture()
+        page.document = try EditorWindowController.browserDocument(owned.document)
+        page.document["scene"] = ["objects": [["id": 1, "alpha": ["script": "captured"]]]]
+        var owner: EditorWindowController? = try EditorWindowController(project: owned, coordinator: coordinator, page: page, makePreview: { _, _ in preview })
+        weak var weakOwner = owner
+        let ready = expectation(description: "Ready"); page.onThaw = { ready.fulfill() }
+        page.onReady?(); await fulfillment(of: [ready], timeout: 2)
+        let captured = expectation(description: "Captured"); page.onThaw = { captured.fulfill() }
+        page.onEditorPreview?(); await fulfillment(of: [captured], timeout: 2)
+        let issue = try EditorScriptDiagnostic(validated: ["layerId": 1, "layerName": "", "target": "alpha", "phase": "update", "message": "error", "line": NSNull(), "count": 1])
+        let link = try XCTUnwrap(preview.capturedScripts?.resolve(issue).link)
+        let callback = try XCTUnwrap(preview.onSource)
+        owner?.window?.delegate = nil; owner?.window?.close(); owner = nil
+        for _ in 0..<20 { await Task.yield() }
+        XCTAssertNil(weakOwner); weakOwner = nil
+        page.commands.removeAll(); callback(link)
+        for _ in 0..<20 { await Task.yield() }
+        XCTAssertTrue(page.commands.isEmpty)
     }
 
 }

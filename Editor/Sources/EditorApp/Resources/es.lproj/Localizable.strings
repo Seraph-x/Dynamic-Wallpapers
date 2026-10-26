@@ -49,3 +49,22 @@
 "previewState_failed" = "Error en la vista previa";
 "previewState_closing" = "Cerrando la vista previa…";
 "previewState_closed" = "Cerrado";
+
+// Captured SceneScript diagnostics
+"diagnosticIssues" = "Problemas del script";
+"diagnosticOpenSource" = "Abrir código";
+"diagnosticNoLayer" = "Sin capa";
+"diagnosticNoLine" = "No disponible";
+"diagnosticLine" = "Línea";
+"diagnosticConsole" = "Consola / motor";
+"diagnosticSelectIssue" = "Seleccione un problema para consultar el código capturado.";
+"diagnosticConsoleUnmapped" = "Esta entrada de consola / motor no tiene identidad de script.";
+"diagnosticCapturedSource" = "Código capturado; al abrir se comprobará el código actual.";
+"diagnosticReadOnlySource" = "Código capturado · destino de solo lectura.";
+"diagnosticUnknownSource" = "No se pudo identificar el código capturado.";
+"diagnosticAmbiguousSource" = "La identidad de la capa o del código capturado es ambigua.";
+"diagnosticMissingCapture" = "La instantánea no contiene la identidad del documento.";
+"diagnosticInvalidIssue" = "El motor devolvió un problema de script no válido.";
+
+"diagnosticRawJSON" = "Representación de escapes JSON original";
+"diagnosticRawJSONReason" = "El motor devolvió caracteres UTF16 incompletos. Se conservan los escapes JSON originales; no se puede localizar la fuente.";

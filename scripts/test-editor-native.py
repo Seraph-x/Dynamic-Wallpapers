@@ -21,6 +21,7 @@ os.environ['EDITOR_TEST_ARTIFACTS'] = str(run / 'browser-export')
 commands = [
     ('build', ['bash', str(root / 'scripts/build-editor-native-test.sh'), str(run)], 180),
     ('protocol', [str(run / 'protocol-tests')], 60),
+    ('scene-protocol', [str(run / 'scene-protocol-tests')], 60),
     ('browser', ['node', str(root / 'Editor/Web/test-rendering.mjs')], 60),
     ('browser-image', ['node', str(root / 'Editor/Web/test-image-puppet.mjs')], 60),
     ('browser-rest', ['node', str(root / 'Editor/Web/test-model-rest.mjs')], 60),
@@ -35,6 +36,8 @@ commands = [
     ('browser-script-migration', ['node', str(root / 'Editor/Web/test-script-migration.mjs')], 60),
     ('browser-script-contracts', ['node', str(root / 'Editor/Web/test-script-contracts.mjs')], 60),
     ('browser-script-language-runtime', ['node', str(root / 'Editor/Web/test-script-language-runtime.mjs')], 60),
+    ('browser-scene-preview-diagnostics', ['node', str(root / 'Editor/Web/test-scene-preview-script-runtime.mjs')], 60),
+    ('browser-script-navigation', ['node', str(root / 'Editor/Web/test-script-navigation.mjs')], 60),
     ('browser-code-tools', ['node', str(root / 'Editor/Web/test-code-tools.mjs')], 60),
     ('browser-script-workspace', ['node', str(root / 'Editor/Web/test-script-workspace.mjs')], 60),
     ('native', [str(app / 'Contents/MacOS/EditorNativeTests'),
@@ -114,6 +117,9 @@ code_tools_native = [native[0], '--code-tools-only', native[1], native[2], str(r
                      str(run / 'browser-export/CodeToolsLoose'), str(run / 'browser-export/CodeToolsPackage'),
                      str(run / 'browser-export/code-tools-source.json'), str(run / 'browser-export/code-tools-expected.json')]
 commands.append(('native-code-tools', code_tools_native, 60))
+diagnostics_native = [native[0], '--script-diagnostics-only', native[1], native[2], str(run / 'script-diagnostics-context'), native[4],
+                      str(run / 'browser-export/CodeToolsLoose'), str(root / 'Editor/Sources/EditorApp/Resources/ScenePreviewWeb')]
+commands.append(('native-script-diagnostics', diagnostics_native, 60))
 print(f'EDITOR_NATIVE artifacts={run}', flush=True)
 for name, command, budget in commands:
     print(f'EDITOR_NATIVE phase={name} budget={budget}s', flush=True)

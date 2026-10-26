@@ -49,3 +49,22 @@
 "previewState_failed" = "プレビューに失敗しました";
 "previewState_closing" = "プレビューを閉じています…";
 "previewState_closed" = "終了";
+
+// Captured SceneScript diagnostics
+"diagnosticIssues" = "スクリプトの問題";
+"diagnosticOpenSource" = "ソースを開く";
+"diagnosticNoLayer" = "レイヤーなし";
+"diagnosticNoLine" = "不明";
+"diagnosticLine" = "行";
+"diagnosticConsole" = "コンソール / エンジン";
+"diagnosticSelectIssue" = "問題を選択して保存されたソースを確認します。";
+"diagnosticConsoleUnmapped" = "このコンソール / エンジン項目にはスクリプト識別情報がありません。";
+"diagnosticCapturedSource" = "保存されたソース。開くと現在のソースを確認します。";
+"diagnosticReadOnlySource" = "保存されたソース · 読み取り専用の対象。";
+"diagnosticUnknownSource" = "保存されたソースを特定できません。";
+"diagnosticAmbiguousSource" = "保存されたレイヤーまたはソースの識別情報が曖昧です。";
+"diagnosticMissingCapture" = "プレビューにドキュメント識別情報がありません。";
+"diagnosticInvalidIssue" = "ランタイムが無効なスクリプト問題を返しました。";
+
+"diagnosticRawJSON" = "元の JSON エスケープ表現";
+"diagnosticRawJSONReason" = "エンジンが不完全な UTF16 文字を返しました。元の JSON エスケープを保持し、ソース位置は特定できません。";
