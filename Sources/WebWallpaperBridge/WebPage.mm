@@ -264,6 +264,37 @@ std::string entryURL(const std::string& host, const char* entry) {
   if (![self setFrameRate:frameRate error:&error]) { completion(error); return; }
   [self sceneCommand:@{@"type": @"fps", @"fps": @(frameRate)} completion:completion];
 }
+- (void)setSceneUserProperties:(NSDictionary<NSString*, id>*)properties completion:(void (^)(NSError*))completion {
+  DWRequireWebMainThread();
+  if (![properties isKindOfClass:NSDictionary.class]) {
+    completion(DWWebError(@"Scene properties must be a dictionary")); return;
+  }
+  NSMutableDictionary<NSString*, id>* values = [NSMutableDictionary dictionaryWithCapacity:properties.count];
+  for (id name in properties) {
+    id value = properties[name];
+    const bool number = [value isKindOfClass:NSNumber.class];
+    const bool boolean = number && CFGetTypeID((__bridge CFTypeRef)value) == CFBooleanGetTypeID();
+    if (![name isKindOfClass:NSString.class] ||
+        (![value isKindOfClass:NSString.class] && !boolean && !(number && std::isfinite([value doubleValue])))) {
+      completion(DWWebError(@"Scene properties require string names and finite JSON scalar values")); return;
+    }
+    values[name] = [value copy];
+  }
+  [self sceneCommand:@{@"type": @"properties", @"properties": [values copy]} completion:completion];
+}
+- (void)setSceneUserPropertiesJSONData:(NSData*)data completion:(void (^)(NSError*))completion {
+  DWRequireWebMainThread();
+  if (![data isKindOfClass:NSData.class]) {
+    completion(DWWebError(@"Scene property JSON must be data")); return;
+  }
+  NSError* error = nil;
+  id properties = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+  if (!properties) { completion(error); return; }
+  if (![properties isKindOfClass:NSDictionary.class]) {
+    completion(DWWebError(@"Scene property JSON must contain an object")); return;
+  }
+  [self setSceneUserProperties:properties completion:completion];
+}
 - (BOOL)setSceneSpectrumLeft:(NSArray<NSNumber*>*)left right:(NSArray<NSNumber*>*)right error:(NSError**)error {
   DWRequireWebMainThread();
   auto state = _resources->state;

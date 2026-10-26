@@ -13,6 +13,8 @@ import WallpaperAudioSpectrum
     func start() throws
     func setSpectrum(_ value: AudioSpectrum) throws
     func setPlaying(_ value: Bool) async throws
+    func setUserProperties(_ values: [String: Any]) async throws
+    func setUserPropertyData(_ data: Data) async throws
     func close() async throws
 }
 
@@ -26,6 +28,17 @@ import WallpaperAudioSpectrum
     private var page: (any EditorScenePreviewPage)?
     private var generation = UUID()
     private(set) var state: State = .idle
+    private(set) var propertyInspection: Result<EditorPreviewProperties, Error>?
+    var properties: EditorPreviewProperties? {
+        if case .some(.success(let properties)) = propertyInspection { return properties }
+        return nil
+    }
+    var propertyInspectionFailure: Error? {
+        if case .some(.failure(let error)) = propertyInspection { return error }
+        return nil
+    }
+    private(set) var propertyValues = EditorPreviewPropertyValues()
+    private(set) var propertyFailure: Error?
     private(set) var busy = false
     private(set) var failure: Error?
     private(set) var diagnostic: [String: Any]?
@@ -39,8 +52,10 @@ import WallpaperAudioSpectrum
 
     init(makePage: @escaping () throws -> any EditorScenePreviewPage,
          audio: EditorPreviewAudioController? = nil,
+         properties: EditorPreviewProperties? = nil,
          cleanup: @escaping () async throws -> Void) {
         self.makePage = makePage; self.audio = audio; self.cleanup = cleanup
+        propertyInspection = properties.map { .success($0) }; propertyValues = properties?.defaults ?? [:]
     }
 
     func start() throws {
@@ -50,6 +65,7 @@ import WallpaperAudioSpectrum
 
     private func mount() throws {
         generation = UUID(); readyRequested = false; let capturedGeneration = generation
+        propertyValues = properties?.defaults ?? [:]; propertyFailure = nil
         failure = nil; diagnostic = nil; scriptIssues = []; consoleDiagnostics = []; rawJSONReports = []; rawJSONIdentities = []; state = .loading
         do {
             let acquired = try makePage(); page = acquired
@@ -117,6 +133,47 @@ import WallpaperAudioSpectrum
             state = value ? .playing : .paused
             if value { subscribe(page, generation: capturedGeneration) }
         } catch { fail(error); throw error }
+    }
+
+    func configurePropertyInspection(_ inspection: Result<EditorPreviewProperties, Error>?) {
+        precondition(state == .idle, "Captured property inspection cannot change after preview starts")
+        propertyInspection = inspection; propertyValues = properties?.defaults ?? [:]; onChange?()
+    }
+
+    func setUserProperties(_ values: [String: Any]) async throws {
+        if let propertyInspectionFailure { throw propertyInspectionFailure }
+        guard let properties else { throw WallpaperError("Preview has no captured properties") }
+        try await applyPropertyValues(properties.validate(values))
+    }
+
+    private func applyPropertyValues(_ validated: EditorPreviewPropertyValues) async throws {
+        guard !busy, [.playing, .paused].contains(state), let page else {
+            throw WallpaperError("Preview is not ready for property commands")
+        }
+        let data = try validated.encoded()
+        let capturedGeneration = generation
+        busy = true; propertyFailure = nil; onChange?(); defer { busy = false; onChange?() }
+        do {
+            if let failure { throw failure }
+            // NSData avoids importing a dictionary through Swift String keys,
+            // preserving exact Unicode names in one atomic native command.
+            try await page.setUserPropertyData(data)
+            guard generation == capturedGeneration, [.playing, .paused].contains(state) else {
+                throw WallpaperError("Property acknowledgement belongs to a retired preview")
+            }
+            if let failure { throw failure }
+            propertyValues = propertyValues.merging(validated)
+        } catch {
+            propertyFailure = error
+            // Property rejection does not alter play state or system-audio subscription demand.
+            throw error
+        }
+    }
+
+    func resetUserProperties() async throws {
+        if let propertyInspectionFailure { throw propertyInspectionFailure }
+        guard let properties else { throw WallpaperError("Preview has no captured properties") }
+        try await applyPropertyValues(properties.defaults)
     }
 
     func restart() async throws {

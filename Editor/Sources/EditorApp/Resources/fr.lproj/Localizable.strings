@@ -82,3 +82,23 @@
 "previewAudioUnavailable" = "Audio système indisponible : cet aperçu n’a pas de contrôleur audio de l’application.";
 "previewAudioErrorDetail" = "Détails de l’erreur :";
 "previewAudioDisclosure" = "Partagé entre tous les aperçus Editor. L’autorisation macOS est distincte de celle de l’application principale. Analyse pendant la lecture, sans microphone, fichier enregistré ni envoi. L’aperçu reste muet.";
+
+/* Transient independent-preview user properties. */
+"previewProperties" = "Propriétés utilisateur";
+"previewPropertiesNote" = "Les valeurs concernent cet aperçu et ne sont jamais enregistrées. Redémarrer restaure les valeurs capturées. Validez le texte et les nombres avec Entrée ou Appliquer.";
+"previewPropertiesReset" = "Rétablir les valeurs capturées";
+"previewPropertiesApply" = "Appliquer";
+"previewPropertiesEmpty" = "Aucune propriété utilisateur déclarée.";
+"previewPropertiesReadOnly" = "Lecture seule :";
+"previewPropertiesInvalid" = "Saisie non valide :";
+"previewPropertiesCommandError" = "Échec de la mise à jour :";
+"previewPropertyBool" = "Activé";
+"previewPropertyRGB" = "RVB : trois valeurs comprises entre 0 et 1";
+"previewPropertyNumber" = "Nombre fini ; les limites déclarées sont appliquées";
+"previewPropertyInvalidNumber" = "Saisissez un nombre fini";
+"previewPropertyReason_preset-only" = "Valeur prédéfinie sans déclaration générale.";
+"previewPropertyReason_unsupported-name" = "Le moteur figé ne peut pas représenter le nom __proto__.";
+"previewPropertyReason_unsupported-condition" = "Cette condition ne permet pas la modification en aperçu.";
+"previewPropertyReason_unsupported-type" = "Ce type ne permet pas la modification en aperçu.";
+"previewPropertyReason_invalid-declaration" = "La déclaration ou la valeur capturée est invalide.";
+"previewPropertiesInspectionFailed" = "Échec de l’inspection des propriétés :";

@@ -4,6 +4,58 @@ The Editor is a separate Swift package/application. Main does not depend on its
 authoring target, UI resources or installation. PR 1 supplies file contracts;
 PR 2 supplies the Editor; PR 3 supplies the optional Main handoff and packaging.
 
+## Live preview user properties
+
+Independent previews provide transient controls for captured bool, slider, RGB,
+textinput and combo declarations. Controls never save or export these runtime
+values. Reset sends captured defaults in one real command; restart creates a
+fresh scene with those defaults. Strict inspection failures remain visible in
+the property section without blocking an otherwise playable preview.
+
+```sh
+node --test Editor/Web/*.test.mjs scripts/test-scene-runtime.mjs scripts/test-scene-spectrum.mjs scripts/test-scene-properties.mjs
+node Editor/Web/build.mjs --check
+python3 scripts/test-editor-audio-packaging.py
+EDITOR_NATIVE_TEST_KEYCHAIN=isolated python3 scripts/test-editor-native.py
+```
+
+Build Swift tests separately, then run `python3 ../scripts/test.py --skip-build`
+from `Editor/` for the full Editor selection, or add
+`--filter EditorPreviewPropertiesTests` for the 60-second targeted selection.
+The full browser/native runner retains all previous 39 phases and adds
+`browser-preview-properties` and `native-editor-properties`, keeping the
+180-second build and each 60-second execution budget. Use the explicit matching
+full Chrome binary described below.
+
+Authored fixtures check actual callback values and bound GPU colors for all five
+types, repeated changes, exact Unicode names/options, an atomic batch reset,
+pause/repaint/frozen clock, resume, independent pages and fresh-origin defaults.
+The first paused repaint reaches the actual pause instant; after that, separate
+forced frames remain at that exact clock value despite elapsed wall time.
+Malformed JSON/scalars and unknown-property patches fail observably without a
+success acknowledgement or partial callback update. Native checks also play
+loose and PKG exports through Main, compare unchanged source bytes, verify the
+absence of an authoring channel and await complete CEF release.
+
+Native UI tests distinguish CFBoolean/numbers, validate entire patches, retain
+unsupported declarations and canonical-equivalent Unicode names, and cover
+pending acknowledgements, closing, restart, audio demand, captured metadata,
+five-language layouts, invalid drafts and exact Reset. Foundation dictionaries
+and a byte-identity map avoid Swift String-key folding; a data-only JSON bridge
+keeps both names in a single native command.
+See [user-property controls](../editor-preview-properties.md).
+
+The final revision passed 409 JavaScript tests, 87 complete Editor tests,
+41 Editor Core tests and 13 related Main audio/surface tests. A fresh full run
+passed all 41 browser/native phases, including 19 complete native shutdowns,
+without skipped phases or increased budgets. All 85 offline resources reproduced
+exactly. Packaging (5), product (3), configuration (42) and public-source export
+(16) checks passed. The final neutral-source candidate passed ad-hoc signatures,
+dependency closure, localized resources and embedded personal-path checks;
+it was not installed or published. Independent reviews approved the value
+contract, exact Unicode transport, lifecycle/UI and inspection-error isolation.
+These focused checks do not claim a full Main application-suite pass.
+
 ## Preview system audio response
 
 The independent preview can opt in to real system spectrum on macOS 14.2+.

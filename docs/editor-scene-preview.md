@@ -4,10 +4,11 @@
 without saving the workspace or applying wallpaper. The standalone Editor stays
 optional; Main needs no Editor installation for playback.
 
-This is the future Script IDE's execution host. All workbench and model-import
+This is the Script IDE's execution host. All workbench and model-import
 preview mounts use the pinned engine's `scripts:false` option. The edit canvas
 continues property curves and skeletal animation; SceneScript runs in the
-independent scene window. Source Apply and the full IDE UI remain later work.
+independent scene window. Apply source in the Script workspace, then open a new
+preview to execute the captured revision.
 
 ## Use the preview
 
@@ -30,12 +31,18 @@ Preview output is muted. Its system spectrum is zero until the separate,
 default-off [system audio response](editor-preview-audio.md) switch is enabled
 on macOS 14.2+. The edit canvas continues to use zero spectrum. Exported wallpapers retain their original audio-response behavior.
 
+The [User properties](editor-preview-properties.md) section tests captured values
+in place, including a real repaint while paused. Each window keeps independent
+values; reset and restart restore captured defaults. These controls never change
+the saved project, authoring history or exports.
+
 The status area shows loading/playback state, a native failure or the latest
 renderer warning/error. Messages are selectable, scrollable plain text. The
 pinned engine reports some SceneScript exceptions as warnings; these remain
 visible without being silently called successful execution or converted into
-fatal failures. Restart clears the previous generation's diagnostic. Linked
-source navigation and a full runtime issue list are later IDE work.
+fatal failures. Restart clears the previous generation's diagnostic. Captured
+issues and source navigation are described in
+[runtime diagnostics](editor-script-diagnostics.md).
 
 ## Snapshot and lifetime ownership
 

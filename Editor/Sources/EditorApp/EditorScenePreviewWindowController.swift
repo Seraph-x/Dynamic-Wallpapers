@@ -8,6 +8,15 @@ import WebWallpaperBridge
 @MainActor final class EditorScenePreviewWindowController: NSWindowController, NSWindowDelegate, NSTableViewDataSource, NSTableViewDelegate {
     private let session: EditorScenePreviewSession
     private let t: (String) -> String
+    private lazy var propertyControls = EditorPreviewPropertiesView(localize: t)
+    var capturedPropertyInspection: Result<EditorPreviewProperties, Error>? {
+        get { session.propertyInspection }
+        set {
+            session.configurePropertyInspection(newValue)
+            propertyControls.configure(session.properties, inspectionFailure: session.propertyInspectionFailure)
+            update()
+        }
+    }
     private let audioEnabled = NSButton()
     private let audioRetry = NSButton()
     private let audioStatus = NSTextView()
@@ -47,6 +56,15 @@ import WebWallpaperBridge
         window.title = "\(title) — \(localize("previewSnapshot"))"
         window.minSize = NSSize(width: 640, height: 660); window.isReleasedWhenClosed = false
         super.init(window: window); window.delegate = self; window.center()
+        propertyControls.configure(session.properties, inspectionFailure: session.propertyInspectionFailure)
+        propertyControls.onSubmit = { [weak self] values in
+            guard let self else { throw WallpaperError("Preview window was released") }
+            try await self.session.setUserProperties(values)
+        }
+        propertyControls.onReset = { [weak self] in
+            guard let self else { throw WallpaperError("Preview window was released") }
+            try await self.session.resetUserProperties()
+        }
         buildContent(window)
         session.onChange = { [weak self] in self?.update() }
         audioObservation = session.audio?.objectWillChange.sink { [weak self] in
@@ -113,7 +131,7 @@ import WebWallpaperBridge
         let audioDisclosure = NSTextField(wrappingLabelWithString: t("previewAudioDisclosure"))
         audioDisclosure.font = .systemFont(ofSize: NSFont.smallSystemFontSize); audioDisclosure.textColor = .secondaryLabelColor
         buttons.edgeInsets = NSEdgeInsets(top: 6, left: 14, bottom: 0, right: 14)
-        let footer = NSStackView(views: [note, diagnostics, issueLabel, issueScroll, sourceStatus, audioButtons, audioScroll, audioDisclosure]); footer.orientation = .vertical
+        let footer = NSStackView(views: [note, diagnostics, issueLabel, issueScroll, sourceStatus, propertyControls, audioButtons, audioScroll, audioDisclosure]); footer.orientation = .vertical
         footer.alignment = .leading; footer.spacing = 6; footer.edgeInsets = NSEdgeInsets(top: 10, left: 14, bottom: 10, right: 14)
         let footerScroll = NSScrollView(); footerScroll.hasVerticalScroller = true
         footerScroll.drawsBackground = false
@@ -137,6 +155,7 @@ import WebWallpaperBridge
             note.widthAnchor.constraint(equalTo: diagnostics.widthAnchor),
             issueScroll.widthAnchor.constraint(equalTo: diagnostics.widthAnchor),
             sourceStatus.widthAnchor.constraint(equalTo: diagnostics.widthAnchor),
+            propertyControls.widthAnchor.constraint(equalTo: diagnostics.widthAnchor),
             audioButtons.widthAnchor.constraint(equalTo: diagnostics.widthAnchor),
             audioScroll.widthAnchor.constraint(equalTo: diagnostics.widthAnchor),
             audioDisclosure.widthAnchor.constraint(equalTo: diagnostics.widthAnchor),
@@ -159,6 +178,7 @@ import WebWallpaperBridge
         status.string = session.failure?.localizedDescription ??
             (session.diagnostic?["message"] as? String) ?? t("previewState_" + session.state.rawValue)
         status.setAccessibilityLabel(t("previewStatus"))
+        propertyControls.update(values: session.propertyValues, enabled: !session.busy && [.playing, .paused].contains(session.state), origin: session.origin, failure: session.propertyFailure)
         updateAudio()
         reloadIssues()
         updateSourceSelection()

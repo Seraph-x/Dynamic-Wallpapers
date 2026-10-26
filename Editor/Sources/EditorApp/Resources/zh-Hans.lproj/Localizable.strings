@@ -82,3 +82,23 @@
 "previewAudioUnavailable" = "系统音频不可用：此预览未连接应用级音频控制器。";
 "previewAudioErrorDetail" = "错误详情：";
 "previewAudioDisclosure" = "所有 Editor 预览共享此设置，与主程序的 macOS 权限独立。仅在预览播放时分析系统声音；不使用麦克风，不录制文件，不上传。预览输出始终静音。";
+
+/* Transient independent-preview user properties. */
+"previewProperties" = "用户属性";
+"previewPropertiesNote" = "这些值仅影响当前预览，不会保存。重新启动会恢复捕获的默认值。文本和数字通过回车或“应用”提交。";
+"previewPropertiesReset" = "重置为捕获的默认值";
+"previewPropertiesApply" = "应用";
+"previewPropertiesEmpty" = "没有声明的用户属性。";
+"previewPropertiesReadOnly" = "只读：";
+"previewPropertiesInvalid" = "输入无效：";
+"previewPropertiesCommandError" = "属性命令失败：";
+"previewPropertyBool" = "启用";
+"previewPropertyRGB" = "RGB：三个 0 到 1 之间的数值";
+"previewPropertyNumber" = "有限数值；遵守声明的范围";
+"previewPropertyInvalidNumber" = "请输入有限数值";
+"previewPropertyReason_preset-only" = "此预设值没有对应的一般属性声明。";
+"previewPropertyReason_unsupported-name" = "固定版本的渲染器无法表示 __proto__ 属性名。";
+"previewPropertyReason_unsupported-condition" = "实时预览编辑暂不支持此条件。";
+"previewPropertyReason_unsupported-type" = "实时预览编辑暂不支持此属性类型。";
+"previewPropertyReason_invalid-declaration" = "属性声明或捕获的默认值无效。";
+"previewPropertiesInspectionFailed" = "属性检查失败：";

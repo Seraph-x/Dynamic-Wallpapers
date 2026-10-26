@@ -19,6 +19,19 @@ import WebWallpaperBridge
     var startError: Error?
     var closeError: Error?
     var playError: Error?
+    var propertyRequests: [NSDictionary] = []
+    var propertyError: Error?
+    var holdProperties = false
+    var propertyReply: CheckedContinuation<Void, Error>?
+    func setUserProperties(_ values: [String: Any]) async throws {
+        try await setUserPropertyData(JSONSerialization.data(withJSONObject: values))
+    }
+    func setUserPropertyData(_ data: Data) async throws {
+        let values = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? NSDictionary)
+        propertyRequests.append(values)
+        if holdProperties { try await withCheckedThrowingContinuation { propertyReply = $0 } }
+        if let propertyError { throw propertyError }
+    }
     var closed = false
     var playingRequests: [Bool] = []
     var holdPlaying = false

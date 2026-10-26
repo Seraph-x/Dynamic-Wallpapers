@@ -2,7 +2,7 @@
 
 The Script workspace offers a static, offline catalogue for the pinned WebWallGL **3.0.0** runtime. Hints and syntax checking do not execute source or prove its types, runtime capabilities or event delivery. These catalogue limits never make existing author-written source read-only: the source anchor, base value and existing bindings still determine editability.
 
-The current app supplies audio or silence and passes `media: null`. System-media templates are unavailable. Native snapshot previews supply zero spectrum by default; a separate Editor preview opt-in enables real stereo spectrum on macOS 14.2+. Main has its own capture setting. User-property callbacks receive initial values, while live host property updates are not wired in the current app.
+The current app supplies audio or silence and passes `media: null`. System-media templates are unavailable. Native snapshot previews supply zero spectrum by default; a separate Editor preview opt-in enables real stereo spectrum on macOS 14.2+. Main has its own capture setting. User-property callbacks receive initial values. Independent previews can also [test live values](editor-preview-properties.md), including while paused, without saving or changing exports. Main’s ordinary playback still uses authored defaults.
 
 ## Choose a starter
 
@@ -12,7 +12,7 @@ A starter is a complete module. Choosing one edits the draft; Apply commits it. 
 |---|---|---|
 | `init` | `init(value)` plus `update(value)` | All supported anchors. The text companion update keeps the script retained. For maxwidth/pointsize/volume, the starter passes values through because the pinned init argument is unavailable. |
 | `update` | `update(value)` | All supported anchors. Target-aware examples preserve a captured baseline; maxwidth/pointsize/volume use a direct passthrough. |
-| `properties` | `applyUserProperties(properties)` | Records initial property names in `shared.userPropertyKeys`. Values are already unwrapped. It does not assume a named project property or promise live app updates. |
+| `properties` | `applyUserProperties(properties)` | Records delivered property names in `shared.userPropertyKeys`. Receives initial values and live changes from independent preview controls; values are unwrapped. It does not assume a named project property. |
 | `cursor` | `cursorClick(event)` | Records `event.worldPosition` in `shared.cursorWorldPosition`. Requires a rendered, hit-testable layer. Unavailable for effect visibility because the engine does not register its cursor hooks. |
 | `media` | `mediaPropertiesChanged(event)` | Unavailable: the current app passes `media: null`. No normal system-media event stream is promised. |
 | `animation` | `animationEvent(event, value)` | Requires real authored events on the same layer. Available for vectors, alpha/brightness, layer/effect visibility and text. Other numeric anchors have an unsafe pinned dispatch mismatch. |
@@ -59,7 +59,7 @@ Global hints include engine/input, typed thisLayer/thisScene, scriptProperties/s
 
 Useful member scopes include:
 
-- `engine`: runtime/frametime/timeOfDay, canvasSize/screenResolution, initial userProperties, audio resolution constants and buffers, managed timers, registerAsset and host-state query functions. Query functions such as `isRunningInEditor()` must be called.
+- `engine`: runtime/frametime/timeOfDay, canvasSize/screenResolution, current userProperties, audio resolution constants and buffers, managed timers, registerAsset and host-state query functions. Query functions such as `isRunningInEditor()` must be called.
 - `input`: world/screen/normalized cursor positions, previous normalized position and left-button state.
 - `value`: Vec3 members for vector targets, String members for text, no vector members for numbers or booleans.
 - `thisLayer.origin`, `originalOrigin`, `scale`, `color` and `size` on object anchors: the narrower `makeVec3` proxy members, not the full Vec3 API. Text-sandbox origin uses the same narrower proxy; its color/angles/scale are arrays and receive array hints instead.

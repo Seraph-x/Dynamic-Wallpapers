@@ -46,6 +46,7 @@ import WebWallpaperBridge
     var onClosed: (() -> Void)?
     var onError: ((Error, NSWindow?) -> Void)?
     var started = false
+    var capturedPropertyInspection: Result<EditorPreviewProperties, Error>?
     var capturedScripts: EditorCapturedScriptSnapshot?
     var onSource: ((EditorCapturedScriptLink) -> Void)?
     func start() throws { started = true }
@@ -77,6 +78,9 @@ import WebWallpaperBridge
         let page = AuthoringPageFixture(), preview = PreviewWindowFixture()
         var document = try EditorWindowController.browserDocument(owned.document)
         document["title"] = "Unsaved preview"
+        var capturedMetadata = try XCTUnwrap(document["project"] as? [String: Any])
+        capturedMetadata["general"] = ["properties": ["unsavedFlag": ["type": "bool", "value": false]]]
+        document["project"] = capturedMetadata
         document["scene"] = ["objects": [], "unsavedProbe": 42]
         let originalResource = Data([1, 2, 3]), stagedResource = Data([4, 5, 6])
         try originalResource.write(to: owned.resources.appendingPathComponent("probe.bin"))
@@ -106,6 +110,7 @@ import WebWallpaperBridge
         XCTAssertEqual(page.commands, ["freeze", "snapshot", "thaw"])
         let project = try XCTUnwrap(exported)
         XCTAssertTrue(preview.started)
+        XCTAssertEqual(try preview.capturedPropertyInspection?.get().defaults["unsavedFlag"], .bool(false))
         let scene = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: project.entryURL)) as? [String: Any])
         XCTAssertEqual(scene["unsavedProbe"] as? Int, 42)
         XCTAssertEqual(try Data(contentsOf: project.root.appendingPathComponent("probe.bin")), stagedResource)
@@ -118,6 +123,36 @@ import WebWallpaperBridge
         XCTAssertEqual(reopened.document, owned.document)
         XCTAssertTrue(coordinator.errors.isEmpty)
         controller.window?.delegate = nil; controller.window?.close()
+    }
+
+    func testNullPropertyMetadataDoesNotBlockOrdinaryPreviewOrWriteWorkspace() async throws {
+        let variants: [[String: Any]] = [
+            ["general": NSNull()], ["general": ["properties": NSNull()]],
+            ["preset": NSNull()], ["general": ["properties": NSNull()], "preset": NSNull()]
+        ]
+        for variant in variants {
+            let coordinator = PreviewCoordinatorFixture(root: temporary)
+            let owned = try await coordinator.store.create(title: "Null metadata", width: 32, height: 32)
+            let page = AuthoringPageFixture(), preview = PreviewWindowFixture()
+            var document = try EditorWindowController.browserDocument(owned.document)
+            var metadata = try XCTUnwrap(document["project"] as? [String: Any])
+            metadata.merge(variant) { _, new in new }; document["project"] = metadata; page.document = document
+            let savedURL = owned.resources.deletingLastPathComponent().appendingPathComponent("workspace.json")
+            let savedBytes = try Data(contentsOf: savedURL)
+            let controller = try EditorWindowController(project: owned, coordinator: coordinator, page: page, makePreview: { _, _ in preview })
+            let ready = expectation(description: "Ready with null property metadata")
+            page.onThaw = { ready.fulfill() }; page.onReady?(); await fulfillment(of: [ready], timeout: 2)
+            page.commands = []
+            let thawed = expectation(description: "Ordinary preview request thaws")
+            page.onThaw = { thawed.fulfill() }; page.onEditorPreview?(); await fulfillment(of: [thawed], timeout: 2)
+            XCTAssertTrue(preview.started, "Property inspection must not prevent an otherwise supported preview")
+            let inspection = try XCTUnwrap(preview.capturedPropertyInspection)
+            XCTAssertThrowsError(try inspection.get(), "The real inspection error must be retained for the preview")
+            XCTAssertEqual(page.commands, ["freeze", "snapshot", "thaw"])
+            XCTAssertTrue(coordinator.errors.isEmpty, "Property inspection errors belong to the preview property section")
+            XCTAssertEqual(try Data(contentsOf: savedURL), savedBytes)
+            controller.window?.delegate = nil; controller.window?.close()
+        }
     }
 
     func testPreviewCallbackRejectsInvalidVisibleDraftAndThawsWithoutExporting() async throws {
