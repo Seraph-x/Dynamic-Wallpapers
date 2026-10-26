@@ -1,5 +1,5 @@
 import XCTest
-@testable import WallpaperApp
+@testable import WallpaperAudioSpectrum
 
 final class AudioSpectrumAnalyzerTests: XCTestCase {
     private func tone(_ frequency: Double, amplitude: Float = 1, count: Int = 4096) -> [Float] {

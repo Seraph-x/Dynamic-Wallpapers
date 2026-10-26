@@ -12,7 +12,7 @@ class HarnessInputTests(unittest.TestCase):
     def inspect(self, directory):
         return subprocess.run(['bash', '-eu', '-c',
             'BIN="$1"; source "$2"; printf "%s\\n" "${SWIFT_HARNESS_IMPORTS[@]}" '
-            '"${SWIFT_CORE_OBJECTS[@]}" "${SWIFT_NATIVE_OBJECTS[@]}" "${SWIFT_WEB_OBJECTS[@]}"',
+            '"${SWIFT_AUDIO_OBJECTS[@]}" "${SWIFT_CORE_OBJECTS[@]}" "${SWIFT_NATIVE_OBJECTS[@]}" "${SWIFT_WEB_OBJECTS[@]}"',
             'harness-input-test', str(directory), str(SCRIPT)],
             text=True, capture_output=True, timeout=60)
 
@@ -20,11 +20,12 @@ class HarnessInputTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='swift build ') as root:
             directory = Path(root) / 'out/Products/Debug'
             directory.mkdir(parents=True)
-            for name in ('WallpaperCore.o', 'WallpaperNative.o', 'WebWallpaperBridge.o'):
+            for name in ('WallpaperAudioSpectrum.o', 'WallpaperCore.o', 'WallpaperNative.o', 'WebWallpaperBridge.o'):
                 (directory / name).touch()
             result = self.inspect(directory)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn('Swift Build consolidated objects', result.stdout)
+            self.assertIn(str(directory / 'WallpaperAudioSpectrum.o'), result.stdout.splitlines())
             self.assertIn(str(directory / 'WallpaperCore.o'), result.stdout.splitlines())
             self.assertIn(str(directory / 'WallpaperNative.o'), result.stdout.splitlines())
             self.assertIn(str(directory / 'WebWallpaperBridge.o'), result.stdout.splitlines())
@@ -34,14 +35,18 @@ class HarnessInputTests(unittest.TestCase):
     def test_legacy_swiftpm_per_source_objects(self):
         with tempfile.TemporaryDirectory(prefix='swift native ') as root:
             directory = Path(root)
-            for name in ('Modules', 'WallpaperCore.build', 'WallpaperNative.build', 'WebWallpaperBridge.build'):
+            for name in ('Modules', 'WallpaperAudioSpectrum.build', 'WallpaperCore.build', 'WallpaperNative.build', 'WebWallpaperBridge.build'):
                 (directory / name).mkdir()
-            for name in ('WallpaperCore.build/Core.swift.o', 'WallpaperNative.build/MediaSurface.swift.o',
+            for name in ('WallpaperAudioSpectrum.build/AudioSpectrumAnalyzer.swift.o',
+                         'WallpaperAudioSpectrum.build/SystemAudioSpectrumController.swift.o',
+                         'WallpaperCore.build/Core.swift.o', 'WallpaperNative.build/MediaSurface.swift.o',
                          'WebWallpaperBridge.build/WebPage.mm.o'):
                 (directory / name).touch()
             result = self.inspect(directory)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn('legacy SwiftPM per-source objects', result.stdout)
+            self.assertIn(str(directory / 'WallpaperAudioSpectrum.build/AudioSpectrumAnalyzer.swift.o'), result.stdout.splitlines())
+            self.assertIn(str(directory / 'WallpaperAudioSpectrum.build/SystemAudioSpectrumController.swift.o'), result.stdout.splitlines())
             self.assertIn(str(directory / 'WallpaperCore.build/Core.swift.o'), result.stdout.splitlines())
             self.assertIn(str(directory / 'WallpaperNative.build/MediaSurface.swift.o'), result.stdout.splitlines())
             self.assertIn(str(directory / 'WebWallpaperBridge.build/WebPage.mm.o'), result.stdout.splitlines())
@@ -54,13 +59,31 @@ class HarnessInputTests(unittest.TestCase):
                     for name in ('WallpaperCore.o', 'WebWallpaperBridge.o'):
                         (directory / name).touch()
                 else:
-                    for name in ('Modules', 'WallpaperCore.build', 'WallpaperNative.build', 'WebWallpaperBridge.build'):
+                    for name in ('Modules', 'WallpaperAudioSpectrum.build', 'WallpaperCore.build', 'WallpaperNative.build', 'WebWallpaperBridge.build'):
                         (directory / name).mkdir()
                     (directory / 'WallpaperCore.build/Core.swift.o').touch()
                     (directory / 'WebWallpaperBridge.build/WebPage.mm.o').touch()
                 result = self.inspect(directory)
                 self.assertNotEqual(result.returncode, 0)
                 self.assertIn('Missing WallpaperNative', result.stderr)
+
+    def test_missing_audio_objects_fail_explicitly_in_both_layouts(self):
+        for consolidated in (True, False):
+            with self.subTest(consolidated=consolidated), tempfile.TemporaryDirectory() as root:
+                directory = Path(root)
+                if consolidated:
+                    for name in ('WallpaperCore.o', 'WallpaperNative.o', 'WebWallpaperBridge.o'):
+                        (directory / name).touch()
+                else:
+                    for name in ('Modules', 'WallpaperCore.build', 'WallpaperNative.build',
+                                 'WallpaperAudioSpectrum.build', 'WebWallpaperBridge.build'):
+                        (directory / name).mkdir()
+                    (directory / 'WallpaperCore.build/Core.swift.o').touch()
+                    (directory / 'WallpaperNative.build/MediaSurface.swift.o').touch()
+                    (directory / 'WebWallpaperBridge.build/WebPage.mm.o').touch()
+                result = self.inspect(directory)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn('Missing WallpaperAudioSpectrum', result.stderr)
 
     def test_unknown_layout_is_an_explicit_failure(self):
         with tempfile.TemporaryDirectory() as root:

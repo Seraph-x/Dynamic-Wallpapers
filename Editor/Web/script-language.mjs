@@ -28,7 +28,7 @@ const arrayMembers = [field('length','number'),...methods('slice map forEach inc
 const engine = [
   ...fields('runtime frametime timeOfDay','number'),field('canvasSize','Vec3 with width/height; scene design size'),
   field('screenResolution','{x:number,y:number}; screen pixels'),field('userProperties','Initial user-property values','The current app does not dispatch live property changes.'),
-  method('registerAudioBuffers','(resolution:number) => {left,right,average:Float32Array}','Main supplies real spectrum or silence; native snapshot preview supplies zero spectrum.'),
+  method('registerAudioBuffers','(resolution:number) => {left,right,average:Float32Array}','Main supplies real spectrum or silence; Editor snapshot preview supplies real spectrum only after its separate opt-in is enabled.'),
   ...['16','32','64'].map(n => ({label:'AUDIO_RESOLUTION_'+n,type:'constant',detail:n})),
   method('setTimeout','(callback, milliseconds) => cancel function'),method('setInterval','(callback, milliseconds) => cancel function'),
   ...methods('clearTimeout clearInterval','(cancelHandle) => void'),method('registerAsset','(path:string) => string; returns the same asset path'),

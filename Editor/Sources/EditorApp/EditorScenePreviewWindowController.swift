@@ -1,4 +1,6 @@
 import AppKit
+import Combine
+import WallpaperAudioSpectrum
 import WallpaperCore
 import WallpaperEditorCore
 import WebWallpaperBridge
@@ -6,6 +8,10 @@ import WebWallpaperBridge
 @MainActor final class EditorScenePreviewWindowController: NSWindowController, NSWindowDelegate, NSTableViewDataSource, NSTableViewDelegate {
     private let session: EditorScenePreviewSession
     private let t: (String) -> String
+    private let audioEnabled = NSButton()
+    private let audioRetry = NSButton()
+    private let audioStatus = NSTextView()
+    private var audioObservation: AnyCancellable?
     private let canvas = NSView()
     private let status = NSTextView()
     private let playback = NSButton()
@@ -22,10 +28,10 @@ import WebWallpaperBridge
     var onError: ((Error, NSWindow?) -> Void)?
 
     convenience init(project: SceneProjectReference, title: String, runtime: DWWebRuntime,
-         localize: @escaping (String) -> String = text) {
+         audio: EditorPreviewAudioController? = nil, localize: @escaping (String) -> String = text) {
         let session = EditorScenePreviewSession(makePage: {
             try EditorNativeScenePreviewPage(runtime: runtime, project: project)
-        }, cleanup: {
+        }, audio: audio, cleanup: {
             // Release large private snapshots away from the AppKit/CEF pump.
             try await Task.detached(priority: .utility) {
                 try FileManager.default.removeItem(at: project.root)
@@ -43,6 +49,9 @@ import WebWallpaperBridge
         super.init(window: window); window.delegate = self; window.center()
         buildContent(window)
         session.onChange = { [weak self] in self?.update() }
+        audioObservation = session.audio?.objectWillChange.sink { [weak self] in
+            Task { @MainActor [weak self] in self?.updateAudio() }
+        }
         update()
     }
     required init?(coder: NSCoder) { fatalError("init(coder:) is unavailable") }
@@ -81,9 +90,38 @@ import WebWallpaperBridge
         openSource.target = self; openSource.action = #selector(revealSource)
         openSource.keyEquivalent = "o"; openSource.keyEquivalentModifierMask = [.command, .shift]
         let buttons = NSStackView(views: [playback, restart, openSource]); buttons.spacing = 8
-        let footer = NSStackView(views: [buttons, note, diagnostics, issueLabel, issueScroll, sourceStatus]); footer.orientation = .vertical
+        audioEnabled.title = t("previewAudioEnabled"); audioEnabled.setButtonType(.switch)
+        audioEnabled.target = self; audioEnabled.action = #selector(toggleAudio)
+        audioEnabled.identifier = NSUserInterfaceItemIdentifier("editor-system-audio-toggle")
+        audioEnabled.setAccessibilityIdentifier("editor-system-audio-toggle")
+        audioRetry.title = t("previewAudioRetry"); audioRetry.bezelStyle = .rounded
+        audioRetry.target = self; audioRetry.action = #selector(retryAudio)
+        audioRetry.identifier = NSUserInterfaceItemIdentifier("editor-system-audio-retry")
+        audioRetry.setAccessibilityIdentifier("editor-system-audio-retry")
+        // Separate rows keep translated controls readable at the minimum width.
+        let audioButtons = NSStackView(views: [audioEnabled, audioRetry]); audioButtons.spacing = 8
+        audioButtons.orientation = .vertical; audioButtons.alignment = .leading
+        audioStatus.font = .systemFont(ofSize: NSFont.smallSystemFontSize)
+        audioStatus.isEditable = false; audioStatus.isSelectable = true; audioStatus.isRichText = false
+        audioStatus.drawsBackground = false; audioStatus.textContainerInset = NSSize(width: 2, height: 2)
+        audioStatus.isVerticallyResizable = true; audioStatus.isHorizontallyResizable = false
+        audioStatus.autoresizingMask = [.width]; audioStatus.textContainer?.widthTracksTextView = true
+        audioStatus.setAccessibilityIdentifier("editor-system-audio-status")
+        let audioScroll = NSScrollView(); audioScroll.hasVerticalScroller = true
+        audioScroll.drawsBackground = false; audioScroll.documentView = audioStatus
+        audioScroll.heightAnchor.constraint(equalToConstant: 48).isActive = true
+        let audioDisclosure = NSTextField(wrappingLabelWithString: t("previewAudioDisclosure"))
+        audioDisclosure.font = .systemFont(ofSize: NSFont.smallSystemFontSize); audioDisclosure.textColor = .secondaryLabelColor
+        buttons.edgeInsets = NSEdgeInsets(top: 6, left: 14, bottom: 0, right: 14)
+        let footer = NSStackView(views: [note, diagnostics, issueLabel, issueScroll, sourceStatus, audioButtons, audioScroll, audioDisclosure]); footer.orientation = .vertical
         footer.alignment = .leading; footer.spacing = 6; footer.edgeInsets = NSEdgeInsets(top: 10, left: 14, bottom: 10, right: 14)
-        let content = NSStackView(views: [canvas, footer]); content.orientation = .vertical
+        let footerScroll = NSScrollView(); footerScroll.hasVerticalScroller = true
+        footerScroll.drawsBackground = false
+        footerScroll.identifier = NSUserInterfaceItemIdentifier("editor-preview-footer-scroll")
+        footer.translatesAutoresizingMaskIntoConstraints = false; footerScroll.documentView = footer
+        // Keep playback controls fixed while all detailed diagnostics and permission
+        // text remain reachable on small displays, including longer translations.
+        let content = NSStackView(views: [canvas, buttons, footerScroll]); content.orientation = .vertical
         content.alignment = .width; content.spacing = 0; content.translatesAutoresizingMaskIntoConstraints = false
         let root = window.contentView!
         root.addSubview(content)
@@ -91,10 +129,17 @@ import WebWallpaperBridge
             content.topAnchor.constraint(equalTo: root.topAnchor), content.bottomAnchor.constraint(equalTo: root.bottomAnchor),
             content.leadingAnchor.constraint(equalTo: root.leadingAnchor), content.trailingAnchor.constraint(equalTo: root.trailingAnchor),
             canvas.heightAnchor.constraint(greaterThanOrEqualToConstant: 280),
+            footerScroll.heightAnchor.constraint(equalToConstant: 310),
+            footer.leadingAnchor.constraint(equalTo: footerScroll.contentView.leadingAnchor),
+            footer.topAnchor.constraint(equalTo: footerScroll.contentView.topAnchor),
+            footer.widthAnchor.constraint(equalTo: footerScroll.contentView.widthAnchor),
             diagnostics.widthAnchor.constraint(equalTo: footer.widthAnchor, constant: -28),
             note.widthAnchor.constraint(equalTo: diagnostics.widthAnchor),
             issueScroll.widthAnchor.constraint(equalTo: diagnostics.widthAnchor),
             sourceStatus.widthAnchor.constraint(equalTo: diagnostics.widthAnchor),
+            audioButtons.widthAnchor.constraint(equalTo: diagnostics.widthAnchor),
+            audioScroll.widthAnchor.constraint(equalTo: diagnostics.widthAnchor),
+            audioDisclosure.widthAnchor.constraint(equalTo: diagnostics.widthAnchor),
         ])
         canvas.setContentHuggingPriority(.defaultLow, for: .vertical)
         footer.setContentHuggingPriority(.required, for: .vertical)
@@ -114,9 +159,34 @@ import WebWallpaperBridge
         status.string = session.failure?.localizedDescription ??
             (session.diagnostic?["message"] as? String) ?? t("previewState_" + session.state.rawValue)
         status.setAccessibilityLabel(t("previewStatus"))
+        updateAudio()
         reloadIssues()
         updateSourceSelection()
     }
+
+    private func updateAudio() {
+        let audio = session.audio
+        audioEnabled.state = audio?.enabled == true ? .on : .off
+        audioEnabled.isEnabled = audio?.supported == true && audio?.shuttingDown == false
+        audioRetry.isHidden = audio?.failure == nil
+        audioRetry.isEnabled = audio?.shuttingDown == false
+        let key: String
+        switch audio?.status {
+        case .unsupported: key = "previewAudioUnsupported"
+        case .disabled: key = "previewAudioDisabled"
+        case .waiting: key = "previewAudioWaiting"
+        case .starting: key = "previewAudioStarting"
+        case .capturing: key = "previewAudioCapturing"
+        case .failed: key = "previewAudioFailed"
+        case nil: key = "previewAudioUnavailable"
+        }
+        audioStatus.string = t(key)
+        if let failure = audio?.failure { audioStatus.string += "\n" + t("previewAudioErrorDetail") + " " + failure.localizedDescription }
+        audioStatus.textColor = audio?.failure == nil ? .secondaryLabelColor : .systemOrange
+        audioStatus.setAccessibilityLabel(t("previewAudioStatus"))
+    }
+    @objc private func toggleAudio() { session.audio?.setEnabled(audioEnabled.state == .on); updateAudio() }
+    @objc private func retryAudio() { session.audio?.retry(); updateAudio() }
 
     func numberOfRows(in tableView: NSTableView) -> Int { session.scriptIssues.count + session.consoleDiagnostics.count + session.rawJSONReports.count }
 

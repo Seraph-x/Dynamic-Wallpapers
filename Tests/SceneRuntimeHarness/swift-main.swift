@@ -1,3 +1,4 @@
+import WallpaperAudioSpectrum
 import AppKit
 import Darwin
 import WallpaperCore

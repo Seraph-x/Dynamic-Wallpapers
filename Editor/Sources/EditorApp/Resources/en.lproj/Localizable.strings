@@ -68,3 +68,17 @@
 
 "diagnosticRawJSON" = "Original JSON escape representation";
 "diagnosticRawJSONReason" = "The engine returned incomplete UTF16 characters. Original JSON escapes are preserved; source navigation is unavailable.";
+
+// Application-wide, opt-in system spectrum for muted previews.
+"previewAudioEnabled" = "System audio for Editor previews";
+"previewAudioRetry" = "Retry system audio";
+"previewAudioStatus" = "System audio status";
+"previewAudioUnsupported" = "System audio requires macOS 14.2 or later.";
+"previewAudioDisabled" = "System audio is off. Preview output remains muted.";
+"previewAudioWaiting" = "Waiting for a playing preview; no system audio is being captured.";
+"previewAudioStarting" = "Starting system audio; allow system audio recording when prompted.";
+"previewAudioCapturing" = "Analyzing system audio for playing Editor previews.";
+"previewAudioFailed" = "System audio stopped. Review the error and retry explicitly.";
+"previewAudioUnavailable" = "System audio is unavailable: this preview has no application audio owner.";
+"previewAudioErrorDetail" = "Error details:";
+"previewAudioDisclosure" = "Shared across all Editor previews. macOS permission is separate from Main. Analyzes system sound while a preview plays; no microphone, files or upload. Preview output stays muted.";

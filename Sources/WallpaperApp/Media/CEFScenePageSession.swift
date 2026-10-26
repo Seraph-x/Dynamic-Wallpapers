@@ -1,3 +1,4 @@
+import WallpaperAudioSpectrum
 import AppKit
 import WallpaperCore
 import WebWallpaperBridge

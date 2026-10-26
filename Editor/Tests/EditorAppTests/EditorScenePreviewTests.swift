@@ -1,13 +1,14 @@
 import AppKit
 import XCTest
 import WallpaperCore
+import WallpaperAudioSpectrum
 import WallpaperEditorCore
 import WebWallpaperBridge
 @testable import EditorApp
 
 // External native-page fixture: controls acknowledgements/failures, never renders
 // or supplies pixel success. Real CEF playback is a separate native acceptance.
-@MainActor private final class PreviewPageFixture: EditorScenePreviewPage {
+@MainActor final class PreviewPageFixture: EditorScenePreviewPage {
     let view = NSView()
     let origin = UUID().uuidString
     var onReady: (() -> Void)?
@@ -20,12 +21,21 @@ import WebWallpaperBridge
     var playError: Error?
     var closed = false
     var playingRequests: [Bool] = []
+    var holdPlaying = false
+    var playReply: CheckedContinuation<Void, Error>?
+    var onPlay: (() -> Void)?
     var onClose: (() -> Void)?
     var holdClose = false
     var closeReply: CheckedContinuation<Void, Error>?
+    var spectra: [AudioSpectrum] = []
+    var spectrumError: Error?
+    func setSpectrum(_ value: AudioSpectrum) throws {
+        if let spectrumError { throw spectrumError }; spectra.append(value)
+    }
     func start() throws { if let startError { throw startError } }
     func setPlaying(_ value: Bool) async throws {
-        playingRequests.append(value)
+        playingRequests.append(value); onPlay?()
+        if holdPlaying { try await withCheckedThrowingContinuation { playReply = $0 } }
         if let playError { throw playError }
     }
     func close() async throws {
@@ -38,6 +48,47 @@ import WebWallpaperBridge
 
 @MainActor final class EditorScenePreviewTests: XCTestCase {
     private let failure = WallpaperError("Intentional native page failure")
+    private func ready(_ page: PreviewPageFixture, _ session: EditorScenePreviewSession) async {
+        page.onReady?()
+        for _ in 0..<50 { if session.state != .loading { return }; await Task.yield() }
+        XCTFail("Native play acknowledgement did not finish")
+    }
+
+    func testReadyWaitsForRealPlayAcknowledgement() async throws {
+        let page = PreviewPageFixture(); page.holdPlaying = true
+        let session = EditorScenePreviewSession(makePage: { page }, cleanup: {})
+        try session.start(); page.onReady?()
+        for _ in 0..<10 { await Task.yield() }
+        XCTAssertEqual(page.playingRequests, [true], "Ready must issue the native play command")
+        XCTAssertEqual(session.state, .loading, "Ready alone cannot claim acknowledged playback")
+        page.playReply?.resume()
+        for _ in 0..<10 { await Task.yield() }
+        try await session.close()
+    }
+
+    func testAcknowledgedPageIsReleasedAfterClose() async throws {
+        var candidate: PreviewPageFixture? = PreviewPageFixture()
+        weak var released = candidate
+        let session = EditorScenePreviewSession(makePage: { try XCTUnwrap(candidate) }, cleanup: {})
+        try session.start(); await ready(try XCTUnwrap(candidate), session)
+        candidate = nil
+        try await session.close()
+        XCTAssertNil(released, "Ready callback must not retain its own page after acknowledged close")
+    }
+
+    func testPendingOldAcknowledgementReleasesPageAfterItCompletes() async throws {
+        var candidate: PreviewPageFixture? = PreviewPageFixture()
+        candidate?.holdPlaying = true; weak var released = candidate
+        let session = EditorScenePreviewSession(makePage: { try XCTUnwrap(candidate) }, cleanup: {})
+        try session.start(); candidate?.onReady?()
+        for _ in 0..<20 { await Task.yield() }
+        let reply = candidate?.playReply; candidate?.playReply = nil
+        candidate = nil; try await session.close()
+        reply?.resume()
+        for _ in 0..<20 { await Task.yield() }
+        XCTAssertNil(released, "Obsolete acknowledgement task must release its old page when complete")
+        XCTAssertEqual(session.state, .closed)
+    }
 
     func testReadinessPlaybackAndCloseAreAcknowledged() async throws {
         let page = PreviewPageFixture()
@@ -46,12 +97,12 @@ import WebWallpaperBridge
         try session.start()
         XCTAssertEqual(session.state, .loading)
         XCTAssertTrue(session.view === page.view)
-        page.onReady?()
+        await ready(page, session)
         XCTAssertEqual(session.state, .playing)
         try await session.setPlaying(false)
         XCTAssertEqual(session.state, .paused)
         try await session.setPlaying(true)
-        XCTAssertEqual(page.playingRequests, [false, true])
+        XCTAssertEqual(page.playingRequests, [true, false, true])
         XCTAssertEqual(session.state, .playing)
         try await session.close()
         XCTAssertTrue(page.closed)
@@ -66,7 +117,7 @@ import WebWallpaperBridge
         let first = PreviewPageFixture(), second = PreviewPageFixture()
         var pages = [first, second], creations = 0, cleanups = 0
         let session = EditorScenePreviewSession(makePage: { creations += 1; return pages.removeFirst() }, cleanup: { cleanups += 1 })
-        try session.start(); first.onReady?()
+        try session.start(); await ready(first, session)
         let oldReady = first.onReady, oldError = first.onError
         let released = expectation(description: "Old page release requested")
         first.holdClose = true; first.onClose = { released.fulfill() }
@@ -80,7 +131,7 @@ import WebWallpaperBridge
         XCTAssertEqual(session.state, .loading)
         oldReady?(); oldError?(failure)
         XCTAssertEqual(session.state, .loading); XCTAssertNil(session.failure)
-        second.onReady?(); XCTAssertEqual(session.state, .playing)
+        await ready(second, session); XCTAssertEqual(session.state, .playing)
         try await session.close(); XCTAssertEqual(cleanups, 1)
     }
 
@@ -108,7 +159,7 @@ import WebWallpaperBridge
     func testCloseFailureKeepsPageAndRootForRetry() async throws {
         let page = PreviewPageFixture(); var cleanups = 0
         let session = EditorScenePreviewSession(makePage: { page }, cleanup: { cleanups += 1 })
-        try session.start(); page.onReady?(); page.closeError = failure
+        try session.start(); await ready(page, session); page.closeError = failure
         do { try await session.close(); XCTFail("Close failure was hidden") } catch {}
         XCTAssertEqual(session.state, .failed); XCTAssertNotNil(session.view)
         XCTAssertEqual(cleanups, 0); XCTAssertFalse(page.closed)
@@ -125,7 +176,7 @@ import WebWallpaperBridge
             if attempts == 2 { throw self.failure }
             return replacement
         }, cleanup: { cleanups += 1 })
-        try session.start(); first.onReady?()
+        try session.start(); await ready(first, session)
         do { try await session.restart(); XCTFail("Restart factory failure was hidden") } catch {}
         XCTAssertTrue(first.closed); XCTAssertNil(session.view)
         XCTAssertEqual(session.state, .failed); XCTAssertEqual(cleanups, 0)
@@ -173,7 +224,7 @@ import WebWallpaperBridge
     func testPlaybackFailureAndAsynchronousRuntimeErrorStayVisible() async throws {
         let page = PreviewPageFixture()
         let session = EditorScenePreviewSession(makePage: { page }, cleanup: {})
-        try session.start(); page.onReady?(); page.playError = failure
+        try session.start(); await ready(page, session); page.playError = failure
         do { try await session.setPlaying(false); XCTFail("Playback failure hidden") } catch {}
         XCTAssertEqual(session.state, .failed); XCTAssertNotNil(session.failure)
         try await session.close()
@@ -188,7 +239,7 @@ import WebWallpaperBridge
     func testRuntimeWarningsAreVisibleAndOldGenerationCannotReplaceNewDiagnostics() async throws {
         let first = PreviewPageFixture(), second = PreviewPageFixture(); var pages = [first, second]
         let session = EditorScenePreviewSession(makePage: { pages.removeFirst() }, cleanup: {})
-        try session.start(); first.onReady?()
+        try session.start(); await ready(first, session)
         first.onDiagnostic?(["level": "warn", "message": "Script update failed", "source": "fixture.js", "line": 7])
         XCTAssertEqual(session.diagnostic?["message"] as? String, "Script update failed")
         XCTAssertEqual(session.state, .playing, "Warnings must not fabricate a fatal failure")
@@ -405,12 +456,13 @@ import WebWallpaperBridge
                 window.appearance = NSAppearance(named: appearance); content.layoutSubtreeIfNeeded()
                 let controls = children(content)
                 let buttons = controls.compactMap { $0 as? NSButton }.filter { $0.target === controller }
-                XCTAssertEqual(buttons.count, 3)
-                XCTAssertEqual(Set(buttons.map(\.title)), Set([localize("previewPause"), localize("previewRestart"), localize("diagnosticOpenSource")]))
+                XCTAssertEqual(buttons.count, 5)
+                XCTAssertEqual(Set(buttons.map(\.title)), Set([localize("previewPause"), localize("previewRestart"), localize("diagnosticOpenSource"), localize("previewAudioEnabled"), localize("previewAudioRetry")]))
                 let labels = controls.compactMap { $0 as? NSTextField }
                 XCTAssertTrue(labels.contains { $0.stringValue == localize("previewSnapshotNote") })
-                let visible: [NSView] = buttons + labels + controls.compactMap({ $0 as? NSScrollView })
+                let visible: [NSView] = (buttons + labels + controls.compactMap({ $0 as? NSScrollView })).filter { !$0.isHidden }
                 for view in visible {
+                    view.scrollToVisible(view.bounds); content.layoutSubtreeIfNeeded()
                     let frame = view.convert(view.bounds, to: content)
                     XCTAssertGreaterThanOrEqual(frame.minX, -1, language)
                     XCTAssertGreaterThanOrEqual(frame.minY, -1, language)

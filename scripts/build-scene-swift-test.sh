@@ -12,9 +12,8 @@ swiftc -sdk "$SDK" -Xclang-linker -isysroot -Xclang-linker "$SDK" -parse-as-libr
   "${SWIFT_HARNESS_IMPORTS[@]}" Tests/SceneRuntimeHarness/{swift-main,system-audio}.swift \
   Sources/WallpaperApp/Media/{SceneSurface,ScenePageSession,CEFScenePageSession,CEFApplicationRuntime,CEFPageSession,WebPageSession,WebRuntimePaths}.swift \
   Sources/WallpaperApp/Playback/PlaybackCloseBarrier.swift Sources/WallpaperApp/ApplicationPaths.swift \
-  Sources/WallpaperApp/Audio/*.swift \
   Sources/WallpaperApp/Transcoding/TranscodeTools.swift \
-  "${SWIFT_CORE_OBJECTS[@]}" "${SWIFT_NATIVE_OBJECTS[@]}" "${SWIFT_WEB_OBJECTS[@]}" \
+  "${SWIFT_AUDIO_OBJECTS[@]}" "${SWIFT_CORE_OBJECTS[@]}" "${SWIFT_NATIVE_OBJECTS[@]}" "${SWIFT_WEB_OBJECTS[@]}" \
   .build/dependencies/cef/wrapper-make/libcef_dll_wrapper/libcef_dll_wrapper.a \
   -Xlinker -lc++ -framework AppKit -framework QuartzCore -framework AVFoundation -framework CoreAudio \
   -framework CoreMedia -framework CoreVideo -o "$APP/Contents/MacOS/SceneSwiftTests"

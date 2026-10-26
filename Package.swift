@@ -557,6 +557,7 @@ let cefWrapper = projectRoot + "/.build/dependencies/cef/wrapper-make/libcef_dll
 let configuredNames = Set(configuration.screenSaverTargets.map(\.name))
 let explicitNames: Set<String> = [
     "MPVBridge", "WebWallpaperBridge", "WallpaperApp", "ScreenSaverLeaseHarness",
+    "WallpaperAudioSpectrum", "WallpaperAudioSpectrumTests",
     "WallpaperCoreTests", "ScreenSaverCoreTests", "ScreenSaverRuntimeTests",
     "WallpaperScreenSaverTests", "WallpaperAppTests", "WallpaperEditorCore", "WallpaperEditorCoreTests",
 ]
@@ -572,6 +573,8 @@ let screenSaverTargets: [Target] = configuration.screenSaverTargets.map { target
 }
 
 let explicitTargets: [Target] = [
+        .target(name: "WallpaperAudioSpectrum", dependencies: ["WallpaperCore"]),
+        .testTarget(name: "WallpaperAudioSpectrumTests", dependencies: ["WallpaperAudioSpectrum"]),
         .target(name: "WallpaperEditorCore", dependencies: ["WallpaperCore"]),
         .testTarget(name: "WallpaperEditorCoreTests", dependencies: ["WallpaperEditorCore", "WallpaperCore"]),
         .target(name: "MPVBridge", publicHeadersPath: "include",
@@ -585,7 +588,7 @@ let explicitTargets: [Target] = [
                 linkerSettings: [.linkedFramework("AppKit"), .linkedFramework("QuartzCore"),
                     .linkedFramework("AVFoundation"), .linkedFramework("CoreAudio"),
                     .unsafeFlags([cefWrapper])]),
-        .executableTarget(name: "WallpaperApp", dependencies: ["WallpaperCore", "WallpaperNative", "ScreenSaverCore", "ScreenSaverRuntime", "MPVBridge", "WebWallpaperBridge"],
+        .executableTarget(name: "WallpaperApp", dependencies: ["WallpaperAudioSpectrum", "WallpaperCore", "WallpaperNative", "ScreenSaverCore", "ScreenSaverRuntime", "MPVBridge", "WebWallpaperBridge"],
                           resources: [.process("Resources/en.lproj"), .process("Resources/zh-Hans.lproj"),
                                       .process("Resources/es.lproj"), .process("Resources/ja.lproj"),
                                       .process("Resources/fr.lproj"), .copy("Resources/SceneRuntime"), .copy("Help")]),
@@ -595,10 +598,11 @@ let explicitTargets: [Target] = [
         .testTarget(name: "ScreenSaverCoreTests", dependencies: ["ScreenSaverCore", "WallpaperCore"]),
         .testTarget(name: "ScreenSaverRuntimeTests", dependencies: ["ScreenSaverRuntime", "ScreenSaverCore", "WallpaperCore", "WallpaperNative"]),
         .testTarget(name: "WallpaperScreenSaverTests", dependencies: ["WallpaperScreenSaver", "ScreenSaverCore"]),
-        .testTarget(name: "WallpaperAppTests", dependencies: ["WallpaperApp", "WallpaperCore", "WallpaperNative", "ScreenSaverCore"])
+        .testTarget(name: "WallpaperAppTests", dependencies: ["WallpaperAudioSpectrum", "WallpaperApp", "WallpaperCore", "WallpaperNative", "ScreenSaverCore"])
 ]
 
 let products: [Product] = [
+    .library(name: "WallpaperAudioSpectrum", targets: ["WallpaperAudioSpectrum"]),
     .library(name: "WallpaperCore", targets: ["WallpaperCore"]),
     .library(name: "WallpaperEditorCore", targets: ["WallpaperEditorCore"]),
     .library(name: "WebWallpaperBridge", targets: ["WebWallpaperBridge"]),

@@ -1,3 +1,4 @@
+import WallpaperAudioSpectrum
 import AppKit
 import AVFoundation
 import CoreAudio
@@ -98,8 +99,8 @@ enum SystemSpectrumEvidence {
                 process.executableURL = URL(fileURLWithPath: "/usr/bin/afplay"); process.arguments = [toneURL.path]
                 try process.run(); external = process
                 try await wait("Actual external tone did not reach CEF audio-reactive pixels") { try isAudioMarker(view, red: true) }
-                let analyzer = try AudioSpectrumAnalyzer(sampleRate: 48000)
-                let leftBand = analyzer.band(for: 1000), rightBand = analyzer.band(for: 4000)
+                // Authored 1 kHz / 4 kHz tones occupy these 64-band logarithmic bins.
+                let leftBand = 36, rightBand = 49
                 try await wait("Real stereo frequencies did not reach the expected bands") {
                     latest.left[leftBand] > 0.1 && latest.right[rightBand] > 0.1 &&
                         latest.left[rightBand] < 0.02 && latest.right[leftBand] < 0.02

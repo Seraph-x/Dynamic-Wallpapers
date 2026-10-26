@@ -47,7 +47,9 @@ version, process, projects and runtime. It is never installed with the wallpaper
 app. The menu-bar **Editor** action opens it when installed; otherwise it asks
 **Download Editor** or **Cancel**, with no automatic installation. Download opens
 the official releases page. The published 1.0.0 binaries predate this feature;
-an independent Editor release has not been published yet.
+an independent Editor release has not been published yet. Independent preview
+windows support optional [system audio response](docs/editor-preview-audio.md)
+on macOS 14.2+, with a separate default-off Editor setting.
 
 Create or import loose/PKG scenes, edit image/text layers with live preview,
 animate transforms/color/opacity on a keyframe timeline, undo/redo, save projects

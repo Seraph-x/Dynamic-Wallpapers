@@ -4,11 +4,12 @@ import WallpaperCore
 
 @available(macOS 14.2, *)
 @MainActor
-final class CoreAudioSpectrumCapture: SystemAudioCapturing {
+public final class CoreAudioSpectrumCapture: SystemAudioCapturing {
     private let resources = AudioTapResources()
-    func start() async throws { try await Task.detached { [resources] in try resources.start() }.value }
-    func snapshot() throws -> AudioSpectrum { try resources.state.snapshot() }
-    func stop() async throws { try await Task.detached { [resources] in try resources.stop() }.value }
+    public init() {}
+    public func start() async throws { try await Task.detached { [resources] in try resources.start() }.value }
+    public func snapshot() throws -> AudioSpectrum { try resources.state.snapshot() }
+    public func stop() async throws { try await Task.detached { [resources] in try resources.stop() }.value }
 }
 
 /// Callback/observer state survives its owner until Core Audio releases both blocks.

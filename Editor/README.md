@@ -11,8 +11,9 @@ rotation, color and opacity; canvas picking/dragging; live preview with
 play/pause; property keyframe animation; image-to-mesh creation; model hierarchy
 and local rest transforms; painted/numeric skin weights; undo/redo; save/reopen; and loose/PKG export.
 Script and property-bound fields remain read-only in the inspector.
-Preview is muted with explicit zero
-system spectrum; exports preserve audio response for wallpaper playback.
+The edit canvas uses zero spectrum. Independent snapshot previews stay muted
+and offer separate, default-off [system audio response](../docs/editor-preview-audio.md)
+on macOS 14.2+. Exports preserve audio response for wallpaper playback.
 The [Model workspace](../docs/editor-model-workspace.md) uses immutable resource
 revisions for complete undo/save/export transactions.
 [File → Import model…](../docs/editor-gltf-import.md) accepts local glTF/GLB
@@ -80,8 +81,8 @@ for the pinned numeric/event restrictions.
 
 The current host passes `media: null`, so system-media starters are unavailable.
 User-property callbacks receive initial values; live host changes are not wired.
-Audio starters read real spectrum or silence in Main; the independent muted
-preview supplies zero spectrum. These limits do not disable editing existing
+Audio starters read real spectrum or silence. Independent muted previews can
+receive live spectrum after enabling their separate System audio response switch. These limits do not disable editing existing
 author-written source.
 
 Imported source bytes remain exact until edited. Input retains consistent CRLF
@@ -99,7 +100,8 @@ The captured revision includes valid pending edits and staged resource versions;
 it does not save the project or apply wallpaper. **Pause/Resume** acknowledges
 the actual scene clock, while **Restart from beginning** releases the old page
 and starts that same snapshot in a fresh page. Later edits require a new preview.
-The preview is muted and receives zero system spectrum. Its status area displays
+The preview output is muted. System spectrum is zero unless its separate
+System audio response switch is enabled. Its status area displays
 the latest actual runtime warning/error as selectable plain text.
 
 The window owns a private scene copy and has no Editor authoring session or

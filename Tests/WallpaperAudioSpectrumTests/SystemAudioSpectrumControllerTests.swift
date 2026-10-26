@@ -1,5 +1,5 @@
 import XCTest
-@testable import WallpaperApp
+@testable import WallpaperAudioSpectrum
 
 @MainActor
 final class SystemAudioSpectrumControllerTests: XCTestCase {
@@ -130,6 +130,72 @@ final class SystemAudioSpectrumControllerTests: XCTestCase {
         XCTAssertEqual(last, .zero)
         XCTAssertEqual(capture.stops, 1)
         XCTAssertEqual(capture.starts, 1)
+        try await controller.shutdown()
+    }
+
+    func testRejectedShutdownRetainsFailedCleanupUntilExplicitRetry() async throws {
+        let capture = Capture()
+        let controller = SystemAudioSpectrumController(supported: true, makeCapture: { capture })
+        let subscriber = UUID()
+        controller.setEnabled(true); controller.setPlaying(subscriber, true)
+        await controller.settled()
+        capture.stopFailure = Failure()
+        do { try await controller.shutdown(); XCTFail("Expected shutdown release failure") }
+        catch { XCTAssertTrue(error is Failure) }
+        controller.cancelShutdown()
+        await controller.settled()
+        XCTAssertEqual(controller.status, .failed)
+        XCTAssertTrue(controller.failure is Failure)
+        XCTAssertEqual(capture.starts, 1)
+        XCTAssertEqual(capture.stops, 1)
+        controller.setPlaying(subscriber, false)
+        capture.stopFailure = nil
+        controller.retry()
+        await controller.settled()
+        XCTAssertEqual(capture.stops, 2)
+        XCTAssertEqual(capture.starts, 1)
+        XCTAssertEqual(controller.status, .waiting)
+        XCTAssertNil(controller.failure)
+        try await controller.shutdown()
+    }
+
+    func testCancelledCompletedShutdownCanAcceptNewCaptureDemand() async throws {
+        let capture = Capture()
+        let controller = SystemAudioSpectrumController(supported: true, makeCapture: { capture })
+        try await controller.shutdown()
+        controller.cancelShutdown()
+        controller.setPlaying(UUID(), true)
+        await controller.settled()
+        XCTAssertEqual(capture.starts, 0)
+        controller.setEnabled(true)
+        await controller.settled()
+        XCTAssertEqual(capture.starts, 1)
+        XCTAssertEqual(controller.status, .capturing)
+        try await controller.shutdown()
+    }
+
+    func testShutdownDuringPendingStartReleasesBeforeCancellationCanResume() async throws {
+        let capture = Capture(); capture.holdStart = true
+        let controller = SystemAudioSpectrumController(supported: true, makeCapture: { capture })
+        let subscriber = UUID()
+        controller.setEnabled(true); controller.setPlaying(subscriber, true)
+        while capture.starting == nil { await Task.yield() }
+        // Removing demand before quitting mirrors the Editor closing its previews.
+        controller.setPlaying(subscriber, false)
+        var shutdownClearedSpectrum = false
+        controller.onSpectrum = { _ in shutdownClearedSpectrum = true }
+        let shutdown = Task { try await controller.shutdown() }
+        while !shutdownClearedSpectrum { await Task.yield() }
+        controller.setPlaying(UUID(), true)
+        capture.starting?.resume(); capture.starting = nil
+        try await shutdown.value
+        XCTAssertEqual(capture.starts, 1)
+        XCTAssertEqual(capture.stops, 1)
+        XCTAssertEqual(controller.status, .disabled)
+        controller.cancelShutdown()
+        await controller.settled()
+        XCTAssertEqual(controller.status, .waiting)
+        XCTAssertEqual(capture.starts, 1, "A rejected quit must not recreate demand from stale callbacks")
         try await controller.shutdown()
     }
 }

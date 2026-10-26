@@ -1,5 +1,6 @@
 import AppKit
 import WallpaperCore
+import WallpaperAudioSpectrum
 import WallpaperEditorCore
 import WebWallpaperBridge
 
@@ -35,6 +36,9 @@ import WebWallpaperBridge
     }
 
     func start() throws { try page.setOutputGain(0); page.start() }
+    func setSpectrum(_ value: AudioSpectrum) throws {
+        try page.setSceneSpectrumLeft(value.left.map { NSNumber(value: $0) }, right: value.right.map { NSNumber(value: $0) })
+    }
     func setPlaying(_ value: Bool) async throws {
         try await withCheckedThrowingContinuation { (reply: CheckedContinuation<Void, Error>) in
             page.setScenePlaying(value) { error in
