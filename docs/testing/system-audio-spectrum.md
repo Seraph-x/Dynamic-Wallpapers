@@ -18,7 +18,7 @@ Build before applying the 60-second focused-test budget:
 
 ```sh
 python3 scripts/swift_sdk.py build --build-tests --disable-sandbox
-python3 scripts/test.py --skip-build --filter 'WallpaperCoreTests|AudioSpectrumAnalyzerTests|SystemAudioSpectrumControllerTests|SceneSurfaceTests|LocalizationResourceTests'
+python3 scripts/test.py --skip-build --filter 'WallpaperCoreTests|WallpaperAudioSpectrumTests|SceneSurfaceTests|LocalizationResourceTests'
 node --test scripts/test-scene-runtime.mjs scripts/test-scene-spectrum.mjs
 python3 scripts/test-product-configuration.py
 python3 scripts/test-app-packaging.py
@@ -88,3 +88,11 @@ During close, an already authorized spectrum request may finish after native
 retirement. It receives an explicit HTTP 410 and a cancellation diagnostic; this
 does not turn a successful page release into a resource-denial failure. Other
 resource denials retain their existing error behavior.
+
+## Shared capture implementation
+
+The FFT, Core Audio driver and serial capture controller now live in
+`Sources/WallpaperAudioSpectrum/`. Main and Editor link this small shared library
+without linking each other’s executable. The original analyzer/controller tests
+live in `Tests/WallpaperAudioSpectrumTests/`. Editor has a separate explicit
+preview opt-in; see [Editor preview audio](../editor-preview-audio.md).

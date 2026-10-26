@@ -68,3 +68,17 @@
 
 "diagnosticRawJSON" = "Representación de escapes JSON original";
 "diagnosticRawJSONReason" = "El motor devolvió caracteres UTF16 incompletos. Se conservan los escapes JSON originales; no se puede localizar la fuente.";
+
+// Application-wide, opt-in system spectrum for muted previews.
+"previewAudioEnabled" = "Audio del sistema para vistas previas de Editor";
+"previewAudioRetry" = "Reintentar audio del sistema";
+"previewAudioStatus" = "Estado del audio del sistema";
+"previewAudioUnsupported" = "El audio del sistema requiere macOS 14.2 o posterior.";
+"previewAudioDisabled" = "El audio del sistema está desactivado. La salida sigue silenciada.";
+"previewAudioWaiting" = "Esperando una vista previa en reproducción; no se captura audio del sistema.";
+"previewAudioStarting" = "Iniciando audio del sistema; permite la grabación de audio del sistema cuando se solicite.";
+"previewAudioCapturing" = "Analizando audio del sistema para las vistas previas de Editor en reproducción.";
+"previewAudioFailed" = "El audio del sistema se ha detenido. Revisa el error y reintenta explícitamente.";
+"previewAudioUnavailable" = "Audio del sistema no disponible: esta vista previa no tiene controlador de audio de la aplicación.";
+"previewAudioErrorDetail" = "Detalles del error:";
+"previewAudioDisclosure" = "Se comparte entre todas las vistas previas de Editor. El permiso de macOS es independiente de la aplicación principal. Analiza durante la reproducción, sin micrófono, archivos grabados ni envíos. La salida sigue silenciada.";

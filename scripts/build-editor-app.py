@@ -62,6 +62,42 @@ def prepare_notices(root, resources):
         'MPV and FFmpeg are not linked or distributed in this application.\n')
 
 
+def editor_resource_root(resources):
+    bundle = resources / RESOURCE_BUNDLE
+    return bundle / 'Contents/Resources' if (bundle / 'Contents/Resources').is_dir() else bundle
+
+
+def prepare_audio_permission_localizations(resources):
+    localized = editor_resource_root(resources)
+    for language in ('en', 'zh-Hans', 'ja', 'fr', 'es'):
+        source = localized / f'{language}.lproj/InfoPlist.strings'
+        if not source.is_file():
+            raise ValueError(f'Missing Editor audio permission localization: {language}')
+        values = json.loads(subprocess.check_output(['plutil', '-convert', 'json', '-o', '-', str(source)], text=True))
+        if set(values) != {'NSAudioCaptureUsageDescription'} or not isinstance(values['NSAudioCaptureUsageDescription'], str) or not values['NSAudioCaptureUsageDescription'].strip():
+            raise ValueError(f'Invalid Editor audio permission localization: {language}')
+        target = resources / f'{language}.lproj'
+        target.mkdir(exist_ok=True)
+        shutil.copy2(source, target / 'InfoPlist.strings')
+
+
+def verify_offline_resources(resources, root):
+    localized = editor_resource_root(resources)
+    provenance = json.loads((root / 'Editor/ThirdParty/provenance.json').read_text())
+    for folder, field in (('EditorWeb', 'files'), ('ScenePreviewWeb', 'previewFiles')):
+        for name, digest in provenance[field].items():
+            path = localized / folder / name
+            if not path.is_file() or sha256(path) != digest:
+                raise ValueError(f'Editor resource differs from pinned provenance: {folder}/{name}')
+    shared = ('index.html', 'scene.css', 'scene-runtime.mjs', 'scene-spectrum.mjs',
+              'scene-source.mjs', 'scene-protocol.mjs', 'webwallgl.bundle.mjs')
+    if not {'scene-shell.mjs', 'scene-preview-api.mjs', *shared}.issubset(provenance['previewFiles']):
+        raise ValueError('Missing Editor preview resource provenance')
+    for name in shared:
+        if (localized / 'ScenePreviewWeb' / name).read_bytes() != (root / 'Sources/WallpaperApp/Resources/SceneRuntime' / name).read_bytes():
+            raise ValueError(f'Editor shared preview resource differs from Main: {name}')
+
+
 def verify_payload(app, root, product):
     info = plistlib.loads((app / 'Contents/Info.plist').read_bytes())
     if info != application_metadata(root, product):
@@ -73,15 +109,12 @@ def verify_payload(app, root, product):
     for language in configuration(root, product).localizations:
         if not (localized / f'{language}.lproj/Localizable.strings').is_file():
             raise ValueError(f'Missing Editor localization: {language}')
-    preview = ('index.html', 'scene.css', 'scene-runtime.mjs', 'scene-spectrum.mjs', 'scene-source.mjs',
-               'scene-shell.mjs', 'scene-protocol.mjs', 'webwallgl.bundle.mjs')
-    for relative in ('EditorWeb/index.html', 'EditorWeb/app.mjs', 'EditorWeb/webwallgl.bundle.mjs',
-                     *(f'ScenePreviewWeb/{name}' for name in preview)):
-        if not (localized / relative).is_file():
-            raise ValueError(f'Missing offline Editor resource: {relative}')
-    for name in preview:
-        if (localized / 'ScenePreviewWeb' / name).read_bytes() != (root / 'Sources/WallpaperApp/Resources/SceneRuntime' / name).read_bytes():
-            raise ValueError(f'Editor preview runtime differs from Main: {name}')
+    verify_offline_resources(resources, root)
+    for language in configuration(root, product).localizations:
+        source = localized / f'{language}.lproj/InfoPlist.strings'
+        target = resources / f'{language}.lproj/InfoPlist.strings'
+        if not target.is_file() or target.read_bytes() != source.read_bytes():
+            raise ValueError(f'Missing or changed top-level Editor audio permission localization: {language}')
     for path in app.rglob('*'):
         if path.is_file() and not path.is_symlink():
             # Source roots must not be embedded in distributed executables/resources.
@@ -127,6 +160,7 @@ def build(root, output):
         shutil.copy2(binary, contents / 'MacOS' / product['executable'])
         shutil.copytree(binaries / RESOURCE_BUNDLE, contents / 'Resources' / RESOURCE_BUNDLE)
         shutil.copy2(root / 'Resources/AppIcon.icns', contents / 'Resources/AppIcon.icns')
+        prepare_audio_permission_localizations(contents / 'Resources')
         prepare_notices(source, contents / 'Resources')
         (contents / 'Info.plist').write_bytes(plistlib.dumps(application_metadata(root, product)))
         archive = root / '.build/dependencies' / cef['artifacts'][0]['path']

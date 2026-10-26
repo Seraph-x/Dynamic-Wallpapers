@@ -76,7 +76,8 @@ freeze and thaw, Cancel restores the normal snapshot path.
 
 Unavailable starters stay visible with their reason. The current app passes
 `media: null`, receives only initial user properties, and supplies zero audio
-spectrum to muted snapshot previews. Main can supply real spectrum or silence.
+spectrum to the edit canvas. Muted snapshot previews support separately enabled
+[system audio response](editor-preview-audio.md). Main can supply real spectrum or silence.
 Pinned numeric initialization and animation-dispatch limitations restrict some
 starters; they do not make existing author-written source read-only.
 

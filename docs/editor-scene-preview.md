@@ -26,8 +26,9 @@ independent scene window. Source Apply and the full IDE UI remain later work.
 An open window keeps its captured revision. Editing, undo/redo or saving the
 project does not change that preview; open another snapshot to include those
 changes. Selection and preview controls do not create project history entries.
-Preview audio is muted and its system spectrum is zero, matching Editor preview
-behavior. Exported wallpapers retain their original audio-response behavior.
+Preview output is muted. Its system spectrum is zero until the separate,
+default-off [system audio response](editor-preview-audio.md) switch is enabled
+on macOS 14.2+. The edit canvas continues to use zero spectrum. Exported wallpapers retain their original audio-response behavior.
 
 The status area shows loading/playback state, a native failure or the latest
 renderer warning/error. Messages are selectable, scrollable plain text. The

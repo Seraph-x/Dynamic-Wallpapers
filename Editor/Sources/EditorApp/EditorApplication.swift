@@ -20,6 +20,7 @@ enum EditorApplication {
     private(set) var store: EditorProjectStore!
     private(set) var dataRoot: URL!
     private var lease: Int32 = -1
+    let previewAudio = EditorPreviewAudioController()
     private var runtime: DWWebRuntime?
     private var windows: [UUID: EditorWindowController] = [:]
     private var welcome: NSWindow?
@@ -159,10 +160,16 @@ enum EditorApplication {
         Task {
             do {
                 for controller in Array(windows.values) { guard try await controller.requestClose() else { terminating = false; NSApp.reply(toApplicationShouldTerminate: false); return } }
+                try await previewAudio.shutdown()
                 try runtime?.shutdown()
                 if lease >= 0 { guard Darwin.close(lease) == 0 else { throw WallpaperError("Cannot release Editor lease") }; lease = -1 }
                 NSApp.reply(toApplicationShouldTerminate: true)
-            } catch { terminating = false; show(error); NSApp.reply(toApplicationShouldTerminate: false) }
+            } catch {
+                if previewAudio.shuttingDown { previewAudio.cancelShutdown() }
+                terminating = false
+                if windows.isEmpty { showWelcome() }
+                show(error); NSApp.reply(toApplicationShouldTerminate: false)
+            }
         }
         return .terminateLater
     }

@@ -4,6 +4,70 @@ The Editor is a separate Swift package/application. Main does not depend on its
 authoring target, UI resources or installation. PR 1 supplies file contracts;
 PR 2 supplies the Editor; PR 3 supplies the optional Main handoff and packaging.
 
+## Preview system audio response
+
+The independent preview can opt in to real system spectrum on macOS 14.2+.
+Main and Editor share the WallpaperAudioSpectrum library, while retaining
+separate settings, OS authorization, process exclusion and capture owners.
+
+```sh
+python3 scripts/test.py --skip-build --filter 'WallpaperAudioSpectrumTests|AudioSettingsTests|SceneSurfaceTests'
+(cd Editor && python3 ../scripts/test.py --skip-build --filter 'EditorPreviewAudioTests|EditorScenePreviewAudioTests|EditorScenePreviewTests')
+python3 scripts/test-editor-audio-packaging.py
+EDITOR_NATIVE_TEST_KEYCHAIN=isolated python3 scripts/test-editor-native.py
+```
+
+Build the corresponding test bundles first. Targeted Swift checks keep the
+60-second budget; full native compilation retains 180 seconds and each of its
+39 phases retains 60 seconds. The new Editor spectrum phase sends independently
+specified stereo bands through real native endpoints and verifies all 64 bands,
+channel means, actual GPU colors, pause/resume and fresh-origin zero state.
+That deterministic data test is not evidence of OS capture authorization.
+
+For GPU-dependent browser checks, `SCENE_CHROMIUM_EXECUTABLE` can explicitly
+select the full Chrome for Testing executable matching the locked Playwright
+version. This revision uses Playwright 1.58.2 and Chrome 145.0.7632.6 (build 1208).
+On the validated M1/macOS 27.0.1 host, that full browser enables WebGL2 through
+ANGLE Metal with default launch flags. The matching headless-shell build instead
+reports disabled WebGL and fails even an empty-page context probe. Installed
+Chrome 156 also reproduces image/FK failures on the unchanged baseline; neither
+configuration is counted as passing acceptance. No GPU override, pixel tolerance
+or timeout change is used. Native acceptance continues to use pinned CEF
+152.0.6 / Chromium 152.0.7977.83.
+
+For actual system capture, rebuild and run the separate existing shared-capture
+Main harness:
+
+```sh
+bash scripts/build-scene-swift-test.sh
+python3 scripts/test-scene-swift.py --system-audio
+```
+
+It uses authored external stereo tones, excludes host output, observes actual
+scene pixels and checks tap/device release. Report OS authorization-dependent
+results separately from injected lifecycle tests and known-band pixels. Never
+reset privacy permissions or substitute simulated audio to claim capture.
+
+Packaging verifies the Editor's NSAudioCaptureUsageDescription, copies all five
+InfoPlist.strings files to the actual app Resources, and checks every recorded
+offline resource hash. The Editor-specific diagnostic shell and observer remain
+required; the other seven preview assets remain exact Main copies. Source
+navigation, script isolation and exported source/resource bytes stay intact.
+See [preview audio](../editor-preview-audio.md) for the explicit user controls.
+
+This revision passed all 39 phases in a fresh directory, 397 JavaScript checks,
+70 independent Editor tests, 16 shared spectrum tests, 41 Editor Core tests and
+13 related Main audio/surface tests. All 84 offline resources reproduced exactly.
+Editor audio packaging (4), harness inputs (5), product (3), configuration (42)
+and public-source export (16) checks passed. A neutral-source Editor candidate
+passed ad-hoc signature, dependency-closure, localized-permission and personal-path
+verification; it was not installed or published. Two real Core Audio capture/release
+cycles passed in the separate shared-capture/Main harness, including external
+stereo tones, host-output exclusion, cleared spectrum and restored tap/device
+inventories. These results distinguish real OS capture from Editor lifecycle
+fixtures and known-band CEF rendering; they do not claim manual acceptance of
+the standalone Editor's own OS permission dialog or a full Main test-suite pass.
+
 ## Source-linked runtime diagnostics acceptance
 
 The diagnostics revision adds the scene protocol executable, actual preview

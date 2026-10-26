@@ -1,3 +1,4 @@
+import WallpaperAudioSpectrum
 import SwiftUI
 
 struct SystemAudioSpectrumSettingsSection: View {

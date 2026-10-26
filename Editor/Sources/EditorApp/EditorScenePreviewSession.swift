@@ -1,5 +1,6 @@
 import AppKit
 import WallpaperCore
+import WallpaperAudioSpectrum
 
 @MainActor protocol EditorScenePreviewPage: AnyObject {
     var view: NSView { get }
@@ -10,6 +11,7 @@ import WallpaperCore
     var onSceneScriptIssue: (([String: Any]) -> Void)? { get set }
     var onSceneScriptRawIssue: ((String) -> Void)? { get set }
     func start() throws
+    func setSpectrum(_ value: AudioSpectrum) throws
     func setPlaying(_ value: Bool) async throws
     func close() async throws
 }
@@ -18,6 +20,8 @@ import WallpaperCore
 @MainActor final class EditorScenePreviewSession {
     enum State: String { case idle, loading, playing, paused, failed, closing, closed }
     private let makePage: () throws -> any EditorScenePreviewPage
+    let audio: EditorPreviewAudioController?
+    private var readyRequested = false
     private let cleanup: () async throws -> Void
     private var page: (any EditorScenePreviewPage)?
     private var generation = UUID()
@@ -34,8 +38,9 @@ import WallpaperCore
     var origin: String? { page?.origin }
 
     init(makePage: @escaping () throws -> any EditorScenePreviewPage,
+         audio: EditorPreviewAudioController? = nil,
          cleanup: @escaping () async throws -> Void) {
-        self.makePage = makePage; self.cleanup = cleanup
+        self.makePage = makePage; self.audio = audio; self.cleanup = cleanup
     }
 
     func start() throws {
@@ -44,13 +49,24 @@ import WallpaperCore
     }
 
     private func mount() throws {
-        generation = UUID(); let capturedGeneration = generation
+        generation = UUID(); readyRequested = false; let capturedGeneration = generation
         failure = nil; diagnostic = nil; scriptIssues = []; consoleDiagnostics = []; rawJSONReports = []; rawJSONIdentities = []; state = .loading
         do {
             let acquired = try makePage(); page = acquired
-            acquired.onReady = { [weak self] in
-                guard let self, self.generation == capturedGeneration, self.state == .loading else { return }
-                self.state = .playing; self.onChange?()
+            acquired.onReady = { [weak self, weak acquired] in
+                guard let self, let acquired, self.generation == capturedGeneration, self.state == .loading, !self.readyRequested else { return }
+                self.readyRequested = true
+                Task { @MainActor [weak self] in
+                    guard let self, self.generation == capturedGeneration, self.state == .loading else { return }
+                    do {
+                        try await acquired.setPlaying(true)
+                        guard self.generation == capturedGeneration, self.state == .loading else { return }
+                        self.state = .playing; self.subscribe(acquired, generation: capturedGeneration); self.onChange?()
+                    } catch {
+                        guard self.generation == capturedGeneration, self.state == .loading else { return }
+                        self.fail(error)
+                    }
+                }
             }
             acquired.onError = { [weak self] error in
                 guard let self, self.generation == capturedGeneration,
@@ -90,11 +106,16 @@ import WallpaperCore
         guard !busy, [.playing, .paused].contains(state), let page else {
             throw WallpaperError("Preview is not ready for playback commands")
         }
+        let capturedGeneration = generation
         busy = true; onChange?(); defer { busy = false; onChange?() }
         do {
+            if !value { audio?.removeSubscriber(id: capturedGeneration) }
+            if let failure { throw failure }
             try await page.setPlaying(value)
+            guard generation == capturedGeneration else { return }
             if let failure { throw failure }
             state = value ? .playing : .paused
+            if value { subscribe(page, generation: capturedGeneration) }
         } catch { fail(error); throw error }
     }
 
@@ -120,14 +141,33 @@ import WallpaperCore
 
     private func releasePage() async throws {
         // Invalidate ready/error/diagnostic callbacks before the asynchronous close.
+        let spectrumFailure = audio?.removeSubscriber(id: generation)
         generation = UUID(); state = .closing; onChange?()
         if let page {
-            try await page.close()
-            self.page = nil; onChange?()
+            do { try await page.close(); self.page = nil; onChange?() }
+            catch {
+                if let spectrumFailure { throw WallpaperErrorGroup([spectrumFailure, error]) }
+                throw error
+            }
         }
+        if let spectrumFailure { throw spectrumFailure }
+    }
+
+    private func subscribe(_ page: any EditorScenePreviewPage, generation capturedGeneration: UUID) {
+        audio?.addSubscriber(id: capturedGeneration, deliver: { [weak self, weak page] value in
+            guard let self, self.generation == capturedGeneration, self.state == .playing, let page else { return }
+            try page.setSpectrum(value)
+        }, onFailure: { [weak self] error in
+            guard let self, self.generation == capturedGeneration else { return }
+            self.fail(error)
+        })
     }
 
     private func fail(_ error: Error) {
-        failure = error; state = .failed; onChange?()
+        failure = error
+        if let spectrumFailure = audio?.removeSubscriber(id: generation) {
+            failure = WallpaperErrorGroup([error, spectrumFailure])
+        }
+        state = .failed; onChange?()
     }
 }

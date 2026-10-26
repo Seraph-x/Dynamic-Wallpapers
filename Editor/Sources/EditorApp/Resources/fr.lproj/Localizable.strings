@@ -68,3 +68,17 @@
 
 "diagnosticRawJSON" = "Représentation JSON échappée originale";
 "diagnosticRawJSONReason" = "Le moteur a renvoyé des caractères UTF16 incomplets. Les échappements JSON originaux sont préservés ; la navigation vers la source est indisponible.";
+
+// Application-wide, opt-in system spectrum for muted previews.
+"previewAudioEnabled" = "Audio système pour les aperçus Editor";
+"previewAudioRetry" = "Réessayer l’audio système";
+"previewAudioStatus" = "État de l’audio système";
+"previewAudioUnsupported" = "L’audio système nécessite macOS 14.2 ou ultérieur.";
+"previewAudioDisabled" = "L’audio système est désactivé. L’aperçu reste muet.";
+"previewAudioWaiting" = "En attente d’un aperçu en lecture ; aucun audio système n’est capturé.";
+"previewAudioStarting" = "Démarrage de l’audio système ; autorisez l’enregistrement audio système à la demande.";
+"previewAudioCapturing" = "Analyse de l’audio système pour les aperçus Editor en lecture.";
+"previewAudioFailed" = "L’audio système est arrêté. Consultez l’erreur et réessayez explicitement.";
+"previewAudioUnavailable" = "Audio système indisponible : cet aperçu n’a pas de contrôleur audio de l’application.";
+"previewAudioErrorDetail" = "Détails de l’erreur :";
+"previewAudioDisclosure" = "Partagé entre tous les aperçus Editor. L’autorisation macOS est distincte de celle de l’application principale. Analyse pendant la lecture, sans microphone, fichier enregistré ni envoi. L’aperçu reste muet.";

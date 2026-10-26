@@ -2,10 +2,15 @@ import Accelerate
 import Foundation
 import WallpaperCore
 
-struct AudioSpectrum: Equatable, Sendable {
-    let left: [Float]
-    let right: [Float]
-    static let zero = AudioSpectrum(left: Array(repeating: 0, count: 64), right: Array(repeating: 0, count: 64))
+public struct AudioSpectrum: Equatable, Sendable {
+    public let left: [Float]
+    public let right: [Float]
+    public init(left: [Float], right: [Float]) {
+        self.left = left
+        self.right = right
+    }
+
+    public static let zero = AudioSpectrum(left: Array(repeating: 0, count: 64), right: Array(repeating: 0, count: 64))
 }
 
 /// Confined to the capture queue. Non-overlapping windows bound both work and memory.

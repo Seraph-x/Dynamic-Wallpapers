@@ -68,3 +68,17 @@
 
 "diagnosticRawJSON" = "原始 JSON 转义表示";
 "diagnosticRawJSONReason" = "引擎返回了不完整的 UTF16 字符。完整保留原始 JSON 转义文本；无法定位源码。";
+
+// Application-wide, opt-in system spectrum for muted previews.
+"previewAudioEnabled" = "Editor 预览使用系统音频";
+"previewAudioRetry" = "重试系统音频";
+"previewAudioStatus" = "系统音频状态";
+"previewAudioUnsupported" = "系统音频需要 macOS 14.2 或更新版本。";
+"previewAudioDisabled" = "系统音频已关闭。预览输出始终静音。";
+"previewAudioWaiting" = "等待预览播放；尚未采集系统音频。";
+"previewAudioStarting" = "正在启动系统音频；出现提示时请允许系统音频录制。";
+"previewAudioCapturing" = "正在为播放中的 Editor 预览分析系统音频。";
+"previewAudioFailed" = "系统音频已停止。请查看错误并明确重试。";
+"previewAudioUnavailable" = "系统音频不可用：此预览未连接应用级音频控制器。";
+"previewAudioErrorDetail" = "错误详情：";
+"previewAudioDisclosure" = "所有 Editor 预览共享此设置，与主程序的 macOS 权限独立。仅在预览播放时分析系统声音；不使用麦克风，不录制文件，不上传。预览输出始终静音。";

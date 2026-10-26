@@ -120,6 +120,10 @@ commands.append(('native-code-tools', code_tools_native, 60))
 diagnostics_native = [native[0], '--script-diagnostics-only', native[1], native[2], str(run / 'script-diagnostics-context'), native[4],
                       str(run / 'browser-export/CodeToolsLoose'), str(root / 'Editor/Sources/EditorApp/Resources/ScenePreviewWeb')]
 commands.append(('native-script-diagnostics', diagnostics_native, 60))
+spectrum_native = [native[0], '--editor-spectrum-only', native[1], native[2], str(run / 'spectrum-context'),
+                   str(root / 'Editor/Sources/EditorApp/Resources/ScenePreviewWeb'),
+                   str(root / 'Tests/Fixtures/SceneAnimatedLoose')]
+commands.append(('native-editor-spectrum', spectrum_native, 60))
 print(f'EDITOR_NATIVE artifacts={run}', flush=True)
 for name, command, budget in commands:
     print(f'EDITOR_NATIVE phase={name} budget={budget}s', flush=True)

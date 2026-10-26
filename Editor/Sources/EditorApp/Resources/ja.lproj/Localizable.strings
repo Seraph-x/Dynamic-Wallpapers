@@ -68,3 +68,17 @@
 
 "diagnosticRawJSON" = "元の JSON エスケープ表現";
 "diagnosticRawJSONReason" = "エンジンが不完全な UTF16 文字を返しました。元の JSON エスケープを保持し、ソース位置は特定できません。";
+
+// Application-wide, opt-in system spectrum for muted previews.
+"previewAudioEnabled" = "Editor プレビューでシステム音声を使用";
+"previewAudioRetry" = "システム音声を再試行";
+"previewAudioStatus" = "システム音声の状態";
+"previewAudioUnsupported" = "システム音声には macOS 14.2 以降が必要です。";
+"previewAudioDisabled" = "システム音声はオフです。プレビュー出力は常にミュートです。";
+"previewAudioWaiting" = "プレビューの再生を待っています。音声は収集していません。";
+"previewAudioStarting" = "システム音声を開始中です。要求時にシステム音声の録音を許可してください。";
+"previewAudioCapturing" = "再生中の Editor プレビューでシステム音声を解析しています。";
+"previewAudioFailed" = "システム音声が停止しました。エラーを確認して再試行してください。";
+"previewAudioUnavailable" = "システム音声は利用できません。このプレビューにアプリの音声コントローラがありません。";
+"previewAudioErrorDetail" = "エラーの詳細：";
+"previewAudioDisclosure" = "すべての Editor プレビューで共有されます。macOS の許可はメインアプリとは別です。再生中のみ音声を解析し、マイク、録音ファイル、アップロードは使用しません。出力は常にミュートです。";

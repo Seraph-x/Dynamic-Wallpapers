@@ -3,24 +3,24 @@ import Foundation
 import WallpaperCore
 
 @MainActor
-protocol SystemAudioCapturing: AnyObject {
+public protocol SystemAudioCapturing: AnyObject {
     func start() async throws
     func snapshot() throws -> AudioSpectrum
     func stop() async throws
 }
 
-enum SystemAudioSpectrumStatus: Equatable {
+public enum SystemAudioSpectrumStatus: Equatable {
     case unsupported, disabled, waiting, starting, capturing, failed
 }
 
 /// One shared capture owner. Playback changes never wait for an OS permission dialog.
 @MainActor
-final class SystemAudioSpectrumController: ObservableObject {
-    nonisolated static var isSupported: Bool { if #available(macOS 14.2, *) { true } else { false } }
-    let supported: Bool
-    @Published private(set) var status: SystemAudioSpectrumStatus
-    @Published private(set) var failure: Error?
-    var onSpectrum: ((AudioSpectrum) -> Void)?
+public final class SystemAudioSpectrumController: ObservableObject {
+    nonisolated public static var isSupported: Bool { if #available(macOS 14.2, *) { true } else { false } }
+    public let supported: Bool
+    @Published public private(set) var status: SystemAudioSpectrumStatus
+    @Published public private(set) var failure: Error?
+    public var onSpectrum: ((AudioSpectrum) -> Void)?
     private let makeCapture: @MainActor () throws -> any SystemAudioCapturing
     private var capture: (any SystemAudioCapturing)?
     private var subscribers = Set<UUID>()
@@ -32,7 +32,7 @@ final class SystemAudioSpectrumController: ObservableObject {
     private var transition: Task<Void, Never>?
     private var timer: Timer?
 
-    init(supported: Bool = SystemAudioSpectrumController.isSupported,
+    public init(supported: Bool = SystemAudioSpectrumController.isSupported,
          makeCapture: @escaping @MainActor () throws -> any SystemAudioCapturing = { @MainActor in
              if #available(macOS 14.2, *) { return CoreAudioSpectrumCapture() }
              throw WallpaperError("系统音频响应需要 macOS 14.2 或更新版本。")
@@ -41,11 +41,11 @@ final class SystemAudioSpectrumController: ObservableObject {
         status = supported ? .disabled : .unsupported
     }
 
-    func setEnabled(_ value: Bool) {
+    public func setEnabled(_ value: Bool) {
         guard !shuttingDown, enabled != value else { return }
         enabled = value; reconcile()
     }
-    func setPlaying(_ id: UUID, _ value: Bool) {
+    public func setPlaying(_ id: UUID, _ value: Bool) {
         guard !shuttingDown else { return }
         let wasWanted = wantsCapture
         let changed = value ? subscribers.insert(id).inserted : subscribers.remove(id) != nil
@@ -53,12 +53,20 @@ final class SystemAudioSpectrumController: ObservableObject {
         // permission/start operation. Only a change in capture demand does.
         if changed, wasWanted != wantsCapture { reconcile() }
     }
-    func retry() {
+    public func retry() {
         guard !shuttingDown, failure != nil else { return }
         failure = nil; releaseFailed = false; restartRequested = true
         reconcile()
     }
-    func settled() async { await transition?.value }
+    public func settled() async { await transition?.value }
+
+    /// Resume after a rejected application quit, once `shutdown()` has completed.
+    /// Existing failures and capture ownership remain until explicit Retry.
+    public func cancelShutdown() {
+        guard shuttingDown else { return }
+        shuttingDown = false
+        reconcile()
+    }
 
     private var wantsCapture: Bool { supported && enabled && !subscribers.isEmpty && !shuttingDown && failure == nil }
     private func clear() { timer?.invalidate(); timer = nil; onSpectrum?(.zero) }
@@ -112,7 +120,7 @@ final class SystemAudioSpectrumController: ObservableObject {
             reconcile()
         }
     }
-    func shutdown() async throws {
+    public func shutdown() async throws {
         shuttingDown = true; revision += 1; clear()
         await transition?.value
         do { try await stopCapture(); updateIdleStatus() }

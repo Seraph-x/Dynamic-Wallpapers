@@ -24,7 +24,7 @@ import WebWallpaperBridge
         let page = try runtime.editorPage(withProjectRoot: project.resources.path, runtimeRoot: resources.path,
             configuration: configuration, size: NSSize(width: 1180,height: 760))
         try self.init(project: project, coordinator: coordinator, page: page, makePreview: {
-            EditorScenePreviewWindowController(project: $0, title: $1, runtime: runtime)
+            EditorScenePreviewWindowController(project: $0, title: $1, runtime: runtime, audio: coordinator.previewAudio)
         })
     }
 

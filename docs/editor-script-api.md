@@ -2,7 +2,7 @@
 
 The Script workspace offers a static, offline catalogue for the pinned WebWallGL **3.0.0** runtime. Hints and syntax checking do not execute source or prove its types, runtime capabilities or event delivery. These catalogue limits never make existing author-written source read-only: the source anchor, base value and existing bindings still determine editability.
 
-The current app supplies audio or silence and passes `media: null`. System-media templates are unavailable. Native snapshot preview supplies zero spectrum; Main can supply real stereo spectrum. User-property callbacks receive initial values, while live host property updates are not wired in the current app.
+The current app supplies audio or silence and passes `media: null`. System-media templates are unavailable. Native snapshot previews supply zero spectrum by default; a separate Editor preview opt-in enables real stereo spectrum on macOS 14.2+. Main has its own capture setting. User-property callbacks receive initial values, while live host property updates are not wired in the current app.
 
 ## Choose a starter
 
