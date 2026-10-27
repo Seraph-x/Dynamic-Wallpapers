@@ -1,9 +1,9 @@
 # Bind user properties to layer fields
 
-**Text and font-size bindings are evaluated when the scene loads.** The pinned
-renderer does not rebuild them from temporary live property changes. Edit the
-project's saved default and open a new **Run preview** to verify those fields.
-Visibility, opacity and RGB color bindings also react to live property changes.
+Text, font size, visibility, opacity and RGB color bindings react to live
+property changes, including a single repaint while paused. Text and font-size
+changes reuse the current scene and its scripts. Temporary preview values do
+not change saved project defaults.
 
 ## Connect a property
 
@@ -68,6 +68,6 @@ python3 scripts/test-editor-native.py
 
 The runner includes workbench authoring, an independent renderer contract test
 and native CEF playback. It checks real pixels, numeric choice equality, text
-shape compatibility, load-time text/font limits, removal restoration, modal
+shape compatibility, live text/font updates, removal restoration, modal
 barriers and exact source preservation. Native store tests verify saved binding
 data and reject a stale PKG that does not encode the changed scene.

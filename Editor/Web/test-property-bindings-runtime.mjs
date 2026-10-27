@@ -25,7 +25,7 @@ try{
  try{
   await pixels(actual,[black,black]);assert.deepEqual(await actual.evaluate(()=>globalThis.__bindingTextProbe),{text:'Authored 雪',pointsize:40});
   await actual.evaluate(()=>globalThis.__migrationPlayback.setProperties({enabled:true,opacity:1,tint:'1 0 0',mode:'night',caption:'temporary',fontSize:48}));
-  await pixels(actual,[red,green]);assert.deepEqual(await actual.evaluate(()=>globalThis.__bindingTextProbe),{text:'Authored 雪',pointsize:40},'Pinned load-time text binding capability changed');
+  await pixels(actual,[red,green]);assert.deepEqual(await actual.evaluate(()=>globalThis.__bindingTextProbe),{text:'temporary',pointsize:48},'Live property binding did not update actual text/font state');
   await actual.evaluate(()=>globalThis.__migrationPlayback.setProperties({mode:'day'}));await pixels(actual,[red,black]);
   assert.deepEqual(await actual.evaluate(()=>globalThis.__playbackErrors),[]);
  }finally{await actual.close();}
@@ -53,5 +53,5 @@ try{
  assert.deepEqual(removed.snapshot(),bindingDocument);
  const restored=await start(removed.snapshot());
  try{await pixels(restored,[green,green]);assert.deepEqual(await restored.evaluate(()=>globalThis.__bindingTextProbe),{text:'Original\r\n雪',pointsize:24});await restored.evaluate(()=>globalThis.__migrationPlayback.setProperties({enabled:false,tint:'0 0 1',opacity:0,mode:'day'}));await pixels(restored,[green,green]);}finally{await restored.close();}
- console.log('Binding runtime: real default/live GPU output, numeric choice equality, exact numeric-text shape boundary, load-time text/size limits and removed-binding literal restoration passed');
+ console.log('Binding runtime: real default/live GPU output, numeric choice equality, exact numeric-text shape boundary, live text/font updates and removed-binding literal restoration passed');
 }finally{await h.close();}

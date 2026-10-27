@@ -14,20 +14,20 @@ export class PropertyBindingView {
     const conditionLabel=node('label',t.bindingCondition);conditionLabel.htmlFor=this.condition.id;this.#conditionField.append(conditionLabel,this.condition);
     this.#numeric=node('p',t.bindingNumeric);this.#numeric.className='binding-help';
     const warning=node('p');warning.id='property-binding-warning';
-    const loadNote=node('p',t.bindingLoadTime);loadNote.id='property-binding-load-note';loadNote.className='binding-help';
+    const liveNote=node('p',t.bindingLiveText);liveNote.id='property-binding-live-note';liveNote.className='binding-help';
     const currentTitle=node('h3',t.bindingCurrent),current=node('pre');current.id='property-binding-current';
     this.#error=node('p');this.#error.id='property-binding-error';this.#error.setAttribute('role','alert');this.#error.tabIndex=-1;
     const actions=node('div');actions.className='binding-actions';
     this.cancel=this.#button('cancel',t.bindingCancel);this.remove=this.#button('remove',t.bindingRemove);this.apply=this.#button('apply',t.bindingApply);this.apply.type='submit';this.apply.className='primary-button';
     actions.append(this.cancel,this.remove,this.apply);
-    this.fields.append(label,this.property,unavailable,defaultTitle,this.#default,this.#conditionField,this.#numeric,loadNote,warning,currentTitle,current,actions);
+    this.fields.append(label,this.property,unavailable,defaultTitle,this.#default,this.#conditionField,this.#numeric,liveNote,warning,currentTitle,current,actions);
     this.form.append(this.#error,this.fields);this.dialog.append(title,note,this.form);document.body.append(this.dialog);
     this.property.addEventListener('change',()=>this.#selection());
   }
   #button(name,text){const button=node('button',text);button.type='button';button.id='property-binding-'+name;return button;}
   show(state){
     this.#state=state;this.error('');this.property.replaceChildren();
-    document.getElementById('property-binding-load-note').hidden=!['text','pointsize'].includes(state.field);
+    document.getElementById('property-binding-live-note').hidden=!['text','pointsize'].includes(state.field);
     const placeholder=node('option',this.#t.bindingChoose);placeholder.value='';placeholder.disabled=true;this.property.append(placeholder);
     for(const row of state.choices){const option=node('option',`${row.text??row.name} · ${row.name}${row.incompatible?' — '+this.#t.bindingUnavailable:''}`);option.value=row.name;option.disabled=Boolean(row.incompatible);option.title=row.incompatible??'';this.property.append(option);}
     const unavailable=document.getElementById('property-binding-unavailable');unavailable.hidden=!state.choices.some(row=>row.incompatible);unavailable.querySelector('ul').replaceChildren(...state.choices.filter(row=>row.incompatible).map(row=>node('li',`${row.name}: ${row.incompatible}`)));

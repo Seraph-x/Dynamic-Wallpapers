@@ -175,14 +175,18 @@ static void verifyPropertyBindingsPlayback(DWWebRuntime* runtime,NSString* loose
     require([initial[@"text"] isEqual:@"Authored 雪"]&&[initial[@"pointsize"] isEqual:@40],"Actual renderer layer did not resolve bound initial text/point size");
     editorPropertiesDeliver(page,@{@"enabled":@YES,@"opacity":@1,@"tint":@"1 0 0",@"mode":@"night",@"caption":@"Native caption 雪",@"fontSize":@48});
     bindingsAwaitPixels(page,YES,YES,"Live bindings did not produce direct red and conditional green GPU pixels");
-    // The pinned engine supports these two bindings at load time only. A
-    // live property command must not be reported as changing actual text/font.
     NSDictionary* live=[page previewTestValue:@"globalThis.__bindingTextProbe"];
-    require([live[@"text"] isEqual:@"Authored 雪"]&&[live[@"pointsize"] isEqual:@40],"Pinned text/font load-time capability boundary changed unexpectedly");
+    require([live[@"text"] isEqual:@"Native caption 雪"]&&[live[@"pointsize"] isEqual:@48],"Live property command did not update actual text/font state");
+    previewPlaying(page,NO);
+    editorPropertiesDeliver(page,@{@"caption":@"Paused 雪",@"fontSize":@20});
+    NSDictionary* paused=[page previewTestValue:@"globalThis.__bindingTextProbe"];
+    require([paused[@"text"] isEqual:@"Paused 雪"]&&[paused[@"pointsize"] isEqual:@20],"Acknowledged paused property frame retained old text/font state");
+    require([[[page previewTestValue:@"globalThis.__textWidgets.filter(item=>item.layer.id===3).map(item=>item.ctx.font)"] firstObject] containsString:@"80px"],"Paused text update did not reach the actual text raster");
+    previewPlaying(page,YES);
     editorPropertiesDeliver(page,@{@"mode":@"day"});
     bindingsAwaitPixels(page,YES,NO,"Live combo day did not hide only the conditional GPU target");
     require(!failure,"Native binding playback reported a runtime error");previewClose(page,0,runtime);
-    fprintf(stderr,"Main %s bindings: actual hidden/default and live red/green GPU pixels, conditional toggle and actual load-time text/font state (unchanged by live patch) passed\n",packaged.boolValue?"PKG":"loose");
+    fprintf(stderr,"%s %s bindings: actual hidden/default and live red/green GPU pixels, conditional toggle and actual playing/paused text/font raster passed\n",runtimeRoot.lastPathComponent.UTF8String,packaged.boolValue?"PKG":"loose");
   }}
   require([previewFileBytes(loose) isEqual:looseBytes]&&[previewFileBytes(package) isEqual:packageBytes],"Binding playback changed loose/PKG source bytes");
 }

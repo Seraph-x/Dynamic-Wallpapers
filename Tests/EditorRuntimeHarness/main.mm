@@ -203,6 +203,7 @@ int main(int argc,char**argv) { @autoreleasepool {
       @autoreleasepool {
         verifyPropertyBindingsWorkbench(runtime,@(argv[5]),@(argv[4]),@(argv[3]),@(argv[9]),@(argv[10]));
         verifyPropertyBindingsPlayback(runtime,@(argv[7]),@(argv[8]),@(argv[6]));
+        verifyPropertyBindingsPlayback(runtime,@(argv[7]),@(argv[8]),[[@(argv[4]) stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"ScenePreviewWeb"]);
       }
       require(runtime.activePageCount==0,"Property bindings retained live pages before shutdown");
       require([runtime shutdownWithError:&error],error.localizedDescription.UTF8String ?: "Property binding CEF shutdown failed");

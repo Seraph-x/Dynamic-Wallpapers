@@ -8,11 +8,18 @@ All three notices accompany the app; bundled legal comments are retained.
 `provenance.json` records the npm distribution, integrity and generated SHA-256.
 The original WebWallGL entry is checked against its recorded SHA-256 before
 bundling. `scripts/scene-runtime-build/package-lock.json` fixes all build inputs.
+The build applies the recorded transforms in `scripts/scene-engine-patches.mjs`
+to that verified entry in memory. They update live text/font bindings and text
+layout, draw text textures before the acknowledged frame, isolate asynchronous
+frame acknowledgements and reject outstanding promises on disposal. The patch
+source hash, transformed entry hash, reasons and exact anchor counts are recorded
+in `provenance.json`; the installed upstream source remains untouched.
 To reproduce from a clean checkout:
 
 ```sh
 npm ci --prefix scripts/scene-runtime-build
 node scripts/scene-bundle.mjs --check
+node --test scripts/test-scene-engine-patches.mjs
 node --test scripts/test-scene-runtime.mjs
 node scripts/test-scene-rendering.mjs
 ```
