@@ -44,6 +44,7 @@ public struct MediaItem: Identifiable, Codable, Equatable, Sendable {
     public let origin: MediaOrigin?
     public var customName: String?
     public var isFavorite: Bool
+    public var scenePropertyOverrides: [ScenePropertyOverride]
     public var supportsAudio: Bool { kind == .video || kind == .web || kind == .scene }
     public var name: String {
         if let customName {
@@ -66,14 +67,16 @@ public struct MediaItem: Identifiable, Codable, Equatable, Sendable {
                 duration: Double? = nil, isFavorite: Bool = false,
                 backend: MediaBackend = .native, webProject: WebProjectReference? = nil,
                 sceneProject: SceneProjectReference? = nil,
-                origin: MediaOrigin? = nil, customName: String? = nil) {
+                origin: MediaOrigin? = nil, customName: String? = nil,
+                scenePropertyOverrides: [ScenePropertyOverride] = []) {
         self.id = id; self.url = url; self.kind = kind; self.width = width
         self.height = height; self.duration = duration; self.isFavorite = isFavorite
         self.backend = backend; self.webProject = webProject; self.sceneProject = sceneProject
         self.origin = origin; self.customName = customName
+        self.scenePropertyOverrides = scenePropertyOverrides
     }
     private enum CodingKeys: String, CodingKey {
-        case id, url, kind, width, height, duration, isFavorite, backend, webProject, sceneProject, origin, customName
+        case id, url, kind, width, height, duration, isFavorite, backend, webProject, sceneProject, origin, customName, scenePropertyOverrides
     }
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
@@ -89,8 +92,11 @@ public struct MediaItem: Identifiable, Codable, Equatable, Sendable {
         sceneProject = try values.contains(.sceneProject) ? values.decode(SceneProjectReference.self, forKey: .sceneProject) : nil
         origin = try values.decodeIfPresent(MediaOrigin.self, forKey: .origin)
         customName = try values.decodeIfPresent(String.self, forKey: .customName)
+        scenePropertyOverrides = try values.contains(.scenePropertyOverrides) ? values.decode([ScenePropertyOverride].self, forKey: .scenePropertyOverrides) : []
     }
     public func validateBackend(schema: Int) throws {
+        try ScenePropertyOverride.validate(scenePropertyOverrides)
+        guard kind == .scene || scenePropertyOverrides.isEmpty else { throw WallpaperError("只有场景壁纸可以保存用户属性。") }
         guard (1...Library.currentVersion).contains(schema) else { throw WallpaperError("不支持此素材库版本。") }
         guard schema >= 2 || (backend == .native && kind != .web && kind != .scene && webProject == nil && sceneProject == nil) else {
             throw WallpaperError("旧版素材库不能包含扩展媒体。")
