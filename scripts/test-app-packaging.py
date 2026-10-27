@@ -382,7 +382,9 @@ class PackagingTransactions(unittest.TestCase):
                 (tools / name).write_bytes(f'local {name}'.encode())
                 expected[name] = hashlib.sha256((tools / name).read_bytes()).hexdigest()
             lock = {'modules': {'cef': {'version': '1', 'artifacts': [{'path': 'cef/source'}]},
-                                'mpv': {'artifacts': []}, 'ffmpeg': {'artifacts': []}}}
+                                'mpv': {'artifacts': [], 'source_build': {
+                                    'output': '.build/media-source-complete/mpv'}},
+                                'ffmpeg': {'artifacts': []}}}
             with mock.patch.object(bundle, 'extract_cef_framework'), \
                  mock.patch.object(bundle, 'build_helpers', return_value={}), \
                  mock.patch.object(bundle, 'current_build_environment',
@@ -394,6 +396,7 @@ class PackagingTransactions(unittest.TestCase):
                  mock.patch.object(bundle, 'build_helpers', return_value={}), \
                  mock.patch.object(bundle, 'current_build_environment',
                                    return_value=('27.0', 'clang test')), \
+                 mock.patch('mpv_source_build.verify_built', return_value={'libraries': {}}), \
                  mock.patch.object(bundle, 'verify_record', return_value=expected):
                 result = bundle.copy_dependencies(root, app, stage, lock)
             for name in ('ffmpeg', 'ffprobe'):
@@ -408,6 +411,7 @@ class PackagingTransactions(unittest.TestCase):
                  mock.patch.object(bundle, 'build_helpers', return_value={}), \
                  mock.patch.object(bundle, 'current_build_environment',
                                    return_value=('27.0', 'clang test')), \
+                 mock.patch('mpv_source_build.verify_built', return_value={'libraries': {}}), \
                  mock.patch.object(bundle, 'verify_record', return_value=expected):
                 with self.assertRaisesRegex(ValueError, 'SHA256'):
                     bundle.copy_dependencies(root, changed_app, stage, lock)
@@ -561,12 +565,12 @@ class PackagingTransactions(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'must describe'):
                     materials_module.verify_distribution_materials(materials)
 
-    def test_checked_in_materials_exclude_host_generated_paths_and_keep_incomplete_status(self):
+    def test_checked_in_materials_exclude_host_paths_and_report_actual_component_status(self):
         materials = pathlib.Path(__file__).resolve().parents[1] / 'Resources/ThirdParty'
         status = materials_module.verify_distribution_materials(materials)
-        self.assertFalse(status['complete'])
-        self.assertFalse(status['components']['mpv']['complete'])
-        self.assertFalse(status['components']['ffmpeg']['complete'])
+        self.assertTrue(status['complete'])
+        self.assertTrue(status['components']['mpv']['complete'])
+        self.assertTrue(status['components']['ffmpeg']['complete'])
         self.assertEqual(status['components']['webwallgl']['version'], '3.0.0')
         self.assertEqual(status['components']['mediabunny']['version'], '1.56.0')
         self.assertEqual(status['components']['mediabunny']['license'], 'MPL-2.0')

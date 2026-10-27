@@ -95,23 +95,12 @@ def prepare_cef(root, lock, product_target):
     verify_cef_prepared(lock, dependency_root, product_target=product_target)
 
 
-def sign_mpv(path):
-    subprocess.run(['codesign', '--force', '--sign', '-', str(path)], check=True)
-
-
-def prepare_mpv(root, lock, product_target, *, signer=sign_mpv):
-    dependency_root = Path(root) / '.build/dependencies'
-    module_root = dependency_root / 'mpv'
-    runtime = module_root / 'runtime-lib'
-    if runtime.exists():
-        verify_mpv_prepared(lock, dependency_root, product_target=product_target)
-        return
-    stage = Path(tempfile.mkdtemp(prefix='.runtime-', dir=module_root))
-    for name in expected_mpv_library_names(lock):
-        shutil.copy2(module_root / 'lib' / name, stage / name)
-        signer(stage / name)
-    publish_directory(stage, runtime)
-    verify_mpv_prepared(lock, dependency_root, product_target=product_target)
+def prepare_mpv(root, lock, product_target):
+    if 'source_build' not in lock['modules']['mpv']:
+        raise ValueError('MPV preparation requires controlled source build; historical binaries are unsupported')
+    from mpv_source_build import build
+    build(root)
+    verify_mpv_prepared(lock, Path(root) / '.build/dependencies', product_target=product_target)
 
 
 def prepare_ffmpeg(root, lock, *, sdk_version, toolchain_version):
@@ -150,11 +139,15 @@ def prepare(root, modules=MODULES):
             prepare_cef(root, lock, product_target)
         elif name == 'mpv':
             prepare_mpv(root, lock, product_target)
+            from media_build_materials import export_mpv_record
+            export_mpv_record(root)
         else:
             sdk = selected_sdk()
             version = get_sdk_version(sdk)
             toolchain = subprocess.check_output(['/usr/bin/clang', '--version'], text=True).splitlines()[0]
             prepare_ffmpeg(root, lock, sdk_version=version, toolchain_version=toolchain)
+            from media_build_materials import export_ffmpeg_record
+            export_ffmpeg_record(root)
         print(f'PREPARED verified module={name}', flush=True)
 
 

@@ -12,7 +12,7 @@ import tempfile
 from media_bundle_macho import (inside, rewrite_bundle_rpaths, run, sha256,
                                 sign_bundle, verify_macho_closure)
 from media_bundle_materials import verify_distribution_materials
-from media_dependencies import load_lock, verify_artifact
+from media_dependencies import load_lock, verify_artifact, mpv_prepared_root
 from ffmpeg_build_record import current_build_environment, verify_record
 from product_configuration import load as load_product_configuration
 from localization_bundle import (prepare_localizations, verify_application_localizations,
@@ -249,10 +249,11 @@ def copy_dependencies(root, app, stage, lock, configuration=CONFIG):
     tool_hashes = verify_record(root, lock, sdk_version=sdk, toolchain_version=toolchain)
     frameworks = app / 'Contents/Frameworks'; frameworks.mkdir()
     libraries = frameworks / 'MPV'; libraries.mkdir()
-    for artifact in lock['modules']['mpv']['artifacts']:
-        if artifact['path'].endswith('.dylib'):
-            copy_checked(root / '.build/dependencies' / artifact['path'],
-                         libraries / Path(artifact['path']).name, artifact['sha256'])
+    from mpv_source_build import verify_built
+    mpv_record = verify_built(root)
+    mpv_root = mpv_prepared_root(root, lock)
+    for name, record in sorted(mpv_record['libraries'].items()):
+        copy_checked(mpv_root / 'runtime-lib' / name, libraries / name, record['sha256'])
     cef = lock['modules']['cef']
     extract_cef_framework(root / '.build/dependencies' / cef['artifacts'][0]['path'], frameworks, cef['version'])
     helper = build_helpers(root, stage, frameworks, cef['version'], configuration)
@@ -263,7 +264,8 @@ def copy_dependencies(root, app, stage, lock, configuration=CONFIG):
         source = root / '.build/dependencies' / relative
         copy_checked(source, media_tools / name, digest)
         tool_inputs.append({'path': relative, 'sha256': digest})
-    return {'helper': helper, 'media_tools': tool_inputs}
+    return {'helper': helper, 'media_tools': tool_inputs,
+            'mpv_source_build': mpv_record}
 
 
 def required_payload(app, library_names, configuration=CONFIG):
@@ -358,6 +360,8 @@ def package(root, *, binary, screensaver, output, icon=None):
         raise ValueError(f'Release executable missing/not executable: {binary}')
     verify_help_bundle(bundle_resource_directory(binary.parent / RESOURCE_BUNDLE) / 'Help')
     lock = load_pinned_inputs(root)
+    from media_build_materials import verify_material_build_records
+    verify_material_build_records(root, lock)
     output.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='.packaging-', dir=output.parent) as directory:
         stage = Path(directory); app = stage / configuration.application.bundle_name
@@ -379,7 +383,8 @@ def package(root, *, binary, screensaver, output, icon=None):
             app, product_target=configuration.target,
             main_executable=configuration.application.executable)
         sign_bundle(app)
-        names = [Path(x['path']).name for x in lock['modules']['mpv']['artifacts'] if x['path'].endswith('.dylib')]
+        from media_dependencies import expected_mpv_library_names
+        names = expected_mpv_library_names(lock)
         receipt = verify_candidate(app, names, configuration=configuration)
         receipt.update({'bundle': str(output), 'inputs': inputs,
                         'bundle_file_bytes': sum(p.stat().st_size for p in app.rglob('*') if p.is_file() and not p.is_symlink())})

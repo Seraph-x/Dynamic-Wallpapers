@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "complete": false,
-  "scope": "Source materials and local candidate only; no complete third-party binary redistribution claim",
+  "complete": true,
+  "scope": "Corresponding source, notices and measured media build records; application/release functional acceptance is recorded separately.",
   "components": {
     "cef": {
       "version": "152.0.6+g708dc14+chromium-152.0.7977.83",
@@ -17,8 +17,8 @@
     "ffmpeg": {
       "version": "9.0.1 (n9.0.1)",
       "license": "LGPL-2.1-or-later",
-      "complete": false,
-      "scope": "Pinned unmodified source archive, original notices and portable recipe retained; each local build requires renewed configuration and license review",
+      "complete": true,
+      "scope": "Actual verified tool hashes, compiler/SDK, measured LGPL license and configuration flags retained with complete unchanged corresponding source and recipe",
       "license_files": [
         "FFmpeg/LICENSE.md",
         "FFmpeg/COPYING.LGPLv2.1"
@@ -26,15 +26,46 @@
       "source_record": "FFmpeg/SOURCE.md"
     },
     "mpv": {
-      "version": "IINA 1.4.0 / runtime mpv v0.38.0",
-      "license": "GPL-enabled; embedded FFmpeg GPL-3.0-or-later; remaining component notices incomplete",
-      "complete": false,
-      "scope": "69 exact binary inputs pinned; corresponding source/patch/license records incomplete",
+      "version": "Controlled mpv 0.38.0+18 / c0dd2b32d52c66b9efa85a7ee69965569503f6b8",
+      "license": "GPL-2.0-or-later mpv with LGPL FFmpeg/libplacebo/FriBidi and ISC/MIT/FTL components",
+      "complete": true,
+      "scope": "Actual source build and closed arm64/macOS14 dylib graph verified; complete corresponding source, patches, notices and recipe retained; actual six-fixture native acceptance retained",
       "license_files": [
-        "MPV/COPYING.GPLv2",
-        "MPV/COPYING.GPLv3",
-        "MPV/client.h",
-        "MPV/render.h"
+        "MPV/notices/mpv/Copyright",
+        "MPV/notices/mpv/LICENSE.GPL",
+        "MPV/notices/mpv/LICENSE.LGPL",
+        "MPV/notices/libplacebo/LICENSE",
+        "MPV/notices/libass/COPYING",
+        "MPV/notices/freetype/LICENSE.TXT",
+        "MPV/notices/freetype/docs/FTL.TXT",
+        "MPV/notices/freetype/docs/GPLv2.TXT",
+        "MPV/notices/fribidi/COPYING",
+        "MPV/notices/fribidi/AUTHORS",
+        "MPV/notices/harfbuzz/COPYING",
+        "MPV/notices/harfbuzz/AUTHORS",
+        "MPV/notices/harfbuzz/src/ms-use/COPYING",
+        "MPV/notices/meson/COPYING",
+        "MPV/notices/ninja/COPYING",
+        "MPV/notices/jinja/LICENSE.rst",
+        "MPV/notices/markupsafe/LICENSE.rst",
+        "MPV/notices/fast_float/LICENSE-MIT",
+        "MPV/notices/fast_float/LICENSE-APACHE",
+        "MPV/notices/fast_float/LICENSE-BOOST",
+        "MPV/notices/fast_float/AUTHORS",
+        "MPV/notices/ffmpeg/LICENSE.md",
+        "MPV/notices/ffmpeg/COPYING.LGPLv2.1",
+        "MPV/notices/ffmpeg/COPYING.GPLv2",
+        "MPV/notices/ffmpeg/COPYING.LGPLv3",
+        "MPV/notices/ffmpeg/COPYING.GPLv3",
+        "MPV/notices/lua/doc/readme.html",
+        "MPV/notices/lua/src/lua.h",
+        "MPV/notices/vulkan_headers/LICENSE.txt",
+        "MPV/notices/dav1d/COPYING",
+        "MPV/notices/xz/COPYING",
+        "MPV/notices/xz/COPYING.0BSD",
+        "MPV/notices/xz/COPYING.GPLv2",
+        "MPV/notices/xz/COPYING.GPLv3",
+        "MPV/notices/xz/COPYING.LGPLv2.1"
       ],
       "source_record": "MPV/SOURCE-STATUS.md"
     },
@@ -69,10 +100,7 @@
       "source_record": "WebWallGL/README.md"
     }
   },
-  "unresolved": [
-    "Locally rebuilt FFmpeg configuration and resulting binary license must be reviewed for each distribution build.",
-    "Exact corresponding sources, patches and per-project copyright/license notices for the 69-library IINA mpv closure are incomplete."
-  ],
+  "unresolved": [],
   "files": [
     {
       "path": "CEF/CREDITS.html",
@@ -88,6 +116,11 @@
       "path": "CEF/SOURCE.md",
       "sha256": "741b0cc47ffb97b6487b663cfa7f4963da8a58f1c5eda1c4cc890b279e7f62a0",
       "size": 1151
+    },
+    {
+      "path": "FFmpeg/BUILD-RECORD.json",
+      "sha256": "78153fe54b0cdf1598956121de785002820fe63fa572876273ec4a2d61b50f44",
+      "size": 1614
     },
     {
       "path": "FFmpeg/COPYING.GPLv2",
@@ -116,8 +149,8 @@
     },
     {
       "path": "FFmpeg/SOURCE.md",
-      "sha256": "476dadc39c36c0526667d328adce139efa7e14fd08b13e3649a80857753bff5a",
-      "size": 1980
+      "sha256": "79fd3eb0ede3a1a0ae8b7febbde9bbdbd607f9de83c3a68cba48ce8e473ad5e2",
+      "size": 2621
     },
     {
       "path": "FFmpeg/build.sh",
@@ -128,6 +161,21 @@
       "path": "FFmpeg/ffmpeg-n9.0.1-source.tar.gz",
       "sha256": "195d54bebe1a27f84d77f4b989d193466f305b355da92292766a69f16880b18a",
       "size": 17306989
+    },
+    {
+      "path": "MPV/BUILD-RECORD.json",
+      "sha256": "4f100661c6eb505478b0631c1a4efbb2a78e079ca728189d0455e3e5de02e3fd",
+      "size": 10514
+    },
+    {
+      "path": "MPV/CODEC-AUDIT.json",
+      "sha256": "b2eb4e4b2453a3ead546244b1baea567c4e9ffc589f6a860edeb8e8a9dab3382",
+      "size": 75289
+    },
+    {
+      "path": "MPV/CODEC-PARITY.json",
+      "sha256": "789b748484b9bedb6633d4547e09d6dbba923ad519910a7cd48207b82a28a444",
+      "size": 1598
     },
     {
       "path": "MPV/COPYING.GPLv2",
@@ -151,28 +199,478 @@
     },
     {
       "path": "MPV/SOURCE-STATUS.md",
-      "sha256": "83f1542f876c2920c3b547e698bd924703e422ffb50500ca9dcb937506033678",
-      "size": 2199
+      "sha256": "bd663dfb1d8f1eb914f3528548922f43b719315a03aae14354cf78a9d509111c",
+      "size": 4355
     },
     {
-      "path": "MPV/binary-manifest.json",
+      "path": "MPV/acceptance/acceptance.json",
+      "sha256": "db26b6af77625f955afb89c479c682e536fdbf7977445019cdf318c6fb9099df",
+      "size": 16254
+    },
+    {
+      "path": "MPV/acceptance/av1-opus.mkv-first.rgba",
+      "sha256": "051549e7825a5dee2babbb84c055ced4d1246d172b6accf12206736cf667bf10",
+      "size": 9216
+    },
+    {
+      "path": "MPV/acceptance/av1-opus.mkv-last.rgba",
+      "sha256": "051549e7825a5dee2babbb84c055ced4d1246d172b6accf12206736cf667bf10",
+      "size": 9216
+    },
+    {
+      "path": "MPV/acceptance/av1-opus.mkv.json",
+      "sha256": "7948af68a0181f7904528866d06396935e506f1384e548f501326143c93f0080",
+      "size": 1752
+    },
+    {
+      "path": "MPV/acceptance/av1-opus.webm-first.rgba",
+      "sha256": "051549e7825a5dee2babbb84c055ced4d1246d172b6accf12206736cf667bf10",
+      "size": 9216
+    },
+    {
+      "path": "MPV/acceptance/av1-opus.webm-last.rgba",
+      "sha256": "051549e7825a5dee2babbb84c055ced4d1246d172b6accf12206736cf667bf10",
+      "size": 9216
+    },
+    {
+      "path": "MPV/acceptance/av1-opus.webm.json",
+      "sha256": "a72ca44caca230837fd7db120c4cd86671df5f3fe7ca8de149306d902eb5f685",
+      "size": 1754
+    },
+    {
+      "path": "MPV/acceptance/fixtures/av1-opus.mkv",
+      "sha256": "9c0364b1fe7d298d6a5831ed1c802d6d7bf51b586067f995a959a426351fc583",
+      "size": 38947
+    },
+    {
+      "path": "MPV/acceptance/fixtures/av1-opus.webm",
+      "sha256": "4f1bc950b8ad61a48fc3683dfb392a1201d5a78c714f9fffa9a8178437737d54",
+      "size": 38886
+    },
+    {
+      "path": "MPV/acceptance/fixtures/fixture-record.json",
+      "sha256": "6f3ce1bf5af8e03acea6d57fb3a83b9db4652621ce6657bbc5fa99b56982d563",
+      "size": 3990
+    },
+    {
+      "path": "MPV/acceptance/fixtures/h264-aac.mkv",
+      "sha256": "7426da0bf6ee01b364f3c4b230f623eb081f583e7e3cd90420b6dcedfac3cde8",
+      "size": 39978
+    },
+    {
+      "path": "MPV/acceptance/fixtures/mpeg4-mp3.avi",
+      "sha256": "b88c9c3e29bbe0b7aabeeb43c8cbd933d140c5606b9cc0d010575b30797fb3b8",
+      "size": 114862
+    },
+    {
+      "path": "MPV/acceptance/fixtures/vp9-opus.webm",
+      "sha256": "a3ba09952dd13f849064f6cd399a9b125126ee3b585d0db163f37a8e2fac9c55",
+      "size": 51102
+    },
+    {
+      "path": "MPV/acceptance/fixtures/zmbv-mp3.avi",
+      "sha256": "a6aedcb1a6ed97495fb148be72737ecc1902f825577bb500f347b441322879bc",
+      "size": 84102
+    },
+    {
+      "path": "MPV/acceptance/h264-aac.mkv-first.rgba",
+      "sha256": "e89372c35c7e9c1f159160741019af1f1d140bf51b149e1f921f0769ae7e30e3",
+      "size": 9216
+    },
+    {
+      "path": "MPV/acceptance/h264-aac.mkv-last.rgba",
+      "sha256": "e89372c35c7e9c1f159160741019af1f1d140bf51b149e1f921f0769ae7e30e3",
+      "size": 9216
+    },
+    {
+      "path": "MPV/acceptance/h264-aac.mkv.json",
+      "sha256": "261357d2597da062879270e60b94572630be0558456dda8635356677c0a65360",
+      "size": 1862
+    },
+    {
+      "path": "MPV/acceptance/mpeg4-mp3.avi-first.rgba",
+      "sha256": "23e29d53ee5a248c7a061eb8181aaf315daa8765ffda32bb1ce055faa0550681",
+      "size": 9216
+    },
+    {
+      "path": "MPV/acceptance/mpeg4-mp3.avi-last.rgba",
+      "sha256": "23e29d53ee5a248c7a061eb8181aaf315daa8765ffda32bb1ce055faa0550681",
+      "size": 9216
+    },
+    {
+      "path": "MPV/acceptance/mpeg4-mp3.avi.json",
+      "sha256": "f434a3ff692a8842eda588381fe16049df83e0a3322379dffb4e4408390a032b",
+      "size": 1775
+    },
+    {
+      "path": "MPV/acceptance/vp9-opus.webm-first.rgba",
+      "sha256": "ef89669519196abd9ab9ead6bf9fb340c8bf8d5e32186592cd99ea4a51876fe8",
+      "size": 9216
+    },
+    {
+      "path": "MPV/acceptance/vp9-opus.webm-last.rgba",
+      "sha256": "a7baa3b10d2a44e3c701a35bf01cd4deece8e5ba61d508f63236cf52ef6ab798",
+      "size": 9216
+    },
+    {
+      "path": "MPV/acceptance/vp9-opus.webm.json",
+      "sha256": "58b2889b0bfdf72f0b180a640c29a31677d4b283ede41e71d41098c4f98802f3",
+      "size": 1781
+    },
+    {
+      "path": "MPV/acceptance/zmbv-mp3.avi-first.rgba",
+      "sha256": "5a37dc309f59e0f7d5f9d5891c76bb58adba51b03b2accb65a38855a176ff8a3",
+      "size": 9216
+    },
+    {
+      "path": "MPV/acceptance/zmbv-mp3.avi-last.rgba",
+      "sha256": "5a37dc309f59e0f7d5f9d5891c76bb58adba51b03b2accb65a38855a176ff8a3",
+      "size": 9216
+    },
+    {
+      "path": "MPV/acceptance/zmbv-mp3.avi.json",
+      "sha256": "0ac2dfe432d6e03b3b290d6ff6738bb442f50f4391c25076b46428237518fada",
+      "size": 1781
+    },
+    {
+      "path": "MPV/historical/iina-1.4.0-binary-manifest.json",
       "sha256": "79adb842cadf0eb844bfb60b4836a8232245cb64f7493568f03da75916d54f76",
       "size": 17223
     },
     {
-      "path": "MPV/client.h",
+      "path": "MPV/historical/iina-1.4.0-source-status.md",
+      "sha256": "83f1542f876c2920c3b547e698bd924703e422ffb50500ca9dcb937506033678",
+      "size": 2199
+    },
+    {
+      "path": "MPV/historical/iina-codec-audit.json",
+      "sha256": "3101a04056677d41fb8759ffb0e03ae2b49cb87a79e68be42fa66d9f94e64f5a",
+      "size": 75680
+    },
+    {
+      "path": "MPV/historical/upstream-v0.38.0-client.h",
       "sha256": "c34c436b54201ba84655dcbb6226f937b53d04fa0abcceaa08886565a569bd88",
       "size": 85973
     },
     {
-      "path": "MPV/render.h",
+      "path": "MPV/historical/upstream-v0.38.0-render.h",
       "sha256": "f00a31d46896c691922196c932c94140d206cb4c16cfa4bb6bdf3a9d0d3d4a29",
       "size": 34253
     },
     {
+      "path": "MPV/notices/dav1d/COPYING",
+      "sha256": "dd92c3c2247c5651606fc23a5e2d6a1ebc5ace9a3e49cbde0e12f05ad1cb1ee5",
+      "size": 1317
+    },
+    {
+      "path": "MPV/notices/fast_float/AUTHORS",
+      "sha256": "ed249424bce4e318fa190dd6d8becf60cfc37287132ad3f89e16e0f28d878dcf",
+      "size": 36
+    },
+    {
+      "path": "MPV/notices/fast_float/LICENSE-APACHE",
+      "sha256": "097a889aa954d04e088b790b10a4014d6189561d0a6013935a73ce3d4ddaaf06",
+      "size": 10767
+    },
+    {
+      "path": "MPV/notices/fast_float/LICENSE-BOOST",
+      "sha256": "8d8291caf1cee26d23acf3eb67c9f9a2d58f1c681b16a4fbe8cbfb9e3c0b5a9b",
+      "size": 1337
+    },
+    {
+      "path": "MPV/notices/fast_float/LICENSE-MIT",
+      "sha256": "e562f3f974ced7e69dd1db77b820b36bcf8f30377f1aa105723fba449c53c4e6",
+      "size": 1079
+    },
+    {
+      "path": "MPV/notices/ffmpeg/COPYING.GPLv2",
+      "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643",
+      "size": 18092
+    },
+    {
+      "path": "MPV/notices/ffmpeg/COPYING.GPLv3",
+      "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+      "size": 35147
+    },
+    {
+      "path": "MPV/notices/ffmpeg/COPYING.LGPLv2.1",
+      "sha256": "b634ab5640e258563c536e658cad87080553df6f34f62269a21d554844e58bfe",
+      "size": 26526
+    },
+    {
+      "path": "MPV/notices/ffmpeg/COPYING.LGPLv3",
+      "sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768",
+      "size": 7651
+    },
+    {
+      "path": "MPV/notices/ffmpeg/LICENSE.md",
+      "sha256": "cb48bf09a11f5fb576cddb0431c8f5ed0a60157a9ec942adffc13907cbe083f2",
+      "size": 4376
+    },
+    {
+      "path": "MPV/notices/freetype/LICENSE.TXT",
+      "sha256": "2e3bbb7d7c5c396368dd0853a790ec29ce5b8647163dde42a0493fb0d6556b2b",
+      "size": 2074
+    },
+    {
+      "path": "MPV/notices/freetype/docs/FTL.TXT",
+      "sha256": "08c135755dd589039470f1fdbb400daaabaaa50d0b366d19cebff4d22986baa1",
+      "size": 6743
+    },
+    {
+      "path": "MPV/notices/freetype/docs/GPLv2.TXT",
+      "sha256": "c4120c6752c910c299e3bd9cb3a46ff262c268303ca2069b61f92f10a5656c18",
+      "size": 17994
+    },
+    {
+      "path": "MPV/notices/fribidi/AUTHORS",
+      "sha256": "cb173f55c9514c8f38f4647ac3fedd5f8611358d331e65ab955da931e826861c",
+      "size": 1640
+    },
+    {
+      "path": "MPV/notices/fribidi/COPYING",
+      "sha256": "32434afcc8666ba060e111d715bfdb6c2d5dd8a35fa4d3ab8ad67d8f850d2f2b",
+      "size": 26440
+    },
+    {
+      "path": "MPV/notices/harfbuzz/AUTHORS",
+      "sha256": "19bfe8f5ed100636cd24ab0c90a3f71c21d8b02d9ba00719447a0faab364d49f",
+      "size": 201
+    },
+    {
+      "path": "MPV/notices/harfbuzz/COPYING",
+      "sha256": "ba8f810f2455c2f08e2d56bb49b72f37fcf68f1f4fade38977cfd7372050ad64",
+      "size": 1971
+    },
+    {
+      "path": "MPV/notices/harfbuzz/src/ms-use/COPYING",
+      "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383",
+      "size": 1141
+    },
+    {
+      "path": "MPV/notices/jinja/LICENSE.rst",
+      "sha256": "3b49dcee4105eb37bac10faf1be260408fe85d252b8e9df2e0979fc1e094437b",
+      "size": 1475
+    },
+    {
+      "path": "MPV/notices/libass/COPYING",
+      "sha256": "f7e30699d02798351e7f839e3d3bfeb29ce65e44efa7735c225464c4fd7dfe9c",
+      "size": 755
+    },
+    {
+      "path": "MPV/notices/libplacebo/LICENSE",
+      "sha256": "b3aa400aca6d2ba1f0bd03bd98d03d1fe7489a3bbb26969d72016360af8a5c9d",
+      "size": 24478
+    },
+    {
+      "path": "MPV/notices/lua/doc/readme.html",
+      "sha256": "a686d9158c8878ee4c6e1c90d719949c2b70031b74d6e945e6e218a063ebcb20",
+      "size": 13160
+    },
+    {
+      "path": "MPV/notices/lua/src/lua.h",
+      "sha256": "aaa571c445bdafe72c7e116bda8f2a415e8dcb05d988e4072e6dc15029c32fae",
+      "size": 13602
+    },
+    {
+      "path": "MPV/notices/markupsafe/LICENSE.rst",
+      "sha256": "489a8e1108509ed98a37bb983e11e0f7e1d31f0bd8f99a79c8448e7ff37d07ea",
+      "size": 1475
+    },
+    {
+      "path": "MPV/notices/meson/COPYING",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "size": 11358
+    },
+    {
+      "path": "MPV/notices/mpv/Copyright",
+      "sha256": "ca8f78358716ff15098bf681e07d508007e4e5f1bbcbefc5d859bef55559d00d",
+      "size": 3740
+    },
+    {
+      "path": "MPV/notices/mpv/LICENSE.GPL",
+      "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643",
+      "size": 18092
+    },
+    {
+      "path": "MPV/notices/mpv/LICENSE.LGPL",
+      "sha256": "dc626520dcd53a22f727af3ee42c770e56c97a64fe3adb063799d8ab032fe551",
+      "size": 26530
+    },
+    {
+      "path": "MPV/notices/ninja/COPYING",
+      "sha256": "eb7e9ab9690124c5c9f42bdc81383d886a3dede26345b6ed15bbad7caf81f7ea",
+      "size": 11358
+    },
+    {
+      "path": "MPV/notices/vulkan_headers/LICENSE.txt",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "size": 11358
+    },
+    {
+      "path": "MPV/notices/xz/COPYING",
+      "sha256": "616a3ad264ce29b8f1cb97e53037b139d406899ca8d1f799651e17bfa09830b8",
+      "size": 3119
+    },
+    {
+      "path": "MPV/notices/xz/COPYING.0BSD",
+      "sha256": "0b01625d853911cd0e2e088dcfb743261034a091bb379246cb25a14cc4c74bf1",
+      "size": 607
+    },
+    {
+      "path": "MPV/notices/xz/COPYING.GPLv2",
+      "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643",
+      "size": 18092
+    },
+    {
+      "path": "MPV/notices/xz/COPYING.GPLv3",
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "size": 35149
+    },
+    {
+      "path": "MPV/notices/xz/COPYING.LGPLv2.1",
+      "sha256": "dc626520dcd53a22f727af3ee42c770e56c97a64fe3adb063799d8ab032fe551",
+      "size": 26530
+    },
+    {
+      "path": "MPV/patches/mpv-v0.38.0-plus18.patch",
+      "sha256": "1fa2e49039ef322c4a071c273c8ea8b579bae6d1517ea19e8a9caf81c588176c",
+      "size": 31574
+    },
+    {
+      "path": "MPV/recipe/scripts/build-mpv-source.py",
+      "sha256": "1e8c50a7b854cdeea167c1bce05f0a8a22166074bdf13eee6735b61541b8dcd5",
+      "size": 492
+    },
+    {
+      "path": "MPV/recipe/scripts/media_bundle.py",
+      "sha256": "be2ac9b67f7b649f1fc56db712b603fbe103479d93c4157d06a0df990d9e64b7",
+      "size": 22049
+    },
+    {
+      "path": "MPV/recipe/scripts/media_bundle_macho.py",
+      "sha256": "bd5809eafe1ffbf1c954ccc47aa4fd535188dcb3804c3013e6068fad0767c530",
+      "size": 10897
+    },
+    {
+      "path": "MPV/recipe/scripts/media_dependencies.py",
+      "sha256": "ec71e3db2959dab17e1d37d4d3191eaf87a980f6ab99e70449129da3cb740065",
+      "size": 19069
+    },
+    {
+      "path": "MPV/recipe/scripts/mpv-source-lock.json",
+      "sha256": "8406841bf7c36f948e12fbd733375c7484ccfde0c31d85b94f193e8a84273bac",
+      "size": 12203
+    },
+    {
+      "path": "MPV/recipe/scripts/mpv-source-recipes.json",
+      "sha256": "8f197148ad820320e849822b9b1ae66e9338d120b9484f3c050748c35a5f3f50",
+      "size": 6091
+    },
+    {
+      "path": "MPV/recipe/scripts/mpv_build_record.py",
+      "sha256": "e24f5f84c3f9b1def1270300b8033ceffefbb0715cb02a193de10bd882616d0a",
+      "size": 4062
+    },
+    {
+      "path": "MPV/recipe/scripts/mpv_source_build.py",
+      "sha256": "a7b5b6092f7aaf8591eaa34c1b68324cca2aea9b90cbfceda951104cdc15630f",
+      "size": 10100
+    },
+    {
+      "path": "MPV/recipe/scripts/mpv_source_inputs.py",
+      "sha256": "a75bdd9527c5038d1f8d1e47786e731e6ce7e0b9110967a3a7a41f140bf3ded6",
+      "size": 6236
+    },
+    {
+      "path": "MPV/recipe/scripts/swift_sdk.py",
+      "sha256": "5af3ad440fe01a7f6fd123881b589f0f471e61d446c2caabee360c583110a0db",
+      "size": 2231
+    },
+    {
+      "path": "MPV/sources/dav1d-1.5.3.tar.bz2",
+      "sha256": "e099f53253f6c247580c554d53a13f1040638f2066edc3c740e4c2f15174ce22",
+      "size": 1217030
+    },
+    {
+      "path": "MPV/sources/fast_float-2b2395f9ac836ffca6404424bcc252bff7aa80e4.tar.gz",
+      "sha256": "230d20e4e4ac1f6a9df92c4d746c6ec536cdb0c085bc8635d4b88cead5dc22cb",
+      "size": 84808
+    },
+    {
+      "path": "MPV/sources/ffmpeg-7.0.1.tar.xz",
+      "sha256": "bce9eeb0f17ef8982390b1f37711a61b4290dc8c2a0c1a37b5857e85bfb0e4ff",
+      "size": 10793572
+    },
+    {
+      "path": "MPV/sources/freetype-42608f77f20749dd6ddc9e0536788eaad70ea4b5.tar.gz",
+      "sha256": "68ce87bb59ea209eb7350f41a94a27519ce16b37011b475a1e62d4abee154b66",
+      "size": 2483768
+    },
+    {
+      "path": "MPV/sources/fribidi-68162babff4f39c4e2dc164a5e825af93bda9983.tar.gz",
+      "sha256": "fa34a057a414c85f7e1f3c0fd717bc93d74d370ed474ef2feca90868b4938f72",
+      "size": 2144204
+    },
+    {
+      "path": "MPV/sources/harfbuzz-a1d9bfe62818ef0fa9cf63b6e6d51436b1c93cbc.tar.gz",
+      "sha256": "63a962b9fbeda16663197c2b0b129bd5d711e831b4d189803dbb7d42a5668195",
+      "size": 36799244
+    },
+    {
+      "path": "MPV/sources/jinja-b08cd4bc64bb980df86ed2876978ae5735572280.tar.gz",
+      "sha256": "9a20bab550a760ccb9b38a45d4fe76be92649206ee04633c646d0935a1872b0e",
+      "size": 273377
+    },
+    {
+      "path": "MPV/sources/libass-e46aedea0a0d17da4c4ef49d84b94a7994664ab5.tar.gz",
+      "sha256": "e953d018db99436a9bf7aa907bbd80c1be2024ba46cf2bec5fbaa6f844438d70",
+      "size": 329803
+    },
+    {
+      "path": "MPV/sources/libplacebo-64c1954570f1cd57f8570a57e51fb0249b57bb90.tar.gz",
+      "sha256": "3144bb66bc9e286da37f17f71886d65a6d1baf9e45e4efa5ac8bd61ffa935487",
+      "size": 841908
+    },
+    {
+      "path": "MPV/sources/lua-5.2.4.tar.gz",
+      "sha256": "b9e2e4aad6789b3b63a056d442f7b39f0ecfca3ae0f1fc0ae4e9614401b69f4b",
+      "size": 252651
+    },
+    {
+      "path": "MPV/sources/markupsafe-c0254f0cfe51720ecc9e72e8896022af29af5b44.tar.gz",
+      "sha256": "1826c5d89cc1aa0b3088f538726d339e0c5cd69fbe03f7b8f9a3f880474d1120",
+      "size": 24175
+    },
+    {
+      "path": "MPV/sources/meson-751b09390996163348612f0b106114256305ee40.tar.gz",
+      "sha256": "63ab20b443443efbb7e89f38bb98432acfafef7d2268ce0ee0af907858006566",
+      "size": 4930193
+    },
+    {
+      "path": "MPV/sources/mpv-c0dd2b32d52c66b9efa85a7ee69965569503f6b8.tar.gz",
+      "sha256": "ef0875555f18a5f07ec6151a2416cb08accd1fc4f5507292c9842751eb16375e",
+      "size": 3421274
+    },
+    {
+      "path": "MPV/sources/ninja-79feac0f3e3bc9da9effc586cd5fea41e7550051.tar.gz",
+      "sha256": "608566b235f0d97106c09ce4cbf4778c8d5082db0377df544754ee1586d4ffba",
+      "size": 292349
+    },
+    {
+      "path": "MPV/sources/vulkan_headers-d732b2de303ce505169011d438178191136bfb00.tar.gz",
+      "sha256": "570f9ae1e65466dbaf5fcab667abd079dd0a61c4ab86cf535efd492bf70a5b74",
+      "size": 1841582
+    },
+    {
+      "path": "MPV/sources/xz-a522a226545730551f7e7c2685fab27cf567746c.tar.gz",
+      "sha256": "d85e28de5141805efc8ee3b50fffef0b83c81a630a85bbc77ea69791fa1ff712",
+      "size": 1545485
+    },
+    {
       "path": "README.md",
-      "sha256": "d024a975d26152f2ac5203122cc8ea5171667ab32300cf44149adf3b2822f478",
-      "size": 2503
+      "sha256": "35f11dc6db400927df304302502052e194c26a8a6b6febe63c0f6017ea882d04",
+      "size": 2729
     },
     {
       "path": "WebWallGL/LICENSE",

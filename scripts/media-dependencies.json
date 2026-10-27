@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "verification_scope": "Pinned input-cache bytes only; built products and runtime behavior are separate checks.",
+  "verification_scope": "Pinned original inputs and separately verified source-built products; native runtime acceptance is recorded separately.",
   "modules": {
     "cef": {
       "version": "152.0.6+g708dc14+chromium-152.0.7977.83",
       "architecture": "arm64",
       "minimum_macos": "13.0",
       "source": "https://cef-builds.spotifycdn.com/index.json",
-      "license_status": "LICENSE.txt and CREDITS.html in archive; distribution review incomplete",
+      "license_status": "Original binary distribution LICENSE.txt/CREDITS.html and pinned source references retained; no source rebuild claim",
       "artifacts": [
         {
           "path": "cef/cef_binary_152.0.6_macosarm64_minimal.tar.bz2",
@@ -18,35 +18,24 @@
       ]
     },
     "mpv": {
-      "version": "IINA 1.4.0 / runtime mpv v0.38.0",
+      "version": "Controlled mpv 0.38.0+18 / c0dd2b32d52c66b9efa85a7ee69965569503f6b8",
       "architecture": "arm64",
-      "minimum_macos": "12.0",
-      "source": "https://iina.io/dylibs/1.4.0/arm64/",
-      "license_status": "GPL-enabled binaries; precise source/patch and license records for all 69 libraries incomplete",
-      "manifest": {
-        "path": "scripts/feasibility/mpv/libraries.json",
-        "sha256": "79adb842cadf0eb844bfb60b4836a8232245cb64f7493568f03da75916d54f76",
-        "cache_prefix": "mpv/lib"
-      },
-      "artifacts": [
-        {
-          "path": "mpv/include/mpv/client.h",
-          "url": "https://raw.githubusercontent.com/mpv-player/mpv/v0.38.0/libmpv/client.h",
-          "sha256": "c34c436b54201ba84655dcbb6226f937b53d04fa0abcceaa08886565a569bd88"
-        },
-        {
-          "path": "mpv/include/mpv/render.h",
-          "url": "https://raw.githubusercontent.com/mpv-player/mpv/v0.38.0/libmpv/render.h",
-          "sha256": "f00a31d46896c691922196c932c94140d206cb4c16cfa4bb6bdf3a9d0d3d4a29"
-        }
-      ]
+      "minimum_macos": "14.0",
+      "source": "https://github.com/mpv-player/mpv/commit/c0dd2b32d52c66b9efa85a7ee69965569503f6b8",
+      "license_status": "Controlled source build; final native feature acceptance pending",
+      "artifacts": [],
+      "source_build": {
+        "path": "scripts/mpv-source-lock.json",
+        "sha256": "8406841bf7c36f948e12fbd733375c7484ccfde0c31d85b94f193e8a84273bac",
+        "output": ".build/media-source-complete/mpv"
+      }
     },
     "ffmpeg": {
       "version": "9.0.1 (n9.0.1)",
       "architecture": "arm64",
       "minimum_macos": "14.0",
       "source": "https://codeload.github.com/FFmpeg/FFmpeg/tar.gz/refs/tags/n9.0.1",
-      "license_status": "Measured build LGPL-2.1-or-later; distribution source/license bundle incomplete",
+      "license_status": "Measured LGPL-2.1-or-later; complete corresponding source, original notices, recipe and actual build/license record retained",
       "artifacts": [
         {
           "path": "ffmpeg/ffmpeg-n9.0.1.tar.gz",

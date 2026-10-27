@@ -21,19 +21,18 @@ class PackageIsolationTests(unittest.TestCase):
         shutil.copy2(ROOT / 'Package.swift', temporary / 'Package.swift')
         shutil.copytree(ROOT / 'Sources', temporary / 'Sources')
         shutil.copytree(ROOT / 'Tests', temporary / 'Tests')
-        manifest = temporary / 'scripts/feasibility/mpv'
-        manifest.mkdir(parents=True)
+        (temporary / 'scripts').mkdir(parents=True)
         shutil.copy2(ROOT / 'scripts/product-configuration.json',
                      temporary / 'scripts/product-configuration.json')
         shutil.copy2(ROOT / 'scripts/media-dependencies.json',
                      temporary / 'scripts/media-dependencies.json')
-        shutil.copy2(ROOT / 'scripts/feasibility/mpv/libraries.json',
-                     manifest / 'libraries.json')
+        shutil.copy2(ROOT / 'scripts/mpv-source-lock.json',
+                     temporary / 'scripts/mpv-source-lock.json')
 
     @staticmethod
     def dump_package(temporary):
         return subprocess.run(
-            ['swift', 'package', '--package-path', str(temporary), 'dump-package'],
+            ['swift', 'package', '--package-path', str(temporary), '--disable-sandbox', 'dump-package'],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,

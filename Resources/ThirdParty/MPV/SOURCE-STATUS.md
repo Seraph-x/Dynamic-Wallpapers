@@ -1,18 +1,38 @@
-# libmpv and 69-library source status
+# Controlled libmpv corresponding source
 
-These dylibs come from IINA's official `https://iina.io/dylibs/1.4.0/arm64/` release directory. `binary-manifest.json` locks each downloaded file's URL, SHA256, arm64 architecture, and minimum system version. The original binaries total 54,517,360 bytes. Packaging changes only the library search paths in copied files and re-signs those copies ad hoc; the original cached bytes are unchanged.
+The active runtime is built locally from controlled source. The IINA 1.4.0 binary set is retained only as historical metadata under `historical/`; those binary files are not distributed, downloaded by the public build path, or used as a runtime fallback.
 
-The pinned provenance is IINA v1.4.0's official README description of its prebuilt libraries: <https://raw.githubusercontent.com/iina/iina/v1.4.0/README.md>. The IINA app source or copyright files from an installed app of another version are not treated as corresponding materials for these libraries.
+## Recovered exact mpv tree
 
-Confirmed from the actual binaries:
+The reported `c0dd2b3` is complete commit `c0dd2b32d52c66b9efa85a7ee69965569503f6b8`. Although the original `iina/mpv` repository is unavailable, GitHub's official mpv repository network serves this exact tree:
 
-- libmpv reports runtime version v0.38.0, a build prefix containing `mpv-iina/HEAD-c0dd2b3`, and the `gpl` feature.
-- Embedded FFmpeg has a build prefix of `ffmpeg-iina/7.0.1` and enables `--enable-gpl --enable-version3`.
-- libavcodec contains the license string `GPL version 3 or later`.
-- These identifiers and features were read from the binaries. Raw metadata containing upstream build-machine absolute paths is not in the public source. A reported runtime version does not prove that the source is identical to an unpatched upstream release.
+- <https://github.com/mpv-player/mpv/commit/c0dd2b32d52c66b9efa85a7ee69965569503f6b8>
+- <https://api.github.com/repos/mpv-player/mpv/compare/v0.38.0...c0dd2b32d52c66b9efa85a7ee69965569503f6b8>
 
-`client.h` and `render.h` are pinned mpv v0.38.0 client headers retaining their ISC copyright and license. The GPL/LGPL texts are standard texts from the bundled FFmpeg n9.0.1 source. They are not a complete collection of copyright notices for every dylib.
+The comparison reports exactly 18 commits ahead of v0.38.0 and zero behind, matching the IINA maintainer's description in <https://github.com/iina/iina/issues/5383>. The original archive and exact IINA-branch 18-commit patch are retained by SHA256. This recovers mpv's tree; it does not establish the remaining old IINA libraries' exact Homebrew source/patch provenance.
 
-Still unresolved: exact corresponding source versions, IINA/Homebrew patches, build inputs, and copyright texts for each of the 69 libraries. Checks on 2026-09-11 returned HTTP 404 for `https://raw.githubusercontent.com/iina/mpv/c0dd2b3/Copyright` and `https://codeload.github.com/iina/mpv/tar.gz/c0dd2b3`. The current tap formula points to a later `iina-release/1.5.0` and cannot be treated as the recipe for these 1.4.0 binaries.
+## Controlled source closure
 
-This record therefore remains explicitly incomplete. It does not claim that corresponding source, all copyright notices, or materials for third-party binary redistribution are complete.
+`scripts/mpv-source-lock.json` in the corresponding application source is the executable lock. Every original archive is included under `sources/`; original project notices are also extracted under `notices/`, and all per-file copyright notices remain in the complete archives.
+
+The closure includes mpv 0.38.0+18, FFmpeg 7.0.1, libplacebo 6.338.2, libass 0.17.3, FreeType 2.13.3, FriBidi 1.0.16, HarfBuzz 10.0.1, Lua 5.2.4, dav1d 1.5.3 and XZ/liblzma 5.8.1. Exact libplacebo gitlinks for Jinja, MarkupSafe, fast_float and Vulkan-Headers are separately archived. Meson 1.9.1 and Ninja 1.13.1 source archives are pinned as build tools. Lua is linked statically into the shared libmpv; other runtime components remain separate dylibs.
+
+Vulkan-Headers are needed to compile upstream's disabled-backend stubs. No Vulkan runtime or renderer is enabled. Lua is required to retain the `load-scripts` and `ytdl` option names that the existing application explicitly sets to `no`. dav1d preserves software AV1 decoding on Macs without AV1 hardware decoding. FreeType is distributed under the FTL option; it is based in part on the work of the FreeType Team.
+
+## Build and feature contract
+
+From the corresponding application source root:
+
+```sh
+python3 scripts/prepare-public-build.py mpv
+```
+
+The build uses Apple clang, the selected SDK, CMake, pkg-config and make, targeting arm64/macOS 14.0. Pinned Meson and Ninja run from the isolated build tree. Runtime pkg-config searches are restricted to that tree; autodetection is disabled and Meson wrap downloads are forbidden. The existing IINA dylib cache is never used.
+
+The application uses libmpv's software render API, CoreAudio, `videotoolbox-copy`, local-file lavf demuxing and a `matroska,webm,avi` format whitelist. The controlled profile retains FFmpeg's native codec/filter/format set and explicitly enables dav1d, system zlib/bzlib and the controlled liblzma. Network protocols, optional scripting engines apart from required Lua option compatibility, OpenGL/Vulkan rendering, disc/archive readers and external filters not used by the bridge are disabled. This profile preserves the application's actual contract; unrelated IINA features are not advertised.
+
+`snapshot_version` is generated by the recipe to identify this controlled mpv build. There are no other local mpv source patches. The original 18 IINA-branch commits are already present in the pinned archive; the retained patch is explanatory provenance and is not applied twice.
+
+`BUILD-RECORD.json` binds actual dylib/header hashes, source-lock and recipe hashes, SDK, compiler/build-tool versions, architecture, minimum OS and closed runtime dependencies. `recipe/` mirrors the fingerprinted inputs for audit; execute the entry point from the complete corresponding application source, which also supplies shared publication, Mach-O and SDK helpers. Configuration/build logs and raw machine paths remain in the ignored local build tree. Codec parity and native rendering/audio are separately measured by the acceptance probes.
+
+Completeness is controlled by `../distribution-status.json`. A successful source build and static closure check alone do not claim native playback/audio/VideoToolbox acceptance.

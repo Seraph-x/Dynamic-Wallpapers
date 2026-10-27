@@ -462,6 +462,7 @@ private struct ProductConfiguration {
 
 private struct MediaConfiguration {
     let cefVersion: String
+    let mpvDirectory: String
 
     init(value: JSONValue) throws {
         let document = try object(value, path: "media root", keys: [
@@ -476,11 +477,20 @@ private struct MediaConfiguration {
         ])
         let cef = try Self.validateModule(
             modules["cef"]!, path: "media.modules.cef", extras: [])
-        _ = try Self.validateModule(
-            modules["mpv"]!, path: "media.modules.mpv", extras: ["manifest"])
+        let mpv = try Self.validateModule(
+            modules["mpv"]!, path: "media.modules.mpv", extras: ["source_build"])
         _ = try Self.validateModule(
             modules["ffmpeg"]!, path: "media.modules.ffmpeg", extras: [])
         cefVersion = try string(cef["version"]!, path: "media.modules.cef.version")
+        let build = try object(mpv["source_build"]!, path: "media.modules.mpv.source_build",
+                               keys: ["path", "sha256", "output"])
+        for key in ["path", "sha256", "output"] {
+            _ = try string(build[key]!, path: "media.modules.mpv.source_build.\(key)")
+        }
+        mpvDirectory = try string(build["output"]!, path: "media.modules.mpv.source_build.output")
+        guard mpvDirectory == ".build/media-source-complete/mpv" else {
+            throw ConfigurationError(description: "Invalid controlled MPV source-build output")
+        }
     }
 
     private static func validateModule(
@@ -493,7 +503,12 @@ private struct MediaConfiguration {
         for key in ["version", "architecture", "minimum_macos", "source", "license_status"] {
             _ = try string(module[key]!, path: "\(path).\(key)")
         }
-        for (index, value) in try array(module["artifacts"]!, path: "\(path).artifacts").enumerated() {
+        let artifacts = try array(module["artifacts"]!, path: "\(path).artifacts",
+                                  allowEmpty: module["source_build"] != nil)
+        if module["source_build"] != nil && !artifacts.isEmpty {
+            throw ConfigurationError(description: "Controlled MPV source build cannot contain binary artifacts")
+        }
+        for (index, value) in artifacts.enumerated() {
             let artifactPath = "\(path).artifacts[\(index)]"
             guard case let .object(raw) = value else {
                 throw ConfigurationError(description: "\(artifactPath) must be an object")
@@ -550,7 +565,7 @@ private let mediaConfiguration: MediaConfiguration = {
         fatalError("Invalid scripts/media-dependencies.json: \(error)")
     }
 }()
-let mpvRoot = projectRoot + "/.build/dependencies/mpv"
+let mpvRoot = projectRoot + "/" + mediaConfiguration.mpvDirectory
 let cefRoot = projectRoot + "/.build/dependencies/cef/cef_binary_\(mediaConfiguration.cefVersion)_macosarm64_minimal"
 let cefWrapper = projectRoot + "/.build/dependencies/cef/wrapper-make/libcef_dll_wrapper/libcef_dll_wrapper.a"
 
