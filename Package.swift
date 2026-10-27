@@ -558,6 +558,7 @@ let configuredNames = Set(configuration.screenSaverTargets.map(\.name))
 let explicitNames: Set<String> = [
     "MPVBridge", "WebWallpaperBridge", "WallpaperApp", "ScreenSaverLeaseHarness",
     "WallpaperAudioSpectrum", "WallpaperAudioSpectrumTests",
+    "WallpaperMediaIntegration", "WallpaperMediaIntegrationTests",
     "WallpaperCoreTests", "ScreenSaverCoreTests", "ScreenSaverRuntimeTests",
     "WallpaperScreenSaverTests", "WallpaperAppTests", "WallpaperEditorCore", "WallpaperEditorCoreTests",
 ]
@@ -573,6 +574,8 @@ let screenSaverTargets: [Target] = configuration.screenSaverTargets.map { target
 }
 
 let explicitTargets: [Target] = [
+        .target(name: "WallpaperMediaIntegration", dependencies: ["WallpaperCore"]),
+        .testTarget(name: "WallpaperMediaIntegrationTests", dependencies: ["WallpaperMediaIntegration", "WallpaperCore"]),
         .target(name: "WallpaperAudioSpectrum", dependencies: ["WallpaperCore"]),
         .testTarget(name: "WallpaperAudioSpectrumTests", dependencies: ["WallpaperAudioSpectrum"]),
         .target(name: "WallpaperEditorCore", dependencies: ["WallpaperCore"]),
@@ -602,6 +605,7 @@ let explicitTargets: [Target] = [
 ]
 
 let products: [Product] = [
+    .library(name: "WallpaperMediaIntegration", targets: ["WallpaperMediaIntegration"]),
     .library(name: "WallpaperAudioSpectrum", targets: ["WallpaperAudioSpectrum"]),
     .library(name: "WallpaperCore", targets: ["WallpaperCore"]),
     .library(name: "WallpaperEditorCore", targets: ["WallpaperEditorCore"]),

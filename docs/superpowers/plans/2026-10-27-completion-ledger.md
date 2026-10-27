@@ -15,7 +15,7 @@ reproducible Python/Node build tooling and source-built media dependencies.
 
 ## Work packages
 
-- [ ] Live text/font user bindings — actual playing/paused renderer, tracked
+- [x] Live text/font user bindings — actual playing/paused renderer, tracked
   pin patch and reproducible Main/Editor assets.
 - [ ] External resource scripts — scan/edit/check/revert, atomic resource
   history, native capture, diagnostics and true loose/PKG playback.
@@ -46,7 +46,7 @@ reproducible Python/Node build tooling and source-built media dependencies.
 ## Current progress
 
 - Current Main: `ba8a94f`, merged resource collection PR [#38](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/38). Its feature head `9887cd4` passed 52 Core tests, 22 focused native fixtures and the complete 93-test Editor Swift suite; all 19 changed files passed the publication scan.
-- Live text public/paused rendering, grow/shrink, frame ownership and destruction regressions pass in the pinned actual Chromium renderer; fixed-box anchors and script precedence also pass. The complete 47-phase browser/native CEF acceptance passed, with 21 normal runtime shutdowns; publication/merge verification remains.
+- Live text/font PR [#39](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/39) merged at `9472eda` from tested head `be7b0fa`. Actual Chromium public/paused rendering, grow/shrink/fractional sizes, fixed-box anchors, script precedence, frame ownership and destruction regressions pass. All 415 Node tests and the complete 47-phase browser/native CEF acceptance passed, with 21 normal runtime shutdowns; 23 changed files passed the publication scan.
 - The user confirmed Music/Spotify public Automation providers, default disabled, explicit opt-in authorization and unsupported other players. The independently testable native foundation is in progress.
 - Distribution research recovered mpv `c0dd2b32d52c66b9efa85a7ee69965569503f6b8`
   and the 18 commits after v0.38.0; the complete old 69-library closure remains
