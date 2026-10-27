@@ -36,6 +36,7 @@ commands = [
     ('browser-script-migration', ['node', str(root / 'Editor/Web/test-script-migration.mjs')], 60),
     ('browser-script-contracts', ['node', str(root / 'Editor/Web/test-script-contracts.mjs')], 60),
     ('browser-script-language-runtime', ['node', str(root / 'Editor/Web/test-script-language-runtime.mjs')], 60),
+    ('browser-property-workspace', ['node', str(root / 'Editor/Web/test-property-workspace.mjs')], 60),
     ('browser-preview-properties', ['node', str(root / 'Editor/Web/test-preview-properties.mjs')], 60),
     ('browser-scene-preview-diagnostics', ['node', str(root / 'Editor/Web/test-scene-preview-script-runtime.mjs')], 60),
     ('browser-script-navigation', ['node', str(root / 'Editor/Web/test-script-navigation.mjs')], 60),
@@ -129,6 +130,10 @@ properties_native = [native[0], '--editor-properties-only', native[1], native[2]
                      str(root / 'Editor/Sources/EditorApp/Resources/ScenePreviewWeb'),
                      str(run / 'browser-export/PropertiesLoose'), native[6], str(run / 'browser-export/PropertiesPackage')]
 commands.append(('native-editor-properties', properties_native, 60))
+definitions_native = [native[0], '--property-definitions-only', native[1], native[2], str(run / 'property-definitions-context'), native[4],
+                      str(run / 'browser-export/PropertiesLoose'), native[6],
+                      str(run / 'browser-export/DefinitionsLoose'), str(run / 'browser-export/DefinitionsPackage')]
+commands.append(('native-property-definitions', definitions_native, 60))
 print(f'EDITOR_NATIVE artifacts={run}', flush=True)
 for name, command, budget in commands:
     print(f'EDITOR_NATIVE phase={name} budget={budget}s', flush=True)

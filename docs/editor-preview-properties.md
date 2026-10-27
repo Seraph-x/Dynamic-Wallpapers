@@ -33,8 +33,10 @@ inspection error and disables its inputs. It does not call the project empty or
 stop ordinary preview playback, pause, restart or close. Exact Unicode names and
 option values retain their individual identities.
 
-This panel tests values; it does not author property definitions. Main's ordinary
-wallpaper playback still uses authored defaults and has no persisted override UI.
+This preview panel tests values. Use the Editor's separate
+[Project workspace](editor-property-definitions.md) to author definitions and
+defaults. Main's ordinary wallpaper playback still uses authored defaults and
+has no persisted override UI.
 System-media integration remains unavailable.
 
 ## Observe the scene
