@@ -84,6 +84,10 @@ User-property callbacks receive initial values. Independent previews can also
 [test live values](../docs/editor-preview-properties.md), including while paused.
 These per-preview values are not saved or exported; restart restores captured
 defaults. Main's ordinary playback still uses authored defaults.
+The separate [Project workspace](../docs/editor-property-definitions.md) creates,
+copies and edits property definitions/defaults, with explicit Apply/Revert,
+deletion confirmation and project Undo/Redo. Definitions persist through save,
+reopen and loose/PKG export; unsupported declarations remain read-only.
 Audio starters read real spectrum or silence. Independent muted previews can
 receive live spectrum after enabling their separate System audio response switch. These limits do not disable editing existing
 author-written source.

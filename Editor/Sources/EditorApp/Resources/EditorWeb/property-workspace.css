@@ -1,0 +1,19 @@
+.workspace-switch { display:grid;grid-template-columns:repeat(2,minmax(0,1fr)); }
+#project-panel { padding:12px;min-width:0; }
+#project-panel h3 { margin:0;font-size:13px; }
+.property-help { color:var(--secondary);font-size:11px;overflow-wrap:anywhere; }
+#user-property-list { width:100%;padding:6px; }
+.property-actions { display:flex;flex-wrap:wrap;gap:5px;margin-block:10px; }
+.property-actions button { white-space:normal;font-size:11px; }
+#user-property-form { display:grid;gap:8px; }
+#user-property-form .property-field { margin-block:0 10px; }
+#user-property-form label { display:block;color:var(--secondary);font-size:11px;margin-block:0 4px; }
+#user-property-form :is(input:not([type="checkbox"]),textarea,select) { width:100%;min-width:0; }
+#user-property-form input:user-invalid { border-color:var(--danger); }
+#user-property-form fieldset { border:1px solid var(--line);border-radius:8px;padding:8px;min-width:0; }
+#user-property-form pre,#user-property-delete-name { white-space:pre-wrap;overflow-wrap:anywhere;font:11px/1.6 var(--mono); }
+#user-property-error { color:var(--danger);white-space:pre-wrap;overflow-wrap:anywhere; }
+#user-property-error:empty { display:none; }
+#user-property-delete-dialog { max-width:min(440px,calc(100vw - 40px));background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:22px; }
+#user-property-delete-dialog::backdrop { background:#0007; }
+#user-property-delete-confirm { color:var(--danger);border-color:var(--danger); }

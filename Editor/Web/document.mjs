@@ -1,6 +1,7 @@
 import { editAnimation } from './animation.mjs';
 import { assertMixTable } from './model-mixing.mjs';
 import { editSceneScript } from './script-source.mjs';
+import { editPropertyDefinition } from './property-definitions.mjs';
 
 export function safePath(value) {
   if (typeof value !== 'string' || !value || /[\\:\0]/.test(value) || value.split('/').some(p => !p || p === '.' || p === '..')) throw new Error('Invalid project resource path');
@@ -106,6 +107,9 @@ export class SceneDocument {
   }
   script(edit) {
     this.#change(value => { value.scene = editSceneScript(value.scene,edit); });
+  }
+  propertyDefinition(edit) {
+    this.#change(value => { value.project = editPropertyDefinition(value.project,edit); });
   }
   modelAnimation(id,clipID) {
     if(clipID!==null&&(!Number.isInteger(clipID)||clipID<0||clipID>0xffffffff))throw new Error('Invalid model animation clip ID');
