@@ -668,3 +668,25 @@
 "应用正在退出，无法打开 Editor。" = "The application is quitting and cannot open Editor.";
 "此链接不是 Editor 工程导入请求。" = "This link is not an Editor project import request.";
 "无法打开 Editor" = "Could Not Open Editor";
+
+/* Per-wallpaper scene properties. */
+"场景属性" = "Scene properties";
+"设置仅保存在本壁纸的素材库记录中，保存后更新正在使用该场景的窗口。" = "Settings are saved in this wallpaper’s library record and update windows using this scene.";
+"该场景未声明用户属性。" = "This scene declares no user properties.";
+"属性值不可用，请重置或重新载入。" = "Property value unavailable. Reset or reload.";
+"保存并应用" = "Save and apply";
+"重置属性" = "Reset properties";
+"重新载入属性" = "Reload properties";
+"请输入有效的有限数字。" = "Enter a valid finite number.";
+"场景属性操作失败" = "Scene property operation failed";
+"请检查属性值或重新载入场景。" = "Check the property values or reload the scene.";
+"无法读取所选颜色的 RGB 分量。" = "Could not read the selected color’s RGB components.";
+"仅有预设值，缺少属性声明。" = "Preset value only; no property declaration.";
+"此属性名称不受运行时支持。" = "This property name is unsupported by the runtime.";
+"属性声明无效。" = "Invalid property declaration.";
+"此属性类型尚不受支持。" = "This property type is not supported yet.";
+"此属性依赖暂不支持的显示条件。" = "This property uses an unsupported visibility condition.";
+"场景属性已保存并应用" = "Scene properties saved and applied";
+"设置已保存，实时应用失败" = "Settings saved; live application failed";
+"使用默认值" = "Use default";
+"默认值" = "Default";

@@ -195,7 +195,7 @@ final class PlaybackSession {
 
     func update(content: PlaybackContent, media: [MediaItem]) {
         guard self.content != content || self.media != media else { return }
-        let requiresRescheduling = !self.content.hasSameSchedule(as: content) || self.media != media
+        let requiresRescheduling = !self.content.hasSameSchedule(as: content) || !Self.samePlaybackMedia(self.media, media)
         self.content = content; self.media = media
         updateAudio(entries: content.entries)
         guard requiresRescheduling else { return }
@@ -219,6 +219,16 @@ final class PlaybackSession {
         }
         else if !content.entries.isEmpty { request(Request(entryID: nil, automatic: false)) }
         else { onStatus("播放列表为空，保留当前画面") }
+    }
+
+    private static func samePlaybackMedia(_ previous: [MediaItem], _ current: [MediaItem]) -> Bool {
+        guard previous.count == current.count else { return false }
+        return zip(previous, current).allSatisfy { old, new in
+            guard old.backend == .scene, new.backend == .scene else { return old == new }
+            var old = old, new = new
+            old.scenePropertyOverrides = []; new.scenePropertyOverrides = []
+            return old == new
+        }
     }
 
     func updateAudio(entries: [PlaylistEntry]) {

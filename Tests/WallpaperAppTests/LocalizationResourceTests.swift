@@ -5,6 +5,21 @@ import WallpaperCore
 @testable import WallpaperApp
 
 final class LocalizationResourceTests: XCTestCase {
+    func testScenePropertyControlsAndFailuresHaveAllTranslations() {
+        let messages = ["使用默认值", "默认值", "场景属性", "设置仅保存在本壁纸的素材库记录中，保存后更新正在使用该场景的窗口。",
+            "该场景未声明用户属性。", "属性值不可用，请重置或重新载入。", "保存并应用", "重置属性", "重新载入属性",
+            "请输入有效的有限数字。", "场景属性操作失败", "请检查属性值或重新载入场景。", "无法读取所选颜色的 RGB 分量。",
+            "仅有预设值，缺少属性声明。", "此属性名称不受运行时支持。", "属性声明无效。", "此属性类型尚不受支持。",
+            "此属性依赖暂不支持的显示条件。", "场景属性已保存并应用", "设置已保存，实时应用失败"]
+        for language in [AppLanguage.chinese, .english, .japanese, .french, .spanish] {
+            for message in messages {
+                let translated = AppLocalizer(language: language).text(message)
+                XCTAssertFalse(translated.isEmpty)
+                if language != .chinese { XCTAssertNotEqual(translated, message) }
+            }
+        }
+    }
+
     func testDurationUnitLabelsAndPlaylistSummaryAreLocalized() {
         let english = AppLocalizer(language: .english)
         XCTAssertEqual(english.text("单位"), "Unit")

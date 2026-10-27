@@ -6,6 +6,7 @@ import json
 import pathlib
 import runpy
 import shutil
+import subprocess
 import uuid
 
 
@@ -20,6 +21,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--timeout', type=positive_seconds, default=60)
     parser.add_argument('--system-audio', action='store_true', help='require real Core Audio Tap and external tone/CEF acceptance')
+    parser.add_argument('--properties', action='store_true', help='require actual restored/live/reset properties in loose/PKG CEF scenes')
     parser.add_argument('--runtime-root', type=pathlib.Path, help='explicit packaged SceneRuntime directory')
     options = parser.parse_args()
     root = pathlib.Path(__file__).resolve().parent.parent
@@ -30,6 +32,8 @@ def main():
     run.mkdir(parents=True)
     for representation in ('Loose', 'Package'):
         shutil.copytree(root / f'Tests/Fixtures/SceneAnimated{representation}', run / representation.lower())
+    if options.properties:
+        subprocess.run(['node', str(root / 'scripts/make-native-property-fixtures.mjs'), str(run / 'properties')], check=True)
     runtime = options.runtime_root if options.runtime_root is not None else root / 'Sources/WallpaperApp/Resources/SceneRuntime'
     if not (runtime / 'index.html').is_file():
         parser.error('Missing scene runtime index.html')
@@ -38,6 +42,8 @@ def main():
                str(run / 'loose'), str(run / 'package'), str(run / 'context')]
     if options.system_audio:
         command.append('--system-audio')
+    if options.properties:
+        command.append('--properties')
     (run / 'command.json').write_text(json.dumps(command, indent=2) + '\n')
     print(f'SCENE_SWIFT artifacts={run} timeout_seconds={options.timeout}', flush=True)
     status = 1
@@ -53,6 +59,9 @@ def main():
             if options.system_audio:
                 expected.extend(f'SCENE_AUDIO PASS cycle={cycle} realExternalTone=1 ownAudioExcluded=1 disabledClears=1 resourcesReleased=1'
                                 for cycle in (1, 2))
+            if options.properties:
+                expected.extend(f'SCENE_PROPERTIES PASS representation={value} restoredPixels=1 allInstances=1 pausedAndPlaying=1 resetDefaults=1 sourceUnchanged=1 closed=1'
+                                for value in ('loose', 'package'))
             if any(record not in log for record in expected):
                 status = 1
                 raise ValueError('Swift integration exited without all scene acceptance records')

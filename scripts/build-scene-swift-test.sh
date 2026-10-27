@@ -9,8 +9,8 @@ APP="$PWD/.build/dependencies/cef/SceneSwiftTests.app"
 mkdir -p "$APP/Contents/MacOS"
 swiftc -sdk "$SDK" -Xclang-linker -isysroot -Xclang-linker "$SDK" -parse-as-library \
   -swift-version 5 -target arm64-apple-macosx14.0 -module-name SceneSwiftTests \
-  "${SWIFT_HARNESS_IMPORTS[@]}" Tests/SceneRuntimeHarness/{swift-main,system-audio}.swift \
-  Sources/WallpaperApp/Media/{SceneSurface,ScenePageSession,CEFScenePageSession,CEFApplicationRuntime,CEFPageSession,WebPageSession,WebRuntimePaths}.swift \
+  "${SWIFT_HARNESS_IMPORTS[@]}" Tests/SceneRuntimeHarness/{swift-main,system-audio,properties}.swift \
+  Sources/WallpaperApp/Media/{SceneSurface,ScenePageSession,CEFScenePageSession,CEFApplicationRuntime,CEFPageSession,WebPageSession,WebRuntimePaths,ScenePropertySessionOwner,SceneProjectProbe}.swift \
   Sources/WallpaperApp/Playback/PlaybackCloseBarrier.swift Sources/WallpaperApp/ApplicationPaths.swift \
   Sources/WallpaperApp/Transcoding/TranscodeTools.swift \
   "${SWIFT_AUDIO_OBJECTS[@]}" "${SWIFT_CORE_OBJECTS[@]}" "${SWIFT_NATIVE_OBJECTS[@]}" "${SWIFT_WEB_OBJECTS[@]}" \

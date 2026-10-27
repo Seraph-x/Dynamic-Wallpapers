@@ -16,8 +16,8 @@ private final class ObservedScenePage: ScenePageSession {
         set { underlying.onError = newValue }
     }
     init(_ underlying: any ScenePageSession) { self.underlying = underlying }
-    func prepare(project: SceneProjectReference, scale: CGFloat, fit: ContentFit) async throws {
-        try await underlying.prepare(project: project, scale: scale, fit: fit)
+    func prepare(item: MediaItem, scale: CGFloat, fit: ContentFit) async throws {
+        try await underlying.prepare(item: item, scale: scale, fit: fit)
     }
     func setGain(_ value: Double) throws { try underlying.setGain(value); gains.append(value) }
     func setPlaybackIntent(_ value: Bool) { underlying.setPlaybackIntent(value) }
@@ -164,8 +164,10 @@ struct SceneSwiftHarness {
     @MainActor
     static func run() async throws {
         let arguments = CommandLine.arguments
-        guard arguments.count == 5 || (arguments.count == 6 && arguments[5] == "--system-audio") else {
-            throw WallpaperError("Expected runtime, loose project, package project, cache paths and optional --system-audio")
+        let options = Array(arguments.dropFirst(5))
+        guard arguments.count >= 5, options.allSatisfy({ ["--system-audio", "--properties"].contains($0) }),
+              Set(options).count == options.count else {
+            throw WallpaperError("Expected runtime, loose project, package project, cache paths and optional --system-audio/--properties")
         }
         let runtime = CEFApplicationRuntime(paths: .resolve(), cache: URL(fileURLWithPath: arguments[4]),
             sceneRuntimeRoot: URL(fileURLWithPath: arguments[1]))
@@ -174,7 +176,11 @@ struct SceneSwiftHarness {
                 entry: "scene.json", representation: .loose), runtime: runtime)
             try await exercise(project: SceneProjectReference(root: URL(fileURLWithPath: arguments[3]),
                 entry: "scene.pkg", representation: .package), runtime: runtime)
-            if arguments.count == 6 {
+            if options.contains("--properties") {
+                try await ScenePropertiesEvidence.run(runtime: runtime,
+                    directory: URL(fileURLWithPath: arguments[4]).deletingLastPathComponent().appendingPathComponent("properties"))
+            }
+            if options.contains("--system-audio") {
                 try await SystemSpectrumEvidence.run(project: SceneProjectReference(root: URL(fileURLWithPath: arguments[2]),
                     entry: "scene.json", representation: .loose), runtime: runtime,
                     directory: URL(fileURLWithPath: arguments[4]).deletingLastPathComponent())
