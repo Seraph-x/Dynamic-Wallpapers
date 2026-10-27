@@ -1,8 +1,27 @@
-# Per-wallpaper property data contracts
+# Per-wallpaper scene properties
 
-This foundation adds typed catalog and persistence APIs. Main's property panel
-and live session integration are a separate implementation stage; this document
-does not claim that an inspector control is already available.
+Select a scene wallpaper and open **Scene properties** in the inspector. Boolean,
+number, RGB color, text and declared choice controls edit this wallpaper's library
+record. **Save and apply** persists the whole validated patch before sending it
+to every owned instance of that wallpaper, including playing and paused previews.
+The original project, package and default values are unchanged. The Editor is
+not required.
+
+Each editable row shows its authored default. **Use default** changes that draft
+only; **Save and apply** commits it. Reloading or changing selection clears numeric
+drafts from the previous capture.
+
+**Reset properties** explicitly clears stored overrides and applies the current
+defaults. **Reload properties** rereads metadata. Changed/unsupported declarations
+and invalid saved values stay visible; no valid subset is silently applied.
+Save failures leave live values unchanged. If persistence succeeds but rendering
+fails, the inspector states that settings were saved and shows the actual error.
+
+Numbers use declared slider bounds when representable and permit direct finite
+numeric entry. Invalid numeric input disables saving; declared bounds and choices
+are still validated before committing. Unsupported/conditional/preset-only rows
+show a reason instead of an invented editable value. UI text is localized in
+Chinese, English, Japanese, French and Spanish; authored labels remain unchanged.
 
 ## Validate a saved value
 
@@ -81,4 +100,40 @@ node scripts/test-scene-property-catalog-parity.mjs "$SCENE_PROPERTY_CATALOG_PAR
 The tests cover strict types/ranges, exact Unicode identity, original bytes,
 legacy persistence, duplicate members, malformed tokens, 12,000-level unknown
 metadata and independent raw-JSON comparisons against the existing JavaScript
-catalog. They do not substitute for the later native UI/CEF playback acceptance.
+catalog.
+
+## Native persistence and playback ownership
+
+`SceneProjectProbe` reads relative to one directory descriptor. A property capture
+binds exact metadata bytes to the root device/inode; save and initial playback
+revalidate that capture. The project declaration uses the same flat parser, so
+deep unrelated metadata is not rejected by Foundation's nesting limit. PKG
+inspection checks the actual length-prefixed `PKGV` header, including the real
+authored package fixture, rather than treating an unprefixed string as a package.
+
+`ScenePropertyEditorModel` validates drafts, saves atomically through the library
+store and then publishes acknowledged property commands. Selection/reload and
+shutdown invalidate queued actions. Metadata readers, including cancelled earlier
+selections and save revalidation, remain owned until real completion before media
+removal or application shutdown. Invalid stored values require explicit reset.
+`ScenePropertySessionOwner` serializes all owned instances, gives pending pages
+the latest values before attaching their view and rejects attachment after a
+failed latest update. Closing cancels new commands and retains ownership until
+the native close callback and in-flight operations drain. Playback scheduling
+ignores property-only differences while retaining all other media comparisons.
+
+Build and run the actual Swift/CEF acceptance separately:
+
+```sh
+python3 scripts/swift_sdk.py build --disable-sandbox --build-tests
+bash scripts/build-scene-swift-test.sh
+python3 scripts/test-scene-swift.py --properties
+```
+
+The native fixture uses independently authored callback and direct-binding GPU
+oracles. It checks default and restored first-frame pixels, all five property
+types, playing/paused instances, reset, retained view identity, closing during
+an update and unchanged original loose/PKG bytes. The runner requires each
+acceptance record plus complete runtime shutdown; a zero exit alone is insufficient.
+Actual AppModel save/reopen/reset and real AppKit field-editor/button interaction
+have separate tests. All fixture data and CEF profiles use owned temporary roots.

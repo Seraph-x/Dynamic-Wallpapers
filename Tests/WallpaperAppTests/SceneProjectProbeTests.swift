@@ -4,6 +4,41 @@ import WallpaperCore
 @testable import WallpaperApp
 
 final class SceneProjectProbeTests: XCTestCase {
+    func testRealAuthoredPackageHeaderPassesImportAndPropertyInspection() throws {
+        let sourceRoot = URL(fileURLWithPath: #filePath).resolvingSymlinksInPath()
+            .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        let bytes = try Data(contentsOf: sourceRoot.appendingPathComponent("Tests/Fixtures/SceneAnimatedPackage/scene.pkg"))
+        try bytes.write(to: root.appendingPathComponent("scene.pkg"))
+        try metadata(["type": "scene", "file": "scene.pkg"])
+        let item = try SceneProjectProbe.inspect(root: root)
+        XCTAssertEqual(item.sceneProject?.representation, .package)
+        XCTAssertEqual(try SceneProjectProbe.propertyCatalog(item).catalog.rows.count, 0)
+    }
+
+    func testPropertyCaptureRetainsDeepUnknownMetadataAndDetectsExactSourceChanges() throws {
+        let raw = "{\"type\":\"scene\",\"file\":\"scene.json\",\"general\":{\"properties\":{\"enabled\":{\"type\":\"bool\",\"value\":true}}},\"future\":"
+            + String(repeating: "[", count: 12000) + "1e400" + String(repeating: "]", count: 12000) + "}"
+        try write("project.json", raw); try write("scene.json", "{}")
+        let reference = SceneProjectReference(root: root, entry: "scene.json", representation: .loose)
+        let item = MediaItem(url: reference.entryURL, kind: .scene, width: 64, height: 48,
+                             backend: .scene, sceneProject: reference)
+        let capture = try SceneProjectProbe.propertyCatalog(item)
+        XCTAssertEqual(capture.catalog.projectJSON, Data(raw.utf8))
+        try SceneProjectProbe.revalidate(capture)
+        try write("project.json", raw + " ")
+        XCTAssertThrowsError(try SceneProjectProbe.revalidate(capture))
+    }
+
+    func testPropertyCaptureRejectsReplacedDirectoryEvenWithIdenticalMetadata() throws {
+        try metadata(["type": "scene", "file": "scene.json"]); try write("scene.json", "{}")
+        let item = try SceneProjectProbe.inspect(root: root)
+        let capture = try SceneProjectProbe.propertyCatalog(item)
+        let old = directory.appendingPathComponent("original")
+        try FileManager.default.moveItem(at: root, to: old)
+        try FileManager.default.copyItem(at: old, to: root)
+        XCTAssertThrowsError(try SceneProjectProbe.revalidate(capture))
+    }
+
     private var directory: URL!
     private var root: URL { directory.appendingPathComponent("project") }
     override func setUpWithError() throws {
@@ -28,7 +63,7 @@ final class SceneProjectProbeTests: XCTestCase {
     }
 
     func testDeclaredPackageAndConventionalPackedLayoutAreSelectedExplicitly() throws {
-        try write("scene.pkg", "PKGV0001")
+        try Data([8, 0, 0, 0] + Array("PKGV0012".utf8)).write(to: root.appendingPathComponent("scene.pkg"))
         for declared in ["scene.pkg", "scene.json"] {
             try metadata(["type": "Scene", "file": declared])
             let item = try SceneProjectProbe.inspect(root: root)
@@ -40,7 +75,7 @@ final class SceneProjectProbeTests: XCTestCase {
     }
 
     func testUnsafeOrUnsupportedMetadataCannotSearchForAnAlternative() throws {
-        try write("scene.pkg", "PKGV0001")
+        try Data([8, 0, 0, 0] + Array("PKGV0012".utf8)).write(to: root.appendingPathComponent("scene.pkg"))
         for record: [String: Any] in [
             ["type": "application", "file": "scene.pkg"], ["type": "video", "file": "scene.pkg"],
             ["type": "scene"], ["type": "scene", "file": "../scene.json"],

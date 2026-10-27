@@ -53,7 +53,7 @@ final class SceneSurface: NSView, PlaybackSurface {
             }
             try next.setGain(0)
             try await withTaskCancellationHandler {
-                try await next.prepare(project: project, scale: scale, fit: fit)
+                try await next.prepare(item: item, scale: scale, fit: fit)
                 try Task.checkCancellation()
             } onCancel: {
                 Task { @MainActor [weak self] in

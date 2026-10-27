@@ -71,6 +71,18 @@ final class AppModel: ObservableObject {
     private let desktop: DesktopCoordinator
     private let mirrorFrameRate: CurrentValueSubject<WallpaperMirrorFrameRate, Never>
     let webRuntime: CEFApplicationRuntime
+    private(set) lazy var scenePropertyEditor = ScenePropertyEditorModel(
+        currentItem: { [weak self] id in self?.library.media.first { $0.id == id } },
+        commit: { [weak self] item, values in
+            guard let self else { throw CancellationError() }
+            return try self.commitSceneProperties(item, values: values)
+        }, publish: { [weak self] item, capture, values in
+            guard let self, !self.isShuttingDown,
+                  let current = self.library.media.first(where: { $0.id == item.id }),
+                  current.sceneProject == item.sceneProject,
+                  current.scenePropertyOverrides == item.scenePropertyOverrides else { throw CancellationError() }
+            try await self.webRuntime.sceneProperties.publish(item: current, capture: capture, values: values)
+        })
     let loginItems: LoginItemController
     private(set) lazy var mainWindow = MainWindowCoordinator { [weak self] in self?.activateManagementInterface() }
     private let presentation: any ApplicationPresenting
@@ -172,6 +184,21 @@ final class AppModel: ObservableObject {
     func refreshSystemLanguages() {
         let languages = Locale.preferredLanguages
         if systemLanguages != languages { systemLanguages = languages }
+    }
+
+    private func commitSceneProperties(_ item: MediaItem, values: [ScenePropertyOverride]) throws -> MediaItem {
+        guard !isShuttingDown, !loadFailed else { throw WallpaperError("当前无法保存场景属性。") }
+        guard let index = library.media.firstIndex(where: { $0.id == item.id }),
+              library.media[index].backend == .scene,
+              library.media[index].sceneProject == item.sceneProject,
+              library.media[index].scenePropertyOverrides == item.scenePropertyOverrides else { throw CancellationError() }
+        try ScenePropertyOverride.validate(values)
+        var candidate = library
+        candidate.media[index].scenePropertyOverrides = values
+        try store.save(candidate)
+        library = candidate
+        desktop.reconcile(library)
+        return candidate.media[index]
     }
     func captureWallpaper(on screen: NSScreen) async throws -> CGImage {
         try await desktop.captureWallpaper(on: screen)
@@ -650,7 +677,7 @@ final class AppModel: ObservableObject {
     private func beginReleasingMedia(_ ids: Set<UUID>) -> Task<Void, Error> {
         transcoding.didRemoveMedia(ids)
         let tasks = [previewLifetime.beginRemovingMedia(ids), inspectorMedia.beginRemovingMedia(ids),
-                     thumbnails.beginRemovingMedia(ids), desktop.beginRemovingMedia(ids)]
+                     thumbnails.beginRemovingMedia(ids), desktop.beginRemovingMedia(ids), scenePropertyEditor.beginRemovingMedia(ids)]
             + (screenSaver.map { [$0.beginRemovingMedia(ids)] } ?? [])
         return Task { @MainActor in try await PlaybackCloseBarrier.wait(for: tasks) }
     }
@@ -713,6 +740,7 @@ final class AppModel: ObservableObject {
         lifecycle.beginShutdown(plan: ApplicationShutdownPlan(
             immediate: {
                 self.isShuttingDown = true
+                self.scenePropertyEditor.shutdown()
                 self.presentation.cancelActivation()
                 self.systemWallpaperSync.shutdown()
                 self.loginItems.shutdown()
@@ -721,6 +749,7 @@ final class AppModel: ObservableObject {
                 self.desktop.shutdown()
             }, importing: importTask,
             drain: {
+                await self.scenePropertyEditor.waitForLoading()
                 await self.mediaRemoval.wait()
                 await self.systemWallpaperSync.waitForPendingOperations()
             }, makeCloseTasks: {

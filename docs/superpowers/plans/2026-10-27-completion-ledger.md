@@ -76,3 +76,12 @@ reproducible Python/Node build tooling and source-built media dependencies.
   Events/TLS/pixel/transport/shutdown acceptance for both dictionary adapters.
   Queued cancellation and isolated Core fixture-path review findings are fixed.
   Production media settings and renderer delivery remain open.
+
+- Software AV1/conversion and neutral-path media build PR
+  [#45](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/45) merged at `ba838b0`
+  from tested head `fcd5cf8`. All 121 tooling tests, four complete package-isolation
+  tests, two six-format actual decode/conversion runs and six actual MPVBridge
+  phases passed. All 512 decoder registrations are unchanged. The 39 changed
+  files and all 16 measured media binaries passed publication scans; neither
+  executable nor any dylib contains a personal home path. Final app release
+  packaging remains a separate completion item.

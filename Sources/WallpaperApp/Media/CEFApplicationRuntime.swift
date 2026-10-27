@@ -8,6 +8,7 @@ import Darwin
 @MainActor
 final class CEFApplicationRuntime: WebPageMaking, ScenePageMaking {
     let systemAudioSpectrum = SystemAudioSpectrumController()
+    let sceneProperties = ScenePropertySessionOwner()
     private var playingSceneIDs = Set<UUID>()
     private let paths: WebRuntimePaths
     private let sceneRuntimeRoot: URL?
@@ -48,6 +49,7 @@ final class CEFApplicationRuntime: WebPageMaking, ScenePageMaking {
     }
 
     func setFrameRate(_ value: WebWallpaperFrameRate) {
+        guard frameRate != value else { return }
         frameRate = value
         sessions.values.forEach { $0.setFrameRate(value) }
         sceneSessions.values.forEach { $0.setFrameRate(value) }

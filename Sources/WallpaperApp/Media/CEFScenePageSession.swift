@@ -17,19 +17,28 @@ final class CEFScenePageSession: ScenePageSession {
     private var closing = false
     private var playbackIntent = false
     private var closeTask: Task<Void, Error>?
+    private let readProperties: @Sendable (MediaItem) throws -> ScenePropertyCatalogCapture
+    private var metadataTask: Task<ScenePropertyCatalogCapture, Error>?
 
-    init(owner: CEFApplicationRuntime, size: CGSize, frameRate: WebWallpaperFrameRate) {
+    init(owner: CEFApplicationRuntime, size: CGSize, frameRate: WebWallpaperFrameRate,
+         readProperties: @escaping @Sendable (MediaItem) throws -> ScenePropertyCatalogCapture = { try SceneProjectProbe.propertyCatalog($0) }) {
         self.owner = owner; self.size = size; self.frameRate = frameRate
+        self.readProperties = readProperties
         view = NSView(frame: CGRect(origin: .zero, size: size))
     }
 
-    func prepare(project: SceneProjectReference, scale: CGFloat, fit: ContentFit) async throws {
+    func prepare(item: MediaItem, scale: CGFloat, fit: ContentFit) async throws {
         guard !started, !closing else { throw WallpaperError("场景实例已使用或正在关闭。") }
+        guard let project = item.sceneProject, item.backend == .scene else { throw WallpaperError("场景工程无效。") }
         started = true
+        owner.sceneProperties.register(id, item: item)
+        try Task.checkCancellation()
+        let readProperties = readProperties
+        let capture = try await metadata { try readProperties(item) }
+        guard !closing else { throw CancellationError() }
         try Task.checkCancellation()
         let page = try owner.createScenePage(project: project, id: id, size: size, scale: scale)
         self.page = page
-        view = page.view
         try await withTaskCancellationHandler {
             try Task.checkCancellation()
             try await withCheckedThrowingContinuation { continuation in
@@ -49,6 +58,13 @@ final class CEFScenePageSession: ScenePageSession {
             try await command { page.setSceneFrameRate(UInt(frameRate.rawValue), completion: $0) }
             try await command { page.setSceneVolume(1, muted: false, completion: $0) }
             try setGain(0)
+            _ = try await metadata { try SceneProjectProbe.revalidate(capture); return capture }
+            try Task.checkCancellation()
+            try await owner.sceneProperties.prepare(id, capture: capture) { [weak self, weak page] bytes in
+                guard let self, let page else { throw CancellationError() }
+                try await self.command { page.setSceneUserPropertiesJSONData(bytes, completion: $0) }
+            }
+            try await owner.sceneProperties.attach(id) { self.view = page.view }
         } onCancel: {
             Task { @MainActor [weak self] in self?.finishPreparation(.failure(CancellationError())) }
         }
@@ -89,6 +105,12 @@ final class CEFScenePageSession: ScenePageSession {
         guard !closing, let page, page.ready else { throw WallpaperError("场景当前不能接收鼠标输入。") }
         try page.sendScenePointer(at: point, kind: kind)
     }
+    private func metadata(_ read: @escaping @Sendable () throws -> ScenePropertyCatalogCapture) async throws -> ScenePropertyCatalogCapture {
+        let task = Task.detached(operation: read)
+        metadataTask = task
+        defer { metadataTask = nil }
+        return try await withTaskCancellationHandler { try await task.value } onCancel: { task.cancel() }
+    }
     private func command(_ invoke: (@escaping (Error?) -> Void) -> Void) async throws {
         guard !closing else { throw CancellationError() }
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
@@ -106,13 +128,17 @@ final class CEFScenePageSession: ScenePageSession {
     func close() async throws {
         if let closeTask { try await closeTask.value; return }
         closing = true
+        owner.sceneProperties.beginClose(id)
         owner.setScenePlaying(id, false)
         finishPreparation(.failure(CancellationError()))
         page?.onReady = nil; page?.onError = nil
+        let pendingMetadata = metadataTask
+        pendingMetadata?.cancel()
         let page = self.page
         var gateFailure: Error?
         do { try page?.setOutputGain(0) } catch { gateFailure = error }
         let task = Task { @MainActor [gateFailure] in
+            _ = await pendingMetadata?.result // The preparation caller owns read errors.
             if let page {
                 try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
                     page.close { error in
@@ -120,6 +146,7 @@ final class CEFScenePageSession: ScenePageSession {
                     }
                 }
             }
+            try await self.owner.sceneProperties.retire(self.id)
             self.page = nil
             self.owner.retireScene(self.id)
             if let gateFailure { throw gateFailure }

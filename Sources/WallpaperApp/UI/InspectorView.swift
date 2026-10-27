@@ -21,8 +21,13 @@ struct InspectorView: View {
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("inspector-content")
         }
-        .onChange(of: model.selectedMedia?.id, initial: true) { _, _ in model.inspectorMedia.select(model.selectedMedia) }
-        .onDisappear { if !model.isShuttingDown { model.inspectorMedia.select(nil) } }
+        .onChange(of: model.selectedMedia?.id, initial: true) { _, _ in
+            model.inspectorMedia.select(model.selectedMedia)
+            model.scenePropertyEditor.select(model.selectedMedia)
+        }
+        .onDisappear {
+            if !model.isShuttingDown { model.inspectorMedia.select(nil); model.scenePropertyEditor.select(nil) }
+        }
         .accessibilityIdentifier("wallpaper-inspector")
     }
 }
@@ -56,6 +61,10 @@ private struct InspectorDetails: View {
                                   previewing: $previewing,
                                   desktopTarget: DesktopPreviewTarget(displayID: displayID == "all" ? nil : displayID, fit: fit))
             metadata
+            if item.backend == .scene {
+                Divider()
+                InspectorScenePropertiesView(editor: model.scenePropertyEditor)
+            }
             Divider()
             displayOptions
             Divider()

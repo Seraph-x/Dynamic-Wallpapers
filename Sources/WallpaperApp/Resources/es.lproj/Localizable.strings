@@ -668,3 +668,25 @@
 "应用正在退出，无法打开 Editor。" = "La aplicación se está cerrando y no puede abrir Editor.";
 "此链接不是 Editor 工程导入请求。" = "Este enlace no solicita importar un proyecto de Editor.";
 "无法打开 Editor" = "No se pudo abrir Editor";
+
+/* Per-wallpaper scene properties. */
+"场景属性" = "Propiedades de escena";
+"设置仅保存在本壁纸的素材库记录中，保存后更新正在使用该场景的窗口。" = "Los ajustes se guardan en la biblioteca de este fondo y se aplican a las ventanas que usan esta escena.";
+"该场景未声明用户属性。" = "Esta escena no declara propiedades de usuario.";
+"属性值不可用，请重置或重新载入。" = "Valor no disponible. Restablece o vuelve a cargar.";
+"保存并应用" = "Guardar y aplicar";
+"重置属性" = "Restablecer propiedades";
+"重新载入属性" = "Volver a cargar propiedades";
+"请输入有效的有限数字。" = "Introduce un número finito válido.";
+"场景属性操作失败" = "Error al modificar las propiedades";
+"请检查属性值或重新载入场景。" = "Revisa los valores o vuelve a cargar la escena.";
+"无法读取所选颜色的 RGB 分量。" = "No se pudieron leer los componentes RGB del color seleccionado.";
+"仅有预设值，缺少属性声明。" = "Solo hay un valor predefinido; falta la declaración.";
+"此属性名称不受运行时支持。" = "El motor no admite este nombre de propiedad.";
+"属性声明无效。" = "Declaración de propiedad no válida.";
+"此属性类型尚不受支持。" = "Este tipo de propiedad aún no es compatible.";
+"此属性依赖暂不支持的显示条件。" = "Esta propiedad usa una condición de visibilidad no compatible.";
+"场景属性已保存并应用" = "Propiedades guardadas y aplicadas";
+"设置已保存，实时应用失败" = "Ajustes guardados; falló la aplicación en vivo";
+"使用默认值" = "Usar valor predeterminado";
+"默认值" = "Valor predeterminado";

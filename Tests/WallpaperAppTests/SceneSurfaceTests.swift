@@ -139,7 +139,7 @@ private final class TestScenePage: ScenePageSession {
     var holdNextPlay = false
     var playbackIntent = false
     private var continuation: CheckedContinuation<Void, Error>?
-    func prepare(project: SceneProjectReference, scale: CGFloat, fit: ContentFit) async throws {
+    func prepare(item: MediaItem, scale: CGFloat, fit: ContentFit) async throws {
         if holdPrepare { try await withCheckedThrowingContinuation { prepareContinuation = $0 } }
     }
     func setGain(_ value: Double) throws { gains.append(value) }

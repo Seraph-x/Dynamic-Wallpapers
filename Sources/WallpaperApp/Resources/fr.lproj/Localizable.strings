@@ -668,3 +668,25 @@
 "应用正在退出，无法打开 Editor。" = "L’application se ferme et ne peut pas ouvrir Editor.";
 "此链接不是 Editor 工程导入请求。" = "Ce lien ne demande pas l’importation d’un projet Editor.";
 "无法打开 Editor" = "Impossible d’ouvrir Editor";
+
+/* Per-wallpaper scene properties. */
+"场景属性" = "Propriétés de scène";
+"设置仅保存在本壁纸的素材库记录中，保存后更新正在使用该场景的窗口。" = "Les réglages sont enregistrés dans la bibliothèque pour ce fond d’écran et appliqués aux fenêtres utilisant cette scène.";
+"该场景未声明用户属性。" = "Cette scène ne déclare aucune propriété utilisateur.";
+"属性值不可用，请重置或重新载入。" = "Valeur indisponible. Réinitialisez ou rechargez.";
+"保存并应用" = "Enregistrer et appliquer";
+"重置属性" = "Réinitialiser les propriétés";
+"重新载入属性" = "Recharger les propriétés";
+"请输入有效的有限数字。" = "Saisissez un nombre fini valide.";
+"场景属性操作失败" = "Échec de l’opération sur les propriétés";
+"请检查属性值或重新载入场景。" = "Vérifiez les valeurs ou rechargez la scène.";
+"无法读取所选颜色的 RGB 分量。" = "Impossible de lire les composantes RVB de la couleur choisie.";
+"仅有预设值，缺少属性声明。" = "Valeur prédéfinie sans déclaration de propriété.";
+"此属性名称不受运行时支持。" = "Ce nom de propriété n’est pas pris en charge par le moteur.";
+"属性声明无效。" = "Déclaration de propriété invalide.";
+"此属性类型尚不受支持。" = "Ce type de propriété n’est pas encore pris en charge.";
+"此属性依赖暂不支持的显示条件。" = "Cette propriété utilise une condition d’affichage non prise en charge.";
+"场景属性已保存并应用" = "Propriétés enregistrées et appliquées";
+"设置已保存，实时应用失败" = "Réglages enregistrés ; échec de l’application en direct";
+"使用默认值" = "Valeur par défaut";
+"默认值" = "Valeur par défaut";

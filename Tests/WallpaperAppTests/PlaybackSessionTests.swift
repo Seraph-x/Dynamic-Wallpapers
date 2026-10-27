@@ -4,6 +4,29 @@ import WallpaperCore
 
 @MainActor
 final class PlaybackSessionTests: XCTestCase {
+    func testScenePropertyEditDoesNotCancelPendingSwitch() async {
+        let project = SceneProjectReference(root: URL(fileURLWithPath: "/project"), entry: "scene.json", representation: .loose)
+        var item = MediaItem(url: project.entryURL, kind: .scene, width: 64, height: 48,
+                             backend: .scene, sceneProject: project)
+        let entries = [PlaylistEntry(mediaID: item.id), PlaylistEntry(mediaID: item.id)]
+        let list = Playlist(name: "scene", entries: entries)
+        let first = expectation(description: "first committed"), preparing = expectation(description: "second preparing")
+        let second = expectation(description: "second committed despite property edit")
+        let endpoint = TestEndpoint()
+        let session = PlaybackSession(playlist: list, media: [item], endpoints: [endpoint], fit: .fill,
+            autoAdvance: false, onCommit: { id in
+                if id == entries[0].id { first.fulfill() } else { second.fulfill() }
+            }, onStatus: { _ in }, onError: { XCTFail($0.localizedDescription) })
+        defer { session.stop() }
+        session.start(); await fulfillment(of: [first], timeout: 1)
+        endpoint.delay = .milliseconds(100); endpoint.onPrepare = { preparing.fulfill() }
+        session.next(); await fulfillment(of: [preparing], timeout: 1)
+        item.scenePropertyOverrides = [.init(name: "caption", value: .string("Live"))]
+        session.update(playlist: list, media: [item])
+        await fulfillment(of: [second], timeout: 1)
+        XCTAssertFalse(endpoint.preparationCancelled)
+    }
+
     func testAudioEditDoesNotCancelPendingSwitch() async {
         let item = MediaItem(url: URL(fileURLWithPath: "/test.png"), kind: .image, width: 32, height: 32)
         let entries = [PlaylistEntry(mediaID: item.id), PlaylistEntry(mediaID: item.id)]

@@ -6,7 +6,7 @@ protocol ScenePageSession: AnyObject {
     var view: NSView { get }
     var onError: ((Error) -> Void)? { get set }
     /// A real scene frame is ready, the scene clock paused, and output silent.
-    func prepare(project: SceneProjectReference, scale: CGFloat, fit: ContentFit) async throws
+    func prepare(item: MediaItem, scale: CGFloat, fit: ContentFit) async throws
     func setGain(_ value: Double) throws
     /// Synchronous user intent; an obsolete play ack must not start capture.
     func setPlaybackIntent(_ playing: Bool)
