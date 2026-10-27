@@ -186,8 +186,8 @@
     },
     {
       "path": "WebWallGL/README.md",
-      "sha256": "36501640155f2b539d37b241a6ce2c1b50d2f2f497694e65a62a51814bf549a3",
-      "size": 2202
+      "sha256": "231b68e410fd7f2a0597759b8e0160f70d26878116a50599cf9c1b4b9a5e9b68",
+      "size": 2721
     },
     {
       "path": "WebWallGL/WeScene-LICENSE",
@@ -196,8 +196,8 @@
     },
     {
       "path": "WebWallGL/provenance.json",
-      "sha256": "cdb3462079a31e1071af6e6b7c2bf74eaef48471a91834b52d277cb742bdd456",
-      "size": 1252
+      "sha256": "7ab342a744a12ce10213d61d87458f09381c58f5074820cc263f7cc432491865",
+      "size": 3667
     }
   ]
 }

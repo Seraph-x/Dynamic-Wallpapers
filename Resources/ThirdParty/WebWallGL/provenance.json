@@ -28,6 +28,68 @@
     "treeShaking": true
   },
   "files": {
-    "Sources/WallpaperApp/Resources/SceneRuntime/webwallgl.bundle.mjs": "17c85a29c11b1a783f79f4351df00497217b1af76c4b457ca9422c21dbae8fa3"
+    "Sources/WallpaperApp/Resources/SceneRuntime/webwallgl.bundle.mjs": "e27edd7330786ccd8df5f961c69487643726626ba84181970eb98609148c216c"
+  },
+  "localPatches": {
+    "source": "scripts/scene-engine-patches.mjs",
+    "sha256": "a93b2ed3405d6214b0b38f27f96f0206627b92bd9277a338f192e82196089faf",
+    "patchedEntrySHA256": "3d6594503e3ebd04b8ba2e37eaaf755a5dd3bd9be0b691483d789f63de8a6ae7",
+    "items": [
+      {
+        "id": "text-binding-preflight",
+        "reason": "Reject invalid directly bound text/font values before a live patch changes any properties.",
+        "matches": 1
+      },
+      {
+        "id": "text-binding-live-state",
+        "reason": "Update actual text layer state and original-box layout when direct text/font bindings change.",
+        "matches": 1
+      },
+      {
+        "id": "text-binding-reflow-shrink",
+        "reason": "Recompute both grown and shrunken bound text quads instead of retaining a previous larger canvas.",
+        "matches": 1
+      },
+      {
+        "id": "text-textures-before-draw",
+        "reason": "Draw the updated text texture in the acknowledged frame, including a single paused forced frame.",
+        "matches": 1
+      },
+      {
+        "id": "remove-post-draw-text-update",
+        "reason": "Text scripts and texture updates run once before drawing rather than after the frame is already visible.",
+        "matches": 1
+      },
+      {
+        "id": "frame-owned-acknowledgements",
+        "reason": "An older asynchronous frame can resolve only the waiters captured before that draw.",
+        "matches": 2
+      },
+      {
+        "id": "frame-batch-lifetime",
+        "reason": "Track pending and active frame batches so errors and disposal reject every affected promise.",
+        "matches": 1
+      },
+      {
+        "id": "frame-cleanup-rejection",
+        "reason": "Destroy rejects a queued paused frame even when no renderer completion will run afterward.",
+        "matches": 1
+      },
+      {
+        "id": "scene-property-frame-result",
+        "reason": "Propagate the actual rendering promise through the existing scene property transport.",
+        "matches": 1
+      },
+      {
+        "id": "scene-property-render-frame",
+        "reason": "Public data-only updates use the same real playing/paused frame mechanism as Editor updates.",
+        "matches": 1
+      },
+      {
+        "id": "public-property-frame-result",
+        "reason": "Callers may await data acceptance and actual drawing without receiving Editor controls.",
+        "matches": 1
+      }
+    ]
   }
 }

@@ -38,6 +38,7 @@ commands = [
     ('browser-script-language-runtime', ['node', str(root / 'Editor/Web/test-script-language-runtime.mjs')], 60),
     ('browser-property-bindings', ['node', str(root / 'Editor/Web/test-property-bindings.mjs')], 60),
     ('browser-property-bindings-runtime', ['node', str(root / 'Editor/Web/test-property-bindings-runtime.mjs')], 60),
+    ('browser-live-text', ['node', str(root / 'Editor/Web/test-scene-text-live.mjs')], 60),
     ('browser-property-workspace', ['node', str(root / 'Editor/Web/test-property-workspace.mjs')], 60),
     ('browser-preview-properties', ['node', str(root / 'Editor/Web/test-preview-properties.mjs')], 60),
     ('browser-scene-preview-diagnostics', ['node', str(root / 'Editor/Web/test-scene-preview-script-runtime.mjs')], 60),
