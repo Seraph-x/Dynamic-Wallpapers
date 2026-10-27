@@ -69,3 +69,10 @@ reproducible Python/Node build tooling and source-built media dependencies.
   compilation passed. Final packaged app/release acceptance is still open.
   The old IINA binary closure is historical, not a fallback. FFmpeg 9 software
   AV1 transcode failure remains a separately tracked fix.
+
+- Native actual artwork PR [#44](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/44)
+  merged at `9abb3fd` from tested head `e1d08e1`. Two complete runs passed all
+  35 native and 143 current Core tests with no skips, plus owned actual Apple
+  Events/TLS/pixel/transport/shutdown acceptance for both dictionary adapters.
+  Queued cancellation and isolated Core fixture-path review findings are fixed.
+  Production media settings and renderer delivery remain open.

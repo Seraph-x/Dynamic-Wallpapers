@@ -45,7 +45,7 @@
       ],
       "minimum_macos": "14.0",
       "sdk": "27.0",
-      "sha256": "2bc135757b9d22a31ddf02e807fe8ecc47330bd582739e00d6ba83d3dbf7fbc6"
+      "sha256": "240a4123a28f738afbd321d1233c14693dc8b0af37d6c8c27e27cf2e9e1718ea"
     },
     "libavcodec.61.dylib": {
       "architecture": [
@@ -67,7 +67,7 @@
       ],
       "minimum_macos": "14.0",
       "sdk": "27.0",
-      "sha256": "286b0511d0ec0dacd3a4cf2cf3756c20314b7723b6dbdfcf4f2873474d4e2fc4"
+      "sha256": "5eaca068c68383e8ad638e866418030ecda82aff6b1a174d6b61b2d4144125fe"
     },
     "libavfilter.10.dylib": {
       "architecture": [
@@ -93,7 +93,7 @@
       ],
       "minimum_macos": "14.0",
       "sdk": "27.0",
-      "sha256": "d2e955623734d16b03484e92ba77c507548b9277927cf869f7d9cc029d64e27b"
+      "sha256": "aad909aa5e8c28757c3db7eac8c5c9de2e1f38a510b1875f70cc639ca3b2928e"
     },
     "libavformat.61.dylib": {
       "architecture": [
@@ -117,7 +117,7 @@
       ],
       "minimum_macos": "14.0",
       "sdk": "27.0",
-      "sha256": "73d5d24ab21831a71e5e3b6f5fdbe8d41d9db9be66f472b884b735c87de38848"
+      "sha256": "81b8b65c16bb0a2cbeaaf80dad4d244d9e62c9d2abb89f295f3bff2490769be5"
     },
     "libavutil.59.dylib": {
       "architecture": [
@@ -133,7 +133,7 @@
       ],
       "minimum_macos": "14.0",
       "sdk": "27.0",
-      "sha256": "1cbfa7884f03f162d24fd9d352015b8feabf0850fe3bf35172f0896ff63bec0e"
+      "sha256": "fa8df2b18f47fd3302527dc1b2f93a404aa12c520cfd91b75e9187f001d4fb50"
     },
     "libdav1d.7.dylib": {
       "architecture": [
@@ -178,7 +178,7 @@
       ],
       "minimum_macos": "14.0",
       "sdk": "27.0",
-      "sha256": "302235625d84c783316767b03ee23a7d17c89e232b36cde4893f4bb52511175a"
+      "sha256": "3dcf63250091e3a7253963a8e3e899770c3a8087f5dbd425e28c68cbe127d298"
     },
     "liblzma.5.dylib": {
       "architecture": [
@@ -214,7 +214,7 @@
       ],
       "minimum_macos": "14.0",
       "sdk": "27.0",
-      "sha256": "2b05719f17f4f3421bcee71f31db62f15d3a4178b492a6a4f98d22cb60742ac7"
+      "sha256": "05b23af90730d4653775d26a700a9e83105f271aa0cb59e3402f2ac92a40c659"
     },
     "libplacebo.338.dylib": {
       "architecture": [
@@ -243,7 +243,7 @@
       ],
       "minimum_macos": "14.0",
       "sdk": "27.0",
-      "sha256": "8bee0d6bf2ca508bcb080c4d8f7a22989cd0c09cfd44248cf9f1f8801d278066"
+      "sha256": "adb085f028b2d9ef9c4ded4d6fde2f406dde3da397d5a51b02e7cb300a6c51d5"
     },
     "libswscale.8.dylib": {
       "architecture": [
@@ -260,7 +260,7 @@
       ],
       "minimum_macos": "14.0",
       "sdk": "27.0",
-      "sha256": "32a2a54ec8aa5dae9b9b31dd3d10497fe65e230e646caa19c36d603434f6bf03"
+      "sha256": "916f461c2cbcb06006cd1f1becf54f7629094aee81eeadd920b00adb15c4cc13"
     }
   },
   "schema_version": 1

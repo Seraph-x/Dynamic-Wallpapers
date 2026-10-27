@@ -7,6 +7,7 @@ import importlib.util
 import json
 from pathlib import Path
 import tempfile
+import shutil
 from types import SimpleNamespace
 import unittest
 
@@ -38,6 +39,25 @@ class FFmpegBuildRecordTests(unittest.TestCase):
         self.image = SimpleNamespace(
             dependencies=('/usr/lib/libSystem.B.dylib',),
             minimum_macos='14.0', sdk_version='27.0')
+        self.populate_codec_inputs()
+
+    def populate_codec_inputs(self):
+        source = Path(__file__).resolve().parent.parent
+        for relative in ['scripts/mpv-source-lock.json', 'scripts/mpv_source_inputs.py',
+                         'scripts/media_dependencies.py', 'scripts/media_bundle_macho.py',
+                         'scripts/swift_sdk.py', 'scripts/ffmpeg_build_record.py']:
+            destination = self.root / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source / relative, destination)
+        helper = self.root / 'scripts/ffmpeg_codec_build.py'
+        helper.write_text('# owned codec build helper fixture\n')
+        lock = json.loads((source / 'scripts/mpv-source-lock.json').read_text())
+        for component in lock['components']:
+            if component['name'] in ('dav1d', 'xz', 'meson', 'ninja'):
+                relative = component['artifact']['path']
+                destination = self.root / relative
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(source / relative, destination)
 
     def module(self):
         self.assertIsNotNone(importlib.util.find_spec('ffmpeg_build_record'),
@@ -56,15 +76,41 @@ class FFmpegBuildRecordTests(unittest.TestCase):
     def test_write_and_verify_bind_pinned_source_script_sdk_and_tools(self):
         module = self.write()
         record = json.loads(module.record_path(self.root).read_text())
-        self.assertEqual(record['schema_version'], 1)
+        self.assertEqual(record['schema_version'], 2)
         self.assertEqual(record['source_sha256'], self.lock['modules']['ffmpeg']['artifacts'][0]['sha256'])
         self.assertEqual(record['build_script_sha256'], hashlib.sha256(self.script.read_bytes()).hexdigest())
         self.assertEqual(record['sdk_version'], '27.0')
         self.assertEqual(record['toolchain_version'], 'Apple clang test')
         self.assertEqual(set(record['tools']), {'ffmpeg', 'ffprobe'})
+        self.assertIn('scripts/ffmpeg_codec_build.py', record['build_inputs'])
+        self.assertIn('python', record['build_tools'])
         verified = module.verify_record(self.root, self.lock, sdk_version='27.0',
                                         toolchain_version='Apple clang test', inspect_image=self.inspect)
         self.assertEqual(verified, record['tools'])
+
+    def test_changed_codec_helper_source_and_build_environment_are_rejected(self):
+        module = self.write()
+        helper = self.root / 'scripts/ffmpeg_codec_build.py'
+        original = helper.read_bytes()
+        helper.write_bytes(b'changed codec implementation')
+        with self.assertRaisesRegex(ValueError, 'input'):
+            module.verify_record(self.root, self.lock, sdk_version='27.0',
+                                 toolchain_version='Apple clang test', inspect_image=self.inspect)
+        helper.write_bytes(original)
+        record_path = module.record_path(self.root)
+        record = json.loads(record_path.read_text())
+        record['build_tools']['python'] = 'a different Python runtime'
+        record_path.write_text(json.dumps(record))
+        with self.assertRaisesRegex(ValueError, 'build tool'):
+            module.verify_record(self.root, self.lock, sdk_version='27.0',
+                                 toolchain_version='Apple clang test', inspect_image=self.inspect)
+        record['build_tools'] = module.codec_build_environment()
+        record_path.write_text(json.dumps(record))
+        archive = next((self.root / 'Resources/ThirdParty/MPV/sources').glob('dav1d-*'))
+        archive.write_bytes(b'changed corresponding codec source')
+        with self.assertRaisesRegex(ValueError, 'SHA256|size'):
+            module.verify_record(self.root, self.lock, sdk_version='27.0',
+                                 toolchain_version='Apple clang test', inspect_image=self.inspect)
 
     def test_modified_tool_is_rejected(self):
         module = self.write()

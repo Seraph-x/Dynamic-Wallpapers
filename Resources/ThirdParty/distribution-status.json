@@ -119,8 +119,8 @@
     },
     {
       "path": "FFmpeg/BUILD-RECORD.json",
-      "sha256": "78153fe54b0cdf1598956121de785002820fe63fa572876273ec4a2d61b50f44",
-      "size": 1614
+      "sha256": "d19b60f860a75d35ba114a5e2f8a6d21ac2a596f4810561ff79cf74cba6c85a1",
+      "size": 3460
     },
     {
       "path": "FFmpeg/COPYING.GPLv2",
@@ -149,13 +149,18 @@
     },
     {
       "path": "FFmpeg/SOURCE.md",
-      "sha256": "79fd3eb0ede3a1a0ae8b7febbde9bbdbd607f9de83c3a68cba48ce8e473ad5e2",
-      "size": 2621
+      "sha256": "ddd837e69bea4825cfc4bc118b8f0c3eca665d1fc1d099bcc273b10948f99138",
+      "size": 4875
+    },
+    {
+      "path": "FFmpeg/acceptance/software-transcode.json",
+      "sha256": "341e0214f18e8bcee96e6986183f146631472c1799a46536e0a8104023c2bea2",
+      "size": 6679
     },
     {
       "path": "FFmpeg/build.sh",
-      "sha256": "95b59360e67fee82f98c4d3d7a60b9914357e0b14cfae173db9687ac9192c274",
-      "size": 2043
+      "sha256": "c3855753df4544932d29f860c12f5f0e47c7adb87a18645c9f4359ac2e917460",
+      "size": 2632
     },
     {
       "path": "FFmpeg/ffmpeg-n9.0.1-source.tar.gz",
@@ -163,18 +168,58 @@
       "size": 17306989
     },
     {
+      "path": "FFmpeg/recipe/scripts/feasibility/ffmpeg/build.sh",
+      "sha256": "c3855753df4544932d29f860c12f5f0e47c7adb87a18645c9f4359ac2e917460",
+      "size": 2632
+    },
+    {
+      "path": "FFmpeg/recipe/scripts/ffmpeg_build_record.py",
+      "sha256": "8082224d78f32ad7fb5755622ab65a3a102f9e3f55e307e29265c56dcf1cf5e7",
+      "size": 8464
+    },
+    {
+      "path": "FFmpeg/recipe/scripts/ffmpeg_codec_build.py",
+      "sha256": "339dc142828b3267a62c23faf71f66394552d34f57fa6d295337a9274fd7d7c5",
+      "size": 5702
+    },
+    {
+      "path": "FFmpeg/recipe/scripts/media_bundle_macho.py",
+      "sha256": "bd5809eafe1ffbf1c954ccc47aa4fd535188dcb3804c3013e6068fad0767c530",
+      "size": 10897
+    },
+    {
+      "path": "FFmpeg/recipe/scripts/media_dependencies.py",
+      "sha256": "ec71e3db2959dab17e1d37d4d3191eaf87a980f6ab99e70449129da3cb740065",
+      "size": 19069
+    },
+    {
+      "path": "FFmpeg/recipe/scripts/mpv-source-lock.json",
+      "sha256": "8406841bf7c36f948e12fbd733375c7484ccfde0c31d85b94f193e8a84273bac",
+      "size": 12203
+    },
+    {
+      "path": "FFmpeg/recipe/scripts/mpv_source_inputs.py",
+      "sha256": "a75bdd9527c5038d1f8d1e47786e731e6ce7e0b9110967a3a7a41f140bf3ded6",
+      "size": 6236
+    },
+    {
+      "path": "FFmpeg/recipe/scripts/swift_sdk.py",
+      "sha256": "5af3ad440fe01a7f6fd123881b589f0f471e61d446c2caabee360c583110a0db",
+      "size": 2231
+    },
+    {
       "path": "MPV/BUILD-RECORD.json",
-      "sha256": "4f100661c6eb505478b0631c1a4efbb2a78e079ca728189d0455e3e5de02e3fd",
+      "sha256": "b384b0b2206d011d83951ec1216fe2052d5d9c78547f45503c6a8e30a39e2ca5",
       "size": 10514
     },
     {
       "path": "MPV/CODEC-AUDIT.json",
-      "sha256": "b2eb4e4b2453a3ead546244b1baea567c4e9ffc589f6a860edeb8e8a9dab3382",
+      "sha256": "cd62c548056dfc3a0ace4e225a3950109bb6ef5acb25450f59b1a7d9aaa5fef0",
       "size": 75289
     },
     {
       "path": "MPV/CODEC-PARITY.json",
-      "sha256": "789b748484b9bedb6633d4547e09d6dbba923ad519910a7cd48207b82a28a444",
+      "sha256": "d948073cd489f8380bac5bd8f6bc483e3d6d7cee909475bd840492718f16d682",
       "size": 1598
     },
     {
@@ -199,12 +244,12 @@
     },
     {
       "path": "MPV/SOURCE-STATUS.md",
-      "sha256": "bd663dfb1d8f1eb914f3528548922f43b719315a03aae14354cf78a9d509111c",
-      "size": 4355
+      "sha256": "93a6b8dfd0f90462baf05fd3f6584234744d93fc68d55b2178edcc99701290ea",
+      "size": 4745
     },
     {
       "path": "MPV/acceptance/acceptance.json",
-      "sha256": "db26b6af77625f955afb89c479c682e536fdbf7977445019cdf318c6fb9099df",
+      "sha256": "2fbc2ba221e2555001786cf51af5df8d6afed20316d9d84abded985ec8281793",
       "size": 16254
     },
     {
@@ -219,7 +264,7 @@
     },
     {
       "path": "MPV/acceptance/av1-opus.mkv.json",
-      "sha256": "7948af68a0181f7904528866d06396935e506f1384e548f501326143c93f0080",
+      "sha256": "346c11727773e7e0f90e618c3e19d0ad889fc2397f134283e27c0495a86bd306",
       "size": 1752
     },
     {
@@ -234,8 +279,8 @@
     },
     {
       "path": "MPV/acceptance/av1-opus.webm.json",
-      "sha256": "a72ca44caca230837fd7db120c4cd86671df5f3fe7ca8de149306d902eb5f685",
-      "size": 1754
+      "sha256": "e0333dc2b2ac7a1ed62bcf5b21a227a643b7fb00c1db5dd4134ae8a1e18f1a87",
+      "size": 1755
     },
     {
       "path": "MPV/acceptance/fixtures/av1-opus.mkv",
@@ -279,12 +324,12 @@
     },
     {
       "path": "MPV/acceptance/h264-aac.mkv-last.rgba",
-      "sha256": "e89372c35c7e9c1f159160741019af1f1d140bf51b149e1f921f0769ae7e30e3",
+      "sha256": "d15010feead0412e877ba4f64d33de58560c4b6792602010a423115a12fcc256",
       "size": 9216
     },
     {
       "path": "MPV/acceptance/h264-aac.mkv.json",
-      "sha256": "261357d2597da062879270e60b94572630be0558456dda8635356677c0a65360",
+      "sha256": "742a1205b468f1168a85aa6d6438ac4325bbd5ea348585d1ce39083c97769880",
       "size": 1862
     },
     {
@@ -294,12 +339,12 @@
     },
     {
       "path": "MPV/acceptance/mpeg4-mp3.avi-last.rgba",
-      "sha256": "23e29d53ee5a248c7a061eb8181aaf315daa8765ffda32bb1ce055faa0550681",
+      "sha256": "fd0566090549077db2c41ccd6f2a43bc7cce2e72d9ca85c8ce7874750ad87f36",
       "size": 9216
     },
     {
       "path": "MPV/acceptance/mpeg4-mp3.avi.json",
-      "sha256": "f434a3ff692a8842eda588381fe16049df83e0a3322379dffb4e4408390a032b",
+      "sha256": "38e839b2c67ffaec7200a08b98576ddce965307539530d0136da0ca91b76ff72",
       "size": 1775
     },
     {
@@ -309,13 +354,13 @@
     },
     {
       "path": "MPV/acceptance/vp9-opus.webm-last.rgba",
-      "sha256": "a7baa3b10d2a44e3c701a35bf01cd4deece8e5ba61d508f63236cf52ef6ab798",
+      "sha256": "ef89669519196abd9ab9ead6bf9fb340c8bf8d5e32186592cd99ea4a51876fe8",
       "size": 9216
     },
     {
       "path": "MPV/acceptance/vp9-opus.webm.json",
-      "sha256": "58b2889b0bfdf72f0b180a640c29a31677d4b283ede41e71d41098c4f98802f3",
-      "size": 1781
+      "sha256": "f506aa0d2b59c6553a1a7a78d869e608babe0e4a820a93379b6460ed7b07f411",
+      "size": 1780
     },
     {
       "path": "MPV/acceptance/zmbv-mp3.avi-first.rgba",
@@ -324,12 +369,12 @@
     },
     {
       "path": "MPV/acceptance/zmbv-mp3.avi-last.rgba",
-      "sha256": "5a37dc309f59e0f7d5f9d5891c76bb58adba51b03b2accb65a38855a176ff8a3",
+      "sha256": "61e452a5745a7a8084fa37dcfc02cb8c6875fa628ecd483723e30f5e4112ec79",
       "size": 9216
     },
     {
       "path": "MPV/acceptance/zmbv-mp3.avi.json",
-      "sha256": "0ac2dfe432d6e03b3b290d6ff6738bb442f50f4391c25076b46428237518fada",
+      "sha256": "c51cc179ea3398ffd5db13affb623e4565dd30dd60353d0de14dd777965b8e76",
       "size": 1781
     },
     {

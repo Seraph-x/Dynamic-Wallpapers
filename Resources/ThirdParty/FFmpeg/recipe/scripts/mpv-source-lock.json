@@ -1,0 +1,335 @@
+{
+  "schema_version": 1,
+  "architecture": "arm64",
+  "minimum_macos": "14.0",
+  "libraries": [
+    "libmpv.2.dylib",
+    "libavcodec.61.dylib",
+    "libavfilter.10.dylib",
+    "libavformat.61.dylib",
+    "libavutil.59.dylib",
+    "libswresample.5.dylib",
+    "libswscale.8.dylib",
+    "libplacebo.338.dylib",
+    "libass.9.dylib",
+    "libfreetype.6.dylib",
+    "libfribidi.0.dylib",
+    "libharfbuzz.0.dylib",
+    "libdav1d.7.dylib",
+    "liblzma.5.dylib"
+  ],
+  "components": [
+    {
+      "name": "mpv",
+      "version": "0.38.0+18",
+      "revision": "c0dd2b32d52c66b9efa85a7ee69965569503f6b8",
+      "repository": "https://github.com/mpv-player/mpv",
+      "role": "runtime",
+      "license": "GPL-2.0-or-later",
+      "license_files": [
+        "Copyright",
+        "LICENSE.GPL",
+        "LICENSE.LGPL"
+      ],
+      "artifact": {
+        "path": "Resources/ThirdParty/MPV/sources/mpv-c0dd2b32d52c66b9efa85a7ee69965569503f6b8.tar.gz",
+        "url": "https://codeload.github.com/mpv-player/mpv/tar.gz/c0dd2b32d52c66b9efa85a7ee69965569503f6b8",
+        "sha256": "ef0875555f18a5f07ec6151a2416cb08accd1fc4f5507292c9842751eb16375e",
+        "size": 3421274
+      }
+    },
+    {
+      "name": "libplacebo",
+      "version": "6.338.2",
+      "revision": "64c1954570f1cd57f8570a57e51fb0249b57bb90",
+      "repository": "https://github.com/haasn/libplacebo",
+      "role": "runtime",
+      "license": "LGPL-2.1-or-later",
+      "license_files": [
+        "LICENSE"
+      ],
+      "artifact": {
+        "path": "Resources/ThirdParty/MPV/sources/libplacebo-64c1954570f1cd57f8570a57e51fb0249b57bb90.tar.gz",
+        "url": "https://codeload.github.com/haasn/libplacebo/tar.gz/64c1954570f1cd57f8570a57e51fb0249b57bb90",
+        "sha256": "3144bb66bc9e286da37f17f71886d65a6d1baf9e45e4efa5ac8bd61ffa935487",
+        "size": 841908
+      }
+    },
+    {
+      "name": "libass",
+      "version": "0.17.3",
+      "revision": "e46aedea0a0d17da4c4ef49d84b94a7994664ab5",
+      "repository": "https://github.com/libass/libass",
+      "role": "runtime",
+      "license": "ISC",
+      "license_files": [
+        "COPYING"
+      ],
+      "artifact": {
+        "path": "Resources/ThirdParty/MPV/sources/libass-e46aedea0a0d17da4c4ef49d84b94a7994664ab5.tar.gz",
+        "url": "https://codeload.github.com/libass/libass/tar.gz/e46aedea0a0d17da4c4ef49d84b94a7994664ab5",
+        "sha256": "e953d018db99436a9bf7aa907bbd80c1be2024ba46cf2bec5fbaa6f844438d70",
+        "size": 329803
+      }
+    },
+    {
+      "name": "freetype",
+      "version": "2.13.3",
+      "revision": "42608f77f20749dd6ddc9e0536788eaad70ea4b5",
+      "repository": "https://github.com/freetype/freetype",
+      "role": "runtime",
+      "license": "FTL or GPL-2.0-only; distributed under FTL",
+      "license_files": [
+        "LICENSE.TXT",
+        "docs/FTL.TXT",
+        "docs/GPLv2.TXT"
+      ],
+      "artifact": {
+        "path": "Resources/ThirdParty/MPV/sources/freetype-42608f77f20749dd6ddc9e0536788eaad70ea4b5.tar.gz",
+        "url": "https://codeload.github.com/freetype/freetype/tar.gz/42608f77f20749dd6ddc9e0536788eaad70ea4b5",
+        "sha256": "68ce87bb59ea209eb7350f41a94a27519ce16b37011b475a1e62d4abee154b66",
+        "size": 2483768
+      }
+    },
+    {
+      "name": "fribidi",
+      "version": "1.0.16",
+      "revision": "68162babff4f39c4e2dc164a5e825af93bda9983",
+      "repository": "https://github.com/fribidi/fribidi",
+      "role": "runtime",
+      "license": "LGPL-2.1-or-later",
+      "license_files": [
+        "COPYING",
+        "AUTHORS"
+      ],
+      "artifact": {
+        "path": "Resources/ThirdParty/MPV/sources/fribidi-68162babff4f39c4e2dc164a5e825af93bda9983.tar.gz",
+        "url": "https://codeload.github.com/fribidi/fribidi/tar.gz/68162babff4f39c4e2dc164a5e825af93bda9983",
+        "sha256": "fa34a057a414c85f7e1f3c0fd717bc93d74d370ed474ef2feca90868b4938f72",
+        "size": 2144204
+      }
+    },
+    {
+      "name": "harfbuzz",
+      "version": "10.0.1",
+      "revision": "a1d9bfe62818ef0fa9cf63b6e6d51436b1c93cbc",
+      "repository": "https://github.com/harfbuzz/harfbuzz",
+      "role": "runtime",
+      "license": "MIT and Unicode-DFS-2016",
+      "license_files": [
+        "COPYING",
+        "AUTHORS",
+        "src/ms-use/COPYING"
+      ],
+      "artifact": {
+        "path": "Resources/ThirdParty/MPV/sources/harfbuzz-a1d9bfe62818ef0fa9cf63b6e6d51436b1c93cbc.tar.gz",
+        "url": "https://codeload.github.com/harfbuzz/harfbuzz/tar.gz/a1d9bfe62818ef0fa9cf63b6e6d51436b1c93cbc",
+        "sha256": "63a962b9fbeda16663197c2b0b129bd5d711e831b4d189803dbb7d42a5668195",
+        "size": 36799244
+      }
+    },
+    {
+      "name": "meson",
+      "version": "1.9.1",
+      "revision": "751b09390996163348612f0b106114256305ee40",
+      "repository": "https://github.com/mesonbuild/meson",
+      "role": "build-tool",
+      "license": "Apache-2.0",
+      "license_files": [
+        "COPYING"
+      ],
+      "artifact": {
+        "path": "Resources/ThirdParty/MPV/sources/meson-751b09390996163348612f0b106114256305ee40.tar.gz",
+        "url": "https://codeload.github.com/mesonbuild/meson/tar.gz/751b09390996163348612f0b106114256305ee40",
+        "sha256": "63ab20b443443efbb7e89f38bb98432acfafef7d2268ce0ee0af907858006566",
+        "size": 4930193
+      }
+    },
+    {
+      "name": "ninja",
+      "version": "1.13.1",
+      "revision": "79feac0f3e3bc9da9effc586cd5fea41e7550051",
+      "repository": "https://github.com/ninja-build/ninja",
+      "role": "build-tool",
+      "license": "Apache-2.0",
+      "license_files": [
+        "COPYING"
+      ],
+      "artifact": {
+        "path": "Resources/ThirdParty/MPV/sources/ninja-79feac0f3e3bc9da9effc586cd5fea41e7550051.tar.gz",
+        "url": "https://codeload.github.com/ninja-build/ninja/tar.gz/79feac0f3e3bc9da9effc586cd5fea41e7550051",
+        "sha256": "608566b235f0d97106c09ce4cbf4778c8d5082db0377df544754ee1586d4ffba",
+        "size": 292349
+      }
+    },
+    {
+      "name": "jinja",
+      "version": "git b08cd4bc64bb980df86ed2876978ae5735572280",
+      "revision": "b08cd4bc64bb980df86ed2876978ae5735572280",
+      "repository": "https://github.com/pallets/jinja",
+      "role": "generator",
+      "license": "BSD-3-Clause",
+      "license_files": [
+        "LICENSE.rst"
+      ],
+      "artifact": {
+        "path": "Resources/ThirdParty/MPV/sources/jinja-b08cd4bc64bb980df86ed2876978ae5735572280.tar.gz",
+        "url": "https://codeload.github.com/pallets/jinja/tar.gz/b08cd4bc64bb980df86ed2876978ae5735572280",
+        "sha256": "9a20bab550a760ccb9b38a45d4fe76be92649206ee04633c646d0935a1872b0e",
+        "size": 273377
+      }
+    },
+    {
+      "name": "markupsafe",
+      "version": "git c0254f0cfe51720ecc9e72e8896022af29af5b44",
+      "revision": "c0254f0cfe51720ecc9e72e8896022af29af5b44",
+      "repository": "https://github.com/pallets/markupsafe",
+      "role": "generator",
+      "license": "BSD-3-Clause",
+      "license_files": [
+        "LICENSE.rst"
+      ],
+      "artifact": {
+        "path": "Resources/ThirdParty/MPV/sources/markupsafe-c0254f0cfe51720ecc9e72e8896022af29af5b44.tar.gz",
+        "url": "https://codeload.github.com/pallets/markupsafe/tar.gz/c0254f0cfe51720ecc9e72e8896022af29af5b44",
+        "sha256": "1826c5d89cc1aa0b3088f538726d339e0c5cd69fbe03f7b8f9a3f880474d1120",
+        "size": 24175
+      }
+    },
+    {
+      "name": "fast_float",
+      "version": "git 2b2395f9ac836ffca6404424bcc252bff7aa80e4",
+      "revision": "2b2395f9ac836ffca6404424bcc252bff7aa80e4",
+      "repository": "https://github.com/fastfloat/fast_float",
+      "role": "runtime",
+      "license": "MIT or Apache-2.0 or BSL-1.0",
+      "license_files": [
+        "LICENSE-MIT",
+        "LICENSE-APACHE",
+        "LICENSE-BOOST",
+        "AUTHORS"
+      ],
+      "artifact": {
+        "path": "Resources/ThirdParty/MPV/sources/fast_float-2b2395f9ac836ffca6404424bcc252bff7aa80e4.tar.gz",
+        "url": "https://codeload.github.com/fastfloat/fast_float/tar.gz/2b2395f9ac836ffca6404424bcc252bff7aa80e4",
+        "sha256": "230d20e4e4ac1f6a9df92c4d746c6ec536cdb0c085bc8635d4b88cead5dc22cb",
+        "size": 84808
+      }
+    },
+    {
+      "name": "ffmpeg",
+      "version": "7.0.1",
+      "revision": "n7.0.1",
+      "repository": "https://github.com/FFmpeg/FFmpeg",
+      "role": "runtime",
+      "license": "LGPL-2.1-or-later",
+      "license_files": [
+        "LICENSE.md",
+        "COPYING.LGPLv2.1",
+        "COPYING.GPLv2",
+        "COPYING.LGPLv3",
+        "COPYING.GPLv3"
+      ],
+      "artifact": {
+        "path": "Resources/ThirdParty/MPV/sources/ffmpeg-7.0.1.tar.xz",
+        "url": "https://ffmpeg.org/releases/ffmpeg-7.0.1.tar.xz",
+        "sha256": "bce9eeb0f17ef8982390b1f37711a61b4290dc8c2a0c1a37b5857e85bfb0e4ff",
+        "size": 10793572
+      }
+    },
+    {
+      "name": "lua",
+      "version": "5.2.4",
+      "revision": "5.2.4",
+      "repository": "https://www.lua.org",
+      "role": "runtime",
+      "license": "MIT",
+      "license_files": [
+        "doc/readme.html",
+        "src/lua.h"
+      ],
+      "artifact": {
+        "path": "Resources/ThirdParty/MPV/sources/lua-5.2.4.tar.gz",
+        "url": "https://www.lua.org/ftp/lua-5.2.4.tar.gz",
+        "sha256": "b9e2e4aad6789b3b63a056d442f7b39f0ecfca3ae0f1fc0ae4e9614401b69f4b",
+        "size": 252651
+      }
+    },
+    {
+      "name": "vulkan_headers",
+      "version": "git d732b2de303ce505169011d438178191136bfb00",
+      "revision": "d732b2de303ce505169011d438178191136bfb00",
+      "repository": "https://github.com/KhronosGroup/Vulkan-Headers",
+      "role": "runtime",
+      "license": "Apache-2.0; see original per-file notices",
+      "license_files": [
+        "LICENSE.txt"
+      ],
+      "artifact": {
+        "path": "Resources/ThirdParty/MPV/sources/vulkan_headers-d732b2de303ce505169011d438178191136bfb00.tar.gz",
+        "url": "https://codeload.github.com/KhronosGroup/Vulkan-Headers/tar.gz/d732b2de303ce505169011d438178191136bfb00",
+        "sha256": "570f9ae1e65466dbaf5fcab667abd079dd0a61c4ab86cf535efd492bf70a5b74",
+        "size": 1841582
+      }
+    },
+    {
+      "name": "dav1d",
+      "version": "1.5.3",
+      "revision": "1.5.3",
+      "repository": "https://code.videolan.org/videolan/dav1d",
+      "role": "runtime",
+      "license": "BSD-2-Clause",
+      "license_files": [
+        "COPYING"
+      ],
+      "artifact": {
+        "path": "Resources/ThirdParty/MPV/sources/dav1d-1.5.3.tar.bz2",
+        "url": "https://code.videolan.org/videolan/dav1d/-/archive/1.5.3/dav1d-1.5.3.tar.bz2",
+        "sha256": "e099f53253f6c247580c554d53a13f1040638f2066edc3c740e4c2f15174ce22",
+        "size": 1217030
+      }
+    },
+    {
+      "name": "xz",
+      "version": "5.8.1",
+      "revision": "a522a226545730551f7e7c2685fab27cf567746c",
+      "repository": "https://github.com/tukaani-project/xz",
+      "role": "runtime",
+      "license": "0BSD liblzma; other source files under licenses in original COPYING files",
+      "license_files": [
+        "COPYING",
+        "COPYING.0BSD",
+        "COPYING.GPLv2",
+        "COPYING.GPLv3",
+        "COPYING.LGPLv2.1"
+      ],
+      "artifact": {
+        "path": "Resources/ThirdParty/MPV/sources/xz-a522a226545730551f7e7c2685fab27cf567746c.tar.gz",
+        "url": "https://codeload.github.com/tukaani-project/xz/tar.gz/a522a226545730551f7e7c2685fab27cf567746c",
+        "sha256": "d85e28de5141805efc8ee3b50fffef0b83c81a630a85bbc77ea69791fa1ff712",
+        "size": 1545485
+      }
+    }
+  ],
+  "patches": [
+    {
+      "path": "Resources/ThirdParty/MPV/patches/mpv-v0.38.0-plus18.patch",
+      "url": "https://github.com/mpv-player/mpv/compare/v0.38.0...c0dd2b32d52c66b9efa85a7ee69965569503f6b8.patch",
+      "sha256": "1fa2e49039ef322c4a071c273c8ea8b579bae6d1517ea19e8a9caf81c588176c",
+      "size": 31574
+    }
+  ],
+  "profile": {
+    "mpv": "software render API; CoreAudio; VideoToolbox-copy; Lua5.2 option compatibility; no GL/Vulkan/network",
+    "containers": [
+      "matroska",
+      "webm",
+      "avi"
+    ],
+    "protocols": [
+      "file"
+    ],
+    "ffmpeg": "native codec/filter/format set retained; external autodetection/network/programs/avdevice/postproc disabled",
+    "lua": "static library included in shared libmpv; scripts remain disabled by the application"
+  }
+}

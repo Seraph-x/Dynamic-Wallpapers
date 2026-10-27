@@ -21,9 +21,47 @@ This verifies the pinned archive, configures/builds in a unique staging director
 
 The measured SDK is 27.0 and compiler is Apple clang 21.0.0. Actual unsigned-input tool SHA256 values are:
 
-- ffmpeg: `8cabde2696f661ab29ce25323c906696b490d68abd326e3b56dc5f494e5c8030`
-- ffprobe: `c8ed201f033852ebbc3941bdbfb23644110420b6b700c1d6840d4f4a30d624b9`
+- ffmpeg: `d219883d22697af98a5c1b361ee2717d1fa60b3c111d55502ba2e2c0662b01a0`
+- ffprobe: `50c65f88da21e2f03964b5f7ab82cc69f9e1b7550a242e46fa51e86cc6f76abe`
 
 Bundle signing is a later explicit transformation and the release manifest records the final signed bytes. These hashes are evidence for this build, not acceptance values imposed on rebuilds with other SDKs or compilers. Retained inputs support source rebuilds; byte-for-byte identity across toolchains is not claimed.
 
 `scripts/export-media-build-records.py ffmpeg` renews public evidence from a verified local build. Packaging verifies that the distributed record matches actual tools. Static FFmpeg libraries belong only to separate command-line executables; the application invokes transcoding in a subprocess. This FFmpeg9 tool is separate from controlled FFmpeg7 libraries used by libmpv.
+
+## Software AV1 and compressed media
+
+The recipe explicitly builds dav1d 1.5.3 and XZ/liblzma 5.8.1 as static
+prerequisites, using the unchanged mirrored source archives and original notices
+under `MPV/sources` and `MPV/notices`. Meson and Ninja also come from those pinned
+sources. No Homebrew runtime library is linked. System zlib/bzlib, VideoToolbox
+and AudioToolbox remain explicit configuration options. The LGPL offline tool
+configuration does not enable GPL, nonfree, version3 or network features.
+
+The local build record is now schema 2. It binds all codec source archives,
+helper/recipe inputs and actual build-tool versions, in addition to FFmpeg source,
+SDK/compiler and executable hashes. Existing schema 1 caches are rejected; use
+a fresh build cache to rebuild, rather than editing a record to reuse old tools.
+The matching exact helper copies are retained under `recipe/scripts` and checked
+before packaging. Rebuild from the corresponding application source root, which
+retains the scripts and shared source archives at their recorded relative paths.
+
+`acceptance/software-transcode.json` records actual software decoding and
+app-equivalent H.264/AAC conversion of AV1 MKV/WebM, H.264 MKV, VP9 WebM,
+MPEG-4 AVI and ZMBV AVI. Each case preserves its complete frame count and
+checks changing RGBA frames plus decoded PCM audio before and after conversion.
+Both AV1 inputs use the actual default libdav1d software decoder with hardware
+decoding disabled. The record is bound to the exact tools, fixtures and runner;
+packaging rejects a missing, partial, stale or mismatched record.
+
+Run a fresh actual acceptance after rebuilding and retain its resulting JSON:
+
+```sh
+python3 scripts/test-ffmpeg-av1-tools.py --output .build/verification/ffmpeg-transcode
+cp .build/verification/ffmpeg-transcode/acceptance.json Resources/ThirdParty/FFmpeg/acceptance/software-transcode.json
+python3 scripts/export-media-build-records.py ffmpeg
+```
+
+Publication builds use a neutral directory below `/private/tmp`; actual binary
+inspection confirms no personal home paths are embedded. Build configuration
+output is not patched and executable bytes are not rewritten to disguise paths.
+The input mapping and original source archives are retained unchanged.

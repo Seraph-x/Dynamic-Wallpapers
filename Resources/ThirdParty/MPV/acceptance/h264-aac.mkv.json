@@ -17,7 +17,7 @@
     "renderHeight" : 36
   },
   "audioOutput" : "coreaudio",
-  "frameCount" : 27,
+  "frameCount" : 25,
   "firstFrameMetadata" : {
     "height" : 90,
     "controlQueueLabel" : "local.dynamicwallpaper.mpv.control",
@@ -38,8 +38,8 @@
   "firstRGBAFile" : "h264-aac.mkv-first.rgba",
   "videoCodec" : "h264",
   "hardwareDecoder" : "videotoolbox-copy",
-  "maximumAudioPTS" : 1.7153402103333371,
-  "distinctPixelHashes" : 24,
+  "maximumAudioPTS" : 1.7465740833333372,
+  "distinctPixelHashes" : 23,
   "loops" : 1,
   "settingsReadbacks" : {
     "pauseAndResumeVerified" : true,
