@@ -48,6 +48,37 @@ struct MediaAppleEventAdapter {
         return .current(result)
     }
 
+    func readArtwork(for identity: SystemMediaArtworkIdentity) throws -> SystemMediaArtworkSource {
+        let track = try get(MediaAE.currentTrack)
+        try checkIdentity(identity, track: track)
+        let result: SystemMediaArtworkSource
+        if source == .music {
+            let record = NSAppleEventDescriptor.record()
+            record.setDescriptor(NSAppleEventDescriptor(typeCode: MediaAE.artworkClass), forKeyword: AEKeyword(keyAEDesiredClass))
+            record.setDescriptor(NSAppleEventDescriptor(enumCode: OSType(formAbsolutePosition)), forKeyword: AEKeyword(keyAEKeyForm))
+            record.setDescriptor(NSAppleEventDescriptor(int32: 1), forKeyword: AEKeyword(keyAEKeyData))
+            record.setDescriptor(track, forKeyword: AEKeyword(keyAEContainer))
+            guard let first = record.coerce(toDescriptorType: typeObjectSpecifier) else {
+                throw SystemMediaError.invalidResponse("Could not construct first artwork object")
+            }
+            do { result = try MediaArtworkSourceDecoder.decodeMusic(get(MediaAE.rawArtwork, container: first)) }
+            catch SystemMediaError.appleEvent(code: -1728, message: _) { result = .unavailable }
+        } else {
+            result = try MediaArtworkSourceDecoder.decodeSpotify(get(MediaAE.artworkURL, container: track))
+        }
+        try checkIdentity(identity, track: get(MediaAE.currentTrack))
+        return result
+    }
+
+    private func checkIdentity(_ identity: SystemMediaArtworkIdentity, track: NSAppleEventDescriptor) throws {
+        guard source == identity.source, track.descriptorType == typeObjectSpecifier else {
+            throw SystemMediaError.trackChangedDuringRead
+        }
+        let key = MediaAE.identity(for: source)
+        let actual = try MediaSnapshotDecoder.text(key, [key: get(key, container: track)])
+        guard actual == identity.trackID else { throw SystemMediaError.trackChangedDuringRead }
+    }
+
     func perform(_ command: SystemMediaCommand) throws {
         _ = try send(eventClass: MediaAE.eventClass(for: source), eventID: MediaAE.eventID(for: command))
     }

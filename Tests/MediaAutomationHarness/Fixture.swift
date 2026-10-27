@@ -59,13 +59,39 @@ final class Fixture: NSObject, NSApplicationDelegate {
             if mode == "error" { fail(reply, code: -50, message: "Owned fixture explicit read error"); return }
             if mode == "timeout" { Thread.sleep(forTimeInterval: 0.5) }
             var trackIndex = index
-            if let container = direct.forKeyword(AEKeyword(keyAEContainer)), container.descriptorType == typeObjectSpecifier {
+            var container = direct.forKeyword(AEKeyword(keyAEContainer))
+            if property == cc("pRaw"), source == "music" {
+                guard container?.descriptorType == typeObjectSpecifier,
+                      container?.forKeyword(AEKeyword(keyAEDesiredClass))?.typeCodeValue == cc("cArt"),
+                      container?.forKeyword(AEKeyword(keyAEKeyForm))?.enumCodeValue == OSType(formAbsolutePosition),
+                      container?.forKeyword(AEKeyword(keyAEKeyData))?.int32Value == 1 else { throw FixtureError.invalidRequest }
+                container = container?.forKeyword(AEKeyword(keyAEContainer))
+            }
+            if let container, container.descriptorType == typeObjectSpecifier {
                 let id = container.forKeyword(AEKeyword(keyAEKeyData))?.stringValue
                 guard id == "owned-0" || id == "owned-1" else { throw FixtureError.invalidRequest }
                 trackIndex = id == "owned-0" ? 0 : 1
             }
+            if mode == "artwork-slow", property == cc("pRaw") || property == cc("aUrl") {
+                try "requested".write(to: directory.appendingPathComponent("artwork-requested"), atomically: true, encoding: .utf8)
+                Thread.sleep(forTimeInterval: 0.1)
+            }
             let value: NSAppleEventDescriptor
             switch property {
+            case cc("pRaw") where source == "music":
+                if mode == "artwork-missing" { fail(reply, code: -1728, message: "Owned track has no first artwork"); return }
+                if mode == "artwork-error" { fail(reply, code: -50, message: "Owned raw artwork failure"); return }
+                if mode == "artwork-malformed" { value = NSAppleEventDescriptor(string: "Invalid raw artwork") }
+                else {
+                    let bytes = try Data(contentsOf: directory.appendingPathComponent("owned-artwork.png"))
+                    guard let raw = NSAppleEventDescriptor(descriptorType: typeData, data: bytes) else { throw FixtureError.invalidRequest }
+                    value = raw
+                }
+            case cc("aUrl") where source == "spotify":
+                if mode == "artwork-error" { fail(reply, code: -50, message: "Owned artwork URL failure"); return }
+                if mode == "artwork-missing" { value = NSAppleEventDescriptor(string: "") }
+                else if mode == "artwork-malformed" { value = NSAppleEventDescriptor(int32: 42) }
+                else { value = NSAppleEventDescriptor(string: try String(contentsOf: directory.appendingPathComponent("artwork-url"), encoding: .utf8)) }
             case cc("pTrk"):
                 trackReads += 1
                 if mode == "missing" { value = .null() }

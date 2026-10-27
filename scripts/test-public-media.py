@@ -42,8 +42,8 @@ let package = Package(name: "PublicMediaTests", platforms: [.macOS(.v14)], produ
  .target(name: "WallpaperMediaIntegration", dependencies: ["WallpaperCore"], path: "WallpaperMediaIntegration"),
  .testTarget(name: "WallpaperCoreTests", dependencies: ["WallpaperCore"], path: "WallpaperCoreTests"),
  .testTarget(name: "WallpaperMediaIntegrationTests", dependencies: ["WallpaperMediaIntegration", "WallpaperCore"], path: "WallpaperMediaIntegrationTests"),
- .executableTarget(name: "MediaAutomationFixture", path: "MediaAutomationHarness", exclude: ["Client.swift"], sources: ["Fixture.swift"]),
- .executableTarget(name: "MediaAutomationClient", dependencies: ["WallpaperMediaIntegration", "WallpaperCore"], path: "MediaAutomationHarness", exclude: ["Fixture.swift"], sources: ["Client.swift"]),
+ .executableTarget(name: "MediaAutomationFixture", path: "MediaAutomationHarness", exclude: ["Client.swift", "Fixtures", "https-artwork-server.py"], sources: ["Fixture.swift"]),
+ .executableTarget(name: "MediaAutomationClient", dependencies: ["WallpaperMediaIntegration", "WallpaperCore"], path: "MediaAutomationHarness", exclude: ["Fixture.swift", "Fixtures", "https-artwork-server.py"], sources: ["Client.swift"]),
 ], swiftLanguageModes: [.v5])
 ''')
 

@@ -19,7 +19,7 @@ final class ScenePropertyParityTests: XCTestCase {
     private struct Result: Encodable { let id: String, failed: Bool, rows: [Row] }
 
     func testSharedJavaScriptCatalogFixturesAndOptionalParityArtifact() throws {
-        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        let root = URL(fileURLWithPath: #filePath).resolvingSymlinksInPath().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         let data = try Data(contentsOf: root.appendingPathComponent("Tests/Fixtures/ScenePropertyCatalog/cases.json"))
         let fixtures = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [NSDictionary])
         let results = try fixtures.map { fixture -> Result in
