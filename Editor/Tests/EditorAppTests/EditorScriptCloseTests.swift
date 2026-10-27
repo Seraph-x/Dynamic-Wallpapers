@@ -1,4 +1,5 @@
 import AppKit
+import Darwin
 import XCTest
 import WallpaperCore
 import WallpaperEditorCore
@@ -22,10 +23,14 @@ import WebWallpaperBridge
     private(set) var frozen = false
     private(set) var sourceWhenThawed: String?
     private(set) var closedWhileFrozen = false
+    var closeFailure: Error?
+    var releaseOnClose = true
+    var onDidClose: (() -> Void)?
     init(document: [String: Any]) { self.document = document }
     func start() {}
     func close(completion: @escaping (Error?) -> Void) {
-        closedWhileFrozen = frozen; closed = true; completion(nil)
+        if let closeFailure { completion(closeFailure); return }
+        closedWhileFrozen = frozen; closed = releaseOnClose; onDidClose?(); completion(nil)
     }
     func requestEditorCommand(_ payload: [String: Any], completion: @escaping DWEditorCommandCompletion) {
         let type = payload["type"] as! String
@@ -79,8 +84,8 @@ import WebWallpaperBridge
         return result
     }
     private func controller(_ owned: EditorOwnedProject, coordinator: ScriptCloseCoordinatorFixture,
-                            page: ScriptClosePageFixture) throws -> EditorWindowController {
-        try EditorWindowController(project: owned, coordinator: coordinator, page: page, makePreview: { _, _ in
+                            page: ScriptClosePageFixture) async throws -> EditorWindowController {
+        try EditorWindowController(project: owned, resourceSession: try await coordinator.store.acquireResourceSession(id: owned.document.id), coordinator: coordinator, page: page, makePreview: { _, _ in
             XCTFail("Closing a source draft must not create a preview")
             fatalError("Unexpected preview creation")
         })
@@ -97,12 +102,14 @@ import WebWallpaperBridge
         let coordinator = ScriptCloseCoordinatorFixture(root: temporary, response: .alertThirdButtonReturn)
         let owned = try await coordinator.store.create(title: "Saved", width: 32, height: 32)
         let page = ScriptClosePageFixture(document: try EditorWindowController.browserDocument(owned.document))
-        let controller = try controller(owned, coordinator: coordinator, page: page)
+        let controller = try await controller(owned, coordinator: coordinator, page: page)
         defer { controller.window?.delegate = nil; controller.window?.close() }
         let savedBytes = try fileBytes(), source = page.source
         XCTAssertFalse(controller.window!.isDocumentEdited)
         let closed = try await controller.requestClose()
         XCTAssertFalse(closed)
+        let collection = try await coordinator.store.collectUnusedResources(id: owned.document.id)
+        XCTAssertTrue(collection.activeSession)
         XCTAssertEqual(coordinator.choices, 1)
         XCTAssertEqual(page.commands, ["freeze", "thaw"])
         XCTAssertFalse(page.frozen); XCTAssertFalse(page.closed)
@@ -117,7 +124,7 @@ import WebWallpaperBridge
         let coordinator = ScriptCloseCoordinatorFixture(root: temporary, response: .alertFirstButtonReturn)
         let owned = try await coordinator.store.create(title: "Saved", width: 32, height: 32)
         let page = ScriptClosePageFixture(document: try EditorWindowController.browserDocument(owned.document))
-        let controller = try controller(owned, coordinator: coordinator, page: page)
+        let controller = try await controller(owned, coordinator: coordinator, page: page)
         defer { controller.window?.delegate = nil; controller.window?.close() }
         let savedBytes = try fileBytes(), source = page.source
         let failed = expectation(description: "Window close reports the actual source error after thaw")
@@ -140,7 +147,7 @@ import WebWallpaperBridge
         let coordinator = ScriptCloseCoordinatorFixture(root: temporary, response: .alertSecondButtonReturn)
         let owned = try await coordinator.store.create(title: "Saved", width: 32, height: 32)
         let page = ScriptClosePageFixture(document: try EditorWindowController.browserDocument(owned.document))
-        let controller = try controller(owned, coordinator: coordinator, page: page)
+        let controller = try await controller(owned, coordinator: coordinator, page: page)
         defer { controller.window?.delegate = nil; controller.window?.close() }
         let savedBytes = try fileBytes()
         let closed = try await controller.requestClose()
@@ -150,7 +157,67 @@ import WebWallpaperBridge
         XCTAssertTrue(page.closed); XCTAssertTrue(page.closedWhileFrozen)
         XCTAssertEqual(coordinator.retiredIDs, [owned.document.id]); XCTAssertTrue(coordinator.errors.isEmpty)
         XCTAssertEqual(try fileBytes(), savedBytes)
+        let collection = try await coordinator.store.collectUnusedResources(id: owned.document.id)
+        XCTAssertFalse(collection.activeSession)
         let reopened = try await coordinator.store.open(id: owned.document.id)
         XCTAssertEqual(reopened.document, owned.document)
     }
+    func testCloseFailureRetainsResourceSessionAndDoesNotRetireWindow() async throws {
+        let coordinator = ScriptCloseCoordinatorFixture(root: temporary, response: .alertSecondButtonReturn)
+        let owned = try await coordinator.store.create(title: "Close failure", width: 32, height: 32)
+        let page = ScriptClosePageFixture(document: try EditorWindowController.browserDocument(owned.document))
+        page.closeFailure = WallpaperError("Browser resources remain owned")
+        let controller = try await controller(owned, coordinator: coordinator, page: page)
+        defer { controller.window?.delegate = nil; controller.window?.close() }
+        do { _ = try await controller.requestClose(); XCTFail("Accepted failed browser close") } catch {}
+        let collection = try await coordinator.store.collectUnusedResources(id: owned.document.id)
+        XCTAssertTrue(collection.activeSession)
+        XCTAssertFalse(page.closed)
+        XCTAssertTrue(coordinator.retiredIDs.isEmpty)
+    }
+
+    func testSuccessfulBrowserCloseWaitsForPendingNativeResourceStageBeforeReleasingSession() async throws {
+        let coordinator = ScriptCloseCoordinatorFixture(root: temporary, response: .alertSecondButtonReturn)
+        let owned = try await coordinator.store.create(title: "Pending resource", width: 32, height: 32)
+        let page = ScriptClosePageFixture(document: try EditorWindowController.browserDocument(owned.document))
+        let controller = try await controller(owned, coordinator: coordinator, page: page)
+        defer { controller.window?.delegate = nil; controller.window?.close() }
+        let workspaceLock = owned.resources.deletingLastPathComponent().appendingPathComponent(".workspace-lock")
+        let descriptor = Darwin.open(workspaceLock.path, O_RDWR | O_CREAT | O_CLOEXEC, 0o600)
+        XCTAssertGreaterThanOrEqual(descriptor, 0)
+        defer { Darwin.close(descriptor) }
+        XCTAssertEqual(flock(descriptor, LOCK_EX), 0)
+        page.onEditorResource?(["id": "pending-stage", "action": "stage", "data": "AQI="])
+        let browserClosed = expectation(description: "Browser resource release completed")
+        page.onDidClose = { browserClosed.fulfill() }
+        let close = Task { try await controller.requestClose() }
+        await fulfillment(of: [browserClosed], timeout: 2)
+        let observer = EditorProjectStore(directory: coordinator.store.directory)
+        let pending = try await observer.collectUnusedResources(id: owned.document.id)
+        XCTAssertTrue(pending.activeSession, "Native resource jobs must retain the lease after the browser closes")
+        XCTAssertTrue(coordinator.retiredIDs.isEmpty)
+        XCTAssertEqual(flock(descriptor, LOCK_UN), 0)
+        let didClose = try await close.value
+        XCTAssertTrue(didClose)
+        let collected = try await observer.collectUnusedResources(id: owned.document.id)
+        XCTAssertFalse(collected.activeSession)
+        XCTAssertEqual(collected.removedVersions.count, 1)
+        XCTAssertEqual(collected.reclaimedBytes, 2)
+    }
+
+    func testSuccessfulCallbackWithoutActualPageReleaseRetainsResourceSession() async throws {
+        let coordinator = ScriptCloseCoordinatorFixture(root: temporary, response: .alertSecondButtonReturn)
+        let owned = try await coordinator.store.create(title: "Unreleased browser", width: 32, height: 32)
+        let page = ScriptClosePageFixture(document: try EditorWindowController.browserDocument(owned.document))
+        page.releaseOnClose = false
+        let controller = try await controller(owned, coordinator: coordinator, page: page)
+        defer { controller.window?.delegate = nil; controller.window?.close() }
+        do { _ = try await controller.requestClose(); XCTFail("Released session without actual browser resource release") }
+        catch { XCTAssertTrue(error.localizedDescription.contains("did not release its resources")) }
+        let collection = try await coordinator.store.collectUnusedResources(id: owned.document.id)
+        XCTAssertTrue(collection.activeSession)
+        XCTAssertFalse(page.closed)
+        XCTAssertTrue(coordinator.retiredIDs.isEmpty)
+    }
+
 }

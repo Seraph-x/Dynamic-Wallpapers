@@ -51,6 +51,7 @@ enum EditorApplication {
                 throw WallpaperError("Cannot lock Editor instance: \(String(cString: strerror(errno)))")
             }
             store = EditorProjectStore(directory: dataRoot.appendingPathComponent("Projects"))
+            Task { await collectResources() }
             buildMenu(); showWelcome(); NSApp.activate(ignoringOtherApps: true)
             receivePendingEditorURLs()
         } catch { show(error); NSApp.terminate(nil) }
@@ -129,11 +130,35 @@ enum EditorApplication {
     func present(_ owned: EditorOwnedProject) async throws {
         guard !terminating else { throw WallpaperError("Editor is quitting") }
         if let existing = windows[owned.document.id] { existing.showWindow(nil); existing.window?.makeKeyAndOrderFront(nil); return }
-        let controller = try EditorWindowController(project: owned, coordinator: self, runtime: startedRuntime())
+        await collectResources()
+        let resourceSession = try await store.acquireResourceSession(id: owned.document.id)
+        let current = try await store.open(id: owned.document.id)
+        guard current.document == owned.document else { throw WallpaperError("Project changed before its editing window opened; reopen the project") }
+        // Actor hops can overlap another open request or termination.
+        guard !terminating else { throw WallpaperError("Editor is quitting") }
+        if let existing = windows[owned.document.id] { existing.showWindow(nil); existing.window?.makeKeyAndOrderFront(nil); return }
+        let controller = try EditorWindowController(project: current, resourceSession: resourceSession, coordinator: self, runtime: startedRuntime())
         windows[owned.document.id] = controller; welcome?.orderOut(nil); controller.showWindow(nil); controller.window?.makeKeyAndOrderFront(nil)
         controller.start()
     }
-    func retired(_ id: UUID) { windows[id] = nil; if windows.isEmpty && !terminating { showWelcome() } }
+    func retired(_ id: UUID) {
+        windows[id] = nil
+        if windows.isEmpty {
+            Task { await collectResources() }
+            if !terminating { showWelcome() }
+        }
+    }
+    private func collectResources() async {
+        do {
+            let report = try await store.collectUnusedResources()
+            for project in report.projects where !project.removedVersions.isEmpty {
+                fputs("Editor resource collection: project=\(project.projectID) removed=\(project.removedVersions.count) bytes=\(project.reclaimedBytes)\n", stderr)
+            }
+            if !report.failures.isEmpty {
+                show(WallpaperError(report.failures.map { "\($0.projectID): \($0.message)" }.joined(separator: "\n")))
+            }
+        } catch { show(error) }
+    }
     private func startedRuntime() throws -> DWWebRuntime {
         if let runtime { return runtime }
         guard let frameworks = Bundle.main.privateFrameworksURL else { throw WallpaperError("Editor CEF dependencies are missing") }
@@ -160,6 +185,7 @@ enum EditorApplication {
         Task {
             do {
                 for controller in Array(windows.values) { guard try await controller.requestClose() else { terminating = false; NSApp.reply(toApplicationShouldTerminate: false); return } }
+                await collectResources()
                 try await previewAudio.shutdown()
                 try runtime?.shutdown()
                 if lease >= 0 { guard Darwin.close(lease) == 0 else { throw WallpaperError("Cannot release Editor lease") }; lease = -1 }

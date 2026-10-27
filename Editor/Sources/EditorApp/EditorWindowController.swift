@@ -6,7 +6,8 @@ import WebWallpaperBridge
 
 @MainActor final class EditorWindowController: NSWindowController, NSWindowDelegate {
     private unowned let coordinator: any EditorWindowCoordinator
-    private var project: EditorOwnedProject
+    private var resourceSession: EditorResourceSession?
+    private var resourceTasks: [UUID: Task<Void, Never>] = [:]
     private var workspace: EditorProjectDocument
     private let page: any EditorAuthoringPage
     private let makePreview: (SceneProjectReference, String) -> any EditorPreviewWindow
@@ -17,21 +18,22 @@ import WebWallpaperBridge
     private var closing = false
     private var editingWasEnabled = false
 
-    convenience init(project: EditorOwnedProject, coordinator: EditorApplicationDelegate, runtime: DWWebRuntime) throws {
+    convenience init(project: EditorOwnedProject, resourceSession: EditorResourceSession, coordinator: EditorApplicationDelegate, runtime: DWWebRuntime) throws {
         guard let resources = Bundle.module.url(forResource: "EditorWeb", withExtension: nil) else { throw WallpaperError("Editor browser resources are missing") }
         var configuration: [String: Any] = ["language": Bundle.module.preferredLocalizations.first ?? "en", "document": try Self.browserDocument(project.document)]
         if let package = project.document.sourcePackage { configuration["sourcePackage"] = package }
         let page = try runtime.editorPage(withProjectRoot: project.resources.path, runtimeRoot: resources.path,
             configuration: configuration, size: NSSize(width: 1180,height: 760))
-        try self.init(project: project, coordinator: coordinator, page: page, makePreview: {
+        try self.init(project: project, resourceSession: resourceSession, coordinator: coordinator, page: page, makePreview: {
             EditorScenePreviewWindowController(project: $0, title: $1, runtime: runtime, audio: coordinator.previewAudio)
         })
     }
 
-    init(project: EditorOwnedProject, coordinator: any EditorWindowCoordinator,
+    init(project: EditorOwnedProject, resourceSession: EditorResourceSession, coordinator: any EditorWindowCoordinator,
          page: any EditorAuthoringPage,
          makePreview: @escaping (SceneProjectReference, String) -> any EditorPreviewWindow) throws {
-        self.project = project; workspace = project.document; self.coordinator = coordinator
+        guard resourceSession.projectID == project.document.id else { throw WallpaperError("Editor resource session belongs to another project") }
+        self.resourceSession = resourceSession; workspace = project.document; self.coordinator = coordinator
         self.page = page; self.makePreview = makePreview
         let window = NSWindow(contentRect: NSRect(x: 0,y: 0,width: 1180,height: 760),
             styleMask: [.titled,.closable,.miniaturizable,.resizable], backing: .buffered, defer: false)
@@ -57,9 +59,15 @@ import WebWallpaperBridge
         }
         page.onEditorDirty = { [weak self] dirty in self?.dirty = dirty; self?.window?.isDocumentEdited = dirty }
         page.onEditorResource = { [weak self] request in
-            guard let self else { return }
-            Task {
-                let result = await EditorResourceBridge.result(request, store: self.coordinator.store, id: self.workspace.id)
+            guard let self, !self.page.closed, let session = self.resourceSession else { return }
+            let jobID = UUID()
+            self.resourceTasks[jobID] = Task {
+                defer { self.resourceTasks[jobID] = nil }
+                let result = await EditorResourceBridge.result(request, store: self.coordinator.store, id: self.workspace.id, session: session)
+                guard !self.page.closed else {
+                    if let failure = result["error"] as? String { self.coordinator.show(WallpaperError(failure), window: nil) }
+                    return
+                }
                 do { _ = try await self.command(["type":"resource-reply", "requestID":request["id"]!, "result":result]) }
                 catch { if !self.page.closed { self.coordinator.show(error, window:self.window) } }
             }
@@ -262,6 +270,9 @@ import WebWallpaperBridge
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             page.close { error in if let error { continuation.resume(throwing:error) } else { continuation.resume() } }
         }
+        guard page.closed else { throw WallpaperError("Editor browser close did not release its resources") }
+        for task in Array(resourceTasks.values) { await task.value }
+        resourceSession = nil
         ready = false; window?.delegate = nil; window?.close(); coordinator.retired(workspace.id)
         return true
         } catch {

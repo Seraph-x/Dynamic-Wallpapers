@@ -1,5 +1,39 @@
 # Standalone Editor validation
 
+## Resource session and collection checks
+
+An editing owner retains `EditorResourceSession` across every staged version,
+current document, undo/redo history and pending browser resource request.
+`stageResource(id:data:session:)` requires the matching session; callers must keep
+it alive through their final save/capture or discard (for example, with
+`defer { withExtendedLifetime(session) {} }` in Swift). Window retirement waits
+for successful browser resource release and all native resource jobs before
+releasing the lease. A failed or cancelled close retains it.
+
+Collection takes an exclusive nonblocking OS resource lease, then the workspace
+lock, and validates the saved manifest and complete private resource inventory
+before removing unreferenced regular blobs. Live windows in any process skip
+collection, without truncating history. A process crash releases its lease.
+Original `Project/` files, saved references, projects, previews and handoffs are
+never deletion targets. Malformed manifests/inventories and redirected or
+symbolic-linked directories fail visibly; unrelated store-root entries remain
+untouched. Launch, before-open and last-window retirement trigger collection.
+
+For core-only validation without building or starting CEF, first run:
+
+```sh
+python3 scripts/swift_sdk.py build --disable-sandbox --target WallpaperEditorCoreTests
+```
+
+Then run the produced `.build/out/Products/Debug/WallpaperEditorCoreTests.xctest`
+with `xcrun xctest`, supervised by `scripts/test.py`'s `run_tests` with its
+unchanged 60-second runtime budget. This separates a cold compile from runtime
+acceptance. `EditorResourceCollectionTests` uses real file locks, a subprocess
+lease holder terminated with SIGKILL, malformed/symlink/root replacement cases,
+and capture suspension while collection runs through a second store instance.
+The preview must keep its own lease after the editing owner releases its lease,
+then its published resource bytes must survive collection of the original blob.
+
 The Editor is a separate Swift package/application. Main does not depend on its
 authoring target, UI resources or installation. PR 1 supplies file contracts;
 PR 2 supplies the Editor; PR 3 supplies the optional Main handoff and packaging.

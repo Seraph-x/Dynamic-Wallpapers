@@ -37,7 +37,9 @@ final class EditorResourceTransactionTests: XCTestCase {
 
     func testAliasesAndFileDirectoryConflictsCannotReplaceProjectContent() async throws {
         let store = store(), owned = try await store.create(title:"Aliases",width:10,height:10)
-        let version = try await store.stageResource(id:owned.document.id,data:Data([2]))
+        let session = try await store.acquireResourceSession(id: owned.document.id)
+        defer { withExtendedLifetime(session) {} }
+        let version = try await store.stageResource(id:owned.document.id,data:Data([2]), session: session)
         try FileManager.default.createDirectory(at:owned.resources.appendingPathComponent("models"),withIntermediateDirectories:true)
         try Data([1]).write(to:owned.resources.appendingPathComponent("models/body.mdl"))
         for path in ["Models/body.mdl","models/BODY.mdl","models","models/body.mdl/child"] {
@@ -50,8 +52,10 @@ final class EditorResourceTransactionTests: XCTestCase {
 
     func testResourceRevisionSaveReopenAndExports() async throws {
         let store = store(), owned = try await store.create(title: "Resources", width: 10, height: 10)
-        let bytes = Data([9, 8, 7]), version = try await store.stageResource(id: owned.document.id, data: bytes)
-        let duplicate = try await store.stageResource(id: owned.document.id, data: bytes)
+        let session = try await store.acquireResourceSession(id: owned.document.id)
+        defer { withExtendedLifetime(session) {} }
+        let bytes = Data([9, 8, 7]), version = try await store.stageResource(id: owned.document.id, data: bytes, session: session)
+        let duplicate = try await store.stageResource(id: owned.document.id, data: bytes, session: session)
         XCTAssertEqual(duplicate, version)
         let overrides = ["models/new.mdl":version]
         let saved = try await store.save(owned.document, scene: owned.document.scene, project: owned.document.project,
@@ -75,12 +79,14 @@ final class EditorResourceTransactionTests: XCTestCase {
 
     func testMissingCorruptAndCrossWorkspaceBlobsCannotPublish() async throws {
         let store = store(), owned = try await store.create(title: "Original", width: 10, height: 10)
-        let version = try await store.stageResource(id: owned.document.id, data: Data([1,2]))
+        let session = try await store.acquireResourceSession(id: owned.document.id)
+        defer { withExtendedLifetime(session) {} }
+        let version = try await store.stageResource(id: owned.document.id, data: Data([1,2]), session: session)
         let other = try await store.create(title: "Other", width: 10, height: 10)
         do { _ = try await store.resource(id: other.document.id, version: version); XCTFail("Read another workspace") } catch {}
         let blob = owned.resources.deletingLastPathComponent().appendingPathComponent("Resources/" + version.id)
         try Data([3]).write(to: blob)
-        do { _ = try await store.stageResource(id: owned.document.id, data: Data([1,2])); XCTFail("Overwrote corrupt blob") } catch {}
+        do { _ = try await store.stageResource(id: owned.document.id, data: Data([1,2]), session: session); XCTFail("Overwrote corrupt blob") } catch {}
         do { _ = try await store.save(owned.document, scene: owned.document.scene, project: owned.document.project,
                                       title: "Invalid", resourceOverrides: ["a.bin":version]); XCTFail("Published corrupt reference") } catch {}
         let afterFailure = try await store.open(id: owned.document.id)
@@ -88,16 +94,18 @@ final class EditorResourceTransactionTests: XCTestCase {
         try FileManager.default.removeItem(at: blob)
         do { _ = try await store.resource(id: owned.document.id, version: version); XCTFail("Read missing blob") } catch {}
         try FileManager.default.createSymbolicLink(at: blob, withDestinationURL: temporary.appendingPathComponent("Outside"))
-        do { _ = try await store.stageResource(id: owned.document.id, data: Data([1,2])); XCTFail("Followed symlink") } catch {}
+        do { _ = try await store.stageResource(id: owned.document.id, data: Data([1,2]), session: session); XCTFail("Followed symlink") } catch {}
         XCTAssertFalse(FileManager.default.fileExists(atPath: temporary.appendingPathComponent("Outside").path))
     }
 
     func testSaveFailureAndConflictKeepPreviousResources() async throws {
         let store = store(), owned = try await store.create(title: "Original", width: 10, height: 10)
-        let first = try await store.stageResource(id: owned.document.id, data: Data([1]))
+        let session = try await store.acquireResourceSession(id: owned.document.id)
+        defer { withExtendedLifetime(session) {} }
+        let first = try await store.stageResource(id: owned.document.id, data: Data([1]), session: session)
         let saved = try await store.save(owned.document, scene: owned.document.scene, project: owned.document.project,
                                          title: "Saved", resourceOverrides: ["a.bin":first])
-        let next = try await store.stageResource(id: saved.id, data: Data([2]))
+        let next = try await store.stageResource(id: saved.id, data: Data([2]), session: session)
         do { _ = try await store.save(owned.document, scene: saved.scene, project: saved.project,
                                       title: "Stale", resourceOverrides: ["a.bin":next]); XCTFail("Stale revision published") } catch {}
         let workspace = owned.resources.deletingLastPathComponent().appendingPathComponent("workspace.json")
@@ -114,8 +122,10 @@ final class EditorResourceTransactionTests: XCTestCase {
     }
     func testSingleResourceReadDoesNotRescanUnrelatedVersions() async throws {
         let store=store(), owned=try await store.create(title:"Reads",width:10,height:10)
-        let first=try await store.stageResource(id:owned.document.id,data:Data([1]))
-        let second=try await store.stageResource(id:owned.document.id,data:Data([2]))
+        let session = try await store.acquireResourceSession(id: owned.document.id)
+        defer { withExtendedLifetime(session) {} }
+        let first=try await store.stageResource(id:owned.document.id,data:Data([1]), session: session)
+        let second=try await store.stageResource(id:owned.document.id,data:Data([2]), session: session)
         let saved=try await store.save(owned.document,scene:owned.document.scene,project:owned.document.project,title:"Saved",resourceOverrides:["a.bin":first,"b.bin":second])
         try Data([3]).write(to:owned.resources.deletingLastPathComponent().appendingPathComponent("Resources/"+second.id))
         let bytes=try await store.resource(id:saved.id,version:first)
@@ -124,7 +134,9 @@ final class EditorResourceTransactionTests: XCTestCase {
     }
     func testManifestPublicationFailureLeavesSavedRevisionUnchanged() async throws {
         let store=store(), owned=try await store.create(title:"Write failure",width:10,height:10)
-        let version=try await store.stageResource(id:owned.document.id,data:Data([1]))
+        let session = try await store.acquireResourceSession(id: owned.document.id)
+        defer { withExtendedLifetime(session) {} }
+        let version=try await store.stageResource(id:owned.document.id,data:Data([1]), session: session)
         let saved=try await store.save(owned.document,scene:owned.document.scene,project:owned.document.project,title:"Saved",resourceOverrides:["a.bin":version])
         let root=owned.resources.deletingLastPathComponent(), manifest=root.appendingPathComponent("workspace.json")
         let before=try Data(contentsOf:manifest)
