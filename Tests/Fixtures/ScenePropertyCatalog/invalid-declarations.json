@@ -1,0 +1,49 @@
+{
+  "general": {
+    "properties": {
+      "bool": {
+        "type": "bool",
+        "value": 1
+      },
+      "label": {
+        "type": "bool",
+        "value": true,
+        "text": 1
+      },
+      "order": {
+        "type": "bool",
+        "value": true,
+        "order": false
+      },
+      "step": {
+        "type": "slider",
+        "value": 0,
+        "step": 0
+      },
+      "reversed": {
+        "type": "slider",
+        "value": 0,
+        "min": 1,
+        "max": 0
+      },
+      "options": {
+        "type": "combo",
+        "value": "a",
+        "options": [
+          {
+            "value": "a"
+          }
+        ]
+      },
+      "missing": {
+        "type": "textinput"
+      },
+      "null": null,
+      "condition": {
+        "type": "bool",
+        "value": true,
+        "condition": null
+      }
+    }
+  }
+}
