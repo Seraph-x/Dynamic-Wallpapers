@@ -79,6 +79,8 @@ public actor EditorProjectStore {
         }
     }
     public func open(id: UUID) throws -> EditorOwnedProject {
+        let session = try acquireResourceSession(id: id)
+        defer { withExtendedLifetime(session) {} }
         let root = directory.appendingPathComponent(id.uuidString)
         let document = try workspaceDocument(id: id)
         try validateResources(document)
@@ -91,6 +93,8 @@ public actor EditorProjectStore {
     }
     public func save(_ previous: EditorProjectDocument, scene: Data, project: Data, title: String,
                      resourceOverrides: [String: EditorResourceVersion]? = nil) throws -> EditorProjectDocument {
+        let session = try acquireResourceSession(id: previous.id)
+        defer { withExtendedLifetime(session) {} }
         let files = EditorProjectFiles(root: directory, prefix: previous.id.uuidString)
         return try files.locked { files in
             let current = try EditorProjectDocument(data: files.read("workspace.json"))
@@ -107,6 +111,8 @@ public actor EditorProjectStore {
     }
     /// Creates a standard scene folder without replacing an existing destination.
     public func exportLoose(_ document: EditorProjectDocument, to destination: URL) async throws -> SceneProjectReference {
+        let session = try acquireResourceSession(id: document.id)
+        defer { withExtendedLifetime(session) {} }
         let current = try open(id: document.id)
         guard current.document == document else { throw WallpaperError("请保存最新工程后再导出。") }
         return try await materializeLoose(document, resources: current.resources, to: destination)
@@ -114,6 +120,8 @@ public actor EditorProjectStore {
     /// Captures an unsaved revision without changing its saved workspace or original resources.
     public func exportPreview(_ draft: EditorProjectDocument, basedOn saved: EditorProjectDocument,
                               to destination: URL) async throws -> SceneProjectReference {
+        let session = try acquireResourceSession(id: draft.id)
+        defer { withExtendedLifetime(session) {} }
         let current = try validatePreview(draft, basedOn: saved)
         return try await materializeLoose(draft, resources: current.resources, to: destination, previewBaseline: saved)
     }

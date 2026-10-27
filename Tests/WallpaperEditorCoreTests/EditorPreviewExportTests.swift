@@ -29,7 +29,9 @@ final class EditorPreviewExportTests: XCTestCase {
         let store = store(), owned = try await store.create(title: "Saved", width: 10, height: 10)
         let original = Data([1,2,3]), replacement = Data([4,5,6])
         try original.write(to: owned.resources.appendingPathComponent("original.bin"))
-        let version = try await store.stageResource(id: owned.document.id, data: replacement)
+        let session = try await store.acquireResourceSession(id: owned.document.id)
+        defer { withExtendedLifetime(session) {} }
+        let version = try await store.stageResource(id: owned.document.id, data: replacement, session: session)
         let draft = try draft(owned.document, overrides: ["original.bin": version, "models/new.bin": version])
         XCTAssertEqual(owned.document.schemaVersion, 1); XCTAssertEqual(draft.schemaVersion, 2)
         let workspace = owned.resources.deletingLastPathComponent().appendingPathComponent("workspace.json")
@@ -79,10 +81,14 @@ final class EditorPreviewExportTests: XCTestCase {
     func testRejectsMissingCorruptCrossProjectAndSymlinkResources() async throws {
         let store = store(), saved = try await store.create(title: "Saved", width: 10, height: 10).document
         let other = try await store.create(title: "Other", width: 10, height: 10).document
-        let version = try await store.stageResource(id: other.id, data: Data([1]))
+        let otherSession = try await store.acquireResourceSession(id: other.id)
+        defer { withExtendedLifetime(otherSession) {} }
+        let version = try await store.stageResource(id: other.id, data: Data([1]), session: otherSession)
         let draft = try draft(saved, overrides: ["a.bin": version])
         await assertRejected(draft, baseline: saved, store: store)
-        _ = try await store.stageResource(id: saved.id, data: Data([1]))
+        let session = try await store.acquireResourceSession(id: saved.id)
+        defer { withExtendedLifetime(session) {} }
+        _ = try await store.stageResource(id: saved.id, data: Data([1]), session: session)
         let blob = store.directory.appendingPathComponent("\(saved.id.uuidString)/Resources/\(version.id)")
         try Data([2]).write(to: blob)
         await assertRejected(draft, baseline: saved, store: store)
@@ -99,7 +105,9 @@ final class EditorPreviewExportTests: XCTestCase {
         let store = store(), owned = try await store.create(title: "Saved", width: 10, height: 10)
         try FileManager.default.createDirectory(at: owned.resources.appendingPathComponent("models"), withIntermediateDirectories: true)
         try Data([1]).write(to: owned.resources.appendingPathComponent("models/body.bin"))
-        let version = try await store.stageResource(id: owned.document.id, data: Data([2]))
+        let session = try await store.acquireResourceSession(id: owned.document.id)
+        defer { withExtendedLifetime(session) {} }
+        let version = try await store.stageResource(id: owned.document.id, data: Data([2]), session: session)
         for path in ["Models/body.bin", "models/BODY.bin", "models", "models/body.bin/child"] {
             await assertRejected(try draft(owned.document, overrides: [path: version]), baseline: owned.document, store: store)
         }
@@ -138,7 +146,9 @@ final class EditorPreviewExportTests: XCTestCase {
     func testResourceCorruptionDuringFinalCopyRejectsPreviewBeforePublication() async throws {
         let store = store(), owned = try await store.create(title: "Saved", width: 10, height: 10)
         try addStagingWork(to: owned.resources)
-        let version = try await store.stageResource(id: owned.document.id, data: Data([1]))
+        let session = try await store.acquireResourceSession(id: owned.document.id)
+        defer { withExtendedLifetime(session) {} }
+        let version = try await store.stageResource(id: owned.document.id, data: Data([1]), session: session)
         let draft = try draft(owned.document, overrides: ["resource.bin": version])
         let destination = temporary.appendingPathComponent("Preview")
         let export = Task { try await store.exportPreview(draft, basedOn: owned.document, to: destination) }

@@ -2,7 +2,9 @@ import Foundation
 import WallpaperCore
 
 extension EditorProjectStore {
-    public func stageResource(id: UUID, data: Data) throws -> EditorResourceVersion {
+    public func stageResource(id: UUID, data: Data, session: EditorResourceSession) throws -> EditorResourceVersion {
+        defer { withExtendedLifetime(session) {} }
+        try session.validate(directory: directory, id: id)
         _ = try workspaceDocument(id: id)
         let files = EditorProjectFiles(root: directory, prefix: id.uuidString)
         let version = EditorResourceVersion(data: data)
@@ -16,6 +18,8 @@ extension EditorProjectStore {
         }
     }
     public func resource(id: UUID, version: EditorResourceVersion) throws -> Data {
+        let session = try acquireResourceSession(id: id)
+        defer { withExtendedLifetime(session) {} }
         _ = try workspaceDocument(id: id)
         return try resourceBytes(id: id, version: version)
     }

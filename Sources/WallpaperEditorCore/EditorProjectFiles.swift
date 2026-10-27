@@ -118,15 +118,30 @@ struct EditorProjectFiles {
     }
     func locked<T>(_ body: (Self) throws -> T) throws -> T {
         try withDirectory { parent in
-            let descriptor = openat(parent, ".workspace-lock", O_RDWR | O_CREAT | O_NOFOLLOW | O_CLOEXEC, 0o600)
-            guard descriptor >= 0 else { throw failure("打开工程保存锁") }
+            let descriptor = try Self.openLock(".workspace-lock", parent: parent)
             defer { close(descriptor) }
             guard flock(descriptor, LOCK_EX) == 0 else { throw failure("锁定工程保存") }
             defer { flock(descriptor, LOCK_UN) }
+            try Self.validateLock(descriptor, name: ".workspace-lock", parent: parent)
             var scoped = Self(root: root)
             scoped.scopedDescriptor = parent
             return try body(scoped)
         }
     }
-    private func failure(_ action: String) -> WallpaperError { WallpaperError("\(action)失败：\(String(cString: strerror(errno)))。") }
+    static func openLock(_ name: String, parent: Int32) throws -> Int32 {
+        let descriptor = openat(parent, name, O_RDWR | O_CREAT | O_NOFOLLOW | O_NONBLOCK | O_CLOEXEC, 0o600)
+        guard descriptor >= 0 else { throw failure("打开工程锁") }
+        do { try validateLock(descriptor, name: name, parent: parent); return descriptor }
+        catch { close(descriptor); throw error }
+    }
+    static func validateLock(_ descriptor: Int32, name: String, parent: Int32) throws {
+        var opened = stat(), named = stat()
+        guard fstat(descriptor, &opened) == 0, fstatat(parent, name, &named, AT_SYMLINK_NOFOLLOW) == 0,
+              opened.st_mode & S_IFMT == S_IFREG, named.st_mode & S_IFMT == S_IFREG,
+              opened.st_dev == named.st_dev, opened.st_ino == named.st_ino, opened.st_nlink == 1 else {
+            throw WallpaperError("工程锁不是稳定的普通文件。")
+        }
+    }
+    static func failure(_ action: String) -> WallpaperError { WallpaperError("\(action)失败：\(String(cString: strerror(errno)))。") }
+    private func failure(_ action: String) -> WallpaperError { Self.failure(action) }
 }

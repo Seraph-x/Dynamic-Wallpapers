@@ -84,14 +84,16 @@ import WebWallpaperBridge
         document["scene"] = ["objects": [], "unsavedProbe": 42]
         let originalResource = Data([1, 2, 3]), stagedResource = Data([4, 5, 6])
         try originalResource.write(to: owned.resources.appendingPathComponent("probe.bin"))
-        let version = try await coordinator.store.stageResource(id: owned.document.id, data: stagedResource)
+        let stagingSession = try await coordinator.store.acquireResourceSession(id: owned.document.id)
+        defer { withExtendedLifetime(stagingSession) {} }
+        let version = try await coordinator.store.stageResource(id: owned.document.id, data: stagedResource, session: stagingSession)
         document["resourceOverrides"] = ["probe.bin": version.id]
         page.document = document
         let savedURL = owned.resources.deletingLastPathComponent().appendingPathComponent("workspace.json")
         let savedBytes = try Data(contentsOf: savedURL)
         let sceneBytes = try Data(contentsOf: owned.resources.appendingPathComponent(owned.document.sceneEntry))
         var exported: SceneProjectReference?
-        let controller = try EditorWindowController(project: owned, coordinator: coordinator, page: page,
+        let controller = try EditorWindowController(project: owned, resourceSession: try await coordinator.store.acquireResourceSession(id: owned.document.id), coordinator: coordinator, page: page,
             makePreview: { project, title in
                 exported = project
                 XCTAssertEqual(title, "Unsaved preview")
@@ -139,7 +141,7 @@ import WebWallpaperBridge
             metadata.merge(variant) { _, new in new }; document["project"] = metadata; page.document = document
             let savedURL = owned.resources.deletingLastPathComponent().appendingPathComponent("workspace.json")
             let savedBytes = try Data(contentsOf: savedURL)
-            let controller = try EditorWindowController(project: owned, coordinator: coordinator, page: page, makePreview: { _, _ in preview })
+            let controller = try EditorWindowController(project: owned, resourceSession: try await coordinator.store.acquireResourceSession(id: owned.document.id), coordinator: coordinator, page: page, makePreview: { _, _ in preview })
             let ready = expectation(description: "Ready with null property metadata")
             page.onThaw = { ready.fulfill() }; page.onReady?(); await fulfillment(of: [ready], timeout: 2)
             page.commands = []
@@ -162,7 +164,7 @@ import WebWallpaperBridge
         let savedURL = owned.resources.deletingLastPathComponent().appendingPathComponent("workspace.json")
         let savedBytes = try Data(contentsOf: savedURL)
         var creations = 0
-        let controller = try EditorWindowController(project: owned, coordinator: coordinator, page: page,
+        let controller = try EditorWindowController(project: owned, resourceSession: try await coordinator.store.acquireResourceSession(id: owned.document.id), coordinator: coordinator, page: page,
             makePreview: { _, _ in creations += 1; return PreviewWindowFixture() })
         let ready = expectation(description: "Owner completed initial thaw")
         page.onThaw = { ready.fulfill() }; controller.start(); page.onReady?()
@@ -187,7 +189,7 @@ import WebWallpaperBridge
         let owned = try await coordinator.store.create(title: "Saved", width: 32, height: 32)
         let page = AuthoringPageFixture()
         var creations = 0
-        let controller = try EditorWindowController(project: owned, coordinator: coordinator, page: page,
+        let controller = try EditorWindowController(project: owned, resourceSession: try await coordinator.store.acquireResourceSession(id: owned.document.id), coordinator: coordinator, page: page,
             makePreview: { _, _ in creations += 1; return PreviewWindowFixture() })
         defer { controller.window?.delegate = nil; controller.window?.close() }
         XCTAssertFalse(controller.ready)
@@ -203,7 +205,7 @@ import WebWallpaperBridge
         let owned = try await coordinator.store.create(title: "Saved", width: 32, height: 32)
         let page = AuthoringPageFixture(); page.document = try EditorWindowController.browserDocument(owned.document)
         var creations = 0
-        let controller = try EditorWindowController(project: owned, coordinator: coordinator, page: page,
+        let controller = try EditorWindowController(project: owned, resourceSession: try await coordinator.store.acquireResourceSession(id: owned.document.id), coordinator: coordinator, page: page,
             makePreview: { _, _ in creations += 1; return PreviewWindowFixture() })
         defer { controller.window?.delegate = nil; controller.window?.close() }
         let ready = expectation(description: "Owner completed initial thaw")
@@ -236,8 +238,8 @@ import WebWallpaperBridge
         page.document = try EditorWindowController.browserDocument(owned.document)
         page.document["scene"] = ["objects": [["id": 1, "alpha": ["script": "// captured😀\r\nthrow Error()"]]]]
         page.documentIdentity = "owning-document"
-        let controller = try EditorWindowController(project: owned, coordinator: coordinator, page: page, makePreview: { _, _ in preview })
-        let other = try EditorWindowController(project: owned, coordinator: coordinator, page: otherPage, makePreview: { _, _ in PreviewWindowFixture() })
+        let controller = try EditorWindowController(project: owned, resourceSession: try await coordinator.store.acquireResourceSession(id: owned.document.id), coordinator: coordinator, page: page, makePreview: { _, _ in preview })
+        let other = try EditorWindowController(project: owned, resourceSession: try await coordinator.store.acquireResourceSession(id: owned.document.id), coordinator: coordinator, page: otherPage, makePreview: { _, _ in PreviewWindowFixture() })
         defer { controller.window?.delegate = nil; controller.window?.close(); other.window?.delegate = nil; other.window?.close() }
         let ready = expectation(description: "Ready"); page.onThaw = { ready.fulfill() }
         page.onReady?(); await fulfillment(of: [ready], timeout: 2)
@@ -273,7 +275,7 @@ import WebWallpaperBridge
         let page = AuthoringPageFixture(), preview = PreviewWindowFixture()
         page.document = try EditorWindowController.browserDocument(owned.document)
         page.document["scene"] = ["objects": [["id": 1, "alpha": ["script": "captured"]]]]
-        var owner: EditorWindowController? = try EditorWindowController(project: owned, coordinator: coordinator, page: page, makePreview: { _, _ in preview })
+        var owner: EditorWindowController? = try EditorWindowController(project: owned, resourceSession: try await coordinator.store.acquireResourceSession(id: owned.document.id), coordinator: coordinator, page: page, makePreview: { _, _ in preview })
         weak var weakOwner = owner
         let ready = expectation(description: "Ready"); page.onThaw = { ready.fulfill() }
         page.onReady?(); await fulfillment(of: [ready], timeout: 2)

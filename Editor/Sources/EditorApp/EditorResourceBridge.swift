@@ -3,7 +3,7 @@ import WallpaperCore
 import WallpaperEditorCore
 
 enum EditorResourceBridge {
-    static func result(_ request: [String:Any], store: EditorProjectStore, id: UUID) async -> [String:Any] {
+    static func result(_ request: [String:Any], store: EditorProjectStore, id: UUID, session: EditorResourceSession) async -> [String:Any] {
         do {
             switch request["action"] as? String {
             case "list":
@@ -11,7 +11,7 @@ enum EditorResourceBridge {
             case "stage":
                 guard let encoded = request["data"] as? String, let data = Data(base64Encoded: encoded),
                       data.base64EncodedString() == encoded else { throw WallpaperError("Invalid Editor resource bytes") }
-                let version = try await store.stageResource(id: id, data: data)
+                let version = try await store.stageResource(id: id, data: data, session: session)
                 return ["version":version.id]
             case "read":
                 guard let raw = request["version"] as? String else { throw WallpaperError("Missing Editor resource version") }

@@ -290,9 +290,16 @@ Unedited legacy workspaces keep schema 1. Resource edits use schema 2, which
 requires this Editor or newer; opening a project does not migrate it. Standard
 loose/PKG exports materialize the selected revision at its original logical
 resource paths, so Main does not need the workspace or private blob directory.
-Immutable versions are retained for undo and revision safety; automatic blob
-garbage collection is not included. Reserved paths and ambiguous case/Unicode
-aliases fail explicitly rather than overwriting scene or project metadata.
+Every open editing window retains all immutable versions needed by its current
+document, undo, redo and pending resource work. Editor collects unreferenced
+private blobs on launch, before opening a project and after the last editing
+window closes. Collection skips projects with a live process-held resource
+lease, preserves every saved reference, and never removes original `Project/`
+files or user projects. A crash releases the OS lease so the next collection can
+reclaim abandoned versions. Previews and handoffs already own independent
+copies. Collection failures are shown explicitly; malformed inventories are
+left intact. Reserved paths and ambiguous case/Unicode aliases fail explicitly
+rather than overwriting scene or project metadata.
 
 ## References and notices
 

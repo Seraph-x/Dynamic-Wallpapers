@@ -85,7 +85,7 @@ import WebWallpaperBridge
         let owned = try await coordinator.store.importProject(root: fixture)
         let page = ExportSnapshotPageFixture(document: try EditorWindowController.browserDocument(owned.document),
             package: try Data(contentsOf: fixture.appendingPathComponent("scene.pkg")))
-        let controller = try EditorWindowController(project: owned, coordinator: coordinator, page: page, makePreview: { _, _ in
+        let controller = try EditorWindowController(project: owned, resourceSession: try await coordinator.store.acquireResourceSession(id: owned.document.id), coordinator: coordinator, page: page, makePreview: { _, _ in
             XCTFail("Export must not create a preview"); fatalError("Unexpected preview")
         })
         return (coordinator, owned, page, controller)
