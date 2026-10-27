@@ -56,6 +56,7 @@ export class SceneDocument {
       } else { value.resourceOverrides = {...value.resourceOverrides,[path]:version}; }
     });
   }
+  validateResource(path,version) { this.#validateResource(this.#value,path,version); }
   transaction(operation) {
     this.#change(value => {
       const draft = new SceneDocument(value,this.#sourcePackage), result = operation(draft);
