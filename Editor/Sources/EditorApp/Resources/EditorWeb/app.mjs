@@ -1,3 +1,4 @@
+import { PropertyBindingDialog } from './property-binding-dialog.mjs';
 import { PropertyWorkspace } from './property-workspace.mjs';
 import { resolveScriptLink } from './script-navigation.mjs';
 import { createCapturedScriptView } from './captured-script-view.mjs';
@@ -15,7 +16,7 @@ import { GltfImport } from './gltf-import.mjs';
 const $ = id => document.getElementById(id);
 let displayedError;
 let previewRequestFailure;
-let capturedView, editor, selected, drag, editFailure, timeline, model, gltf, script, property, selectionPointer;
+let capturedView, editor, selected, drag, editFailure, timeline, model, gltf, script, property, binding, selectionPointer;
 const pendingActions=new Set();
 document.body.inert = true;
 const showError = error => { displayedError=error;$('diagnostics').textContent = String(error?.message ?? error); };
@@ -37,13 +38,14 @@ try {
     return promise;
   };
   const act = operation => runAction(async()=>{
-    if(gltf?.error)throw gltf.error;await property?.flush();await script?.flush();await model?.flush();await timeline?.flush();editFailure=undefined;$('diagnostics').textContent='';
+    if(gltf?.error)throw gltf.error;await binding?.flush();await property?.flush();await script?.flush();await model?.flush();await timeline?.flush();editFailure=undefined;$('diagnostics').textContent='';
     await editor.change(operation);
   });
-  const selectLayer = id => runAction(async()=>{if(gltf?.error)throw gltf.error;await property?.flush();await script?.flush();await model?.flush();await timeline?.flush();selected=id;update(editor.document);});
+  const selectLayer = id => runAction(async()=>{if(gltf?.error)throw gltf.error;await binding?.flush();await property?.flush();await script?.flush();await model?.flush();await timeline?.flush();selected=id;update(editor.document);});
   function update(doc) {
     renderWorkspace({doc,selected,t,onSelect:id => { void selectLayer(id); },
-      onPatch:(id,patch) => void act(doc => doc.patch(id,patch))});
+      onPatch:(id,patch) => void act(doc => doc.patch(id,patch)),
+      onBind:(id,field)=>void runAction(async()=>{if(gltf.error)throw gltf.error;await binding.flush();await property.flush();await script.flush();await model.flush();await timeline.flush();await finishDrag();binding.open(id,field);})});
     timeline?.update(doc,selected);
     model?.update(doc,selected);
     script?.update(doc,selected);
@@ -51,10 +53,10 @@ try {
     if(script?.dirty||property?.dirty){$('saved').textContent=t.unsaved;$('saved').dataset.dirty='true';}
   }
   editor = startEditor(config, { createScene, editorOf, buildScenePkg, checkWeCompat, element:$('canvas'), report, onChange:update, onError:showError,
-    setEditingEnabled: value => { document.body.inert = !value;model?.setFrozen(!value);gltf?.setFrozen(!value);script?.setFrozen(!value);property?.setFrozen(!value); }, snapshotError: () => gltf?.error??property?.error??script?.error??editFailure, draftDirty:()=>Boolean(script?.dirty||property?.dirty),
+    setEditingEnabled: value => { document.body.inert = !value;model?.setFrozen(!value);gltf?.setFrozen(!value);script?.setFrozen(!value);property?.setFrozen(!value);binding?.setFrozen(!value); }, snapshotError: () => gltf?.error??binding?.error??property?.error??script?.error??editFailure, draftDirty:()=>Boolean(script?.dirty||property?.dirty),
     onRevealScript:async link=>{
       const focusedInput=document.activeElement?.matches?.('#project-title,#inspector input,#inspector textarea,#inspector select');
-      const pending=Boolean(focusedInput||pendingActions.size||drag||selectionPointer?.down||editFailure||property.hasPendingInput||script.hasPendingInput||model.hasPendingInput||timeline.hasPendingInput||gltf.error||document.querySelector('dialog[open]'));
+      const pending=Boolean(focusedInput||pendingActions.size||drag||selectionPointer?.down||editFailure||binding.hasPendingInput||property.hasPendingInput||script.hasPendingInput||model.hasPendingInput||timeline.hasPendingInput||gltf.error||document.querySelector('dialog[open]'));
       const result=resolveScriptLink(link,{scene:editor.document.snapshot().scene,documentIdentity:editor.documentIdentity,pending});
       if(result.kind==='captured')capturedView.show(result,{preserveFocus:Boolean(focusedInput)});
       else {capturedView.close();selected=link.layerId;model.deactivate();property.deactivate();update(editor.document);script.reveal(link);}
@@ -62,7 +64,7 @@ try {
     },
     importModel:source=>gltf.open(source),
     onPlaybackChange: value => setPlaybackState(value,t) });
-  timeline = new Timeline({editor,t,beforeEdit:async()=>{await property?.flush();await script?.flush();await model?.flush();},edit:(id,property,edit)=>editor.change(doc=>doc.animate(id,property,edit)),onError:showError,
+  timeline = new Timeline({editor,t,beforeEdit:async()=>{await binding?.flush();await property?.flush();await script?.flush();await model?.flush();},edit:(id,property,edit)=>editor.change(doc=>doc.animate(id,property,edit)),onError:showError,
     onResetInput:()=>{editFailure=undefined;$('diagnostics').textContent='';}});
   model=new ModelWorkspace({editor,t,onError:showError,onResetInput:expected=>{if(!expected||editFailure===expected)editFailure=undefined;if(expected&&displayedError!==expected)return;displayedError=undefined;$('diagnostics').textContent='';}});
   script=new ScriptWorkspace({editor,t,onError:showError,onResetInput:expected=>{if(editFailure===expected)editFailure=undefined;if(displayedError===expected){displayedError=undefined;$('diagnostics').textContent='';}},onDraftChange:()=>{
@@ -74,9 +76,10 @@ try {
   property=new PropertyWorkspace({editor,t,onError:showError,beforeEdit:async()=>{await script.flush();await model.flush();},
     onResetInput:expected=>{if(editFailure===expected)editFailure=undefined;if(displayedError===expected){displayedError=undefined;$('diagnostics').textContent='';}},
     onDraftChange:()=>{const dirty=editor.document.dirty||script.dirty||property.dirty;$('saved').textContent=dirty?t.unsaved:t.saved;$('saved').dataset.dirty=String(dirty);void editor.notifyDirty().catch(showError);}});
+  binding=new PropertyBindingDialog({editor,t,onError:showError,onResetInput:expected=>{if(editFailure===expected)editFailure=undefined;if(displayedError===expected){displayedError=undefined;$('diagnostics').textContent='';}}});
   property.update(editor.document);
   for(const name of ['properties','model','script','project'])$(name+'-workspace').addEventListener('click',()=>void runAction(async()=>{
-    if(gltf.error)throw gltf.error;await property.flush();await script.flush();await model.flush();await timeline.flush();
+    if(gltf.error)throw gltf.error;await binding.flush();await property.flush();await script.flush();await model.flush();await timeline.flush();
     script.deactivate();model.deactivate();property.deactivate();
     if(name==='project')property.activate();else if(name==='model')await model.show(selected);else if(name==='script'){script.update(editor.document,selected);script.activate();}
   }));
@@ -94,8 +97,8 @@ try {
       const focused = document.activeElement;
       const invalid = !focused?.closest?.('#model-brush-form,#model-poses-details,#model-mixing-details,#model-events-details,#model-keys-details,dialog') && focused?.checkValidity && !focused.checkValidity() ? focused.validationMessage : undefined;
       focused?.blur();
-      if(value.type==='freeze'){document.body.inert=true;model.setFrozen(true);gltf.setFrozen(true);script.setFrozen(true);property.setFrozen(true);}
-      try { await Promise.all([...pendingActions]);if(gltf.error)throw gltf.error;await property.flush();await script.flush();await finishDrag();await model.flush();await timeline.flush(); } catch(error) { editFailure=error;showError(error); }
+      if(value.type==='freeze'){document.body.inert=true;model.setFrozen(true);gltf.setFrozen(true);script.setFrozen(true);property.setFrozen(true);binding.setFrozen(true);}
+      try { await Promise.all([...pendingActions]);if(gltf.error)throw gltf.error;await binding.flush();await property.flush();await script.flush();await finishDrag();await model.flush();await timeline.flush(); } catch(error) { editFailure=error;showError(error); }
       if (invalid) { editFailure = new Error(invalid); showError(editFailure); }
     }
     return editor.command(value);
@@ -129,7 +132,7 @@ try {
     const pointer={id:event.pointerId,down:true,x:event.clientX,y:event.clientY,currentX:event.clientX,currentY:event.clientY};selectionPointer=pointer;
     $('canvas').setPointerCapture(event.pointerId);
     void runAction(async()=>{
-      await property.flush();await script.flush();await model.flush();await timeline.flush();selected=hit[0].id;update(editor.document);
+      await binding.flush();await property.flush();await script.flush();await model.flush();await timeline.flush();selected=hit[0].id;update(editor.document);
       if(document.body.inert||(!pointer.down&&pointer.x===pointer.currentX&&pointer.y===pointer.currentY))return;
       const snapshot=editor.document.snapshot(),layer=snapshot.scene.objects.find(layer=>layer.id===selected),projection=snapshot.scene.general?.orthogonalprojection;
       if(layer&&!controlled(layer.origin)&&projection?.width>0&&projection?.height>0){
@@ -153,5 +156,5 @@ try {
     event.preventDefault(); void act(doc => event.shiftKey ? doc.redo() : doc.undo());
   });
   await editor.ready;
-  window.addEventListener('pagehide', () => { capturedView.destroy();property.destroy();script.destroy();gltf.destroy();model.destroy();timeline.destroy();editor.destroy(); }, { once:true });
+  window.addEventListener('pagehide', () => { capturedView.destroy();binding.destroy();property.destroy();script.destroy();gltf.destroy();model.destroy();timeline.destroy();editor.destroy(); }, { once:true });
 } catch (error) { showError(error); console.error('Editor preparation failed',error); }

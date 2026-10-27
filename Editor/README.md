@@ -88,6 +88,12 @@ The separate [Project workspace](../docs/editor-property-definitions.md) creates
 copies and edits property definitions/defaults, with explicit Apply/Revert,
 deletion confirmation and project Undo/Redo. Definitions persist through save,
 reopen and loose/PKG export; unsupported declarations remain read-only.
+Use the inspector's [Bind… dialog](../docs/editor-property-bindings.md) to connect
+compatible properties to visibility, opacity, RGB color, text and font size.
+Replacement is explicit and undoable; removal retains the original base.
+Text/font bindings use saved defaults at scene load; this renderer does not
+rebuild them from temporary live property updates. Other supported bindings
+also react to live values in an independent preview.
 Audio starters read real spectrum or silence. Independent muted previews can
 receive live spectrum after enabling their separate System audio response switch. These limits do not disable editing existing
 author-written source.
