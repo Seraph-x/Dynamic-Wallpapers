@@ -1,6 +1,8 @@
 import Foundation
+import CoreGraphics
+import ImageIO
 import WallpaperCore
-import WallpaperMediaIntegration
+@testable import WallpaperMediaIntegration
 
 struct Failure: Error, CustomStringConvertible { let description: String }
 func require(_ value: Bool, _ message: String) throws { if !value { throw Failure(description: message) } }
@@ -81,7 +83,88 @@ struct Client {
         catch let error as SystemMediaError {
             guard case .appleEvent(code: -1708, message: _) = error else { throw error }
         }
+        try await artwork(service: service, source: source, first: first, directory: directory)
         print("MEDIA_AUTOMATION PASS source=\(source.rawValue) metadata=real-AppleEvents controls=5 malformed/error/track-change/timeout/transport-error=observed")
+    }
+
+    @MainActor static func artwork(service: AppleEventMediaService, source: SystemMediaSource,
+                                   first: SystemMediaSnapshot, directory: URL) async throws {
+        let info = try JSONSerialization.jsonObject(with: Data(contentsOf: directory.appendingPathComponent("server.json"))) as? [String: String]
+        guard let ca = info?["ca"] else { throw Failure(description: "Missing owned TLS fixture CA") }
+        let loader = HTTPSArtworkLoader(timeout: 3,
+            testTrust: ArtworkTestTrust(anchorDER: try Data(contentsOf: URL(fileURLWithPath: ca)), hostname: "localhost"))
+        let identity = SystemMediaArtworkIdentity(first)
+        try setMode("normal", directory)
+        let input = try await service.readArtwork(for: identity)
+        let original = try Data(contentsOf: directory.appendingPathComponent("owned-artwork.png"))
+        switch (source, input) {
+        case (.music, .embedded(let data)): try require(data == original, "Music must preserve actual raw artwork bytes")
+        case (.spotify, .remote(let url)):
+            let expected = try String(contentsOf: directory.appendingPathComponent("artwork-url"), encoding: .utf8)
+            try require(url.url.absoluteString == expected, "Spotify must preserve its actual aUrl")
+        default: throw Failure(description: "Wrong actual provider artwork source")
+        }
+        let artifact = try await loader.load(input, for: identity)
+        try require(artifact.identity == identity && artifact.width == 2 && artifact.height == 1,
+                    "Actual artwork identity/dimensions mismatch")
+        try verifyPixels(artifact.pngData)
+        try setMode("artwork-missing", directory)
+        try require(try await service.readArtwork(for: identity) == .unavailable, "Missing artwork must be explicit")
+        for mode in ["artwork-error", "artwork-malformed", "track-change"] {
+            try setMode(mode, directory)
+            do { _ = try await service.readArtwork(for: identity); throw Failure(description: "Expected actual artwork \(mode) failure") }
+            catch let error as SystemMediaError {
+                switch (mode, error) {
+                case ("artwork-error", .appleEvent(code: -50, message: _)),
+                     ("artwork-malformed", .invalidResponse), ("track-change", .trackChangedDuringRead): break
+                default: throw error
+                }
+            }
+        }
+        try setMode("artwork-error", directory)
+        let controller = SystemMediaController(service: service, pollInterval: 3600, artworkLoader: loader)
+        let demand = UUID()
+        controller.configure(source: source); controller.setPlaying(demand, true)
+        await controller.settled(); await controller.artwork.settled()
+        guard case .failed = controller.artwork.state else { throw Failure(description: "Actual artwork failure must remain visible") }
+        try require(controller.status == .available && controller.snapshot != nil && controller.failure == nil,
+                    "Artwork failure must preserve valid actual metadata")
+        try await controller.perform(.pause)
+        try setMode("normal", directory); await controller.artwork.retry()
+        guard case .ready = controller.artwork.state else { throw Failure(description: "Actual artwork retry must recover") }
+        controller.setPlaying(demand, false)
+        try setMode("artwork-slow", directory)
+        controller.setPlaying(demand, true); await controller.settled()
+        let requested = directory.appendingPathComponent("artwork-requested")
+        let deadline = ContinuousClock.now + .seconds(2)
+        while !FileManager.default.fileExists(atPath: requested.path) {
+            guard ContinuousClock.now < deadline else { throw Failure(description: "Actual artwork source did not start") }
+            try await Task.sleep(for: .milliseconds(5))
+        }
+        controller.configure(source: .disabled)
+        guard case .unavailable = controller.artwork.state else { throw Failure(description: "Source disable must clear artwork immediately") }
+        await controller.shutdown()
+        guard case .unavailable = controller.artwork.state else { throw Failure(description: "Late actual source completion republished old artwork") }
+        try setMode("normal", directory)
+        controller.cancelShutdown(); controller.configure(source: source); controller.setPlaying(UUID(), true)
+        await controller.settled(); await controller.artwork.settled()
+        guard case .ready = controller.artwork.state else { throw Failure(description: "Rejected quit must accept fresh actual artwork demand") }
+        await controller.shutdown()
+        print("MEDIA_ARTWORK PASS source=\(source.rawValue) raw-or-URL=actual PNG-pixels=red,blue errors=explicit metadata+transport=retained stale+shutdown+resume=verified")
+    }
+
+    static func verifyPixels(_ data: Data) throws {
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil),
+              let image = CGImageSourceCreateImageAtIndex(source, 0, nil) else { throw Failure(description: "Actual artwork PNG cannot decode") }
+        var pixels = [UInt8](repeating: 0, count: 8)
+        try pixels.withUnsafeMutableBytes { bytes in
+            guard let context = CGContext(data: bytes.baseAddress, width: 2, height: 1, bitsPerComponent: 8, bytesPerRow: 8,
+                space: CGColorSpace(name: CGColorSpace.sRGB)!, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else {
+                throw Failure(description: "Cannot inspect actual artwork pixels")
+            }
+            context.draw(image, in: CGRect(x: 0, y: 0, width: 2, height: 1))
+        }
+        try require(pixels == [255, 0, 0, 255, 0, 0, 255, 255], "Actual artwork pixels were altered or substituted")
     }
 
     static func setMode(_ value: String, _ directory: URL) throws {

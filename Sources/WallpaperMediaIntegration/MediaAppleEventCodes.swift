@@ -10,6 +10,7 @@ enum MediaAE {
 
     static let playerState = code("pPlS"), position = code("pPos"), currentTrack = code("pTrk")
     static let name = code("pnam"), artist = code("pArt"), album = code("pAlb")
+    static let artworkClass = code("cArt"), rawArtwork = code("pRaw"), artworkURL = code("aUrl")
     static let albumArtist = code("pAlA"), duration = code("pDur")
     static func identity(for source: SystemMediaSource) -> OSType {
         source == .spotify ? code("ID  ") : code("pPIS")

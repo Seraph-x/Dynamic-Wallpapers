@@ -15,6 +15,7 @@ public final class SystemMediaController: ObservableObject {
     @Published public private(set) var status = SystemMediaStatus.disabled
     @Published public private(set) var snapshot: SystemMediaSnapshot?
     @Published public private(set) var failure: Error?
+    public let artwork: SystemMediaArtworkController
     public var onSnapshot: ((SystemMediaSnapshot?) -> Void)?
 
     private let service: any SystemMediaServicing
@@ -30,9 +31,11 @@ public final class SystemMediaController: ObservableObject {
     private var shutdownTask: Task<Void, Never>?
     private var timer: Timer?
 
-    public init(service: any SystemMediaServicing = AppleEventMediaService(), pollInterval: TimeInterval = 1) {
+    public init(service: any SystemMediaServicing = AppleEventMediaService(), pollInterval: TimeInterval = 1,
+                artworkLoader: any SystemMediaArtworkLoading = HTTPSArtworkLoader()) {
         precondition(pollInterval.isFinite && pollInterval > 0)
         self.service = service; self.pollInterval = pollInterval
+        artwork = SystemMediaArtworkController(service: service as? any SystemMediaArtworkServicing, loader: artworkLoader)
     }
 
     deinit { timer?.invalidate() }
@@ -120,6 +123,7 @@ public final class SystemMediaController: ObservableObject {
         let pending = operation
         let task = Task { @MainActor [self] in
             await pending?.value
+            await artwork.shutdown()
             operation = nil; shutdownFinished = true
         }
         shutdownTask = task
@@ -131,6 +135,7 @@ public final class SystemMediaController: ObservableObject {
     public func cancelShutdown() {
         guard shuttingDown, shutdownFinished else { return }
         shuttingDown = false; shutdownFinished = false; shutdownTask = nil
+        artwork.cancelShutdown()
         reconcile()
     }
 
@@ -186,7 +191,7 @@ public final class SystemMediaController: ObservableObject {
     }
 
     private func publish(_ value: SystemMediaSnapshot?) {
-        snapshot = value; onSnapshot?(value)
+        snapshot = value; artwork.update(value); onSnapshot?(value)
     }
 
     private func append(_ work: @escaping @MainActor () async -> Void) {

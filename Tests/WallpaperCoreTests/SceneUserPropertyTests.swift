@@ -5,7 +5,7 @@ import XCTest
 final class SceneUserPropertyTests: XCTestCase {
     private var metadata: Data!
     override func setUpWithError() throws {
-        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        let root = URL(fileURLWithPath: #filePath).resolvingSymlinksInPath().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         metadata = try Data(contentsOf: root.appendingPathComponent("Tests/Fixtures/ScenePropertyCatalog/project.json"))
     }
 

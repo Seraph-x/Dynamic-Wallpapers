@@ -45,9 +45,27 @@ reproducible Python/Node build tooling and source-built media dependencies.
 
 ## Current progress
 
-- Current Main: `ba8a94f`, merged resource collection PR [#38](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/38). Its feature head `9887cd4` passed 52 Core tests, 22 focused native fixtures and the complete 93-test Editor Swift suite; all 19 changed files passed the publication scan.
+- Resource collection PR [#38](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/38) merged at `ba8a94f`. Its feature head `9887cd4` passed 52 Core tests, 22 focused native fixtures and the complete 93-test Editor Swift suite; all 19 changed files passed the publication scan.
 - Live text/font PR [#39](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/39) merged at `9472eda` from tested head `be7b0fa`. Actual Chromium public/paused rendering, grow/shrink/fractional sizes, fixed-box anchors, script precedence, frame ownership and destruction regressions pass. All 415 Node tests and the complete 47-phase browser/native CEF acceptance passed, with 21 normal runtime shutdowns; 23 changed files passed the publication scan.
-- The user confirmed Music/Spotify public Automation providers, default disabled, explicit opt-in authorization and unsupported other players. The independently testable native foundation is in progress.
-- Distribution research recovered mpv `c0dd2b32d52c66b9efa85a7ee69965569503f6b8`
-  and the 18 commits after v0.38.0; the complete old 69-library closure remains
-  unproven, so no completion claim is made.
+- The user confirmed Music/Spotify public Automation providers, default disabled,
+  explicit opt-in authorization and unsupported other players. Native foundation
+  PR [#40](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/40) merged at
+  `7d706d9`: 20 native and 130 Core tests plus owned actual Apple Events passed.
+  Production settings/CEF delivery remain open; owned fixtures do not establish
+  live vendor-app playback acceptance.
+- External resource script data foundation PR
+  [#41](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/41) merged at `5826046`.
+  All 465 Node tests passed, including 39 new lossless resource/transaction tests.
+  Actual renderer sinks, workspace UI and native export acceptance remain open.
+- Per-wallpaper property data foundation PR
+  [#42](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/42) merged at `c8b53ee`.
+  All 143 Core tests and eight raw-JavaScript catalog parity cases passed.
+  Main controls, persistence integration and live session delivery remain open.
+- Controlled source-built media PR
+  [#43](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/43) merged at `c704625`
+  from tested head `80b6021`. The 14-library arm64 closure, complete locked
+  sources/patches/notices, 158 targeted tooling tests, four full packaging
+  isolation tests and six actual native MPVBridge cases passed. Main release
+  compilation passed. Final packaged app/release acceptance is still open.
+  The old IINA binary closure is historical, not a fallback. FFmpeg 9 software
+  AV1 transcode failure remains a separately tracked fix.

@@ -13,8 +13,8 @@ public enum SystemMediaPlaybackState: Sendable, Equatable {
     }
 }
 
-/// Actual provider metadata. Artwork and lyrics are not part of this foundation
-/// contract; consumers must not substitute generated artwork or media content.
+/// Actual provider metadata. Artwork has an independent identity-bound state;
+/// lyrics have no supported public source. Consumers must not substitute imagery.
 public struct SystemMediaSnapshot: Sendable, Equatable {
     public let source: SystemMediaSource
     public let trackID: String

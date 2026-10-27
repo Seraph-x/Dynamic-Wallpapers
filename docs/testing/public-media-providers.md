@@ -1,4 +1,4 @@
-# Public media provider foundation
+# Public media providers and actual artwork
 
 The native `WallpaperMediaIntegration` module supports explicitly selected,
 already-running Music and Spotify applications through their public Apple Event
@@ -7,13 +7,12 @@ launch a player, mutate a music library, use private MediaRemote APIs or fall ba
 to a wallpaper's own audio. `MPNowPlayingInfoCenter` publishes the calling app's
 media; it is not a global reader.
 
-This foundation PR adds the module and strict default-off source persistence.
-Main settings, consent copy and renderer delivery belong to the dependent
-integration PR. A built library alone does not make scene media integration
-available in the app. Artwork/lyrics are explicitly absent from this native
-foundation; consumers must not synthesize them. The final integration may extend
-the native contract with actual available artwork. Lyrics have no supported
-public source in this provider scope.
+The native module includes strict default-off source persistence and actual
+available provider artwork. Main settings, consent copy and renderer delivery
+belong to the dependent integration PR. A built library alone does not make scene
+media integration available in the app. Consumers must not synthesize covers,
+search for guessed replacements or fabricate palette/lyric data. Lyrics have no
+supported public source in this provider scope.
 
 ## Consumer contract
 
@@ -58,6 +57,45 @@ Neither an already-dispatched Apple Event nor an OS consent dialog can be
 recalled. Source changes/disabling prevent queued old-source controls and prevent
 old replies from publishing data; they do not claim to undo a dispatched action.
 
+## Independent artwork contract
+
+`SystemMediaController.artwork` publishes `unavailable`, `pending(identity)`,
+`ready(artifact)` or `failed(identity, error)` separately from metadata. An
+artwork identity contains provider and stable track ID. An artifact contains the
+actual normalized PNG bytes and dimensions; no palette, color, lyrics or guessed
+image is supplied. Artwork failures leave valid metadata, status and transport
+available. Services that implement only `SystemMediaServicing` explicitly have
+no artwork capability; actual extraction requires `SystemMediaArtworkServicing`.
+
+Music reads the first current track artwork's original `raw data` (`cArt[1]` /
+`pRaw`). Spotify reads its public `artwork url` (`aUrl`), never its deprecated
+`artwork` property. Both adapters verify identity before and after extraction.
+Missing first artwork and empty/missing URLs are unavailable; malformed values
+and actual Apple Event failures remain visible errors. Raw binary source bytes
+are preserved and the actual image format is validated by ImageIO, without an
+arbitrary descriptor-format allowlist.
+
+The loader accepts only HTTPS URLs with a host and no credentials, including
+every redirect. It uses a separate ephemeral URLSession with no persistent cache,
+cookies or credential storage, normal system TLS trust, an explicit 15-second
+request/resource timeout and explicit non-2xx errors. ImageIO checks the encoded
+image and dimensions, decodes its first image, applies its actual orientation and
+encodes PNG without reducing resolution. Source library bytes are never changed.
+No arbitrary encoded-byte or decoded-pixel caps are imposed; real provider,
+network and ImageIO failures remain observable.
+
+Ready artwork is retained only for the current provider/track identity. Repeated
+metadata refreshes reuse it; genuinely unavailable artwork is re-probed on a later
+refresh. A failed load requires explicit `artwork.retry()` or a different item.
+A new item, disabled source, lost scene demand and shutdown clear the old artwork
+immediately and cancel old work. Identity/revision checks prevent late native,
+network or decode results from publishing. Shutdown awaits outstanding artwork
+tasks and URLSession invalidation; rejected-quit resume requires fresh demand.
+Cancellation is carried across the Task/serial-worker boundary: an operation
+cancelled while still queued exits before process resolution, authorization or
+Apple Event dispatch. Work already started is drained because its OS request
+cannot be recalled. The caller resumes only after the queued operation exits.
+
 Before Main exposes the setting, its bundle must include localized
 `NSAppleEventsUsageDescription`, the Apple Events entitlement when using Hardened
 Runtime, localized unavailable/error/authorization UI and a consent explanation
@@ -83,6 +121,18 @@ Unit coverage includes strict source persistence, Unicode/numeric descriptor
 decoding, Spotify unit normalization, disabled/missing-app service behavior,
 shared scene demand, no implicit prompts, stale source results, control ordering,
 failure/retry, duplicate authorization, timer disposal and shutdown/quit races.
+Artwork tests verify real PNG pixels, TIFF orientation, source/identity lifetime,
+metadata/transport surviving failures, ready-image reuse and explicit retries.
+A real blocked serial queue verifies that cancelling an enqueued artwork read
+does not enter process resolution or dispatch a native request.
+An owned loopback HTTPS server exercises real URLSession data/redirect/TLS paths,
+HTTP/decode failures, request timeout, cancellation, cookie isolation, rejected
+credentials/HTTP redirects, system-untrusted CA and wrong-host certificates.
+It creates an ephemeral local CA/server certificate under `.build`; an internal
+fixture-only initializer supplies that exact CA/hostname to Security's normal
+trust evaluation. Production's public initializer always uses system trust. No
+TLS verification is disabled and no Keychain/global trust setting changes.
+Local listener execution requires running this test phase outside the sandbox.
 
 For actual OS transport acceptance, reserve the native GUI execution slot and
 run outside the development sandbox (AppKit registration is unavailable there):
@@ -105,7 +155,14 @@ Unicode, duration units, five ordered controls and corresponding state/identity
 changes, no-current-item, malformed data, explicit -50 errors, identity changes,
 an actual -1712 timeout, a -1708 control rejection and the exited target process.
 It checks the fixture's recorded receipts rather than treating a command's return
-as proof that transport ran. This is a labeled test fixture, never a product path.
+as proof that transport ran. The owned fixture additionally serves the authored
+2×1 red/blue PNG through Music's nested raw-artwork object or Spotify's URL.
+The real client verifies original bytes/URL, actual PNG pixels/dimensions, missing
+and malformed artwork, source errors/track changes, valid metadata and transport
+through artwork failure, explicit recovery, stale slow-source cancellation,
+shutdown drain and fresh demand after rejected quit. This is a labeled test
+fixture, never a product path. The HTTPS helper and native clients/fixtures are
+terminated and waited for on success or failure.
 
 LaunchServices starts the client as its signed app so TCC can identify its bundle
 and usage description. A direct child executable inherits the development host's
