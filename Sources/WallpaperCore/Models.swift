@@ -195,6 +195,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
     public var webInteractionEnabled = false
     public var systemWallpaperSyncEnabled = false
     public var systemAudioSpectrumEnabled = false
+    public var systemMediaSource = SystemMediaSource.disabled
     public var showDockIcon = true
     public var webWallpaperFrameRate = WebWallpaperFrameRate.fps30
     public var appearance = AppAppearanceSettings()
@@ -202,7 +203,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
     public init() {}
     private enum CodingKeys: String, CodingKey {
         case pauseOnLowPower, pauseOnHighTemperature, pauseOnOtherAppFullScreen, isMuted, webInteractionEnabled, showDockIcon, appearance, language
-        case systemWallpaperSyncEnabled, systemAudioSpectrumEnabled, webWallpaperFrameRate
+        case systemWallpaperSyncEnabled, systemAudioSpectrumEnabled, systemMediaSource, webWallpaperFrameRate
     }
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
@@ -218,6 +219,8 @@ public struct AppSettings: Codable, Equatable, Sendable {
             ? values.decode(Bool.self, forKey: .systemWallpaperSyncEnabled) : false
         systemAudioSpectrumEnabled = try values.contains(.systemAudioSpectrumEnabled)
             ? values.decode(Bool.self, forKey: .systemAudioSpectrumEnabled) : false
+        systemMediaSource = try values.contains(.systemMediaSource)
+            ? values.decode(SystemMediaSource.self, forKey: .systemMediaSource) : .disabled
         showDockIcon = try values.contains(.showDockIcon)
             ? values.decode(Bool.self, forKey: .showDockIcon) : true
         webWallpaperFrameRate = try values.contains(.webWallpaperFrameRate)

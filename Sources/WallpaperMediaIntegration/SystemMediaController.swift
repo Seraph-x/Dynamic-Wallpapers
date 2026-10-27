@@ -1,0 +1,208 @@
+import Combine
+import Foundation
+import WallpaperCore
+
+public enum SystemMediaStatus: Sendable, Equatable {
+    case disabled, waitingForPlayback, checking, applicationNotRunning
+    case authorizationRequired, authorizationDenied, noCurrentItem, available, failed
+}
+
+/// Shared by actual playing scenes. Selecting a source never requests consent.
+/// The owner supplies localized UI and connects onSnapshot to the renderer.
+@MainActor
+public final class SystemMediaController: ObservableObject {
+    @Published public private(set) var source = SystemMediaSource.disabled
+    @Published public private(set) var status = SystemMediaStatus.disabled
+    @Published public private(set) var snapshot: SystemMediaSnapshot?
+    @Published public private(set) var failure: Error?
+    public var onSnapshot: ((SystemMediaSnapshot?) -> Void)?
+
+    private let service: any SystemMediaServicing
+    private let pollInterval: TimeInterval
+    private var subscribers = Set<UUID>()
+    private var revision = 0
+    private var operation: Task<Void, Never>?
+    private var pendingReads = Set<Int>()
+    private var authorizing = false
+    private var blocked = false
+    private var shuttingDown = false
+    private var shutdownFinished = false
+    private var shutdownTask: Task<Void, Never>?
+    private var timer: Timer?
+
+    public init(service: any SystemMediaServicing = AppleEventMediaService(), pollInterval: TimeInterval = 1) {
+        precondition(pollInterval.isFinite && pollInterval > 0)
+        self.service = service; self.pollInterval = pollInterval
+    }
+
+    deinit { timer?.invalidate() }
+
+    public func configure(source: SystemMediaSource) {
+        guard !shuttingDown, self.source != source else { return }
+        self.source = source; revision += 1; failure = nil; blocked = false
+        stopTimer(); publish(nil)
+        reconcile()
+    }
+
+    public func setPlaying(_ id: UUID, _ value: Bool) {
+        guard !shuttingDown else { return }
+        let wasActive = wantsReads
+        if value { subscribers.insert(id) } else { subscribers.remove(id) }
+        guard wasActive != wantsReads else { return }
+        revision += 1
+        if !wantsReads { stopTimer(); publish(nil) }
+        reconcile()
+    }
+
+    /// An explicit user action. It may show the system Automation consent prompt.
+    /// Repeated clicks while a prompt is pending do not queue more prompts.
+    public func authorize() async {
+        guard !shuttingDown, source != .disabled, !authorizing else { return }
+        authorizing = true; blocked = false; failure = nil
+        let request = revision, selected = source
+        status = .checking
+        append { [self] in
+            defer { authorizing = false }
+            guard request == revision, !shuttingDown else { return }
+            await read(selected: selected, request: request, requestAuthorization: true)
+        }
+        await settled()
+    }
+
+    public func retry() async {
+        guard !shuttingDown else { return }
+        blocked = false; failure = nil
+        reconcile()
+        await settled()
+    }
+
+    /// Refresh never prompts and does not implicitly retry a blocked provider.
+    public func refresh() async {
+        scheduleRead()
+        await settled()
+    }
+
+    public func settled() async { await operation?.value }
+
+    public func perform(_ command: SystemMediaCommand) async throws {
+        guard !shuttingDown, source != .disabled else { throw SystemMediaError.disabled }
+        guard wantsReads, !blocked, snapshot != nil else { throw SystemMediaError.noCurrentItem }
+        let request = revision, selected = source
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            append { [self] in
+                guard request == revision, wantsReads else {
+                    continuation.resume(throwing: CancellationError()); return
+                }
+                guard !blocked, snapshot != nil else {
+                    continuation.resume(throwing: SystemMediaError.noCurrentItem); return
+                }
+                do {
+                    try await service.perform(command, source: selected)
+                    guard request == revision, wantsReads else { throw CancellationError() }
+                    let result = try await service.read(source: selected, requestAuthorization: false)
+                    guard request == revision, wantsReads else { throw CancellationError() }
+                    apply(result)
+                    continuation.resume()
+                } catch {
+                    if request == revision, !shuttingDown, !(error is CancellationError) { fail(error) }
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+
+    /// Stops new work and drains dispatched OS operations. An already dispatched
+    /// Apple Event or system consent dialog cannot be recalled by this controller.
+    public func shutdown() async {
+        if let shutdownTask { await shutdownTask.value; return }
+        shuttingDown = true; revision += 1; subscribers.removeAll()
+        stopTimer(); publish(nil); status = .disabled
+        let pending = operation
+        let task = Task { @MainActor [self] in
+            await pending?.value
+            operation = nil; shutdownFinished = true
+        }
+        shutdownTask = task
+        await task.value
+    }
+
+    /// Called only after shutdown completed when another quit participant vetoed.
+    /// Existing scene demand is deliberately not resurrected by old callbacks.
+    public func cancelShutdown() {
+        guard shuttingDown, shutdownFinished else { return }
+        shuttingDown = false; shutdownFinished = false; shutdownTask = nil
+        reconcile()
+    }
+
+    private var wantsReads: Bool { source != .disabled && !subscribers.isEmpty && !shuttingDown }
+
+    private func reconcile() {
+        guard source != .disabled, !shuttingDown else { status = .disabled; return }
+        guard !blocked else { return }
+        guard wantsReads else { status = .waitingForPlayback; return }
+        scheduleRead()
+    }
+
+    private func scheduleRead() {
+        guard wantsReads, !blocked, pendingReads.insert(revision).inserted else { return }
+        let request = revision, selected = source
+        if snapshot == nil { status = .checking }
+        append { [self] in
+            defer { pendingReads.remove(request) }
+            guard request == revision, wantsReads, !blocked else { return }
+            await read(selected: selected, request: request, requestAuthorization: false)
+        }
+    }
+
+    private func read(selected: SystemMediaSource, request: Int, requestAuthorization: Bool) async {
+        do {
+            let result = try await service.read(source: selected, requestAuthorization: requestAuthorization)
+            guard request == revision, !shuttingDown else { return }
+            apply(result)
+        } catch {
+            guard request == revision, !shuttingDown else { return }
+            fail(error)
+        }
+    }
+
+    private func apply(_ result: SystemMediaReadResult) {
+        failure = nil
+        switch result {
+        case .authorizationRequired: blocked = true; status = .authorizationRequired; publish(nil)
+        case .authorizationDenied: blocked = true; status = .authorizationDenied; publish(nil)
+        case .applicationNotRunning: status = .applicationNotRunning; publish(nil)
+        case .noCurrentItem: status = .noCurrentItem; publish(nil)
+        case .current(let value):
+            guard value.source == source else { fail(SystemMediaError.invalidResponse("Snapshot source does not match selection")); return }
+            status = wantsReads ? .available : .waitingForPlayback
+            publish(wantsReads ? value : nil)
+        }
+        if wantsReads, !blocked { startTimer() } else { stopTimer() }
+    }
+
+    private func fail(_ error: Error) {
+        failure = error; blocked = true; status = .failed
+        stopTimer(); publish(nil)
+    }
+
+    private func publish(_ value: SystemMediaSnapshot?) {
+        snapshot = value; onSnapshot?(value)
+    }
+
+    private func append(_ work: @escaping @MainActor () async -> Void) {
+        let previous = operation
+        operation = Task { @MainActor in
+            await previous?.value
+            await work()
+        }
+    }
+
+    private func startTimer() {
+        guard timer == nil else { return }
+        timer = Timer.scheduledTimer(withTimeInterval: pollInterval, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated { self?.scheduleRead() }
+        }
+    }
+
+    private func stopTimer() { timer?.invalidate(); timer = nil }
+}
