@@ -1,0 +1,3641 @@
+{
+  "schema_version": 1,
+  "libavcodec_version": 3998564,
+  "license": "GPL version 3 or later",
+  "decoders": [
+    {
+      "implementation": "aasc",
+      "codec": "aasc",
+      "codec_id": 74,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "aic",
+      "codec": "aic",
+      "codec_id": 168,
+      "media_type": 0,
+      "capabilities": 4098
+    },
+    {
+      "implementation": "alias_pix",
+      "codec": "alias_pix",
+      "codec_id": 175,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "agm",
+      "codec": "agm",
+      "codec_id": 239,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "amv",
+      "codec": "amv",
+      "codec_id": 107,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "anm",
+      "codec": "anm",
+      "codec_id": 134,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "ansi",
+      "codec": "ansi",
+      "codec_id": 141,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "apng",
+      "codec": "apng",
+      "codec_id": 210,
+      "media_type": 0,
+      "capabilities": 4098
+    },
+    {
+      "implementation": "arbc",
+      "codec": "arbc",
+      "codec_id": 238,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "argo",
+      "codec": "argo",
+      "codec_id": 252,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "asv1",
+      "codec": "asv1",
+      "codec_id": 31,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "asv2",
+      "codec": "asv2",
+      "codec_id": 32,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "aura",
+      "codec": "aura",
+      "codec_id": 123,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "aura2",
+      "codec": "aura2",
+      "codec_id": 124,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "avrp",
+      "codec": "avrp",
+      "codec_id": 198,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "avrn",
+      "codec": "avrn",
+      "codec_id": 205,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "avs",
+      "codec": "avs",
+      "codec_id": 82,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "avui",
+      "codec": "avui",
+      "codec_id": 200,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "bethsoftvid",
+      "codec": "bethsoftvid",
+      "codec_id": 103,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "bfi",
+      "codec": "bfi",
+      "codec_id": 117,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "binkvideo",
+      "codec": "binkvideo",
+      "codec_id": 135,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "bitpacked",
+      "codec": "bitpacked",
+      "codec_id": 226,
+      "media_type": 0,
+      "capabilities": 4096
+    },
+    {
+      "implementation": "bmp",
+      "codec": "bmp",
+      "codec_id": 78,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "bmv_video",
+      "codec": "bmv_video",
+      "codec_id": 153,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "brender_pix",
+      "codec": "brender_pix",
+      "codec_id": 176,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "c93",
+      "codec": "c93",
+      "codec_id": 102,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "cavs",
+      "codec": "cavs",
+      "codec_id": 87,
+      "media_type": 0,
+      "capabilities": 34
+    },
+    {
+      "implementation": "cdgraphics",
+      "codec": "cdgraphics",
+      "codec_id": 132,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "cdtoons",
+      "codec": "cdtoons",
+      "codec_id": 245,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "cdxl",
+      "codec": "cdxl",
+      "codec_id": 158,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "cfhd",
+      "codec": "cfhd",
+      "codec_id": 212,
+      "media_type": 0,
+      "capabilities": 4098
+    },
+    {
+      "implementation": "cinepak",
+      "codec": "cinepak",
+      "codec_id": 43,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "clearvideo",
+      "codec": "clearvideo",
+      "codec_id": 223,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "cljr",
+      "codec": "cljr",
+      "codec_id": 36,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "cllc",
+      "codec": "cllc",
+      "codec_id": 165,
+      "media_type": 0,
+      "capabilities": 4098
+    },
+    {
+      "implementation": "comfortnoise",
+      "codec": "comfortnoise",
+      "codec_id": 86077,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "cpia",
+      "codec": "cpia",
+      "codec_id": 206,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "cri",
+      "codec": "cri",
+      "codec_id": 253,
+      "media_type": 0,
+      "capabilities": 4098
+    },
+    {
+      "implementation": "camstudio",
+      "codec": "cscd",
+      "codec_id": 79,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "cyuv",
+      "codec": "cyuv",
+      "codec_id": 26,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "dds",
+      "codec": "dds",
+      "codec_id": 188,
+      "media_type": 0,
+      "capabilities": 8194
+    },
+    {
+      "implementation": "dfa",
+      "codec": "dfa",
+      "codec_id": 149,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "dirac",
+      "codec": "dirac",
+      "codec_id": 116,
+      "media_type": 0,
+      "capabilities": 8226
+    },
+    {
+      "implementation": "dnxhd",
+      "codec": "dnxhd",
+      "codec_id": 99,
+      "media_type": 0,
+      "capabilities": 12290
+    },
+    {
+      "implementation": "dpx",
+      "codec": "dpx",
+      "codec_id": 128,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "dsicinvideo",
+      "codec": "dsicinvideo",
+      "codec_id": 94,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "dvaudio",
+      "codec": "dvaudio",
+      "codec_id": 86022,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "dvvideo",
+      "codec": "dvvideo",
+      "codec_id": 24,
+      "media_type": 0,
+      "capabilities": 12290
+    },
+    {
+      "implementation": "dxa",
+      "codec": "dxa",
+      "codec_id": 98,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "dxtory",
+      "codec": "dxtory",
+      "codec_id": 155,
+      "media_type": 0,
+      "capabilities": 4098
+    },
+    {
+      "implementation": "dxv",
+      "codec": "dxv",
+      "codec_id": 189,
+      "media_type": 0,
+      "capabilities": 12290
+    },
+    {
+      "implementation": "eacmv",
+      "codec": "cmv",
+      "codec_id": 118,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "eamad",
+      "codec": "mad",
+      "codec_id": 129,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "eatgq",
+      "codec": "tgq",
+      "codec_id": 121,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "eatgv",
+      "codec": "tgv",
+      "codec_id": 120,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "eatqi",
+      "codec": "tqi",
+      "codec_id": 122,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "8bps",
+      "codec": "8bps",
+      "codec_id": 48,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "8svx_exp",
+      "codec": "8svx_exp",
+      "codec_id": 86070,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "8svx_fib",
+      "codec": "8svx_fib",
+      "codec_id": 86071,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "escape124",
+      "codec": "escape124",
+      "codec_id": 115,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "escape130",
+      "codec": "escape130",
+      "codec_id": 169,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "exr",
+      "codec": "exr",
+      "codec_id": 178,
+      "media_type": 0,
+      "capabilities": 12290
+    },
+    {
+      "implementation": "ffv1",
+      "codec": "ffv1",
+      "codec_id": 33,
+      "media_type": 0,
+      "capabilities": 12290
+    },
+    {
+      "implementation": "ffvhuff",
+      "codec": "ffvhuff",
+      "codec_id": 67,
+      "media_type": 0,
+      "capabilities": 4099
+    },
+    {
+      "implementation": "fic",
+      "codec": "fic",
+      "codec_id": 174,
+      "media_type": 0,
+      "capabilities": 8194
+    },
+    {
+      "implementation": "fits",
+      "codec": "fits",
+      "codec_id": 231,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "flashsv",
+      "codec": "flashsv",
+      "codec_id": 86,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "flashsv2",
+      "codec": "flashsv2",
+      "codec_id": 131,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "flic",
+      "codec": "flic",
+      "codec_id": 50,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "flv",
+      "codec": "flv1",
+      "codec_id": 21,
+      "media_type": 0,
+      "capabilities": 3
+    },
+    {
+      "implementation": "fmvc",
+      "codec": "fmvc",
+      "codec_id": 221,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "4xm",
+      "codec": "4xm",
+      "codec_id": 34,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "fraps",
+      "codec": "fraps",
+      "codec_id": 76,
+      "media_type": 0,
+      "capabilities": 4098
+    },
+    {
+      "implementation": "frwu",
+      "codec": "frwu",
+      "codec_id": 130,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "g2m",
+      "codec": "g2m",
+      "codec_id": 170,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "gdv",
+      "codec": "gdv",
+      "codec_id": 230,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "gem",
+      "codec": "gem",
+      "codec_id": 256,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "gif",
+      "codec": "gif",
+      "codec_id": 97,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "h261",
+      "codec": "h261",
+      "codec_id": 3,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "h263",
+      "codec": "h263",
+      "codec_id": 4,
+      "media_type": 0,
+      "capabilities": 35
+    },
+    {
+      "implementation": "h263i",
+      "codec": "h263i",
+      "codec_id": 20,
+      "media_type": 0,
+      "capabilities": 3
+    },
+    {
+      "implementation": "h263p",
+      "codec": "h263p",
+      "codec_id": 19,
+      "media_type": 0,
+      "capabilities": 35
+    },
+    {
+      "implementation": "h264",
+      "codec": "h264",
+      "codec_id": 27,
+      "media_type": 0,
+      "capabilities": 12322
+    },
+    {
+      "implementation": "hap",
+      "codec": "hap",
+      "codec_id": 187,
+      "media_type": 0,
+      "capabilities": 12290
+    },
+    {
+      "implementation": "hevc",
+      "codec": "hevc",
+      "codec_id": 173,
+      "media_type": 0,
+      "capabilities": 12322
+    },
+    {
+      "implementation": "hnm4video",
+      "codec": "hnm4video",
+      "codec_id": 172,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "hq_hqa",
+      "codec": "hq_hqa",
+      "codec_id": 186,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "hqx",
+      "codec": "hqx",
+      "codec_id": 184,
+      "media_type": 0,
+      "capabilities": 12290
+    },
+    {
+      "implementation": "huffyuv",
+      "codec": "huffyuv",
+      "codec_id": 25,
+      "media_type": 0,
+      "capabilities": 4099
+    },
+    {
+      "implementation": "hymt",
+      "codec": "hymt",
+      "codec_id": 237,
+      "media_type": 0,
+      "capabilities": 4099
+    },
+    {
+      "implementation": "idcinvideo",
+      "codec": "idcin",
+      "codec_id": 47,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "iff",
+      "codec": "iff_ilbm",
+      "codec_id": 136,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "imm4",
+      "codec": "imm4",
+      "codec_id": 232,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "imm5",
+      "codec": "imm5",
+      "codec_id": 242,
+      "media_type": 0,
+      "capabilities": 0
+    },
+    {
+      "implementation": "indeo2",
+      "codec": "indeo2",
+      "codec_id": 75,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "indeo3",
+      "codec": "indeo3",
+      "codec_id": 28,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "indeo4",
+      "codec": "indeo4",
+      "codec_id": 111,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "indeo5",
+      "codec": "indeo5",
+      "codec_id": 112,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "interplayvideo",
+      "codec": "interplayvideo",
+      "codec_id": 39,
+      "media_type": 0,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "ipu",
+      "codec": "ipu",
+      "codec_id": 251,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "jpeg2000",
+      "codec": "jpeg2000",
+      "codec_id": 88,
+      "media_type": 0,
+      "capabilities": 12290
+    },
+    {
+      "implementation": "jpegls",
+      "codec": "jpegls",
+      "codec_id": 11,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "jv",
+      "codec": "jv",
+      "codec_id": 148,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "kgv1",
+      "codec": "kgv1",
+      "codec_id": 137,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "kmvc",
+      "codec": "kmvc",
+      "codec_id": 85,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "lagarith",
+      "codec": "lagarith",
+      "codec_id": 146,
+      "media_type": 0,
+      "capabilities": 4098
+    },
+    {
+      "implementation": "lead",
+      "codec": "lead",
+      "codec_id": 269,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "loco",
+      "codec": "loco",
+      "codec_id": 72,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "lscr",
+      "codec": "lscr",
+      "codec_id": 240,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "m101",
+      "codec": "m101",
+      "codec_id": 214,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "magicyuv",
+      "codec": "magicyuv",
+      "codec_id": 215,
+      "media_type": 0,
+      "capabilities": 12290
+    },
+    {
+      "implementation": "mdec",
+      "codec": "mdec",
+      "codec_id": 37,
+      "media_type": 0,
+      "capabilities": 4098
+    },
+    {
+      "implementation": "media100",
+      "codec": "media100",
+      "codec_id": 263,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "mimic",
+      "codec": "mimic",
+      "codec_id": 113,
+      "media_type": 0,
+      "capabilities": 4098
+    },
+    {
+      "implementation": "mjpeg",
+      "codec": "mjpeg",
+      "codec_id": 7,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "mjpegb",
+      "codec": "mjpegb",
+      "codec_id": 8,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "mmvideo",
+      "codec": "mmvideo",
+      "codec_id": 80,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "mobiclip",
+      "codec": "mobiclip",
+      "codec_id": 249,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "motionpixels",
+      "codec": "motionpixels",
+      "codec_id": 119,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "mpeg1video",
+      "codec": "mpeg1video",
+      "codec_id": 1,
+      "media_type": 0,
+      "capabilities": 8227
+    },
+    {
+      "implementation": "mpeg2video",
+      "codec": "mpeg2video",
+      "codec_id": 2,
+      "media_type": 0,
+      "capabilities": 8227
+    },
+    {
+      "implementation": "mpeg4",
+      "codec": "mpeg4",
+      "codec_id": 12,
+      "media_type": 0,
+      "capabilities": 4131
+    },
+    {
+      "implementation": "mpegvideo",
+      "codec": "mpeg2video",
+      "codec_id": 2,
+      "media_type": 0,
+      "capabilities": 8227
+    },
+    {
+      "implementation": "msa1",
+      "codec": "msa1",
+      "codec_id": 162,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "mscc",
+      "codec": "mscc",
+      "codec_id": 227,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "msmpeg4v1",
+      "codec": "msmpeg4v1",
+      "codec_id": 14,
+      "media_type": 0,
+      "capabilities": 3
+    },
+    {
+      "implementation": "msmpeg4v2",
+      "codec": "msmpeg4v2",
+      "codec_id": 15,
+      "media_type": 0,
+      "capabilities": 3
+    },
+    {
+      "implementation": "msmpeg4",
+      "codec": "msmpeg4v3",
+      "codec_id": 16,
+      "media_type": 0,
+      "capabilities": 3
+    },
+    {
+      "implementation": "msp2",
+      "codec": "msp2",
+      "codec_id": 195,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "msrle",
+      "codec": "msrle",
+      "codec_id": 45,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "mss1",
+      "codec": "mss1",
+      "codec_id": 161,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "mss2",
+      "codec": "mss2",
+      "codec_id": 166,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "msvideo1",
+      "codec": "msvideo1",
+      "codec_id": 46,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "mszh",
+      "codec": "mszh",
+      "codec_id": 53,
+      "media_type": 0,
+      "capabilities": 4098
+    },
+    {
+      "implementation": "mts2",
+      "codec": "mts2",
+      "codec_id": 164,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "mv30",
+      "codec": "mv30",
+      "codec_id": 246,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "mvc1",
+      "codec": "mvc1",
+      "codec_id": 182,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "mvc2",
+      "codec": "mvc2",
+      "codec_id": 183,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "mvdv",
+      "codec": "mvdv",
+      "codec_id": 243,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "mvha",
+      "codec": "mvha",
+      "codec_id": 244,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "mwsc",
+      "codec": "mwsc",
+      "codec_id": 234,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "mxpeg",
+      "codec": "mxpeg",
+      "codec_id": 145,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "notchlc",
+      "codec": "notchlc",
+      "codec_id": 247,
+      "media_type": 0,
+      "capabilities": 4098
+    },
+    {
+      "implementation": "nuv",
+      "codec": "nuv",
+      "codec_id": 84,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "paf_video",
+      "codec": "paf_video",
+      "codec_id": 177,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "pam",
+      "codec": "pam",
+      "codec_id": 66,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "pbm",
+      "codec": "pbm",
+      "codec_id": 63,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "pcx",
+      "codec": "pcx",
+      "codec_id": 109,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "pdv",
+      "codec": "pdv",
+      "codec_id": 265,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "pfm",
+      "codec": "pfm",
+      "codec_id": 248,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "pgm",
+      "codec": "pgm",
+      "codec_id": 64,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "pgmyuv",
+      "codec": "pgmyuv",
+      "codec_id": 65,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "pgx",
+      "codec": "pgx",
+      "codec_id": 193,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "phm",
+      "codec": "phm",
+      "codec_id": 260,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "photocd",
+      "codec": "photocd",
+      "codec_id": 250,
+      "media_type": 0,
+      "capabilities": 4098
+    },
+    {
+      "implementation": "pictor",
+      "codec": "pictor",
+      "codec_id": 140,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "pixlet",
+      "codec": "pixlet",
+      "codec_id": 219,
+      "media_type": 0,
+      "capabilities": 4098
+    },
+    {
+      "implementation": "png",
+      "codec": "png",
+      "codec_id": 61,
+      "media_type": 0,
+      "capabilities": 4098
+    },
+    {
+      "implementation": "ppm",
+      "codec": "ppm",
+      "codec_id": 62,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "prores",
+      "codec": "prores",
+      "codec_id": 147,
+      "media_type": 0,
+      "capabilities": 12290
+    },
+    {
+      "implementation": "prosumer",
+      "codec": "prosumer",
+      "codec_id": 233,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "psd",
+      "codec": "psd",
+      "codec_id": 218,
+      "media_type": 0,
+      "capabilities": 4098
+    },
+    {
+      "implementation": "ptx",
+      "codec": "ptx",
+      "codec_id": 104,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "qdraw",
+      "codec": "qdraw",
+      "codec_id": 58,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "qoi",
+      "codec": "qoi",
+      "codec_id": 259,
+      "media_type": 0,
+      "capabilities": 4098
+    },
+    {
+      "implementation": "qpeg",
+      "codec": "qpeg",
+      "codec_id": 60,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "qtrle",
+      "codec": "qtrle",
+      "codec_id": 55,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "r10k",
+      "codec": "r10k",
+      "codec_id": 144,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "r210",
+      "codec": "r210",
+      "codec_id": 133,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "rasc",
+      "codec": "rasc",
+      "codec_id": 236,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "rawvideo",
+      "codec": "rawvideo",
+      "codec_id": 13,
+      "media_type": 0,
+      "capabilities": 16384
+    },
+    {
+      "implementation": "rka",
+      "codec": "rka",
+      "codec_id": 86118,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "rl2",
+      "codec": "rl2",
+      "codec_id": 114,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "roqvideo",
+      "codec": "roq",
+      "codec_id": 38,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "rpza",
+      "codec": "rpza",
+      "codec_id": 42,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "rscc",
+      "codec": "rscc",
+      "codec_id": 191,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "rtv1",
+      "codec": "rtv1",
+      "codec_id": 267,
+      "media_type": 0,
+      "capabilities": 4098
+    },
+    {
+      "implementation": "rv10",
+      "codec": "rv10",
+      "codec_id": 5,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "rv20",
+      "codec": "rv20",
+      "codec_id": 6,
+      "media_type": 0,
+      "capabilities": 34
+    },
+    {
+      "implementation": "rv30",
+      "codec": "rv30",
+      "codec_id": 68,
+      "media_type": 0,
+      "capabilities": 4130
+    },
+    {
+      "implementation": "rv40",
+      "codec": "rv40",
+      "codec_id": 69,
+      "media_type": 0,
+      "capabilities": 4130
+    },
+    {
+      "implementation": "s302m",
+      "codec": "s302m",
+      "codec_id": 65562,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "sanm",
+      "codec": "sanm",
+      "codec_id": 180,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "scpr",
+      "codec": "scpr",
+      "codec_id": 222,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "screenpresso",
+      "codec": "screenpresso",
+      "codec_id": 190,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "sga",
+      "codec": "sga",
+      "codec_id": 255,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "sgi",
+      "codec": "sgi",
+      "codec_id": 101,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "sgirle",
+      "codec": "sgirle",
+      "codec_id": 181,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "sheervideo",
+      "codec": "sheervideo",
+      "codec_id": 216,
+      "media_type": 0,
+      "capabilities": 4098
+    },
+    {
+      "implementation": "simbiosis_imx",
+      "codec": "simbiosis_imx",
+      "codec_id": 254,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "smackvid",
+      "codec": "smackvideo",
+      "codec_id": 83,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "smc",
+      "codec": "smc",
+      "codec_id": 49,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "smvjpeg",
+      "codec": "smvjpeg",
+      "codec_id": 209,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "snow",
+      "codec": "snow",
+      "codec_id": 208,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "sp5x",
+      "codec": "sp5x",
+      "codec_id": 10,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "speedhq",
+      "codec": "speedhq",
+      "codec_id": 220,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "speex",
+      "codec": "speex",
+      "codec_id": 86051,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "srgc",
+      "codec": "srgc",
+      "codec_id": 228,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "sunrast",
+      "codec": "sunrast",
+      "codec_id": 110,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "svq1",
+      "codec": "svq1",
+      "codec_id": 22,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "svq3",
+      "codec": "svq3",
+      "codec_id": 23,
+      "media_type": 0,
+      "capabilities": 35
+    },
+    {
+      "implementation": "targa",
+      "codec": "targa",
+      "codec_id": 93,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "targa_y216",
+      "codec": "targa_y216",
+      "codec_id": 201,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "tdsc",
+      "codec": "tdsc",
+      "codec_id": 185,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "theora",
+      "codec": "theora",
+      "codec_id": 30,
+      "media_type": 0,
+      "capabilities": 4099
+    },
+    {
+      "implementation": "thp",
+      "codec": "thp",
+      "codec_id": 100,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "tiertexseqvideo",
+      "codec": "tiertexseqvideo",
+      "codec_id": 95,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "tiff",
+      "codec": "tiff",
+      "codec_id": 96,
+      "media_type": 0,
+      "capabilities": 4098
+    },
+    {
+      "implementation": "tmv",
+      "codec": "tmv",
+      "codec_id": 126,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "truemotion1",
+      "codec": "truemotion1",
+      "codec_id": 51,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "truemotion2",
+      "codec": "truemotion2",
+      "codec_id": 77,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "truemotion2rt",
+      "codec": "truemotion2rt",
+      "codec_id": 213,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "camtasia",
+      "codec": "tscc",
+      "codec_id": 56,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "tscc2",
+      "codec": "tscc2",
+      "codec_id": 163,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "txd",
+      "codec": "txd",
+      "codec_id": 105,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "ultimotion",
+      "codec": "ulti",
+      "codec_id": 57,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "utvideo",
+      "codec": "utvideo",
+      "codec_id": 152,
+      "media_type": 0,
+      "capabilities": 4098
+    },
+    {
+      "implementation": "v210",
+      "codec": "v210",
+      "codec_id": 127,
+      "media_type": 0,
+      "capabilities": 12290
+    },
+    {
+      "implementation": "v210x",
+      "codec": "v210x",
+      "codec_id": 125,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "v308",
+      "codec": "v308",
+      "codec_id": 202,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "v408",
+      "codec": "v408",
+      "codec_id": 203,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "v410",
+      "codec": "v410",
+      "codec_id": 156,
+      "media_type": 0,
+      "capabilities": 12290
+    },
+    {
+      "implementation": "vb",
+      "codec": "vb",
+      "codec_id": 108,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "vbn",
+      "codec": "vbn",
+      "codec_id": 257,
+      "media_type": 0,
+      "capabilities": 8194
+    },
+    {
+      "implementation": "vble",
+      "codec": "vble",
+      "codec_id": 154,
+      "media_type": 0,
+      "capabilities": 4098
+    },
+    {
+      "implementation": "vc1",
+      "codec": "vc1",
+      "codec_id": 70,
+      "media_type": 0,
+      "capabilities": 34
+    },
+    {
+      "implementation": "vc1image",
+      "codec": "vc1image",
+      "codec_id": 151,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "vcr1",
+      "codec": "vcr1",
+      "codec_id": 35,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "vmdvideo",
+      "codec": "vmdvideo",
+      "codec_id": 52,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "vmix",
+      "codec": "vmix",
+      "codec_id": 268,
+      "media_type": 0,
+      "capabilities": 12290
+    },
+    {
+      "implementation": "vmnc",
+      "codec": "vmnc",
+      "codec_id": 89,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "vp3",
+      "codec": "vp3",
+      "codec_id": 29,
+      "media_type": 0,
+      "capabilities": 4099
+    },
+    {
+      "implementation": "vp4",
+      "codec": "vp4",
+      "codec_id": 241,
+      "media_type": 0,
+      "capabilities": 4099
+    },
+    {
+      "implementation": "vp5",
+      "codec": "vp5",
+      "codec_id": 90,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "vp6",
+      "codec": "vp6",
+      "codec_id": 91,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "vp6a",
+      "codec": "vp6a",
+      "codec_id": 106,
+      "media_type": 0,
+      "capabilities": 8194
+    },
+    {
+      "implementation": "vp6f",
+      "codec": "vp6f",
+      "codec_id": 92,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "vp7",
+      "codec": "vp7",
+      "codec_id": 179,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "vp8",
+      "codec": "vp8",
+      "codec_id": 139,
+      "media_type": 0,
+      "capabilities": 12290
+    },
+    {
+      "implementation": "vp9",
+      "codec": "vp9",
+      "codec_id": 167,
+      "media_type": 0,
+      "capabilities": 12290
+    },
+    {
+      "implementation": "vqavideo",
+      "codec": "ws_vqa",
+      "codec_id": 44,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "vqc",
+      "codec": "vqc",
+      "codec_id": 264,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "vvc",
+      "codec": "vvc",
+      "codec_id": 196,
+      "media_type": 0,
+      "capabilities": 33314
+    },
+    {
+      "implementation": "wbmp",
+      "codec": "wbmp",
+      "codec_id": 262,
+      "media_type": 0,
+      "capabilities": 4098
+    },
+    {
+      "implementation": "webp",
+      "codec": "webp",
+      "codec_id": 171,
+      "media_type": 0,
+      "capabilities": 4098
+    },
+    {
+      "implementation": "wcmv",
+      "codec": "wcmv",
+      "codec_id": 235,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "wrapped_avframe",
+      "codec": "wrapped_avframe",
+      "codec_id": 135169,
+      "media_type": 0,
+      "capabilities": 0
+    },
+    {
+      "implementation": "wmv1",
+      "codec": "wmv1",
+      "codec_id": 17,
+      "media_type": 0,
+      "capabilities": 3
+    },
+    {
+      "implementation": "wmv2",
+      "codec": "wmv2",
+      "codec_id": 18,
+      "media_type": 0,
+      "capabilities": 3
+    },
+    {
+      "implementation": "wmv3",
+      "codec": "wmv3",
+      "codec_id": 71,
+      "media_type": 0,
+      "capabilities": 34
+    },
+    {
+      "implementation": "wmv3image",
+      "codec": "wmv3image",
+      "codec_id": 150,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "wnv1",
+      "codec": "wnv1",
+      "codec_id": 73,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "xan_wc3",
+      "codec": "xan_wc3",
+      "codec_id": 40,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "xan_wc4",
+      "codec": "xan_wc4",
+      "codec_id": 41,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "xbm",
+      "codec": "xbm",
+      "codec_id": 159,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "xface",
+      "codec": "xface",
+      "codec_id": 207,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "xl",
+      "codec": "vixl",
+      "codec_id": 59,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "xpm",
+      "codec": "xpm",
+      "codec_id": 224,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "xwd",
+      "codec": "xwd",
+      "codec_id": 157,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "y41p",
+      "codec": "y41p",
+      "codec_id": 197,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "ylc",
+      "codec": "ylc",
+      "codec_id": 217,
+      "media_type": 0,
+      "capabilities": 4098
+    },
+    {
+      "implementation": "yop",
+      "codec": "yop",
+      "codec_id": 138,
+      "media_type": 0,
+      "capabilities": 0
+    },
+    {
+      "implementation": "yuv4",
+      "codec": "yuv4",
+      "codec_id": 204,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "012v",
+      "codec": "012v",
+      "codec_id": 199,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "zerocodec",
+      "codec": "zerocodec",
+      "codec_id": 160,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "zlib",
+      "codec": "zlib",
+      "codec_id": 54,
+      "media_type": 0,
+      "capabilities": 4098
+    },
+    {
+      "implementation": "zmbv",
+      "codec": "zmbv",
+      "codec_id": 81,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "aac",
+      "codec": "aac",
+      "codec_id": 86018,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "aac_fixed",
+      "codec": "aac",
+      "codec_id": 86018,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "aac_latm",
+      "codec": "aac_latm",
+      "codec_id": 86065,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "ac3",
+      "codec": "ac3",
+      "codec_id": 86019,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "ac3_fixed",
+      "codec": "ac3",
+      "codec_id": 86019,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "acelp.kelvin",
+      "codec": "acelp.kelvin",
+      "codec_id": 86106,
+      "media_type": 1,
+      "capabilities": 258
+    },
+    {
+      "implementation": "alac",
+      "codec": "alac",
+      "codec_id": 86032,
+      "media_type": 1,
+      "capabilities": 5122
+    },
+    {
+      "implementation": "als",
+      "codec": "mp4als",
+      "codec_id": 86061,
+      "media_type": 1,
+      "capabilities": 1282
+    },
+    {
+      "implementation": "amrnb",
+      "codec": "amr_nb",
+      "codec_id": 73728,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "amrwb",
+      "codec": "amr_wb",
+      "codec_id": 73729,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "apac",
+      "codec": "apac",
+      "codec_id": 86115,
+      "media_type": 1,
+      "capabilities": 290
+    },
+    {
+      "implementation": "ape",
+      "codec": "ape",
+      "codec_id": 86048,
+      "media_type": 1,
+      "capabilities": 290
+    },
+    {
+      "implementation": "aptx",
+      "codec": "aptx",
+      "codec_id": 86101,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "aptx_hd",
+      "codec": "aptx_hd",
+      "codec_id": 86102,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "atrac1",
+      "codec": "atrac1",
+      "codec_id": 86062,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "atrac3",
+      "codec": "atrac3",
+      "codec_id": 86047,
+      "media_type": 1,
+      "capabilities": 258
+    },
+    {
+      "implementation": "atrac3al",
+      "codec": "atrac3al",
+      "codec_id": 86098,
+      "media_type": 1,
+      "capabilities": 258
+    },
+    {
+      "implementation": "atrac3plus",
+      "codec": "atrac3p",
+      "codec_id": 86055,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "atrac3plusal",
+      "codec": "atrac3pal",
+      "codec_id": 86099,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "atrac9",
+      "codec": "atrac9",
+      "codec_id": 86104,
+      "media_type": 1,
+      "capabilities": 1282
+    },
+    {
+      "implementation": "binkaudio_dct",
+      "codec": "binkaudio_dct",
+      "codec_id": 86064,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "binkaudio_rdft",
+      "codec": "binkaudio_rdft",
+      "codec_id": 86063,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "bmv_audio",
+      "codec": "bmv_audio",
+      "codec_id": 86072,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "bonk",
+      "codec": "bonk",
+      "codec_id": 86113,
+      "media_type": 1,
+      "capabilities": 290
+    },
+    {
+      "implementation": "cook",
+      "codec": "cook",
+      "codec_id": 86036,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "dca",
+      "codec": "dts",
+      "codec_id": 86020,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "dfpwm",
+      "codec": "dfpwm",
+      "codec_id": 86112,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "dolby_e",
+      "codec": "dolby_e",
+      "codec_id": 86100,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "dsd_lsbf",
+      "codec": "dsd_lsbf",
+      "codec_id": 86089,
+      "media_type": 1,
+      "capabilities": 8194
+    },
+    {
+      "implementation": "dsd_msbf",
+      "codec": "dsd_msbf",
+      "codec_id": 86090,
+      "media_type": 1,
+      "capabilities": 8194
+    },
+    {
+      "implementation": "dsd_lsbf_planar",
+      "codec": "dsd_lsbf_planar",
+      "codec_id": 86091,
+      "media_type": 1,
+      "capabilities": 8194
+    },
+    {
+      "implementation": "dsd_msbf_planar",
+      "codec": "dsd_msbf_planar",
+      "codec_id": 86092,
+      "media_type": 1,
+      "capabilities": 8194
+    },
+    {
+      "implementation": "dsicinaudio",
+      "codec": "dsicinaudio",
+      "codec_id": 86042,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "dss_sp",
+      "codec": "dss_sp",
+      "codec_id": 86082,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "dst",
+      "codec": "dst",
+      "codec_id": 86097,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "eac3",
+      "codec": "eac3",
+      "codec_id": 86056,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "evrc",
+      "codec": "evrc",
+      "codec_id": 86087,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "fastaudio",
+      "codec": "fastaudio",
+      "codec_id": 86110,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "wavesynth",
+      "codec": "wavesynth",
+      "codec_id": 86084,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "flac",
+      "codec": "flac",
+      "codec_id": 86028,
+      "media_type": 1,
+      "capabilities": 5122
+    },
+    {
+      "implementation": "ftr",
+      "codec": "ftr",
+      "codec_id": 86116,
+      "media_type": 1,
+      "capabilities": 258
+    },
+    {
+      "implementation": "g723_1",
+      "codec": "g723_1",
+      "codec_id": 86068,
+      "media_type": 1,
+      "capabilities": 258
+    },
+    {
+      "implementation": "g729",
+      "codec": "g729",
+      "codec_id": 86069,
+      "media_type": 1,
+      "capabilities": 258
+    },
+    {
+      "implementation": "gsm",
+      "codec": "gsm",
+      "codec_id": 86034,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "gsm_ms",
+      "codec": "gsm_ms",
+      "codec_id": 86046,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "hca",
+      "codec": "hca",
+      "codec_id": 86109,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "hcom",
+      "codec": "hcom",
+      "codec_id": 86105,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "hdr",
+      "codec": "hdr",
+      "codec_id": 261,
+      "media_type": 0,
+      "capabilities": 4098
+    },
+    {
+      "implementation": "iac",
+      "codec": "iac",
+      "codec_id": 86074,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "ilbc",
+      "codec": "ilbc",
+      "codec_id": 86075,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "imc",
+      "codec": "imc",
+      "codec_id": 86043,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "interplayacm",
+      "codec": "interplayacm",
+      "codec_id": 86094,
+      "media_type": 1,
+      "capabilities": 34
+    },
+    {
+      "implementation": "mace3",
+      "codec": "mace3",
+      "codec_id": 86025,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "mace6",
+      "codec": "mace6",
+      "codec_id": 86026,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "metasound",
+      "codec": "metasound",
+      "codec_id": 86079,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "misc4",
+      "codec": "misc4",
+      "codec_id": 86114,
+      "media_type": 1,
+      "capabilities": 1282
+    },
+    {
+      "implementation": "mlp",
+      "codec": "mlp",
+      "codec_id": 86045,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "mp1",
+      "codec": "mp1",
+      "codec_id": 86058,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "mp1float",
+      "codec": "mp1",
+      "codec_id": 86058,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "mp2",
+      "codec": "mp2",
+      "codec_id": 86016,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "mp2float",
+      "codec": "mp2",
+      "codec_id": 86016,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "mp3float",
+      "codec": "mp3",
+      "codec_id": 86017,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "mp3",
+      "codec": "mp3",
+      "codec_id": 86017,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "mp3adufloat",
+      "codec": "mp3adu",
+      "codec_id": 86029,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "mp3adu",
+      "codec": "mp3adu",
+      "codec_id": 86029,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "mp3on4float",
+      "codec": "mp3on4",
+      "codec_id": 86030,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "mp3on4",
+      "codec": "mp3on4",
+      "codec_id": 86030,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "mpc7",
+      "codec": "musepack7",
+      "codec_id": 86044,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "mpc8",
+      "codec": "musepack8",
+      "codec_id": 86050,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "msnsiren",
+      "codec": "msnsiren",
+      "codec_id": 86111,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "nellymoser",
+      "codec": "nellymoser",
+      "codec_id": 86049,
+      "media_type": 1,
+      "capabilities": 17410
+    },
+    {
+      "implementation": "on2avc",
+      "codec": "avc",
+      "codec_id": 86081,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "opus",
+      "codec": "opus",
+      "codec_id": 86076,
+      "media_type": 1,
+      "capabilities": 1058
+    },
+    {
+      "implementation": "osq",
+      "codec": "osq",
+      "codec_id": 86120,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "paf_audio",
+      "codec": "paf_audio",
+      "codec_id": 86080,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "qcelp",
+      "codec": "qcelp",
+      "codec_id": 86040,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "qdm2",
+      "codec": "qdm2",
+      "codec_id": 86035,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "qdmc",
+      "codec": "qdmc",
+      "codec_id": 86066,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "qoa",
+      "codec": "qoa",
+      "codec_id": 86121,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "real_144",
+      "codec": "ra_144",
+      "codec_id": 77824,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "real_288",
+      "codec": "ra_288",
+      "codec_id": 77825,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "ralf",
+      "codec": "ralf",
+      "codec_id": 86073,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "sbc",
+      "codec": "sbc",
+      "codec_id": 86103,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "shorten",
+      "codec": "shorten",
+      "codec_id": 86031,
+      "media_type": 1,
+      "capabilities": 1314
+    },
+    {
+      "implementation": "sipr",
+      "codec": "sipr",
+      "codec_id": 86057,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "siren",
+      "codec": "siren",
+      "codec_id": 86108,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "smackaud",
+      "codec": "smackaudio",
+      "codec_id": 86039,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "sonic",
+      "codec": "sonic",
+      "codec_id": 86085,
+      "media_type": 1,
+      "capabilities": 1538
+    },
+    {
+      "implementation": "tak",
+      "codec": "tak",
+      "codec_id": 86078,
+      "media_type": 1,
+      "capabilities": 5122
+    },
+    {
+      "implementation": "truehd",
+      "codec": "truehd",
+      "codec_id": 86060,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "truespeech",
+      "codec": "truespeech",
+      "codec_id": 86037,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "tta",
+      "codec": "tta",
+      "codec_id": 86038,
+      "media_type": 1,
+      "capabilities": 5122
+    },
+    {
+      "implementation": "twinvq",
+      "codec": "twinvq",
+      "codec_id": 86059,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "vmdaudio",
+      "codec": "vmdaudio",
+      "codec_id": 86027,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "vorbis",
+      "codec": "vorbis",
+      "codec_id": 86021,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "wavarc",
+      "codec": "wavarc",
+      "codec_id": 86117,
+      "media_type": 1,
+      "capabilities": 290
+    },
+    {
+      "implementation": "wavpack",
+      "codec": "wavpack",
+      "codec_id": 86041,
+      "media_type": 1,
+      "capabilities": 13314
+    },
+    {
+      "implementation": "wmalossless",
+      "codec": "wmalossless",
+      "codec_id": 86054,
+      "media_type": 1,
+      "capabilities": 290
+    },
+    {
+      "implementation": "wmapro",
+      "codec": "wmapro",
+      "codec_id": 86053,
+      "media_type": 1,
+      "capabilities": 258
+    },
+    {
+      "implementation": "wmav1",
+      "codec": "wmav1",
+      "codec_id": 86023,
+      "media_type": 1,
+      "capabilities": 34
+    },
+    {
+      "implementation": "wmav2",
+      "codec": "wmav2",
+      "codec_id": 86024,
+      "media_type": 1,
+      "capabilities": 34
+    },
+    {
+      "implementation": "wmavoice",
+      "codec": "wmavoice",
+      "codec_id": 86052,
+      "media_type": 1,
+      "capabilities": 290
+    },
+    {
+      "implementation": "ws_snd1",
+      "codec": "westwood_snd1",
+      "codec_id": 86033,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "xma1",
+      "codec": "xma1",
+      "codec_id": 86095,
+      "media_type": 1,
+      "capabilities": 290
+    },
+    {
+      "implementation": "xma2",
+      "codec": "xma2",
+      "codec_id": 86096,
+      "media_type": 1,
+      "capabilities": 290
+    },
+    {
+      "implementation": "pcm_alaw",
+      "codec": "pcm_alaw",
+      "codec_id": 65543,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_bluray",
+      "codec": "pcm_bluray",
+      "codec_id": 65560,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "pcm_dvd",
+      "codec": "pcm_dvd",
+      "codec_id": 65555,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "pcm_f16le",
+      "codec": "pcm_f16le",
+      "codec_id": 65569,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_f24le",
+      "codec": "pcm_f24le",
+      "codec_id": 65570,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_f32be",
+      "codec": "pcm_f32be",
+      "codec_id": 65556,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_f32le",
+      "codec": "pcm_f32le",
+      "codec_id": 65557,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_f64be",
+      "codec": "pcm_f64be",
+      "codec_id": 65558,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_f64le",
+      "codec": "pcm_f64le",
+      "codec_id": 65559,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_lxf",
+      "codec": "pcm_lxf",
+      "codec_id": 65561,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_mulaw",
+      "codec": "pcm_mulaw",
+      "codec_id": 65542,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_s8",
+      "codec": "pcm_s8",
+      "codec_id": 65540,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_s8_planar",
+      "codec": "pcm_s8_planar",
+      "codec_id": 65563,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_s16be",
+      "codec": "pcm_s16be",
+      "codec_id": 65537,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_s16be_planar",
+      "codec": "pcm_s16be_planar",
+      "codec_id": 65566,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_s16le",
+      "codec": "pcm_s16le",
+      "codec_id": 65536,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_s16le_planar",
+      "codec": "pcm_s16le_planar",
+      "codec_id": 65554,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_s24be",
+      "codec": "pcm_s24be",
+      "codec_id": 65549,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_s24daud",
+      "codec": "pcm_s24daud",
+      "codec_id": 65552,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_s24le",
+      "codec": "pcm_s24le",
+      "codec_id": 65548,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_s24le_planar",
+      "codec": "pcm_s24le_planar",
+      "codec_id": 65564,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_s32be",
+      "codec": "pcm_s32be",
+      "codec_id": 65545,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_s32le",
+      "codec": "pcm_s32le",
+      "codec_id": 65544,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_s32le_planar",
+      "codec": "pcm_s32le_planar",
+      "codec_id": 65565,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_s64be",
+      "codec": "pcm_s64be",
+      "codec_id": 65568,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_s64le",
+      "codec": "pcm_s64le",
+      "codec_id": 65567,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_sga",
+      "codec": "pcm_sga",
+      "codec_id": 65572,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_u8",
+      "codec": "pcm_u8",
+      "codec_id": 65541,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_u16be",
+      "codec": "pcm_u16be",
+      "codec_id": 65539,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_u16le",
+      "codec": "pcm_u16le",
+      "codec_id": 65538,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_u24be",
+      "codec": "pcm_u24be",
+      "codec_id": 65551,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_u24le",
+      "codec": "pcm_u24le",
+      "codec_id": 65550,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_u32be",
+      "codec": "pcm_u32be",
+      "codec_id": 65547,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_u32le",
+      "codec": "pcm_u32le",
+      "codec_id": 65546,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "pcm_vidc",
+      "codec": "pcm_vidc",
+      "codec_id": 65571,
+      "media_type": 1,
+      "capabilities": 16386
+    },
+    {
+      "implementation": "cbd2_dpcm",
+      "codec": "cbd2_dpcm",
+      "codec_id": 81928,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "derf_dpcm",
+      "codec": "derf_dpcm",
+      "codec_id": 81926,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "gremlin_dpcm",
+      "codec": "gremlin_dpcm",
+      "codec_id": 81925,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "interplay_dpcm",
+      "codec": "interplay_dpcm",
+      "codec_id": 81921,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "roq_dpcm",
+      "codec": "roq_dpcm",
+      "codec_id": 81920,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "sdx2_dpcm",
+      "codec": "sdx2_dpcm",
+      "codec_id": 81924,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "sol_dpcm",
+      "codec": "sol_dpcm",
+      "codec_id": 81923,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "xan_dpcm",
+      "codec": "xan_dpcm",
+      "codec_id": 81922,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "wady_dpcm",
+      "codec": "wady_dpcm",
+      "codec_id": 81927,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_4xm",
+      "codec": "adpcm_4xm",
+      "codec_id": 69639,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_adx",
+      "codec": "adpcm_adx",
+      "codec_id": 69641,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "adpcm_afc",
+      "codec": "adpcm_afc",
+      "codec_id": 69663,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_agm",
+      "codec": "adpcm_agm",
+      "codec_id": 69673,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_aica",
+      "codec": "adpcm_aica",
+      "codec_id": 69670,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_argo",
+      "codec": "adpcm_argo",
+      "codec_id": 69674,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_ct",
+      "codec": "adpcm_ct",
+      "codec_id": 69644,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_dtk",
+      "codec": "adpcm_dtk",
+      "codec_id": 69665,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_ea",
+      "codec": "adpcm_ea",
+      "codec_id": 69642,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_ea_maxis_xa",
+      "codec": "adpcm_ea_maxis_xa",
+      "codec_id": 69658,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_ea_r1",
+      "codec": "adpcm_ea_r1",
+      "codec_id": 69652,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_ea_r2",
+      "codec": "adpcm_ea_r2",
+      "codec_id": 69654,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_ea_r3",
+      "codec": "adpcm_ea_r3",
+      "codec_id": 69653,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_ea_xas",
+      "codec": "adpcm_ea_xas",
+      "codec_id": 69657,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "g722",
+      "codec": "adpcm_g722",
+      "codec_id": 69660,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "g726",
+      "codec": "adpcm_g726",
+      "codec_id": 69643,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "g726le",
+      "codec": "adpcm_g726le",
+      "codec_id": 69667,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "adpcm_ima_acorn",
+      "codec": "adpcm_ima_acorn",
+      "codec_id": 69682,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_ima_amv",
+      "codec": "adpcm_ima_amv",
+      "codec_id": 69651,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_ima_alp",
+      "codec": "adpcm_ima_alp",
+      "codec_id": 69678,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_ima_apc",
+      "codec": "adpcm_ima_apc",
+      "codec_id": 69661,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_ima_apm",
+      "codec": "adpcm_ima_apm",
+      "codec_id": 69677,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_ima_cunning",
+      "codec": "adpcm_ima_cunning",
+      "codec_id": 69680,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_ima_dat4",
+      "codec": "adpcm_ima_dat4",
+      "codec_id": 69671,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_ima_dk3",
+      "codec": "adpcm_ima_dk3",
+      "codec_id": 69634,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_ima_dk4",
+      "codec": "adpcm_ima_dk4",
+      "codec_id": 69635,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_ima_ea_eacs",
+      "codec": "adpcm_ima_ea_eacs",
+      "codec_id": 69656,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_ima_ea_sead",
+      "codec": "adpcm_ima_ea_sead",
+      "codec_id": 69655,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_ima_iss",
+      "codec": "adpcm_ima_iss",
+      "codec_id": 69659,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_ima_moflex",
+      "codec": "adpcm_ima_moflex",
+      "codec_id": 69681,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_ima_mtf",
+      "codec": "adpcm_ima_mtf",
+      "codec_id": 69679,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_ima_oki",
+      "codec": "adpcm_ima_oki",
+      "codec_id": 69664,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_ima_qt",
+      "codec": "adpcm_ima_qt",
+      "codec_id": 69632,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_ima_rad",
+      "codec": "adpcm_ima_rad",
+      "codec_id": 69666,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_ima_ssi",
+      "codec": "adpcm_ima_ssi",
+      "codec_id": 69675,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_ima_smjpeg",
+      "codec": "adpcm_ima_smjpeg",
+      "codec_id": 69637,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_ima_wav",
+      "codec": "adpcm_ima_wav",
+      "codec_id": 69633,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_ima_ws",
+      "codec": "adpcm_ima_ws",
+      "codec_id": 69636,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_ms",
+      "codec": "adpcm_ms",
+      "codec_id": 69638,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_mtaf",
+      "codec": "adpcm_mtaf",
+      "codec_id": 69672,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_psx",
+      "codec": "adpcm_psx",
+      "codec_id": 69669,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_sbpro_2",
+      "codec": "adpcm_sbpro_2",
+      "codec_id": 69649,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_sbpro_3",
+      "codec": "adpcm_sbpro_3",
+      "codec_id": 69648,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_sbpro_4",
+      "codec": "adpcm_sbpro_4",
+      "codec_id": 69647,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_swf",
+      "codec": "adpcm_swf",
+      "codec_id": 69645,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_thp",
+      "codec": "adpcm_thp",
+      "codec_id": 69650,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_thp_le",
+      "codec": "adpcm_thp_le",
+      "codec_id": 69668,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_vima",
+      "codec": "adpcm_vima",
+      "codec_id": 69662,
+      "media_type": 1,
+      "capabilities": 1026
+    },
+    {
+      "implementation": "adpcm_xa",
+      "codec": "adpcm_xa",
+      "codec_id": 69640,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_xmd",
+      "codec": "adpcm_xmd",
+      "codec_id": 69683,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_yamaha",
+      "codec": "adpcm_yamaha",
+      "codec_id": 69646,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "adpcm_zork",
+      "codec": "adpcm_zork",
+      "codec_id": 69676,
+      "media_type": 1,
+      "capabilities": 2
+    },
+    {
+      "implementation": "ssa",
+      "codec": "ass",
+      "codec_id": 94230,
+      "media_type": 3,
+      "capabilities": 0
+    },
+    {
+      "implementation": "ass",
+      "codec": "ass",
+      "codec_id": 94230,
+      "media_type": 3,
+      "capabilities": 0
+    },
+    {
+      "implementation": "cc_dec",
+      "codec": "eia_608",
+      "codec_id": 94218,
+      "media_type": 3,
+      "capabilities": 32
+    },
+    {
+      "implementation": "dvbsub",
+      "codec": "dvb_subtitle",
+      "codec_id": 94209,
+      "media_type": 3,
+      "capabilities": 0
+    },
+    {
+      "implementation": "dvdsub",
+      "codec": "dvd_subtitle",
+      "codec_id": 94208,
+      "media_type": 3,
+      "capabilities": 0
+    },
+    {
+      "implementation": "jacosub",
+      "codec": "jacosub",
+      "codec_id": 94219,
+      "media_type": 3,
+      "capabilities": 0
+    },
+    {
+      "implementation": "microdvd",
+      "codec": "microdvd",
+      "codec_id": 94217,
+      "media_type": 3,
+      "capabilities": 0
+    },
+    {
+      "implementation": "mov_text",
+      "codec": "mov_text",
+      "codec_id": 94213,
+      "media_type": 3,
+      "capabilities": 0
+    },
+    {
+      "implementation": "mpl2",
+      "codec": "mpl2",
+      "codec_id": 94227,
+      "media_type": 3,
+      "capabilities": 0
+    },
+    {
+      "implementation": "pgssub",
+      "codec": "hdmv_pgs_subtitle",
+      "codec_id": 94214,
+      "media_type": 3,
+      "capabilities": 0
+    },
+    {
+      "implementation": "pjs",
+      "codec": "pjs",
+      "codec_id": 94229,
+      "media_type": 3,
+      "capabilities": 0
+    },
+    {
+      "implementation": "realtext",
+      "codec": "realtext",
+      "codec_id": 94221,
+      "media_type": 3,
+      "capabilities": 0
+    },
+    {
+      "implementation": "sami",
+      "codec": "sami",
+      "codec_id": 94220,
+      "media_type": 3,
+      "capabilities": 0
+    },
+    {
+      "implementation": "srt",
+      "codec": "subrip",
+      "codec_id": 94225,
+      "media_type": 3,
+      "capabilities": 0
+    },
+    {
+      "implementation": "stl",
+      "codec": "stl",
+      "codec_id": 94222,
+      "media_type": 3,
+      "capabilities": 0
+    },
+    {
+      "implementation": "subrip",
+      "codec": "subrip",
+      "codec_id": 94225,
+      "media_type": 3,
+      "capabilities": 0
+    },
+    {
+      "implementation": "subviewer",
+      "codec": "subviewer",
+      "codec_id": 94224,
+      "media_type": 3,
+      "capabilities": 0
+    },
+    {
+      "implementation": "subviewer1",
+      "codec": "subviewer1",
+      "codec_id": 94223,
+      "media_type": 3,
+      "capabilities": 0
+    },
+    {
+      "implementation": "text",
+      "codec": "text",
+      "codec_id": 94210,
+      "media_type": 3,
+      "capabilities": 0
+    },
+    {
+      "implementation": "vplayer",
+      "codec": "vplayer",
+      "codec_id": 94228,
+      "media_type": 3,
+      "capabilities": 0
+    },
+    {
+      "implementation": "webvtt",
+      "codec": "webvtt",
+      "codec_id": 94226,
+      "media_type": 3,
+      "capabilities": 0
+    },
+    {
+      "implementation": "xsub",
+      "codec": "xsub",
+      "codec_id": 94211,
+      "media_type": 3,
+      "capabilities": 0
+    },
+    {
+      "implementation": "aac_at",
+      "codec": "aac",
+      "codec_id": 86018,
+      "media_type": 1,
+      "capabilities": 1058
+    },
+    {
+      "implementation": "ac3_at",
+      "codec": "ac3",
+      "codec_id": 86019,
+      "media_type": 1,
+      "capabilities": 1058
+    },
+    {
+      "implementation": "adpcm_ima_qt_at",
+      "codec": "adpcm_ima_qt",
+      "codec_id": 69632,
+      "media_type": 1,
+      "capabilities": 1058
+    },
+    {
+      "implementation": "alac_at",
+      "codec": "alac",
+      "codec_id": 86032,
+      "media_type": 1,
+      "capabilities": 1058
+    },
+    {
+      "implementation": "amr_nb_at",
+      "codec": "amr_nb",
+      "codec_id": 73728,
+      "media_type": 1,
+      "capabilities": 1058
+    },
+    {
+      "implementation": "eac3_at",
+      "codec": "eac3",
+      "codec_id": 86056,
+      "media_type": 1,
+      "capabilities": 1058
+    },
+    {
+      "implementation": "gsm_ms_at",
+      "codec": "gsm_ms",
+      "codec_id": 86046,
+      "media_type": 1,
+      "capabilities": 1058
+    },
+    {
+      "implementation": "ilbc_at",
+      "codec": "ilbc",
+      "codec_id": 86075,
+      "media_type": 1,
+      "capabilities": 1058
+    },
+    {
+      "implementation": "mp1_at",
+      "codec": "mp1",
+      "codec_id": 86058,
+      "media_type": 1,
+      "capabilities": 1058
+    },
+    {
+      "implementation": "mp2_at",
+      "codec": "mp2",
+      "codec_id": 86016,
+      "media_type": 1,
+      "capabilities": 1058
+    },
+    {
+      "implementation": "mp3_at",
+      "codec": "mp3",
+      "codec_id": 86017,
+      "media_type": 1,
+      "capabilities": 1058
+    },
+    {
+      "implementation": "pcm_alaw_at",
+      "codec": "pcm_alaw",
+      "codec_id": 65543,
+      "media_type": 1,
+      "capabilities": 1058
+    },
+    {
+      "implementation": "pcm_mulaw_at",
+      "codec": "pcm_mulaw",
+      "codec_id": 65542,
+      "media_type": 1,
+      "capabilities": 1058
+    },
+    {
+      "implementation": "qdmc_at",
+      "codec": "qdmc",
+      "codec_id": 86066,
+      "media_type": 1,
+      "capabilities": 1058
+    },
+    {
+      "implementation": "qdm2_at",
+      "codec": "qdm2",
+      "codec_id": 86035,
+      "media_type": 1,
+      "capabilities": 1058
+    },
+    {
+      "implementation": "libdav1d",
+      "codec": "av1",
+      "codec_id": 225,
+      "media_type": 0,
+      "capabilities": 32800
+    },
+    {
+      "implementation": "libjxl",
+      "codec": "jpegxl",
+      "codec_id": 258,
+      "media_type": 0,
+      "capabilities": 32770
+    },
+    {
+      "implementation": "libspeex",
+      "codec": "speex",
+      "codec_id": 86051,
+      "media_type": 1,
+      "capabilities": 1314
+    },
+    {
+      "implementation": "bintext",
+      "codec": "bintext",
+      "codec_id": 98307,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "xbin",
+      "codec": "xbin",
+      "codec_id": 98308,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "idf",
+      "codec": "idf",
+      "codec_id": 98309,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "av1",
+      "codec": "av1",
+      "codec_id": 225,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "vnull",
+      "codec": "vnull",
+      "codec_id": 135170,
+      "media_type": 0,
+      "capabilities": 2
+    },
+    {
+      "implementation": "anull",
+      "codec": "anull",
+      "codec_id": 135171,
+      "media_type": 1,
+      "capabilities": 2
+    }
+  ],
+  "configure_options": [
+    "--prefix=<BUILD_PREFIX>",
+    "--enable-shared",
+    "--enable-pthreads",
+    "--enable-version3",
+    "--host-cflags=",
+    "--host-ldflags=",
+    "--enable-ffplay",
+    "--enable-gnutls",
+    "--enable-gpl",
+    "--enable-libbluray",
+    "--enable-libdav1d",
+    "--enable-librubberband",
+    "--enable-libsnappy",
+    "--disable-libtesseract",
+    "--enable-libvidstab",
+    "--enable-libxml2",
+    "--enable-libfontconfig",
+    "--enable-libfreetype",
+    "--enable-frei0r",
+    "--enable-libass",
+    "--enable-libspeex",
+    "--enable-libsoxr",
+    "--enable-videotoolbox",
+    "--enable-audiotoolbox",
+    "--enable-libzmq",
+    "--enable-libzimg",
+    "--enable-libwebp",
+    "--enable-libjxl",
+    "--disable-libjack",
+    "--disable-indev=jack",
+    "--disable-programs",
+    "--enable-neon"
+  ],
+  "configuration_sha256": "e7469fc7903e9f7f28e02f7ad7d6c7ed8d4e517b73a03388dc167d70bdfc077f",
+  "libavcodec_sha256": "548467b901cab2ea7cb7a8b027bbc1abe4d20a7548338d67bd729f1c9e9ce27c"
+}

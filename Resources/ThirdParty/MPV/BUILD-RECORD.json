@@ -1,0 +1,267 @@
+{
+  "environment": {
+    "clang": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+    "cmake": "cmake version 4.4.4",
+    "make": "GNU Make 3.81",
+    "pkg-config": "3.0.10",
+    "python": "3.15.1 (main, Oct 21 2026, 05:55:12) [Clang 21.0.0 (clang-2100.3.34.2)]",
+    "sdk": "27.0",
+    "source_build_tools": {
+      "jinja": "git b08cd4bc64bb980df86ed2876978ae5735572280",
+      "markupsafe": "git c0254f0cfe51720ecc9e72e8896022af29af5b44",
+      "meson": "1.9.1",
+      "ninja": "1.13.1"
+    }
+  },
+  "headers": {
+    "client.h": "c34c436b54201ba84655dcbb6226f937b53d04fa0abcceaa08886565a569bd88",
+    "render.h": "f00a31d46896c691922196c932c94140d206cb4c16cfa4bb6bdf3a9d0d3d4a29"
+  },
+  "inputs": {
+    "scripts/build-mpv-source.py": "1e8c50a7b854cdeea167c1bce05f0a8a22166074bdf13eee6735b61541b8dcd5",
+    "scripts/media_bundle.py": "be2ac9b67f7b649f1fc56db712b603fbe103479d93c4157d06a0df990d9e64b7",
+    "scripts/media_bundle_macho.py": "bd5809eafe1ffbf1c954ccc47aa4fd535188dcb3804c3013e6068fad0767c530",
+    "scripts/media_dependencies.py": "ec71e3db2959dab17e1d37d4d3191eaf87a980f6ab99e70449129da3cb740065",
+    "scripts/mpv-source-lock.json": "8406841bf7c36f948e12fbd733375c7484ccfde0c31d85b94f193e8a84273bac",
+    "scripts/mpv-source-recipes.json": "8f197148ad820320e849822b9b1ae66e9338d120b9484f3c050748c35a5f3f50",
+    "scripts/mpv_build_record.py": "e24f5f84c3f9b1def1270300b8033ceffefbb0715cb02a193de10bd882616d0a",
+    "scripts/mpv_source_build.py": "a7b5b6092f7aaf8591eaa34c1b68324cca2aea9b90cbfceda951104cdc15630f",
+    "scripts/mpv_source_inputs.py": "a75bdd9527c5038d1f8d1e47786e731e6ce7e0b9110967a3a7a41f140bf3ded6",
+    "scripts/swift_sdk.py": "5af3ad440fe01a7f6fd123881b589f0f471e61d446c2caabee360c583110a0db"
+  },
+  "libraries": {
+    "libass.9.dylib": {
+      "architecture": [
+        "arm64"
+      ],
+      "dependencies": [
+        "/usr/lib/libSystem.B.dylib",
+        "/usr/lib/libiconv.2.dylib",
+        "@rpath/libfreetype.6.dylib",
+        "@rpath/libfribidi.0.dylib",
+        "@rpath/libharfbuzz.0.dylib",
+        "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+        "/System/Library/Frameworks/CoreText.framework/Versions/A/CoreText"
+      ],
+      "minimum_macos": "14.0",
+      "sdk": "27.0",
+      "sha256": "2bc135757b9d22a31ddf02e807fe8ecc47330bd582739e00d6ba83d3dbf7fbc6"
+    },
+    "libavcodec.61.dylib": {
+      "architecture": [
+        "arm64"
+      ],
+      "dependencies": [
+        "@rpath/libswresample.5.dylib",
+        "@rpath/libavutil.59.dylib",
+        "/usr/lib/libSystem.B.dylib",
+        "@rpath/liblzma.5.dylib",
+        "@rpath/libdav1d.7.dylib",
+        "/System/Library/Frameworks/AudioToolbox.framework/Versions/A/AudioToolbox",
+        "/usr/lib/libz.1.dylib",
+        "/System/Library/Frameworks/VideoToolbox.framework/Versions/A/VideoToolbox",
+        "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+        "/System/Library/Frameworks/CoreMedia.framework/Versions/A/CoreMedia",
+        "/System/Library/Frameworks/CoreVideo.framework/Versions/A/CoreVideo",
+        "/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices"
+      ],
+      "minimum_macos": "14.0",
+      "sdk": "27.0",
+      "sha256": "286b0511d0ec0dacd3a4cf2cf3756c20314b7723b6dbdfcf4f2873474d4e2fc4"
+    },
+    "libavfilter.10.dylib": {
+      "architecture": [
+        "arm64"
+      ],
+      "dependencies": [
+        "@rpath/libswscale.8.dylib",
+        "@rpath/libavformat.61.dylib",
+        "@rpath/libavcodec.61.dylib",
+        "@rpath/libswresample.5.dylib",
+        "@rpath/libavutil.59.dylib",
+        "/usr/lib/libSystem.B.dylib",
+        "/System/Library/Frameworks/VideoToolbox.framework/Versions/A/VideoToolbox",
+        "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+        "/System/Library/Frameworks/CoreMedia.framework/Versions/A/CoreMedia",
+        "/System/Library/Frameworks/CoreVideo.framework/Versions/A/CoreVideo",
+        "/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices",
+        "/usr/lib/libbz2.1.0.dylib",
+        "/usr/lib/libz.1.dylib",
+        "@rpath/liblzma.5.dylib",
+        "@rpath/libdav1d.7.dylib",
+        "/System/Library/Frameworks/AudioToolbox.framework/Versions/A/AudioToolbox"
+      ],
+      "minimum_macos": "14.0",
+      "sdk": "27.0",
+      "sha256": "d2e955623734d16b03484e92ba77c507548b9277927cf869f7d9cc029d64e27b"
+    },
+    "libavformat.61.dylib": {
+      "architecture": [
+        "arm64"
+      ],
+      "dependencies": [
+        "@rpath/libavcodec.61.dylib",
+        "@rpath/libswresample.5.dylib",
+        "@rpath/libavutil.59.dylib",
+        "/usr/lib/libSystem.B.dylib",
+        "/usr/lib/libbz2.1.0.dylib",
+        "/usr/lib/libz.1.dylib",
+        "@rpath/liblzma.5.dylib",
+        "@rpath/libdav1d.7.dylib",
+        "/System/Library/Frameworks/AudioToolbox.framework/Versions/A/AudioToolbox",
+        "/System/Library/Frameworks/VideoToolbox.framework/Versions/A/VideoToolbox",
+        "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+        "/System/Library/Frameworks/CoreMedia.framework/Versions/A/CoreMedia",
+        "/System/Library/Frameworks/CoreVideo.framework/Versions/A/CoreVideo",
+        "/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices"
+      ],
+      "minimum_macos": "14.0",
+      "sdk": "27.0",
+      "sha256": "73d5d24ab21831a71e5e3b6f5fdbe8d41d9db9be66f472b884b735c87de38848"
+    },
+    "libavutil.59.dylib": {
+      "architecture": [
+        "arm64"
+      ],
+      "dependencies": [
+        "/usr/lib/libSystem.B.dylib",
+        "/System/Library/Frameworks/VideoToolbox.framework/Versions/A/VideoToolbox",
+        "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+        "/System/Library/Frameworks/CoreMedia.framework/Versions/A/CoreMedia",
+        "/System/Library/Frameworks/CoreVideo.framework/Versions/A/CoreVideo",
+        "/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices"
+      ],
+      "minimum_macos": "14.0",
+      "sdk": "27.0",
+      "sha256": "1cbfa7884f03f162d24fd9d352015b8feabf0850fe3bf35172f0896ff63bec0e"
+    },
+    "libdav1d.7.dylib": {
+      "architecture": [
+        "arm64"
+      ],
+      "dependencies": [
+        "/usr/lib/libSystem.B.dylib"
+      ],
+      "minimum_macos": "14.0",
+      "sdk": "27.0",
+      "sha256": "623b86377e4c723dbc7d518439a9904acb29db9317240f23a0659078fec12a89"
+    },
+    "libfreetype.6.dylib": {
+      "architecture": [
+        "arm64"
+      ],
+      "dependencies": [
+        "/usr/lib/libSystem.B.dylib"
+      ],
+      "minimum_macos": "14.0",
+      "sdk": "27.0",
+      "sha256": "71f4999203876f2da670ae2f1b704f2a124a82e859f9e23ccd83e1c4e91be249"
+    },
+    "libfribidi.0.dylib": {
+      "architecture": [
+        "arm64"
+      ],
+      "dependencies": [
+        "/usr/lib/libSystem.B.dylib"
+      ],
+      "minimum_macos": "14.0",
+      "sdk": "27.0",
+      "sha256": "c7d3ad3c073c73c8f42279f3ec87a464ff5fc6d55685a15ac471d2c1baf5e6f1"
+    },
+    "libharfbuzz.0.dylib": {
+      "architecture": [
+        "arm64"
+      ],
+      "dependencies": [
+        "/usr/lib/libSystem.B.dylib",
+        "@rpath/libfreetype.6.dylib"
+      ],
+      "minimum_macos": "14.0",
+      "sdk": "27.0",
+      "sha256": "302235625d84c783316767b03ee23a7d17c89e232b36cde4893f4bb52511175a"
+    },
+    "liblzma.5.dylib": {
+      "architecture": [
+        "arm64"
+      ],
+      "dependencies": [
+        "/usr/lib/libSystem.B.dylib"
+      ],
+      "minimum_macos": "14.0",
+      "sdk": "27.0",
+      "sha256": "1f8b0e38974e9faf37015ce57f8bf4d5873a2ee1981eff971b8053b9c03c7214"
+    },
+    "libmpv.2.dylib": {
+      "architecture": [
+        "arm64"
+      ],
+      "dependencies": [
+        "@rpath/libass.9.dylib",
+        "@rpath/libavcodec.61.dylib",
+        "@rpath/libavfilter.10.dylib",
+        "@rpath/libavformat.61.dylib",
+        "@rpath/libavutil.59.dylib",
+        "@rpath/libplacebo.338.dylib",
+        "@rpath/libswresample.5.dylib",
+        "@rpath/libswscale.8.dylib",
+        "/usr/lib/libiconv.2.dylib",
+        "/usr/lib/libSystem.B.dylib",
+        "/usr/lib/libz.1.dylib",
+        "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+        "/System/Library/Frameworks/CoreAudio.framework/Versions/A/CoreAudio",
+        "/System/Library/Frameworks/AudioUnit.framework/Versions/A/AudioUnit",
+        "/System/Library/Frameworks/AudioToolbox.framework/Versions/A/AudioToolbox"
+      ],
+      "minimum_macos": "14.0",
+      "sdk": "27.0",
+      "sha256": "2b05719f17f4f3421bcee71f31db62f15d3a4178b492a6a4f98d22cb60742ac7"
+    },
+    "libplacebo.338.dylib": {
+      "architecture": [
+        "arm64"
+      ],
+      "dependencies": [
+        "/usr/lib/libSystem.B.dylib",
+        "/usr/lib/libc++.1.dylib"
+      ],
+      "minimum_macos": "14.0",
+      "sdk": "27.0",
+      "sha256": "efdd22bf42bc4029824f95fec6af180cb3871e06f0fe92b2a8693860e5ad88d8"
+    },
+    "libswresample.5.dylib": {
+      "architecture": [
+        "arm64"
+      ],
+      "dependencies": [
+        "@rpath/libavutil.59.dylib",
+        "/usr/lib/libSystem.B.dylib",
+        "/System/Library/Frameworks/VideoToolbox.framework/Versions/A/VideoToolbox",
+        "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+        "/System/Library/Frameworks/CoreMedia.framework/Versions/A/CoreMedia",
+        "/System/Library/Frameworks/CoreVideo.framework/Versions/A/CoreVideo",
+        "/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices"
+      ],
+      "minimum_macos": "14.0",
+      "sdk": "27.0",
+      "sha256": "8bee0d6bf2ca508bcb080c4d8f7a22989cd0c09cfd44248cf9f1f8801d278066"
+    },
+    "libswscale.8.dylib": {
+      "architecture": [
+        "arm64"
+      ],
+      "dependencies": [
+        "@rpath/libavutil.59.dylib",
+        "/usr/lib/libSystem.B.dylib",
+        "/System/Library/Frameworks/VideoToolbox.framework/Versions/A/VideoToolbox",
+        "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+        "/System/Library/Frameworks/CoreMedia.framework/Versions/A/CoreMedia",
+        "/System/Library/Frameworks/CoreVideo.framework/Versions/A/CoreVideo",
+        "/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices"
+      ],
+      "minimum_macos": "14.0",
+      "sdk": "27.0",
+      "sha256": "32a2a54ec8aa5dae9b9b31dd3d10497fe65e230e646caa19c36d603434f6bf03"
+    }
+  },
+  "schema_version": 1
+}

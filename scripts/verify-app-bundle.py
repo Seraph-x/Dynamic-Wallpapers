@@ -8,6 +8,7 @@ import sys
 
 from media_bundle import verify_candidate
 from product_configuration import load as load_product_configuration
+from media_dependencies import expected_mpv_library_names, load_lock
 
 
 def main():
@@ -22,7 +23,7 @@ def main():
         raise FileExistsError(f'Report exists: {args.report}')
     root = Path(__file__).resolve().parents[1]
     configuration = load_product_configuration(root / 'scripts/product-configuration.json')
-    names = [entry['file'] for entry in json.loads((root / 'scripts/feasibility/mpv/libraries.json').read_text())]
+    names = expected_mpv_library_names(load_lock(root / 'scripts/media-dependencies.json', root))
     result = verify_candidate(app, names, configuration=configuration)
     result['bundle'] = str(app)
     with args.report.open('x') as stream:

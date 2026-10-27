@@ -459,7 +459,7 @@ class ProductConfigurationTests(unittest.TestCase):
         self.assertNotIn('observed_build', (ROOT / 'Package.swift').read_text())
         configuration = load()
         result = subprocess.run(
-            ["swift", "package", "dump-package"],
+            ["swift", "package", "--disable-sandbox", "dump-package"],
             cwd=ROOT,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,

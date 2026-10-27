@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "advertised_formats": [
+    "matroska",
+    "webm",
+    "avi"
+  ],
+  "historical_implementation_count": 514,
+  "controlled_implementation_count": 512,
+  "advertised_codec_id_parity": true,
+  "omitted_unreachable_codecs": [
+    {
+      "codec": "jpegxl",
+      "reason": "No JPEG XL codec mapping exists in pinned FFmpeg7 Matroska, AVI/RIFF or QuickTime-in-Matroska mapping tables. Raw JPEG XL and screenshots are outside the bridge format whitelist.",
+      "mapping_source_sha256": {
+        "libavformat/matroska.c": "9db966b3ab1c8d3147c54901039ffb92aeb449896a4fcd94c763feded40e45f6",
+        "libavformat/riff.c": "ec0dc5dfb365fd1cab74a5bb5e08c7a2df7eb36f73a89e6eb7c2b18434b03d90",
+        "libavformat/isom_tags.c": "e46f370d7ed1f8485045a5d84a7664f564e3c5060bcf1a655f95a5f2185696be"
+      }
+    }
+  ],
+  "removed_alternate_implementations": [
+    {
+      "implementation": "libspeex",
+      "codec": "speex",
+      "retained_implementation": "speex",
+      "retained_was_already_registered_before_alternative": true
+    }
+  ],
+  "restored_compression_features": [
+    "zlib",
+    "bzlib",
+    "lzma"
+  ],
+  "av1_software_implementation": "libdav1d",
+  "historical_audit_sha256": "3101a04056677d41fb8759ffb0e03ae2b49cb87a79e68be42fa66d9f94e64f5a",
+  "controlled_audit_sha256": "b2eb4e4b2453a3ead546244b1baea567c4e9ffc589f6a860edeb8e8a9dab3382",
+  "controlled_libavcodec_sha256": "286b0511d0ec0dacd3a4cf2cf3756c20314b7723b6dbdfcf4f2873474d4e2fc4",
+  "historical_scope": "Measured old binary API baseline only; old corresponding-source completeness remains unproven."
+}

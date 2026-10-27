@@ -114,7 +114,20 @@ def load_lock(path, root=ROOT):
             raise ValueError(f'Invalid artifact list: {name}')
         if 'manifest' in module:
             artifacts = artifacts + manifest_artifacts(module['manifest'], root)
-        if not artifacts:
+        if 'source_build' in module:
+            if name != 'mpv' or 'manifest' in module or artifacts:
+                raise ValueError('Controlled MPV source build cannot contain binary artifacts')
+            reference = module['source_build']
+            if (not isinstance(reference, dict) or set(reference) != {'path', 'sha256', 'output'}
+                    or reference.get('output') != '.build/media-source-complete/mpv'):
+                raise ValueError('Invalid controlled MPV source build output/reference')
+            checked_bytes(cache_path(root, reference['path']), reference)
+            from mpv_source_inputs import load_source_lock
+            module['_source_lock'] = load_source_lock(root, root / reference['path'])
+            if any(module[key] != module['_source_lock'][key]
+                   for key in ('architecture', 'minimum_macos')):
+                raise ValueError('Controlled MPV source target disagrees with dependency module')
+        if not artifacts and 'source_build' not in module:
             raise ValueError(f'Empty artifact list: {name}')
         for artifact in artifacts:
             validate_artifact(artifact)
@@ -193,6 +206,8 @@ def verify_cef_prepared(lock, dependency_root, *, product_target,
 
 
 def expected_mpv_library_names(lock):
+    if 'source_build' in lock['modules']['mpv']:
+        return tuple(sorted(lock['modules']['mpv']['_source_lock']['libraries']))
     names = []
     for artifact in lock['modules']['mpv']['artifacts']:
         path = PurePosixPath(artifact['path'])
@@ -201,6 +216,13 @@ def expected_mpv_library_names(lock):
     if not names or len(names) != len(set(names)):
         prepared_error('locked MPV runtime library names are empty or duplicated')
     return tuple(sorted(names))
+
+
+def mpv_prepared_root(root, lock):
+    module = lock['modules']['mpv']
+    if 'source_build' not in module:
+        raise ValueError('MPV runtime requires a controlled source-build record')
+    return Path(root) / module['source_build']['output']
 
 
 def verify_codesign(path):
@@ -220,6 +242,9 @@ def verify_mpv_prepared(lock, dependency_root, *, product_target,
                         verify_signature=verify_codesign):
     expected_architecture, maximum_macos = verify_module_target(
         lock['modules']['mpv'], product_target, 'MPV')
+    if 'source_build' in lock['modules']['mpv']:
+        from mpv_source_build import verify_built
+        return verify_built(Path(dependency_root).parent.parent)
     dependency_root = Path(dependency_root)
     for relative in ('mpv/include/mpv/client.h', 'mpv/include/mpv/render.h'):
         require_prepared_file(dependency_root, dependency_root / relative)
@@ -263,6 +288,9 @@ def verify_mpv_prepared(lock, dependency_root, *, product_target,
 def verify_locked_inputs(lock, dependency_root, modules):
     for name in modules:
         module = lock['modules'][name]
+        if 'source_build' in module:
+            from mpv_source_inputs import verify_sources
+            verify_sources(Path(dependency_root).parent.parent, module['_source_lock'])
         for artifact in module['artifacts']:
             verify_artifact(dependency_root, artifact)
 

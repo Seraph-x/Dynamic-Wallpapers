@@ -10,6 +10,7 @@ import zipfile
 from media_bundle import publish_exclusively, verify_candidate
 from media_bundle_macho import inside, run, sha256
 from product_configuration import load as load_product_configuration
+from media_dependencies import expected_mpv_library_names, load_lock
 
 
 def validate_release_output(root, output):
@@ -25,6 +26,11 @@ def validate_release_output(root, output):
     if output.exists():
         raise FileExistsError(f'Local release already exists: {output}')
     return output
+
+
+def active_library_names(root):
+    root = Path(root)
+    return expected_mpv_library_names(load_lock(root / 'scripts/media-dependencies.json', root))
 
 
 def tree_manifest(directory):
@@ -75,8 +81,7 @@ def create_local_release(root, *, app, output, notes):
     release_notes = notes.read_text()
     if not release_notes.strip():
         raise ValueError('Release notes are empty')
-    names = [entry['file'] for entry in json.loads(
-        (root / 'scripts/feasibility/mpv/libraries.json').read_text())]
+    names = active_library_names(root)
     original = tree_manifest(app)
     output.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='.release-', dir=output.parent) as directory:

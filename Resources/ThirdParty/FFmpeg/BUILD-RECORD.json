@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "version": "9.0.1 (n9.0.1)",
+  "source_sha256": "195d54bebe1a27f84d77f4b989d193466f305b355da92292766a69f16880b18a",
+  "build_script_sha256": "95b59360e67fee82f98c4d3d7a60b9914357e0b14cfae173db9687ac9192c274",
+  "sdk_version": "27.0",
+  "toolchain_version": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "tools": {
+    "ffmpeg": "8cabde2696f661ab29ce25323c906696b490d68abd326e3b56dc5f494e5c8030",
+    "ffprobe": "c8ed201f033852ebbc3941bdbfb23644110420b6b700c1d6840d4f4a30d624b9"
+  },
+  "license": "LGPL-2.1-or-later",
+  "measured_config_flags": {
+    "GPL": 0,
+    "NONFREE": 0,
+    "VERSION3": 0,
+    "NETWORK": 0
+  },
+  "configure_options": [
+    "--prefix=<BUILD_PREFIX>",
+    "--cc=/usr/bin/clang",
+    "--cxx=/usr/bin/clang++",
+    "--arch=arm64",
+    "--target-os=darwin",
+    "--sysroot=<MACOS_SDK>",
+    "--extra-cflags=-mmacosx-version-min=14.0",
+    "--extra-ldflags=-mmacosx-version-min=14.0",
+    "--disable-autodetect",
+    "--disable-network",
+    "--disable-shared",
+    "--enable-static",
+    "--disable-doc",
+    "--disable-ffplay",
+    "--disable-debug",
+    "--enable-videotoolbox",
+    "--enable-audiotoolbox"
+  ],
+  "config_h_sha256": "7ae05eb381ddb486f0d2d447cafa4d04001265730efcd4239c9653bf91117d21",
+  "license_output_sha256": "a0abd25510978f275a835fce3f90affce1d580efdc7b37edc17b7a57b2e9e9fd",
+  "configuration_output_sha256": "18cd5e2920efda4e8e5deac1e6216c062b666c8189013bfa39e7f7e5fc261edb",
+  "normalization": "Only occurrences of actual build-prefix and SDK path values use named tokens; raw output hashes and all other actual options are retained."
+}

@@ -101,7 +101,7 @@ class PreparePublicBuildTests(unittest.TestCase):
         self.assertTrue(extracted.is_dir())
         self.assertTrue((self.cache / 'cef/wrapper-make/libcef_dll_wrapper/libcef_dll_wrapper.a').is_file())
 
-    def test_mpv_preparation_preserves_locked_original_bytes(self):
+    def test_mpv_preparation_requires_source_build_and_rejects_historical_cache(self):
         module = load_module()
         source = self.cache / 'mpv/lib/libmpv.2.dylib'
         source.parent.mkdir(parents=True)
@@ -110,14 +110,17 @@ class PreparePublicBuildTests(unittest.TestCase):
                                     'minimum_macos': '12.0', 'artifacts': [
                                         {'path': 'mpv/lib/libmpv.2.dylib',
                                          'sha256': hashlib.sha256(source.read_bytes()).hexdigest()}]}}}
-        signed = []
-        with mock.patch.object(module, 'verify_mpv_prepared'):
-            module.prepare_mpv(self.root, lock, SimpleNamespace(architecture='arm64',
-                                                                minimum_macos='14.0'),
-                               signer=lambda path: signed.append(path) or path.write_bytes(b'signed copy'))
+        target = SimpleNamespace(architecture='arm64', minimum_macos='14.0')
+        with self.assertRaisesRegex(ValueError, 'historical binaries'):
+            module.prepare_mpv(self.root, lock, target)
         self.assertEqual(source.read_bytes(), b'locked original')
-        self.assertEqual((self.cache / 'mpv/runtime-lib/libmpv.2.dylib').read_bytes(), b'signed copy')
-        self.assertEqual(len(signed), 1)
+        self.assertFalse((self.cache / 'mpv/runtime-lib').exists())
+        lock['modules']['mpv']['source_build'] = {'output': '.build/media-source-complete/mpv'}
+        with mock.patch('mpv_source_build.build') as build, \
+                mock.patch.object(module, 'verify_mpv_prepared') as verify:
+            module.prepare_mpv(self.root, lock, target)
+        build.assert_called_once_with(self.root)
+        verify.assert_called_once_with(lock, self.cache, product_target=target)
 
     def test_failed_input_download_is_exposed_without_product_build(self):
         module = load_module()
