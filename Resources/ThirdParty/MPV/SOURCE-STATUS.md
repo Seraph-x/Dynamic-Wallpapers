@@ -36,3 +36,9 @@ The application uses libmpv's software render API, CoreAudio, `videotoolbox-copy
 `BUILD-RECORD.json` binds actual dylib/header hashes, source-lock and recipe hashes, SDK, compiler/build-tool versions, architecture, minimum OS and closed runtime dependencies. `recipe/` mirrors the fingerprinted inputs for audit; execute the entry point from the complete corresponding application source, which also supplies shared publication, Mach-O and SDK helpers. Configuration/build logs and raw machine paths remain in the ignored local build tree. Codec parity and native rendering/audio are separately measured by the acceptance probes.
 
 Completeness is controlled by `../distribution-status.json`. A successful source build and static closure check alone do not claim native playback/audio/VideoToolbox acceptance.
+
+The retained record and six-case native captures were renewed from an actual
+neutral-path source rebuild on 2026-10-27. All 512 decoder registrations remain
+identical; source archives, recipes and options were unchanged. Direct binary
+inspection found no personal home paths in any of the 14 resulting dylibs.
+The record describes the new actual bytes and normal native resource teardown.

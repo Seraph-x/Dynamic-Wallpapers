@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "ffmpeg_sha256": "d219883d22697af98a5c1b361ee2717d1fa60b3c111d55502ba2e2c0662b01a0",
+  "ffprobe_sha256": "50c65f88da21e2f03964b5f7ab82cc69f9e1b7550a242e46fa51e86cc6f76abe",
+  "cases": [
+    {
+      "fixture": "av1-opus.mkv",
+      "fixture_sha256": "9c0364b1fe7d298d6a5831ed1c802d6d7bf51b586067f995a959a426351fc583",
+      "decoded": {
+        "frame_count": 24,
+        "first_rgba_sha256": "942aaa2bde0e9ca9fdc28ba6fe120cdaf34ddaca6b49282e42bbd3d9e3d74af4",
+        "last_rgba_sha256": "a1e47c762ae7716a96387b0e464c033d2ac5947a2a162be21d8908a92bb4c3b6",
+        "pcm_bytes": 192000,
+        "pcm_sha256": "82244f71f6aecad6513be538d847c4e81a74747267f74228898d3954dc85ab38",
+        "software_av1_decoder_observed": true
+      },
+      "converted": {
+        "frame_count": 24,
+        "first_rgba_sha256": "e445347e6325a6bf64a9a450847dd4506aecf5ffc6d8f2cf1805b7266298914a",
+        "last_rgba_sha256": "17080be526eeb5248743927a0fd83ab8a354159c85e36f37349a69a7245b2e37",
+        "pcm_bytes": 192000,
+        "pcm_sha256": "e9fb1dfd250379e0387b0e1df5344a12dd1eb35c61060d5e8959c1593ba18522",
+        "software_av1_decoder_observed": false
+      },
+      "converted_sha256": "713dccec6a372d52591c9d649f5875dfa3cdd1e862392eb48ec9d11fb7c83101"
+    },
+    {
+      "fixture": "av1-opus.webm",
+      "fixture_sha256": "4f1bc950b8ad61a48fc3683dfb392a1201d5a78c714f9fffa9a8178437737d54",
+      "decoded": {
+        "frame_count": 24,
+        "first_rgba_sha256": "942aaa2bde0e9ca9fdc28ba6fe120cdaf34ddaca6b49282e42bbd3d9e3d74af4",
+        "last_rgba_sha256": "a1e47c762ae7716a96387b0e464c033d2ac5947a2a162be21d8908a92bb4c3b6",
+        "pcm_bytes": 192000,
+        "pcm_sha256": "82244f71f6aecad6513be538d847c4e81a74747267f74228898d3954dc85ab38",
+        "software_av1_decoder_observed": true
+      },
+      "converted": {
+        "frame_count": 24,
+        "first_rgba_sha256": "e445347e6325a6bf64a9a450847dd4506aecf5ffc6d8f2cf1805b7266298914a",
+        "last_rgba_sha256": "17080be526eeb5248743927a0fd83ab8a354159c85e36f37349a69a7245b2e37",
+        "pcm_bytes": 192000,
+        "pcm_sha256": "e9fb1dfd250379e0387b0e1df5344a12dd1eb35c61060d5e8959c1593ba18522",
+        "software_av1_decoder_observed": false
+      },
+      "converted_sha256": "e2a6f9d16ace3ad3e41200924437adeab717eff0f783cb424db411ff927388dc"
+    },
+    {
+      "fixture": "h264-aac.mkv",
+      "fixture_sha256": "7426da0bf6ee01b364f3c4b230f623eb081f583e7e3cd90420b6dcedfac3cde8",
+      "decoded": {
+        "frame_count": 24,
+        "first_rgba_sha256": "bd65a20f1d0988dac826297dd1a2dc63f1054db2d6ffce7b9c5c66dae953efba",
+        "last_rgba_sha256": "1e756f03a225cb04e6a27635a8b41161f8b1dd1bc85eabcf1aa30efdd9af0bcf",
+        "pcm_bytes": 192512,
+        "pcm_sha256": "584a762eb9f51a01173dbc636bacbebb1963f20f1f9cb8b505bfe006a302070a",
+        "software_av1_decoder_observed": false
+      },
+      "converted": {
+        "frame_count": 24,
+        "first_rgba_sha256": "aab29446bc3d691eb9807bdb49bca512e2b8e19b86e6bd5e91f4b722a765ef19",
+        "last_rgba_sha256": "9bab77f6607880e5e80bb2a514b649fe79f3d37a353632ebad3e42d573302010",
+        "pcm_bytes": 192512,
+        "pcm_sha256": "66048075a83e8481271edc61dd577ec17793027a0b79fed54e2cac085cf92f20",
+        "software_av1_decoder_observed": false
+      },
+      "converted_sha256": "2ca19b6de065219af03c8635adb4ac506f90123672a4c9b0dcaefc337f11009b"
+    },
+    {
+      "fixture": "vp9-opus.webm",
+      "fixture_sha256": "a3ba09952dd13f849064f6cd399a9b125126ee3b585d0db163f37a8e2fac9c55",
+      "decoded": {
+        "frame_count": 24,
+        "first_rgba_sha256": "511d14de61db550d05a6b7d979791f8b208328b95573b933aad20dc99f732d04",
+        "last_rgba_sha256": "2f5351fc9f0c2935ae3afc2a1560b0203a60447ecac9ce1223d750c82bf2b07c",
+        "pcm_bytes": 192000,
+        "pcm_sha256": "82244f71f6aecad6513be538d847c4e81a74747267f74228898d3954dc85ab38",
+        "software_av1_decoder_observed": false
+      },
+      "converted": {
+        "frame_count": 24,
+        "first_rgba_sha256": "d9f192114d06537d6b252249c45d0763cdeeab59792f5a73e6ea660011e5c686",
+        "last_rgba_sha256": "e568dbf83710fe692a719901337ebe1393d783e83b7c1247c95e86cbef362365",
+        "pcm_bytes": 192000,
+        "pcm_sha256": "e9fb1dfd250379e0387b0e1df5344a12dd1eb35c61060d5e8959c1593ba18522",
+        "software_av1_decoder_observed": false
+      },
+      "converted_sha256": "b8ac2c0a45dfcdb287a4ea630eb8acd6c5fce6c19dc488863eeaebd8409596c8"
+    },
+    {
+      "fixture": "mpeg4-mp3.avi",
+      "fixture_sha256": "b88c9c3e29bbe0b7aabeeb43c8cbd933d140c5606b9cc0d010575b30797fb3b8",
+      "decoded": {
+        "frame_count": 25,
+        "first_rgba_sha256": "d3a0bf257f5776752ba1c10c59fc9ae448944b05f6cbe7a3f64a1fda8583ffe5",
+        "last_rgba_sha256": "0d12023bc992800abb0b93749c8f2d843b34adb4e7892a9248a8913d30632cc1",
+        "pcm_bytes": 195840,
+        "pcm_sha256": "fc4eeae29afc1913ab7b97ff5be6046c698cd073e94634017ceceb2d8de02295",
+        "software_av1_decoder_observed": false
+      },
+      "converted": {
+        "frame_count": 25,
+        "first_rgba_sha256": "35b90b9cf75667aac784ef929cf165851c535cb236e4be9e50b8b81f3d3f936b",
+        "last_rgba_sha256": "8897f74716aa17c3182404147655471a506e5f877e9d1e9c9c6cea659a855f11",
+        "pcm_bytes": 195840,
+        "pcm_sha256": "fb9cf2d6857c55f20c2faa0a64ec702407fba22600b15a48cee11f993371a1b8",
+        "software_av1_decoder_observed": false
+      },
+      "converted_sha256": "b06df00509d1a0e987601a6041748878167b1e15c9497731f91dbb6b3867854e"
+    },
+    {
+      "fixture": "zmbv-mp3.avi",
+      "fixture_sha256": "a6aedcb1a6ed97495fb148be72737ecc1902f825577bb500f347b441322879bc",
+      "decoded": {
+        "frame_count": 25,
+        "first_rgba_sha256": "82b2e8b203721270623c252b9b6a86ecd34ce1976693d785cecf7ebdbc586161",
+        "last_rgba_sha256": "4d14561edb36e8aaadd0e3432ec97afb48aef78abe6be4b7553e40099f32ac62",
+        "pcm_bytes": 195840,
+        "pcm_sha256": "fc4eeae29afc1913ab7b97ff5be6046c698cd073e94634017ceceb2d8de02295",
+        "software_av1_decoder_observed": false
+      },
+      "converted": {
+        "frame_count": 25,
+        "first_rgba_sha256": "c748e42944eab23ea5337660d2c4205dc846cb5cc95dac89095048538b9ede77",
+        "last_rgba_sha256": "26c146555cc982a40f5cc36ab64e9ce7950c7b86cb1247741f5f250be75b5094",
+        "pcm_bytes": 195840,
+        "pcm_sha256": "fb9cf2d6857c55f20c2faa0a64ec702407fba22600b15a48cee11f993371a1b8",
+        "software_av1_decoder_observed": false
+      },
+      "converted_sha256": "1ecca573fafdd3fd646937c6c89346539681f785d4c42b4bd7639c9bfaa12538"
+    }
+  ],
+  "runner_source_sha256": "501d2b05c8fcc9e5b37617111b19ede366d4ee2116bace5abdfc25d1b0034fbd"
+}

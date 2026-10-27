@@ -12,6 +12,7 @@ import tempfile
 from media_bundle_macho import inspect_image, is_system_path, validate_target
 from media_dependencies import checked_bytes, relative_path
 from swift_sdk import selected_sdk, sdk_version
+from ffmpeg_codec_build import fingerprints as codec_fingerprints, build_environment as codec_build_environment
 
 
 TOOL_NAMES = ('ffmpeg', 'ffprobe')
@@ -105,8 +106,8 @@ def _unique_pairs(pairs):
 def _record(document):
     if (type(document) is not dict or set(document) != {
             'schema_version', 'source_sha256', 'build_script_sha256',
-            'sdk_version', 'toolchain_version', 'tools'
-    } or type(document['schema_version']) is not int or document['schema_version'] != 1
+            'sdk_version', 'toolchain_version', 'tools', 'build_inputs', 'build_tools'
+    } or type(document['schema_version']) is not int or document['schema_version'] != 2
             or type(document['sdk_version']) is not str
             or not re.fullmatch(r'\d+(?:\.\d+){1,2}', document['sdk_version'])
             or type(document['toolchain_version']) is not str
@@ -120,6 +121,14 @@ def _record(document):
             or any(type(value) is not str or not HEX_SHA256.fullmatch(value)
                    for value in tools.values())):
         raise ValueError('Invalid FFmpeg build record schema')
+    inputs = document['build_inputs']
+    build_tools = document['build_tools']
+    if (type(inputs) is not dict or not inputs
+            or any(type(key) is not str or type(value) is not str or not HEX_SHA256.fullmatch(value)
+                   for key, value in inputs.items())
+            or type(build_tools) is not dict or set(build_tools) != {'python', 'cmake', 'pkg-config', 'make'}
+            or any(type(value) is not str or not value.strip() for value in build_tools.values())):
+        raise ValueError('Invalid FFmpeg build record schema')
     return document
 
 
@@ -128,10 +137,11 @@ def write_record(root, lock, *, sdk_version, toolchain_version, inspect_image=in
     script_sha = _script_sha(root)
     tools = _tools(root, lock, Path('.build/dependencies/ffmpeg/install'),
                    sdk_version, inspect_image)
-    document = _record({'schema_version': 1, 'source_sha256': source_sha,
+    document = _record({'schema_version': 2, 'source_sha256': source_sha,
                         'build_script_sha256': script_sha, 'sdk_version': sdk_version,
                         'toolchain_version': toolchain_version,
-                        'tools': tools})
+                        'tools': tools, 'build_inputs': codec_fingerprints(root),
+                        'build_tools': codec_build_environment()})
     destination = record_path(root)
     destination.parent.mkdir(parents=True, exist_ok=True)
     descriptor, temporary_name = tempfile.mkstemp(prefix='.local-build-', dir=destination.parent)
@@ -160,6 +170,10 @@ def verify_record(root, lock, *, sdk_version, toolchain_version, inspect_image=i
         raise ValueError('FFmpeg build record source SHA256 differs from pinned input')
     if document['build_script_sha256'] != script_sha:
         raise ValueError('FFmpeg build script SHA256 differs from build record')
+    if document['build_inputs'] != codec_fingerprints(root):
+        raise ValueError('FFmpeg codec build input SHA256 differs from build record')
+    if document['build_tools'] != codec_build_environment():
+        raise ValueError('FFmpeg codec build tool environment differs from build record')
     if document['sdk_version'] != sdk_version:
         raise ValueError('FFmpeg build record SDK differs from selected SDK')
     if document['toolchain_version'] != toolchain_version:

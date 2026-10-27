@@ -2,7 +2,7 @@
   "schema_version": 1,
   "passed": true,
   "native_phase_budget_seconds": 60,
-  "build_record_sha256": "4f100661c6eb505478b0631c1a4efbb2a78e079ca728189d0455e3e5de02e3fd",
+  "build_record_sha256": "b384b0b2206d011d83951ec1216fe2052d5d9c78547f45503c6a8e30a39e2ca5",
   "fixture_record_sha256": "6f3ce1bf5af8e03acea6d57fb3a83b9db4652621ce6657bbc5fa99b56982d563",
   "bridge_source_sha256": "7a33c0ed7585b018e01b4bb5835820218bd49ee2add7303c76d84ce0cf97b432",
   "harness_source_sha256": "84bd4dd0d4c821ea03ed5443905a54da5203531f2257e0365d0dfa28e25f2c59",
@@ -14,9 +14,9 @@
       "fixture_sha256": "7426da0bf6ee01b364f3c4b230f623eb081f583e7e3cd90420b6dcedfac3cde8",
       "report": "h264-aac.mkv.json",
       "artifacts": {
-        "h264-aac.mkv.json": "261357d2597da062879270e60b94572630be0558456dda8635356677c0a65360",
+        "h264-aac.mkv.json": "742a1205b468f1168a85aa6d6438ac4325bbd5ea348585d1ce39083c97769880",
         "h264-aac.mkv-first.rgba": "e89372c35c7e9c1f159160741019af1f1d140bf51b149e1f921f0769ae7e30e3",
-        "h264-aac.mkv-last.rgba": "e89372c35c7e9c1f159160741019af1f1d140bf51b149e1f921f0769ae7e30e3"
+        "h264-aac.mkv-last.rgba": "d15010feead0412e877ba4f64d33de58560c4b6792602010a423115a12fcc256"
       },
       "measured": {
         "callbacksAfterCloseCompletion": 0,
@@ -37,7 +37,7 @@
           "renderHeight": 36
         },
         "audioOutput": "coreaudio",
-        "frameCount": 27,
+        "frameCount": 25,
         "firstFrameMetadata": {
           "height": 90,
           "controlQueueLabel": "local.dynamicwallpaper.mpv.control",
@@ -58,8 +58,8 @@
         "firstRGBAFile": "h264-aac.mkv-first.rgba",
         "videoCodec": "h264",
         "hardwareDecoder": "videotoolbox-copy",
-        "maximumAudioPTS": 1.715340210333337,
-        "distinctPixelHashes": 24,
+        "maximumAudioPTS": 1.7465740833333372,
+        "distinctPixelHashes": 23,
         "loops": 1,
         "settingsReadbacks": {
           "pauseAndResumeVerified": true,
@@ -85,9 +85,9 @@
       "fixture_sha256": "a3ba09952dd13f849064f6cd399a9b125126ee3b585d0db163f37a8e2fac9c55",
       "report": "vp9-opus.webm.json",
       "artifacts": {
-        "vp9-opus.webm.json": "58b2889b0bfdf72f0b180a640c29a31677d4b283ede41e71d41098c4f98802f3",
+        "vp9-opus.webm.json": "f506aa0d2b59c6553a1a7a78d869e608babe0e4a820a93379b6460ed7b07f411",
         "vp9-opus.webm-first.rgba": "ef89669519196abd9ab9ead6bf9fb340c8bf8d5e32186592cd99ea4a51876fe8",
-        "vp9-opus.webm-last.rgba": "a7baa3b10d2a44e3c701a35bf01cd4deece8e5ba61d508f63236cf52ef6ab798"
+        "vp9-opus.webm-last.rgba": "ef89669519196abd9ab9ead6bf9fb340c8bf8d5e32186592cd99ea4a51876fe8"
       },
       "measured": {
         "callbacksAfterCloseCompletion": 0,
@@ -108,7 +108,7 @@
           "renderHeight": 36
         },
         "audioOutput": "coreaudio",
-        "frameCount": 25,
+        "frameCount": 27,
         "firstFrameMetadata": {
           "height": 90,
           "controlQueueLabel": "local.dynamicwallpaper.mpv.control",
@@ -129,8 +129,8 @@
         "firstRGBAFile": "vp9-opus.webm-first.rgba",
         "videoCodec": "vp9",
         "hardwareDecoder": "videotoolbox-copy",
-        "maximumAudioPTS": 1.6873870013333345,
-        "distinctPixelHashes": 23,
+        "maximumAudioPTS": 1.740111376666668,
+        "distinctPixelHashes": 24,
         "loops": 1,
         "settingsReadbacks": {
           "pauseAndResumeVerified": true,
@@ -156,9 +156,9 @@
       "fixture_sha256": "b88c9c3e29bbe0b7aabeeb43c8cbd933d140c5606b9cc0d010575b30797fb3b8",
       "report": "mpeg4-mp3.avi.json",
       "artifacts": {
-        "mpeg4-mp3.avi.json": "f434a3ff692a8842eda588381fe16049df83e0a3322379dffb4e4408390a032b",
+        "mpeg4-mp3.avi.json": "38e839b2c67ffaec7200a08b98576ddce965307539530d0136da0ca91b76ff72",
         "mpeg4-mp3.avi-first.rgba": "23e29d53ee5a248c7a061eb8181aaf315daa8765ffda32bb1ce055faa0550681",
-        "mpeg4-mp3.avi-last.rgba": "23e29d53ee5a248c7a061eb8181aaf315daa8765ffda32bb1ce055faa0550681"
+        "mpeg4-mp3.avi-last.rgba": "fd0566090549077db2c41ccd6f2a43bc7cce2e72d9ca85c8ce7874750ad87f36"
       },
       "measured": {
         "callbacksAfterCloseCompletion": 0,
@@ -179,7 +179,7 @@
           "renderHeight": 36
         },
         "audioOutput": "coreaudio",
-        "frameCount": 27,
+        "frameCount": 25,
         "firstFrameMetadata": {
           "height": 90,
           "controlQueueLabel": "local.dynamicwallpaper.mpv.control",
@@ -200,8 +200,8 @@
         "firstRGBAFile": "mpeg4-mp3.avi-first.rgba",
         "videoCodec": "mpeg4",
         "hardwareDecoder": "no",
-        "maximumAudioPTS": 1.7240817930000012,
-        "distinctPixelHashes": 24,
+        "maximumAudioPTS": 1.7587738340000012,
+        "distinctPixelHashes": 23,
         "loops": 1,
         "settingsReadbacks": {
           "pauseAndResumeVerified": true,
@@ -227,7 +227,7 @@
       "fixture_sha256": "9c0364b1fe7d298d6a5831ed1c802d6d7bf51b586067f995a959a426351fc583",
       "report": "av1-opus.mkv.json",
       "artifacts": {
-        "av1-opus.mkv.json": "7948af68a0181f7904528866d06396935e506f1384e548f501326143c93f0080",
+        "av1-opus.mkv.json": "346c11727773e7e0f90e618c3e19d0ad889fc2397f134283e27c0495a86bd306",
         "av1-opus.mkv-first.rgba": "051549e7825a5dee2babbb84c055ced4d1246d172b6accf12206736cf667bf10",
         "av1-opus.mkv-last.rgba": "051549e7825a5dee2babbb84c055ced4d1246d172b6accf12206736cf667bf10"
       },
@@ -250,7 +250,7 @@
           "renderHeight": 36
         },
         "audioOutput": "coreaudio",
-        "frameCount": 27,
+        "frameCount": 25,
         "firstFrameMetadata": {
           "height": 90,
           "controlQueueLabel": "local.dynamicwallpaper.mpv.control",
@@ -271,8 +271,8 @@
         "firstRGBAFile": "av1-opus.mkv-first.rgba",
         "videoCodec": "av1",
         "hardwareDecoder": "no",
-        "maximumAudioPTS": 1.7010436260000013,
-        "distinctPixelHashes": 24,
+        "maximumAudioPTS": 1.6972835850000012,
+        "distinctPixelHashes": 23,
         "loops": 1,
         "settingsReadbacks": {
           "pauseAndResumeVerified": true,
@@ -298,9 +298,9 @@
       "fixture_sha256": "a6aedcb1a6ed97495fb148be72737ecc1902f825577bb500f347b441322879bc",
       "report": "zmbv-mp3.avi.json",
       "artifacts": {
-        "zmbv-mp3.avi.json": "0ac2dfe432d6e03b3b290d6ff6738bb442f50f4391c25076b46428237518fada",
+        "zmbv-mp3.avi.json": "c51cc179ea3398ffd5db13affb623e4565dd30dd60353d0de14dd777965b8e76",
         "zmbv-mp3.avi-first.rgba": "5a37dc309f59e0f7d5f9d5891c76bb58adba51b03b2accb65a38855a176ff8a3",
-        "zmbv-mp3.avi-last.rgba": "5a37dc309f59e0f7d5f9d5891c76bb58adba51b03b2accb65a38855a176ff8a3"
+        "zmbv-mp3.avi-last.rgba": "61e452a5745a7a8084fa37dcfc02cb8c6875fa628ecd483723e30f5e4112ec79"
       },
       "measured": {
         "callbacksAfterCloseCompletion": 0,
@@ -321,7 +321,7 @@
           "renderHeight": 36
         },
         "audioOutput": "coreaudio",
-        "frameCount": 26,
+        "frameCount": 25,
         "firstFrameMetadata": {
           "height": 90,
           "controlQueueLabel": "local.dynamicwallpaper.mpv.control",
@@ -342,7 +342,7 @@
         "firstRGBAFile": "zmbv-mp3.avi-first.rgba",
         "videoCodec": "zmbv",
         "hardwareDecoder": "no",
-        "maximumAudioPTS": 1.7632128760000012,
+        "maximumAudioPTS": 1.7622120010000013,
         "distinctPixelHashes": 23,
         "loops": 1,
         "settingsReadbacks": {
@@ -369,7 +369,7 @@
       "fixture_sha256": "4f1bc950b8ad61a48fc3683dfb392a1201d5a78c714f9fffa9a8178437737d54",
       "report": "av1-opus.webm.json",
       "artifacts": {
-        "av1-opus.webm.json": "a72ca44caca230837fd7db120c4cd86671df5f3fe7ca8de149306d902eb5f685",
+        "av1-opus.webm.json": "e0333dc2b2ac7a1ed62bcf5b21a227a643b7fb00c1db5dd4134ae8a1e18f1a87",
         "av1-opus.webm-first.rgba": "051549e7825a5dee2babbb84c055ced4d1246d172b6accf12206736cf667bf10",
         "av1-opus.webm-last.rgba": "051549e7825a5dee2babbb84c055ced4d1246d172b6accf12206736cf667bf10"
       },
@@ -413,7 +413,7 @@
         "firstRGBAFile": "av1-opus.webm-first.rgba",
         "videoCodec": "av1",
         "hardwareDecoder": "no",
-        "maximumAudioPTS": 1.706500709666668,
+        "maximumAudioPTS": 1.707106000666668,
         "distinctPixelHashes": 24,
         "loops": 1,
         "settingsReadbacks": {

@@ -17,7 +17,7 @@
     "renderHeight" : 36
   },
   "audioOutput" : "coreaudio",
-  "frameCount" : 26,
+  "frameCount" : 25,
   "firstFrameMetadata" : {
     "height" : 90,
     "controlQueueLabel" : "local.dynamicwallpaper.mpv.control",
@@ -38,7 +38,7 @@
   "firstRGBAFile" : "zmbv-mp3.avi-first.rgba",
   "videoCodec" : "zmbv",
   "hardwareDecoder" : "no",
-  "maximumAudioPTS" : 1.7632128760000012,
+  "maximumAudioPTS" : 1.7622120010000013,
   "distinctPixelHashes" : 23,
   "loops" : 1,
   "settingsReadbacks" : {

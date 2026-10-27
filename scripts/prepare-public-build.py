@@ -117,6 +117,11 @@ def prepare_ffmpeg(root, lock, *, sdk_version, toolchain_version):
     subprocess.run(['bash', str(root / 'scripts/feasibility/ffmpeg/build.sh'),
                     str(root / '.build/dependencies' / artifact['path']),
                     artifact['sha256'], str(stage)], cwd=root, check=True)
+    from ffmpeg_codec_build import fingerprints, build_environment
+    import json
+    evidence = json.loads((stage / 'codec-inputs.json').read_text())
+    if evidence != {'inputs': fingerprints(root), 'tools': build_environment()}:
+        raise ValueError('FFmpeg codec input/build-tool evidence changed during the complete build')
     validate_staged_tools(root, lock, stage / 'install', sdk_version=sdk_version)
     publish_directory(stage / 'install', install)
     write_record(root, lock, sdk_version=sdk_version,

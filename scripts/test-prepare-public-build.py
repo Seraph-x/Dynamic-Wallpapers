@@ -152,6 +152,10 @@ class PreparePublicBuildTests(unittest.TestCase):
         fake_recipe = fake_project / 'scripts/feasibility/ffmpeg/build.sh'
         fake_recipe.parent.mkdir(parents=True)
         shutil.copyfile(recipe, fake_recipe)
+        # This test isolates configure's Git ancestry from the independently
+        # built codec prerequisite. Actual codec compilation has native acceptance.
+        (fake_project / 'scripts/ffmpeg_codec_build.py').write_text(
+            '# Owned prerequisite boundary for the configure/Git ancestry test.\n')
         subprocess.run(['git', 'init', '-q', str(fake_project)], check=True)
         archive_path = self.root / 'fixture.tar.gz'
         configure = (b'#!/bin/sh\n'

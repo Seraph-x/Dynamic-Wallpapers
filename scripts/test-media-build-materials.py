@@ -13,6 +13,49 @@ from unittest import mock
 
 
 class BuildMaterialTests(unittest.TestCase):
+    def test_actual_ffmpeg_acceptance_requires_all_cases_tools_and_runner(self):
+        source = Path(__file__).resolve().parents[1]
+        module = self.module()
+        tools = json.loads((source / 'Resources/ThirdParty/FFmpeg/BUILD-RECORD.json').read_text())['tools']
+        module.verify_ffmpeg_native_acceptance(source, tools)
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for relative in ['Resources/ThirdParty/FFmpeg/acceptance',
+                             'Resources/ThirdParty/MPV/acceptance/fixtures']:
+                shutil.copytree(source / relative, root / relative)
+            runner = root / 'scripts/test-ffmpeg-av1-tools.py'
+            runner.parent.mkdir(); shutil.copyfile(source / 'scripts/test-ffmpeg-av1-tools.py', runner)
+            path = root / 'Resources/ThirdParty/FFmpeg/acceptance/software-transcode.json'
+            actual = json.loads(path.read_text())
+            for mutate in [lambda value: value['cases'].pop(),
+                           lambda value: value.update(ffmpeg_sha256='0' * 64),
+                           lambda value: value.update(runner_source_sha256='0' * 64)]:
+                changed = json.loads(json.dumps(actual)); mutate(changed)
+                path.write_text(json.dumps(changed))
+                with self.assertRaises(ValueError):
+                    module.verify_ffmpeg_native_acceptance(root, tools)
+
+    def test_distributed_ffmpeg_recipe_requires_every_exact_codec_helper(self):
+        import hashlib
+        module = self.module()
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            relative = 'scripts/ffmpeg_codec_build.py'
+            helper = root / 'FFmpeg/recipe' / relative
+            helper.parent.mkdir(parents=True)
+            helper.write_bytes(b'actual recorded helper bytes')
+            script = root / 'FFmpeg/build.sh'
+            script.write_bytes(b'actual recorded shell recipe')
+            record = {'build_inputs': {relative: hashlib.sha256(helper.read_bytes()).hexdigest()},
+                      'build_script_sha256': hashlib.sha256(script.read_bytes()).hexdigest()}
+            module.verify_ffmpeg_recipe_copies(root, record)
+            helper.write_bytes(b'tampered helper')
+            with self.assertRaisesRegex(ValueError, 'codec recipe'):
+                module.verify_ffmpeg_recipe_copies(root, record)
+            helper.unlink()
+            with self.assertRaises(FileNotFoundError):
+                module.verify_ffmpeg_recipe_copies(root, record)
+
     def module(self):
         self.assertIsNotNone(importlib.util.find_spec('media_build_materials'),
                              'measured public build evidence export is not implemented')
@@ -102,7 +145,7 @@ class PackagingEvidenceBindingTests(unittest.TestCase):
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name)
         self.materials = self.root / 'Resources/ThirdParty'
-        for relative in ('MPV/acceptance', 'MPV/recipe'):
+        for relative in ('MPV/acceptance', 'MPV/recipe', 'FFmpeg/acceptance'):
             shutil.copytree(source / 'Resources/ThirdParty' / relative,
                             self.materials / relative)
         for relative in ('MPV/BUILD-RECORD.json', 'FFmpeg/BUILD-RECORD.json'):
@@ -111,9 +154,19 @@ class PackagingEvidenceBindingTests(unittest.TestCase):
             shutil.copyfile(source / 'Resources/ThirdParty' / relative, destination)
         self.mpv_record = json.loads((self.materials / 'MPV/BUILD-RECORD.json').read_text())
         self.ffmpeg_record = json.loads((self.materials / 'FFmpeg/BUILD-RECORD.json').read_text())
+        from ffmpeg_codec_build import fingerprints
+        self.ffmpeg_record['build_inputs'] = fingerprints(source)
+        self.ffmpeg_record['build_script_sha256'] = self.ffmpeg_record['build_inputs']['scripts/feasibility/ffmpeg/build.sh']
+        for relative in self.ffmpeg_record['build_inputs']:
+            if relative.startswith('scripts/'):
+                destination = self.materials / 'FFmpeg/recipe' / relative
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(source / relative, destination)
+        shutil.copyfile(source / 'scripts/feasibility/ffmpeg/build.sh', self.materials / 'FFmpeg/build.sh')
+        (self.materials / 'FFmpeg/BUILD-RECORD.json').write_text(json.dumps(self.ffmpeg_record))
         for relative in (*INPUT_FILES, 'Sources/MPVBridge/MPVBridge.mm',
                          'Tests/MPVBridgeHarness/source-acceptance.mm',
-                         'scripts/test-controlled-mpv.py'):
+                         'scripts/test-controlled-mpv.py', 'scripts/test-ffmpeg-av1-tools.py'):
             destination = self.root / relative
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(source / relative, destination)
@@ -170,7 +223,7 @@ class PackagingEvidenceBindingTests(unittest.TestCase):
 
     def test_explicitly_incomplete_materials_do_not_claim_native_acceptance(self):
         self.status.write_text(json.dumps({'components': {'mpv': {'complete': False}}}))
-        shutil.rmtree(self.materials / 'MPV/acceptance')
+        (self.materials / 'MPV/acceptance/acceptance.json').unlink()
         self.verify()
 
 

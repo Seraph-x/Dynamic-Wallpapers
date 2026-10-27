@@ -17,7 +17,7 @@
     "renderHeight" : 36
   },
   "audioOutput" : "coreaudio",
-  "frameCount" : 25,
+  "frameCount" : 27,
   "firstFrameMetadata" : {
     "height" : 90,
     "controlQueueLabel" : "local.dynamicwallpaper.mpv.control",
@@ -38,8 +38,8 @@
   "firstRGBAFile" : "vp9-opus.webm-first.rgba",
   "videoCodec" : "vp9",
   "hardwareDecoder" : "videotoolbox-copy",
-  "maximumAudioPTS" : 1.6873870013333345,
-  "distinctPixelHashes" : 23,
+  "maximumAudioPTS" : 1.740111376666668,
+  "distinctPixelHashes" : 24,
   "loops" : 1,
   "settingsReadbacks" : {
     "pauseAndResumeVerified" : true,

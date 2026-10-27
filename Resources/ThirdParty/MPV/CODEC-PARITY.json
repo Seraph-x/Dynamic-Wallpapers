@@ -34,7 +34,7 @@
   ],
   "av1_software_implementation": "libdav1d",
   "historical_audit_sha256": "3101a04056677d41fb8759ffb0e03ae2b49cb87a79e68be42fa66d9f94e64f5a",
-  "controlled_audit_sha256": "b2eb4e4b2453a3ead546244b1baea567c4e9ffc589f6a860edeb8e8a9dab3382",
-  "controlled_libavcodec_sha256": "286b0511d0ec0dacd3a4cf2cf3756c20314b7723b6dbdfcf4f2873474d4e2fc4",
+  "controlled_audit_sha256": "cd62c548056dfc3a0ace4e225a3950109bb6ef5acb25450f59b1a7d9aaa5fef0",
+  "controlled_libavcodec_sha256": "5eaca068c68383e8ad638e866418030ecda82aff6b1a174d6b61b2d4144125fe",
   "historical_scope": "Measured old binary API baseline only; old corresponding-source completeness remains unproven."
 }
