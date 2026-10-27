@@ -45,8 +45,9 @@ references. **Undo** restores the definition.
 ## Use the saved defaults
 
 Existing scene bindings and `applyUserProperties(properties)` receive the saved
-defaults during playback. This workspace does not add a binding picker or rewrite
-script source. Scripts remain disabled in the edit canvas; use **Run preview**
+defaults during playback. Use the inspector's separate
+[binding dialog](editor-property-bindings.md) to connect supported layer fields;
+the Project workspace does not rewrite script source. Scripts remain disabled in the edit canvas; use **Run preview**
 to observe callbacks and scene behavior. Main's ordinary wallpaper playback uses
 the authored defaults and still has no persistent override interface. This
 feature changes only the independent Editor and its offline resources.

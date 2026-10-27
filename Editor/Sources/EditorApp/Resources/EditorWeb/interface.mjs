@@ -1,4 +1,5 @@
 import { controlled } from './document.mjs';
+import { BINDING_FIELDS } from './property-bindings.mjs';
 
 const $ = id => document.getElementById(id);
 const paths = {
@@ -69,8 +70,8 @@ function renderLayers({layers, selected, onSelect, t}) {
   });
   $('layers').replaceChildren(...items); $('layer-count').textContent = String(layers.length); $('layers-empty').hidden = layers.length > 0;
 }
-function propertyField(layer, key, t, onPatch) {
-  const defaults = {name:'',visible:true,origin:'0 0 0',scale:'1 1 1',angles:'0 0 0',color:'1 1 1',alpha:1,pointsize:32};
+function propertyField(layer, key, t, onPatch, onBind) {
+  const defaults = {name:'',visible:true,origin:'0 0 0',scale:'1 1 1',angles:'0 0 0',color:'1 1 1',alpha:1,pointsize:24};
   const field = document.createElement('div'), label = document.createElement('label'), input = document.createElement(key === 'text' ? 'textarea' : 'input');
   const value = layer[key] ?? defaults[key], bound = controlled(value), numeric = ['alpha','pointsize'].includes(key);
   field.className = 'property-field'; field.dataset.bound = String(Boolean(bound));
@@ -84,9 +85,14 @@ function propertyField(layer, key, t, onPatch) {
     if (!input.reportValidity()) return;
     onPatch(layer.id,{[key]:key === 'visible' ? input.checked : numeric ? Number(input.value) : input.value});
   });
-  field.append(label,input); return field;
+  field.append(label,input);
+  if(BINDING_FIELDS.includes(key)){
+    const button=document.createElement('button');button.type='button';button.id='bind-'+key;button.className='property-binding-button';button.textContent=t.bindProperty;
+    button.setAttribute('aria-label',`${t.bindProperty} ${t[key]}`);button.addEventListener('click',()=>onBind(layer.id,key));field.append(button);
+  }
+  return field;
 }
-function renderInspector(layer, t, onPatch) {
+function renderInspector(layer, t, onPatch, onBind) {
   const form = $('inspector');
   if (form.dataset.layerId === String(layer?.id) && form.contains(document.activeElement)) return;
   const selectionChanged = form.dataset.layerId !== String(layer?.id);
@@ -99,10 +105,10 @@ function renderInspector(layer, t, onPatch) {
   for (const [title, keys] of groups) {
     const group = document.createElement('fieldset'), legend = document.createElement('legend'), fields = document.createElement('div');
     group.className = 'property-group'; legend.textContent = title; fields.className = 'property-fields';
-    fields.append(...keys.map(key => propertyField(layer,key,t,onPatch))); group.append(legend,fields); form.append(group);
+    fields.append(...keys.map(key => propertyField(layer,key,t,onPatch,onBind))); group.append(legend,fields); form.append(group);
   }
 }
-export function renderWorkspace({doc, selected, t, onSelect, onPatch}) {
+export function renderWorkspace({doc, selected, t, onSelect, onPatch, onBind}) {
   const snapshot = doc.snapshot(), layers = snapshot.scene.objects ?? [], layer = layers.find(value => value.id === selected);
   if (document.activeElement !== $('project-title')) $('project-title').value = snapshot.title;
   $('saved').textContent = doc.dirty ? t.unsaved : t.saved; $('saved').dataset.dirty = String(doc.dirty);
@@ -110,5 +116,5 @@ export function renderWorkspace({doc, selected, t, onSelect, onPatch}) {
   for (const id of ['duplicate','remove','up','down']) $(id).disabled = !layer;
   const projection = snapshot.scene.general?.orthogonalprojection;
   $('canvas-size').textContent = projection?.width > 0 && projection?.height > 0 ? `${projection.width} × ${projection.height}` : '';
-  renderLayers({layers,selected,onSelect,t}); renderInspector(layer,t,onPatch);
+  renderLayers({layers,selected,onSelect,t}); renderInspector(layer,t,onPatch,onBind);
 }
