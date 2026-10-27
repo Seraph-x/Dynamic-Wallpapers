@@ -1,0 +1,19 @@
+{
+  "general": {
+    "properties": {
+      "shared": {
+        "type": "bool",
+        "value": false
+      },
+      "blank": {
+        "type": "textinput",
+        "value": "",
+        "condition": ""
+      }
+    }
+  },
+  "preset": {
+    "shared": "old",
+    "preset": "keep"
+  }
+}

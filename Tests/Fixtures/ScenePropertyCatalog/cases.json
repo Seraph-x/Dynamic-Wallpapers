@@ -1,0 +1,34 @@
+[
+  {
+    "id": "authored",
+    "file": "project.json"
+  },
+  {
+    "id": "preset-general-priority",
+    "file": "preset-general-priority.json"
+  },
+  {
+    "id": "colors-and-strict-numbers",
+    "file": "colors-and-strict-numbers.json"
+  },
+  {
+    "id": "invalid-declarations",
+    "file": "invalid-declarations.json"
+  },
+  {
+    "id": "exact-duplicate-last-wins",
+    "file": "exact-duplicate-last-wins.json"
+  },
+  {
+    "id": "array",
+    "file": "array.json"
+  },
+  {
+    "id": "invalid-general",
+    "file": "invalid-general.json"
+  },
+  {
+    "id": "invalid-preset",
+    "file": "invalid-preset.json"
+  }
+]

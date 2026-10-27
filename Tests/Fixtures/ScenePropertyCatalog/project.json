@@ -1,0 +1,15 @@
+{"type":"scene","file":"scene.json","future":{"keep":true},"general":{"properties":{
+  "enabled":{"type":"bool","value":false,"text":"Visible","order":1},
+  "amount":{"type":"slider","value":0.5,"min":0,"max":1,"step":0.1,"order":2},
+  "tint":{"type":"color","value":"1 0.25 0","order":3},
+  "caption":{"type":"textinput","value":"Authored 雪","order":4},
+  "mode":{"type":"combo","value":"day","options":[{"label":"Day","value":"day"},{"label":"Night","value":"night"}],"order":5},
+  "é":{"type":"textinput","value":"first"},
+  "e\u0301":{"type":"textinput","value":"second"},
+  "😀":{"type":"textinput","value":"emoji"},
+  "\uE000":{"type":"textinput","value":"private"},
+  "future":{"type":"future-control","value":"keep"},
+  "__proto__":{"type":"textinput","value":"keep"},
+  "conditional":{"type":"bool","value":true,"condition":"other"},
+  "invalid":{"type":"slider","value":4,"min":0,"max":1}
+}},"preset":{"presetOnly":"keep"}}
