@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <cstring>
 #include <unistd.h>
 using namespace dw;
 static void require(bool value) { if (!value) throw std::runtime_error("scene protocol assertion failed"); }
@@ -16,6 +17,10 @@ static std::string json(id object) {
 static NSMutableDictionary* issue() {
   return [@{@"layerId": @1.5, @"layerName": @"", @"target": @"origin", @"phase": @"update",
             @"message": @"failure\0雪🌈", @"line": NSNull.null, @"count": @1} mutableCopy];
+}
+static NSDictionary* resourceSource() {
+  return @{ @"kind": @"resource", @"path": @"materials/雪.json", @"sha256": [@"a" stringByPaddingToLength:64 withString:@"a" startingAtIndex:0],
+            @"pointer": @[@"passes", @0, @"constantshadervalues", @"颜色", @"script"], @"text": @"// 😀\r\nthrow Error('x')" };
 }
 static NSMutableDictionary* part(NSData* bytes, NSUInteger ordinal = 0, BOOL final = YES,
                                  NSString* transfer = nil) {
@@ -62,6 +67,26 @@ static void scriptIssueTests() {
   require(session.events.size() == 2);
   NSData* updatedBytes = issueBytes(updated);
   require(session.events.back().payload == std::string(static_cast<const char*>(updatedBytes.bytes), updatedBytes.length));
+  auto external = issue(); external[@"source"] = resourceSource();
+  NSData* externalBytes = issueBytes(external);
+  require(session.receive(json(part(externalBytes))));
+  require(session.events.back().payload == std::string(static_cast<const char*>(externalBytes.bytes), externalBytes.length));
+  auto externalJSON = json(external);
+  auto nestedTrailing = externalJSON; nestedTrailing.insert(nestedTrailing.size() - 2, ",");
+  rejects([&] { session.receive(json(part([NSData dataWithBytes:nestedTrailing.data() length:nestedTrailing.size()]))); });
+  auto duplicateSourceField = externalJSON; auto sourceStart = duplicateSourceField.find("\"source\":{"); require(sourceStart != std::string::npos);
+  duplicateSourceField.insert(sourceStart + strlen("\"source\":{"), "\"kind\":\"resource\",");
+  rejects([&] { session.receive(json(part([NSData dataWithBytes:duplicateSourceField.data() length:duplicateSourceField.size()]))); });
+  const std::string invalidSourceUnicode = R"({"layerId":1,"layerName":"","target":"origin","phase":"update","message":"failure","line":1,"count":1,"source":{"kind":"resource","path":"materials/x.json","sha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","pointer":["passes",0,"script"],"text":"\ud83d"}})";
+  rejects([&] { session.receive(json(part([NSData dataWithBytes:invalidSourceUnicode.data() length:invalidSourceUnicode.size()]))); });
+  for (NSDictionary* mutation in @[
+    @{@"kind": @"inline"}, @{@"path": @"../x"}, @{@"path": @"a//x"},
+    @{@"sha256": [@"A" stringByPaddingToLength:64 withString:@"A" startingAtIndex:0]},
+    @{@"pointer": @[@"passes", @YES]}, @{@"extra": @1}
+  ]) {
+    auto invalid = issue(); NSMutableDictionary* source = [resourceSource() mutableCopy]; [source addEntriesFromDictionary:mutation]; invalid[@"source"] = source;
+    rejects([&] { session.receive(json(part(issueBytes(invalid)))); });
+  }
   for (NSString* key in @[@"layerName", @"target", @"phase", @"message"]) updated[key] = @"";
   require(session.receive(json(part(issueBytes(updated)))));
   for (NSString* key in @[@"transferID", @"ordinal", @"final", @"data"]) {
@@ -85,7 +110,7 @@ static void scriptIssueTests() {
   rejects([&] { session.receive(json(part([NSData dataWithBytes:"\xff" length:1]))); });
   rejects([&] { session.receive(json(part([@"[]" dataUsingEncoding:NSUTF8StringEncoding]))); });
   rejects([&] { session.receive(json(part([@"{invalid}" dataUsingEncoding:NSUTF8StringEncoding]))); });
-  require(session.events.size() == 3);
+  require(session.events.size() == 4);
   const auto valid = json(issue());
   auto malformedJSON = valid; malformedJSON.insert(malformedJSON.size() - 1, ",");
   rejects([&] { session.receive(json(part([NSData dataWithBytes:malformedJSON.data() length:malformedJSON.size()]))); });

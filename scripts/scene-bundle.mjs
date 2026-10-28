@@ -24,12 +24,18 @@ for (const [name, expected] of [['webwallgl', '3.0.0'], ['mediabunny', '1.56.0']
 }
 const output = 'Sources/WallpaperApp/Resources/SceneRuntime/webwallgl.bundle.mjs';
 const patched=patchSceneEngine(engineBytes.toString('utf8'));
-const localPatches={source:'scripts/scene-engine-patches.mjs',sha256:digest(await readFile(new URL('./scene-engine-patches.mjs',import.meta.url))),patchedEntrySHA256:digest(patched.source),items:patched.patches};
+const patchInputs=['scene-engine-patches.mjs','scene-resource-script-patches.mjs'];
+const sharedInputs=['../Resources/SceneScript/resource-source.mjs','../Resources/SceneScript/resource-runtime.mjs','../Resources/SceneScript/resource-contract.mjs','../Resources/SceneScript/json-spans.mjs'];
+const localPatches={source:'scripts/scene-engine-patches.mjs',sha256:digest(Buffer.concat(await Promise.all(patchInputs.map(name=>readFile(new URL(name,import.meta.url)))))),inputs:Object.fromEntries(await Promise.all([...patchInputs,...sharedInputs].map(async name=>[name,digest(await readFile(new URL(name,import.meta.url)))]))),patchedEntrySHA256:digest(patched.source),items:patched.patches};
 const result = await build({
   absWorkingDir: buildRoot, entryPoints: [path.join(engine, 'webwallgl.mjs')], outfile: path.join(root, output),
   bundle: true, format: 'esm', platform: 'browser', target: 'chrome120', minify: true,
   legalComments: 'eof', treeShaking: true, sourcemap: false, write: false,
-  plugins:[{name:'recorded-scene-patches',setup(builder){builder.onLoad({filter:/webwallgl\.mjs$/},args=>args.path===path.join(engine,'webwallgl.mjs')?{contents:patched.source,loader:'js',resolveDir:engine}:undefined);}}],
+  plugins:[{name:'recorded-scene-patches',setup(builder){
+    builder.onResolve({filter:/^@dynamic-wallpapers\/scene-resource-source$/},()=>({path:path.join(root,'Resources/SceneScript/resource-source.mjs')}));
+    builder.onResolve({filter:/^@dynamic-wallpapers\/scene-resource-runtime$/},()=>({path:path.join(root,'Resources/SceneScript/resource-runtime.mjs')}));
+    builder.onLoad({filter:/webwallgl\.mjs$/},args=>args.path===path.join(engine,'webwallgl.mjs')?{contents:patched.source,loader:'js',resolveDir:engine}:undefined);
+  }}],
 });
 const bytes = result.outputFiles[0].contents;
 if (process.argv.includes('--check')) {

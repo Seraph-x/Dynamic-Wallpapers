@@ -2,8 +2,41 @@ import Foundation
 import CoreFoundation
 import WallpaperCore
 
+private func invalidScriptDiagnostic() -> WallpaperError { WallpaperError(text("diagnosticInvalidIssue")) }
+
+struct EditorResourceScriptSource: Equatable {
+    let path: String
+    let sha256: String
+    let pointer: [AnyHashable]
+    let text: String
+    let identity: Data
+    var dictionary: [String: Any] { ["kind": "resource", "path": path, "sha256": sha256, "pointer": pointer.map(\.base), "text": text] }
+
+    init(validated value: Any?) throws {
+        guard let source = value as? [String: Any], Set(source.keys) == Set(["kind", "path", "sha256", "pointer", "text"]),
+              source["kind"] as? String == "resource", let path = source["path"] as? String,
+              let sha256 = source["sha256"] as? String, let rawPointer = source["pointer"] as? [Any],
+              let text = source["text"] as? String, !text.contains("\0"), !path.isEmpty, !path.contains("\0"),
+              !path.contains("\\"), !path.contains(":"),
+              path.split(separator: "/", omittingEmptySubsequences: false).allSatisfy({ !$0.isEmpty && $0 != "." && $0 != ".." }),
+              sha256.count == 64, sha256.utf8.allSatisfy({ $0 >= 48 && $0 <= 57 || $0 >= 97 && $0 <= 102 })
+        else { throw invalidScriptDiagnostic() }
+        var pointer: [AnyHashable] = []
+        for component in rawPointer {
+            if let string = component as? String, !string.contains("\0") { pointer.append(AnyHashable(string)); continue }
+            guard let number = EditorScriptDiagnostic.number(component), number >= 0,
+                  number <= 9_007_199_254_740_991, number.rounded() == number else { throw invalidScriptDiagnostic() }
+            pointer.append(AnyHashable(Int(number)))
+        }
+        guard let identity = try? JSONSerialization.data(withJSONObject: ["resource", path, sha256, pointer.map(\.base), text])
+        else { throw invalidScriptDiagnostic() }
+        // A fixed-order array avoids dictionary-order normalization in issue identity.
+        self.path = path; self.sha256 = sha256; self.pointer = pointer; self.text = text; self.identity = identity
+    }
+}
+
 struct EditorScriptDiagnostic: Equatable {
-    struct Key: Hashable { let layerID: Double?; let target: Data; let phase: Data; let message: Data }
+    struct Key: Hashable { let layerID: Double?; let target: Data; let phase: Data; let message: Data; let source: Data? }
     let layerID: Double?
     let layerName: String
     let target: String
@@ -11,10 +44,12 @@ struct EditorScriptDiagnostic: Equatable {
     let message: String
     let line: Int?
     let count: Int
-    var key: Key { Key(layerID: layerID, target: Data(target.utf8), phase: Data(phase.utf8), message: Data(message.utf8)) }
+    let source: EditorResourceScriptSource?
+    var key: Key { Key(layerID: layerID, target: Data(target.utf8), phase: Data(phase.utf8), message: Data(message.utf8), source: source?.identity) }
 
     init(validated value: [String: Any]) throws {
-        guard Set(value.keys) == Set(["layerId", "layerName", "target", "phase", "message", "line", "count"]),
+        let baseKeys = Set(["layerId", "layerName", "target", "phase", "message", "line", "count"])
+        guard Set(value.keys) == baseKeys || Set(value.keys) == baseKeys.union(["source"]),
               let name = value["layerName"] as? String, let target = value["target"] as? String,
               let phase = value["phase"] as? String, let message = value["message"] as? String,
               let count = Self.positiveInteger(value["count"]) else { throw WallpaperError(text("diagnosticInvalidIssue")) }
@@ -24,6 +59,7 @@ struct EditorScriptDiagnostic: Equatable {
         if value["line"] is NSNull { line = nil }
         else if let number = Self.positiveInteger(value["line"]) { line = number }
         else { throw WallpaperError(text("diagnosticInvalidIssue")) }
+        source = try value["source"].map(EditorResourceScriptSource.init(validated:))
         layerName = name; self.target = target; self.phase = phase; self.message = message; self.count = count
     }
     static func number(_ value: Any?) -> Double? {
@@ -44,9 +80,12 @@ struct EditorCapturedScriptLink {
     let path: [AnyHashable]
     let line: Int?
     let registered: Bool
+    let resource: EditorResourceScriptSource?
     var dictionary: [String: Any] {
-        ["documentIdentity": documentIdentity, "source": source, "layerId": layerID.map { $0 as Any } ?? NSNull(),
+        var value: [String: Any] = ["documentIdentity": documentIdentity, "source": source, "layerId": layerID.map { $0 as Any } ?? NSNull(),
          "target": target, "path": path.map(\.base), "line": line.map { $0 as Any } ?? NSNull(), "registered": registered]
+        if let resource { value["resource"] = resource.dictionary }
+        return value
     }
 }
 
@@ -96,6 +135,11 @@ struct EditorCapturedScriptSnapshot {
         sources = found
     }
     func resolve(_ issue: EditorScriptDiagnostic) -> Resolution {
+        if let resource = issue.source {
+            return Resolution(link: EditorCapturedScriptLink(documentIdentity: documentIdentity, source: resource.text,
+                layerID: issue.layerID, target: issue.target, path: resource.pointer, line: issue.line,
+                registered: true, resource: resource), reasonKey: nil)
+        }
         if let id = issue.layerID {
             guard id.rounded() == id, abs(id) <= 9_007_199_254_740_991, !ambiguousIDs.contains(id) else {
                 return Resolution(link: nil, reasonKey: "diagnosticAmbiguousSource")
@@ -106,6 +150,6 @@ struct EditorCapturedScriptSnapshot {
             return Resolution(link: nil, reasonKey: matching.isEmpty ? "diagnosticUnknownSource" : "diagnosticAmbiguousSource")
         }
         return Resolution(link: EditorCapturedScriptLink(documentIdentity: documentIdentity, source: source.source,
-            layerID: issue.layerID, target: issue.target, path: source.path, line: issue.line, registered: source.registered), reasonKey: nil)
+            layerID: issue.layerID, target: issue.target, path: source.path, line: issue.line, registered: source.registered, resource: nil), reasonKey: nil)
     }
 }

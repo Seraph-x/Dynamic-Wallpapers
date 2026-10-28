@@ -1,11 +1,11 @@
 # External resource script foundation
 
-This change supplies data-only authoring APIs. The Script workspace still has its
-existing inline-source scope; material and particle playback/UI integration is
-tracked in the [approved staged plan](superpowers/plans/2026-10-27-external-resource-scripts.md).
-A registered or editable record identifies a structural authoring contract, not
-proof that the current renderer executes it. Discovery never checks or executes
-source, and the syntax checker never invokes supplied code.
+The foundation supplies data-only authoring APIs. The shared renderer now also
+executes the registered material and particle sinks described below, while the
+Script workspace retains its existing inline-source scope until the final UI and
+persistence stage in the [approved staged plan](superpowers/plans/2026-10-27-external-resource-scripts.md).
+Discovery still never executes source, and syntax checking alone never claims
+runtime success.
 
 ## Lossless resource documents
 
@@ -92,15 +92,29 @@ no-op/concurrent/stale/close/freeze races, actual filesystem staging and saved
 snapshot reopen. Real PKG encoding/extraction/rebuilding verifies original and
 unrelated byte preservation using the pinned packager, independently bundled
 without a renderer or DOM shim. These checks do not substitute for the later
-actual Editor preview/Main loose/PKG playback acceptance.
+complete Editor workspace, save/reopen and loose/PKG native acceptance.
+
+The renderer stage adds engine-owned origins for exact material/particle bytes,
+typed per-consumer sandboxes and actual effect, mesh/per-mesh, generic tint,
+particle material, child override and emitter-rate sinks. `scripts:false`
+constructs no resource sandbox. Exceptions create an eight-field structured
+issue with exact source identity and never write the failed result. Restart and
+close dispose owned timers. Main, Editor workbench and Editor preview use the
+same hash-verified bundle and recorded patch inputs.
+
+Real Chrome/WebGL acceptance covers all eight visible/simulation sinks plus
+disabled execution, source exceptions and restart/close timer disposal. Pure
+tests cover scalar and exact vector2/3/4 typing, independent shared-resource
+consumers, malformed returns and layer disposal. ObjC++ and Swift tests validate
+the optional source descriptor while preserving the legacy seven-field issue.
 
 Final foundation verification on the synchronized main baseline passed all 465
 data-layer Node tests: every `Editor/Web/*.test.mjs` plus
 `scripts/test-scene-{engine-patches,runtime,spectrum,properties}.mjs`. The existing
 process-group runner enforced a 60-second execution timeout. Both
 `node Editor/Web/build.mjs --check` and `node scripts/scene-bundle.mjs --check`
-passed without changing the shared engine. Independent review corrections cover
+passed on the original foundation without changing the shared engine. Independent review corrections cover
 typed generic tint bases, prototype-like constant names and unreferenced
 glTF/JSONC metadata. The changed-source privacy gate passed with no allowed or
-retained patterns; `git diff --check` was clean. Browser/native playback remains
-outside this foundation's verified scope.
+retained patterns; `git diff --check` was clean. Complete workspace/native export
+playback remains outside the renderer stage's verified scope.

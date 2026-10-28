@@ -52,7 +52,8 @@ NS_SWIFT_UI_ACTOR @interface DWWebPage : NSObject
 /// Keys: level (warn/error), message, source and line. Does not acknowledge commands.
 @property(nonatomic, copy, nullable) void (^onDiagnostic)(NSDictionary<NSString*, id>* diagnostic);
 /// Complete validated script issues from the trusted scene channel, separate from console diagnostics.
-/// Exact keys: layerId, layerName, target, phase, message, line, count; display text is untrusted.
+/// Exact legacy keys: layerId, layerName, target, phase, message, line, count.
+/// External resource issues add source = {kind, path, sha256, pointer, text}; display text is untrusted.
 /// Data-only observation: this callback grants no Editor commands or resource access.
 @property(nonatomic, copy, nullable) void (^onSceneScriptIssue)(NSDictionary<NSString*, id>* issue);
 /// Original complete JSON when isolated UTF16 escapes prevent Foundation decoding.

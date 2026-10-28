@@ -1,14 +1,20 @@
 import { inspectSceneScript } from './script-source.mjs';
+import {validateResourceSource} from './resource-source.mjs';
 const fields=['documentIdentity','source','layerId','target','path','line','registered'];
 export function validateScriptLink(link) {
- if(!link||typeof link!=='object'||Array.isArray(link)||Object.keys(link).length!==fields.length||fields.some(key=>!Object.hasOwn(link,key)))throw new Error('Invalid captured source link fields');
+ const keys=link&&typeof link==='object'&&!Array.isArray(link)?Object.keys(link):[];
+ const external=keys.length===fields.length+1&&Object.hasOwn(link,'resource');
+ if(!link||typeof link!=='object'||Array.isArray(link)||!(keys.length===fields.length||external)||fields.some(key=>!Object.hasOwn(link,key)))throw new Error('Invalid captured source link fields');
  if(typeof link.documentIdentity!=='string'||!link.documentIdentity||typeof link.source!=='string'||typeof link.target!=='string'||typeof link.registered!=='boolean'||!(link.layerId===null||typeof link.layerId==='number'&&Number.isFinite(link.layerId))||!(link.line===null||Number.isSafeInteger(link.line)&&link.line>0)||!Array.isArray(link.path)||!link.path.every(key=>typeof key==='string'||Number.isSafeInteger(key)&&key>=0))throw new Error('Invalid captured source link');
- return Object.freeze({...link,path:Object.freeze([...link.path])});
+ const resource=external?validateResourceSource(link.resource):undefined;
+ if(resource&&(link.source!==resource.text||link.path.length!==resource.pointer.length||link.path.some((value,index)=>value!==resource.pointer[index])||!link.registered))throw new Error('Invalid captured resource source link');
+ return Object.freeze({...link,path:Object.freeze([...link.path]),...(resource?{resource}:{})});
 }
 export function resolveScriptLink(value,{scene,documentIdentity,pending=false}) {
  const link=validateScriptLink(value);
  const captured=reason=>({kind:'captured',reason,link});
  if(documentIdentity!==link.documentIdentity)return captured('document');
+ if(link.resource)return captured('anchor');
  if(!link.registered||link.layerId===null)return captured('anchor');
  const current=inspectSceneScript(scene,{layerId:link.layerId,target:link.target});
  if(!Object.hasOwn(current,'source'))return captured('anchor');

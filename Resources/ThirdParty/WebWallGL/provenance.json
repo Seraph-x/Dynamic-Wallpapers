@@ -28,12 +28,20 @@
     "treeShaking": true
   },
   "files": {
-    "Sources/WallpaperApp/Resources/SceneRuntime/webwallgl.bundle.mjs": "e27edd7330786ccd8df5f961c69487643726626ba84181970eb98609148c216c"
+    "Sources/WallpaperApp/Resources/SceneRuntime/webwallgl.bundle.mjs": "a740b7fd5ac335ac76146a69771509ce6b7dd2bdef5cc5b7bef080c479e65880"
   },
   "localPatches": {
     "source": "scripts/scene-engine-patches.mjs",
-    "sha256": "a93b2ed3405d6214b0b38f27f96f0206627b92bd9277a338f192e82196089faf",
-    "patchedEntrySHA256": "3d6594503e3ebd04b8ba2e37eaaf755a5dd3bd9be0b691483d789f63de8a6ae7",
+    "sha256": "906cc91bc052c2d44af01ae2b5b2bdb8feb3663bb238420608d0ff16926dd517",
+    "inputs": {
+      "scene-engine-patches.mjs": "a980eaea4919976350c7aab42815e26cb0875f009b9fd409b812eb1c1dffd805",
+      "scene-resource-script-patches.mjs": "40410d3e027fb3b7a3f35dba455a745b6898b523e5af6a074498f0318f334cf3",
+      "../Resources/SceneScript/resource-source.mjs": "d4ec82ec31c497a77a821d1573dcfd7717ef2fe43d3d73c6a55f121fd7651240",
+      "../Resources/SceneScript/resource-runtime.mjs": "0b965f7bc9bdea230051230e42bc7ef822bbad5b31428ac67feb7f3f377decb8",
+      "../Resources/SceneScript/resource-contract.mjs": "77e42d4fe914d9ad332c72df1341b860212f191fa8dea3564475e800eb996f06",
+      "../Resources/SceneScript/json-spans.mjs": "57c09884961c03bcf94beabc039a6dd2b9e750deb2097ba97b15bc81066b7a66"
+    },
+    "patchedEntrySHA256": "06b6e20eb1b0a32f1a9e671d068102ef656e2090650740808e00015f30b764b8",
     "items": [
       {
         "id": "text-binding-preflight",
@@ -88,6 +96,126 @@
       {
         "id": "public-property-frame-result",
         "reason": "Callers may await data acceptance and actual drawing without receiving Editor controls.",
+        "matches": 1
+      },
+      {
+        "id": "resource-script-shared-imports",
+        "reason": "Bundle the same lossless source-origin and typed runtime modules into every pinned renderer copy.",
+        "matches": 1
+      },
+      {
+        "id": "resource-script-effect-material-origin",
+        "reason": "Carry the exact effect material bytes into the engine-owned source registry.",
+        "matches": 1
+      },
+      {
+        "id": "resource-script-renderer-state",
+        "reason": "Keep one source-aware runtime beside the existing inline constant evaluator.",
+        "matches": 1
+      },
+      {
+        "id": "resource-script-no-failed-uniform-write",
+        "reason": "A failed external evaluation must not write its authored static value or a shader default.",
+        "matches": 1
+      },
+      {
+        "id": "resource-script-typed-constant-evaluation",
+        "reason": "Evaluate authenticated external wrappers before the legacy inline constant path.",
+        "matches": 1
+      },
+      {
+        "id": "resource-script-mesh-constants",
+        "reason": "Run owned material wrappers for the actual mesh/per-mesh consumer without rebuilding geometry.",
+        "matches": 1
+      },
+      {
+        "id": "resource-script-per-mesh-same-program",
+        "reason": "Rebind constants for adjacent meshes that share a shader program but use different material resources.",
+        "matches": 1
+      },
+      {
+        "id": "resource-script-particle-material-constants",
+        "reason": "Use the current typed resource values when binding a custom particle material shader.",
+        "matches": 1
+      },
+      {
+        "id": "resource-script-renderer-injection",
+        "reason": "Expose a focused renderer injection point while keeping the owning mount responsible for disposal.",
+        "matches": 1
+      },
+      {
+        "id": "resource-script-owned-asset-paths",
+        "reason": "Bind returned resource byte identities to their logical package/loose paths.",
+        "matches": 1
+      },
+      {
+        "id": "resource-script-origin-registry",
+        "reason": "Capture original material bytes before user-property mutation and retain one frame context for non-renderer sinks.",
+        "matches": 1
+      },
+      {
+        "id": "resource-script-material-capture",
+        "reason": "Authenticate material wrappers against exact original bytes and logical paths before normal resolver mutations.",
+        "matches": 1
+      },
+      {
+        "id": "resource-script-direct-material-bytes",
+        "reason": "Pass direct material bytes through the same source capture used by effect materials.",
+        "matches": 1
+      },
+      {
+        "id": "resource-script-tint-evaluation",
+        "reason": "Evaluate generic tint wrappers in place and preserve the last visible value when an external script fails.",
+        "matches": 1
+      },
+      {
+        "id": "resource-script-tint-atomic-write",
+        "reason": "Apply one coherent tint result only when every authored component evaluated successfully.",
+        "matches": 1
+      },
+      {
+        "id": "resource-script-issue-source",
+        "reason": "Include the validated engine-owned source descriptor in issue identity and public records.",
+        "matches": 1
+      },
+      {
+        "id": "resource-script-issue-record-source",
+        "reason": "Preserve the optional eighth issue field without changing legacy inline records.",
+        "matches": 1
+      },
+      {
+        "id": "resource-script-particle-origin",
+        "reason": "Capture each exact particle document before compiling emitters or child overrides.",
+        "matches": 1
+      },
+      {
+        "id": "resource-script-particle-frame",
+        "reason": "Apply typed child overrides, emitter rates and particle material constants before advancing the existing pool.",
+        "matches": 1
+      },
+      {
+        "id": "resource-script-runtime-mount",
+        "reason": "Construct one owner-scoped runtime with the same scene environment and lifecycle hooks as inline constants.",
+        "matches": 1
+      },
+      {
+        "id": "resource-script-animation-events",
+        "reason": "Let authenticated resource constants consume animation events through their typed state.",
+        "matches": 1
+      },
+      {
+        "id": "resource-script-frame-context",
+        "reason": "Update non-renderer sinks with the same frame clock and screen state before drawing.",
+        "matches": 1
+      },
+      {
+        "id": "resource-script-live-user-properties",
+        "reason": "Deliver current user properties to every owned resource sandbox before the next frame.",
+        "matches": 1
+      },
+      {
+        "id": "resource-script-layer-disposal",
+        "reason": "Dispose every external sandbox and timer owned by removed layer consumers.",
         "matches": 1
       }
     ]
