@@ -20,6 +20,21 @@ final class EditorScriptDiagnosticTests: XCTestCase {
         let decomposed = try EditorScriptDiagnostic(validated: issue(["message": "e\u{301}"]))
         XCTAssertNotEqual(composed.key, decomposed.key)
     }
+    func testExternalResourceSourceIsExactValidatedAndPartOfIdentity() throws {
+        let source: [String: Any] = ["kind": "resource", "path": "materials/雪.json", "sha256": String(repeating: "a", count: 64),
+                                     "pointer": ["passes", 0, "constantshadervalues", "颜色", "script"], "text": "// 😀\r\nthrow Error('x')"]
+        let value = try EditorScriptDiagnostic(validated: issue(["source": source]))
+        XCTAssertEqual(value.source?.path, "materials/雪.json")
+        XCTAssertEqual(value.source?.pointer, [AnyHashable("passes"), AnyHashable(0), AnyHashable("constantshadervalues"), AnyHashable("颜色"), AnyHashable("script")])
+        XCTAssertNotEqual(value.key, try EditorScriptDiagnostic(validated: issue()).key)
+        XCTAssertNotEqual(value.key, try EditorScriptDiagnostic(validated: issue(["source": source.merging(["sha256": String(repeating: "b", count: 64)]) { _, new in new }])).key)
+        for invalid: [String: Any] in [
+            source.merging(["extra": 1]) { _, new in new }, source.merging(["kind": "inline"]) { _, new in new },
+            source.merging(["path": "../x"]) { _, new in new }, source.merging(["path": "a//x"]) { _, new in new },
+            source.merging(["sha256": String(repeating: "A", count: 64)]) { _, new in new },
+            source.merging(["pointer": ["passes", true]]) { _, new in new }
+        ] { XCTAssertThrowsError(try EditorScriptDiagnostic(validated: issue(["source": invalid]))) }
+    }
     func testCapturedSourceUsesUniqueStructuralAnchorAndPreservesBytesAndLine() throws {
         let source = "// 世界😀\r\nthrow Error('x')\r\n"
         let scene: [String: Any] = ["objects": [["id": 1, "alpha": ["script": source], "effects": [["visible": ["script": "effect"]]]]], "general": ["zoom": ["script": "general"]]]
@@ -33,6 +48,18 @@ final class EditorScriptDiagnosticTests: XCTestCase {
         XCTAssertEqual(effect.link?.source, "effect")
         let general = capture.resolve(try EditorScriptDiagnostic(validated: issue(["layerId": NSNull(), "target": "general.zoom"])))
         XCTAssertEqual(general.link?.source, "general"); XCTAssertEqual(general.link?.registered, false)
+    }
+    func testExternalIssueResolvesItsIndependentCapturedResourceSource() throws {
+        let capture = try EditorCapturedScriptSnapshot(documentIdentity: "capture", scene: ["objects": []])
+        let descriptor: [String: Any] = ["kind": "resource", "path": "materials/雪.json", "sha256": String(repeating: "a", count: 64),
+                                               "pointer": ["passes", 0, "constantshadervalues", "颜色", "script"], "text": "// exact\r\nthrow Error('x')"]
+        let result = capture.resolve(try EditorScriptDiagnostic(validated: issue(["source": descriptor, "line": 2])))
+        let link = try XCTUnwrap(result.link)
+        XCTAssertEqual(link.source, "// exact\r\nthrow Error('x')")
+        XCTAssertEqual(link.resource?.path, "materials/雪.json")
+        let serialized = try XCTUnwrap(link.dictionary["resource"] as? [String: Any])
+        XCTAssertEqual(serialized["sha256"] as? String, String(repeating: "a", count: 64))
+        XCTAssertEqual(serialized["pointer"] as? [AnyHashable], ["passes", 0, "constantshadervalues", "颜色", "script"])
     }
     func testCapturedSourceIsDetachedAndUnknownMetadataRemainsReadOnly() throws {
         let wrapper = NSMutableDictionary(dictionary: ["script": "// original\r\n世界😀\n"])

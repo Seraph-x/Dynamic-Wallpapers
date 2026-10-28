@@ -21,7 +21,7 @@ reproducible Python/Node build tooling and source-built media dependencies.
   history, native capture, diagnostics and true loose/PKG playback.
 - [x] Safe resource collection — cross-process session leases, saved roots,
   capture/undo safety, exact orphan reclamation and visible failures.
-- [ ] Main per-wallpaper properties — persistent typed overrides, UI/reset,
+- [x] Main per-wallpaper properties — persistent typed overrides, UI/reset,
   restored initial state, live commands and lifetime tests.
 - [ ] Real system media — provider scope choice, permissions/native source,
   metadata/transport, explicit unavailable states and end-to-end tests.
@@ -85,3 +85,9 @@ reproducible Python/Node build tooling and source-built media dependencies.
   files and all 16 measured media binaries passed publication scans; neither
   executable nor any dylib contains a personal home path. Final app release
   packaging remains a separate completion item.
+
+- Main persistent per-wallpaper controls PR
+  [#46](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/46) merged at
+  `1f8fa35`. Typed overrides persist independently per wallpaper, restore before
+  initial playback, support live update/reset and retain explicit validation and
+  lifecycle errors.

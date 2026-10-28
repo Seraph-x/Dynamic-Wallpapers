@@ -28,11 +28,14 @@ commit that field; deliberately leaving a valid inspector input keeps its
 ordinary commit behavior. General-scene source is readable
 in the captured view without becoming a new editable source target.
 
-Source resolution uses the immutable captured scene's structural anchors. A
-missing/ambiguous layer ID, external resource script or unrecognized runtime
-target remains visible with an explicit unavailable-source reason. It is not
-matched by layer name, console text or a guessed default ID. Unknown metadata
-and incompatible property bindings retain their existing editing restrictions.
+Source resolution uses the immutable captured scene's structural anchors.
+External material/particle issues carry the engine-owned logical path, original
+resource SHA-256, literal JSON pointer and exact compiled source. They open that
+independent captured source read-only; no mutable resource is reread to invent a
+location. Current-resource editing remains unavailable until the resource source
+workspace integration is complete. A missing/ambiguous inline layer ID or
+unrecognized runtime target remains visible with an explicit unavailable-source
+reason. Nothing is matched by layer name, console text or a guessed default ID.
 
 ## Read line information honestly
 
@@ -61,8 +64,12 @@ Neither previewing nor opening a diagnostic applies a wallpaper.
 
 ## Pinned runtime limits
 
-WebWallGL 3.0.0 supplies `getScriptIssues()` records with exactly `layerId`,
-`layerName`, `target`, `phase`, `message`, `line` and `count`. Its own issue map
+WebWallGL 3.0.0 supplies legacy inline `getScriptIssues()` records with exactly
+`layerId`, `layerName`, `target`, `phase`, `message`, `line` and `count`.
+External resource records add one exact `source` descriptor containing `kind`,
+`path`, `sha256`, `pointer` and `text`; source identity participates in issue
+deduplication. JS, the native protocol and the Swift owner validate that eighth
+field without changing the seven-field legacy shape. The engine issue map
 retains at most 500 distinct issues and truncates messages to 200 JavaScript
 characters. It increments a repeated issue's actual count, and disables a
 repeatedly failing callback after three failures. The Editor displays those
@@ -101,8 +108,9 @@ playback factory, with no authoring controls or Editor resource bridge.
 Each actual issue is serialized losslessly and delivered in ordered, canonical
 base64 fragments. The existing 8192-byte scene-event budget applies to each
 fragment, including identity fields. Native validates the scene/generation,
-transfer identity, order, exact final schema and UTF8/JSON before publishing an
-issue. Long layer names and targets are not silently shortened. Interrupted,
+transfer identity, order, exact final schema, strict nested JSON, path, digest,
+pointer and Unicode before publishing an issue. Long layer names, targets and
+external source text are not silently shortened. Interrupted,
 replayed and retired transfers cannot publish partial issues. Closing a page
 cancels the observer and releases incomplete assembly.
 

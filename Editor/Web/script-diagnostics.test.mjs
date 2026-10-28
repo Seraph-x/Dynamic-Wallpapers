@@ -8,6 +8,7 @@ const diagnostics = await import(moduleURL).catch(error => {
   return {};
 });
 const issue = overrides => ({layerId:1,layerName:'Layer',target:'alpha',phase:'update',message:'failure',line:3,count:1,...overrides});
+const resourceSource = overrides => ({kind:'resource',path:'materials/雪.json',sha256:'a'.repeat(64),pointer:['passes',0,'constantshadervalues','颜色','script'],text:'// 😀\r\nexport function update(value){return value;}',...overrides});
 const turn = () => new Promise(resolve => setImmediate(resolve));
 function clock() {
   let next = 0;
@@ -38,11 +39,22 @@ test('requires exactly seven typed fields without changing display strings', () 
   assert.equal(diagnostics.validateScriptIssue(issue({layerId:null,line:Number.MAX_SAFE_INTEGER,count:Number.MAX_SAFE_INTEGER})).layerId,null);
 });
 
+test('accepts only an exact validated resource source as the eighth field', () => {
+  const value=issue({source:resourceSource()});
+  const validated=diagnostics.validateScriptIssue(value);
+  assert.deepEqual(validated,value);assert(Object.isFrozen(validated.source));assert(Object.isFrozen(validated.source.pointer));
+  for(const source of [null,{},resourceSource({extra:1}),resourceSource({kind:'inline'}),resourceSource({path:'../x'}),resourceSource({path:'a//x'}),resourceSource({path:'x\0'}),resourceSource({sha256:'A'.repeat(64)}),resourceSource({pointer:['passes',true]}),resourceSource({pointer:['passes','\ud800']}),resourceSource({text:'\udfff'})])assert.throws(()=>diagnostics.validateScriptIssue(issue({source})),TypeError);
+  assert.throws(()=>diagnostics.validateScriptIssue({...value,extra:1}),TypeError);
+});
+
 test('issue identity ignores real count and display location changes, preserves exact tuple', () => {
   assert.equal(typeof diagnostics.scriptIssueKey,'function');
   assert.equal(diagnostics.scriptIssueKey(issue()),diagnostics.scriptIssueKey(issue({count:9,layerName:'new',line:5})));
   assert.notEqual(diagnostics.scriptIssueKey(issue({target:'a|b',phase:'c'})),diagnostics.scriptIssueKey(issue({target:'a',phase:'b|c'})));
   assert.notEqual(diagnostics.scriptIssueKey(issue({layerId:null})),diagnostics.scriptIssueKey(issue({layerId:0})));
+  assert.notEqual(diagnostics.scriptIssueKey(issue()),diagnostics.scriptIssueKey(issue({source:resourceSource()})));
+  assert.notEqual(diagnostics.scriptIssueKey(issue({source:resourceSource()})),diagnostics.scriptIssueKey(issue({source:resourceSource({sha256:'b'.repeat(64)})})));
+  assert.notEqual(diagnostics.scriptIssueKey(issue({source:resourceSource()})),diagnostics.scriptIssueKey(issue({source:resourceSource({pointer:['passes',1,'script']})})));
 });
 
 test('lossless UTF8 canonical base64 uses actual serialized 8192-byte framing budget', () => {

@@ -276,7 +276,12 @@ import WebWallpaperBridge
         if session.failure == nil, issueTable.selectedRow >= 0 { status.string = rowText(issueTable.selectedRow) }
         openSource.isEnabled = resolution?.link != nil && onSource != nil && session.state != .closed
         if let link = resolution?.link {
-            sourceStatus.stringValue = t(link.registered ? "diagnosticCapturedSource" : "diagnosticReadOnlySource")
+            if let resource = link.resource {
+                let anchor = resource.pointer.map { String(describing: $0.base) }.joined(separator: "/")
+                sourceStatus.stringValue = "\(resource.path) · /\(anchor)"
+            } else {
+                sourceStatus.stringValue = t(link.registered ? "diagnosticCapturedSource" : "diagnosticReadOnlySource")
+            }
         } else {
             let rawSelected = issueTable.selectedRow >= session.scriptIssues.count + session.consoleDiagnostics.count && issueTable.selectedRow >= 0
             let key = resolution?.reasonKey ?? (rawSelected ? "diagnosticRawJSONReason" : issueTable.selectedRow >= session.scriptIssues.count && issueTable.selectedRow >= 0 ? "diagnosticConsoleUnmapped" : "diagnosticSelectIssue")

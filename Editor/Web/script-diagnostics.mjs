@@ -1,19 +1,25 @@
+import {validateResourceSource} from './resource-source.mjs';
+
 const ISSUE_FIELDS = Object.freeze(['layerId','layerName','target','phase','message','line','count']);
 const EVENT_BYTE_LIMIT = 8192;
 const encoder = new TextEncoder();
 const positiveInteger = value => Number.isSafeInteger(value) && value > 0;
 
 export function validateScriptIssue(value) {
-  if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).length !== ISSUE_FIELDS.length || ISSUE_FIELDS.some(key => !Object.hasOwn(value,key))) throw new TypeError('Invalid script issue fields');
+  const keys=value && typeof value==='object' && !Array.isArray(value) ? Object.keys(value) : [];
+  const external=keys.length===ISSUE_FIELDS.length+1&&Object.hasOwn(value,'source');
+  if (!value || typeof value !== 'object' || Array.isArray(value) || !(keys.length===ISSUE_FIELDS.length||external) || ISSUE_FIELDS.some(key => !Object.hasOwn(value,key))) throw new TypeError('Invalid script issue fields');
   if (!(value.layerId === null || typeof value.layerId === 'number' && Number.isFinite(value.layerId))) throw new TypeError('Invalid script issue layerId');
   for (const field of ['layerName','target','phase','message']) if (typeof value[field] !== 'string') throw new TypeError(`Invalid script issue ${field}`);
   if (!(value.line === null || positiveInteger(value.line)) || !positiveInteger(value.count)) throw new TypeError('Invalid script issue line or count');
-  return Object.freeze(Object.fromEntries(ISSUE_FIELDS.map(field => [field,value[field]])));
+  const issue=Object.fromEntries(ISSUE_FIELDS.map(field => [field,value[field]]));
+  if(external)issue.source=validateResourceSource(value.source);
+  return Object.freeze(issue);
 }
 
 export function scriptIssueKey(issue) {
   const value = validateScriptIssue(issue);
-  return JSON.stringify([value.layerId,value.target,value.phase,value.message]);
+  return JSON.stringify([value.layerId,value.target,value.phase,value.message,value.source??null]);
 }
 
 function validateIdentity({sceneID,generation,transferID}) {

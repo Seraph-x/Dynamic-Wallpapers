@@ -1,3 +1,5 @@
+import {patchSceneResourceScripts} from './scene-resource-script-patches.mjs';
+
 // Build-only transforms of the hash-verified, untouched WebWallGL 3.0.0 entry.
 // Every anchor count is part of the pin: unknown upstream source is rejected.
 const edits=[
@@ -126,5 +128,6 @@ export function patchSceneEngine(original){
     if(actual!==expected)throw new Error(`Pinned renderer patch ${edit.id}: expected ${expected} anchor matches, found ${actual}`);
     source=parts.join(edit.after);
   }
-  return {source,patches:edits.map(({id,reason,matches=1})=>({id,reason,matches}))};
+  const resource=patchSceneResourceScripts(source);
+  return {source:resource.source,patches:[...edits.map(({id,reason,matches=1})=>({id,reason,matches})),...resource.patches]};
 }

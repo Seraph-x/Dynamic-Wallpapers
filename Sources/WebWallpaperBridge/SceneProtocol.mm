@@ -73,8 +73,9 @@ std::optional<std::string> SceneSession::spectrumJSON() { @autoreleasepool {
   if (spectrum.empty()) spectrum = dw::spectrumJSON(sceneID, generation, std::vector<double>(64), std::vector<double>(64));
   return spectrum;
 } }
-// Foundation accepts trailing commas; issue payloads use the strict flat JSON
-// grammar of the seven-field wire schema before Foundation decodes their values.
+// Foundation accepts trailing commas; issue payloads use strict JSON before
+// Foundation decodes either the seven-field legacy schema or the external
+// resource descriptor nested in its eighth field.
 class IssueJSONSyntax final {
  public:
   explicit IssueJSONSyntax(const std::string& json) : input(json) {}
@@ -90,7 +91,7 @@ class IssueJSONSyntax final {
         whitespace();
         if (!take(':')) return false;
         whitespace();
-        if (!scalar()) return false;
+        if (!value()) return false;
         ++count;
         whitespace();
         if (take('}')) break;
@@ -140,6 +141,38 @@ class IssueJSONSyntax final {
     }
     return true;
   }
+  bool value() {
+    whitespace();
+    if (index < input.size() && input[index] == '{') return object(5);
+    if (index < input.size() && input[index] == '[') return array();
+    return scalar();
+  }
+  bool object(NSUInteger expectedFields) {
+    if (!take('{')) return false;
+    whitespace();
+    NSUInteger fields = 0;
+    if (take('}')) return expectedFields == 0;
+    do {
+      whitespace(); if (!string()) return false;
+      whitespace(); if (!take(':')) return false;
+      if (!value()) return false;
+      ++fields;
+      whitespace();
+      if (take('}')) return fields == expectedFields;
+      if (!take(',')) return false;
+    } while (true);
+  }
+  bool array() {
+    if (!take('[')) return false;
+    whitespace();
+    if (take(']')) return true;
+    do {
+      if (!value()) return false;
+      whitespace();
+      if (take(']')) return true;
+      if (!take(',')) return false;
+    } while (true);
+  }
 };
 struct IssueValidationJSON {
   std::string bytes;
@@ -187,15 +220,14 @@ static bool validateScriptIssue(const std::string& bytes) {
   NSData* data = [NSData dataWithBytes:bytes.data() length:bytes.size()];
   if (![[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding])
     throw std::runtime_error("Scene script issue must be valid UTF8");
-  if (!IssueJSONSyntax(bytes).valid(7))
-    throw std::runtime_error("Scene script issue must be a strict JSON object");
   const auto validation = issueValidationJSON(bytes);
   NSData* validationData = [NSData dataWithBytes:validation.bytes.data() length:validation.bytes.size()];
   id value = [NSJSONSerialization JSONObjectWithData:validationData options:0 error:nil];
-  if (![value isKindOfClass:NSDictionary.class] || [value count] != 7)
+  if (![value isKindOfClass:NSDictionary.class] || ([value count] != 7 && [value count] != 8))
     throw std::runtime_error("Scene script issue must be a strict JSON object");
   NSDictionary* issue = value;
-  NSSet* keys = [NSSet setWithArray:@[@"layerId", @"layerName", @"target", @"phase", @"message", @"line", @"count"]];
+  NSMutableSet* keys = [NSMutableSet setWithArray:@[@"layerId", @"layerName", @"target", @"phase", @"message", @"line", @"count"]];
+  if ([issue count] == 8) [keys addObject:@"source"];
   if (![[NSSet setWithArray:issue.allKeys] isEqual:keys]) throw std::runtime_error("Unknown or missing scene script issue fields");
   id layer = issue[@"layerId"];
   if (layer != NSNull.null && (![layer isKindOfClass:NSNumber.class] ||
@@ -205,6 +237,35 @@ static bool validateScriptIssue(const std::string& bytes) {
     if (![issue[key] isKindOfClass:NSString.class]) throw std::runtime_error("Scene script issue display fields must be strings");
   if ((issue[@"line"] != NSNull.null && !integer(issue[@"line"], 1, 9007199254740991ULL)) ||
       !integer(issue[@"count"], 1, 9007199254740991ULL)) throw std::runtime_error("Invalid scene script issue line or count");
+  if (id rawSource = issue[@"source"]) {
+    if (validation.rawDisplay || ![rawSource isKindOfClass:NSDictionary.class])
+      throw std::runtime_error("Invalid scene script resource source Unicode or type");
+    NSDictionary* source = rawSource;
+    NSSet* sourceKeys = [NSSet setWithArray:@[@"kind", @"path", @"sha256", @"pointer", @"text"]];
+    if (![[NSSet setWithArray:source.allKeys] isEqual:sourceKeys] || ![source[@"kind"] isEqual:@"resource"] ||
+        ![source[@"path"] isKindOfClass:NSString.class] || ![source[@"sha256"] isKindOfClass:NSString.class] ||
+        ![source[@"pointer"] isKindOfClass:NSArray.class] || ![source[@"text"] isKindOfClass:NSString.class])
+      throw std::runtime_error("Invalid scene script resource source fields");
+    NSString* path = source[@"path"];
+    if (path.length == 0 || [path rangeOfString:@"\0"].location != NSNotFound ||
+        [path rangeOfCharacterFromSet:[NSCharacterSet characterSetWithCharactersInString:@"\\:"]].location != NSNotFound)
+      throw std::runtime_error("Invalid scene script resource path");
+    for (NSString* part in [path componentsSeparatedByString:@"/"])
+      if (part.length == 0 || [part isEqual:@"."] || [part isEqual:@".."])
+        throw std::runtime_error("Invalid scene script resource path");
+    NSString* digest = source[@"sha256"];
+    if (digest.length != 64 || [digest rangeOfCharacterFromSet:[[NSCharacterSet characterSetWithCharactersInString:@"0123456789abcdef"] invertedSet]].location != NSNotFound)
+      throw std::runtime_error("Invalid scene script resource digest");
+    for (id component in source[@"pointer"])
+      if (!([component isKindOfClass:NSString.class] && [component rangeOfString:@"\0"].location == NSNotFound) &&
+          !integer(component, 0, 9007199254740991ULL))
+        throw std::runtime_error("Invalid scene script resource pointer");
+    if ([source[@"text"] rangeOfString:@"\0"].location != NSNotFound)
+      throw std::runtime_error("Invalid scene script resource text");
+  }
+  const NSUInteger expectedFields = issue[@"source"] ? 8 : 7;
+  if (!IssueJSONSyntax(bytes).valid(expectedFields))
+    throw std::runtime_error("Scene script issue must be a strict JSON object");
   return validation.rawDisplay;
 }
 SceneEvent parseSceneEvent(const std::string& body, const std::string& sceneID, uint64_t generation) { @autoreleasepool {

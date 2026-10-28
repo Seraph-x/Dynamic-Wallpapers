@@ -285,6 +285,21 @@ import WebWallpaperBridge
         XCTAssertTrue(session.scriptIssues.isEmpty)
     }
 
+    func testExternalIssueSourcesRemainDistinctAndRefreshByExactOrigin() async throws {
+        let page = PreviewPageFixture(), session = EditorScenePreviewSession(makePage: { page }, cleanup: {})
+        try session.start()
+        let source: [String: Any] = ["kind": "resource", "path": "materials/雪.json", "sha256": String(repeating: "a", count: 64),
+                                     "pointer": ["passes", 0, "constantshadervalues", "Color", "script"], "text": "throw Error('x')"]
+        let base: [String: Any] = ["layerId": 1, "layerName": "Layer", "target": "constantshadervalues.Color", "phase": "update", "message": "failure", "line": 1, "count": 1]
+        page.onSceneScriptIssue?(base.merging(["source": source]) { _, new in new })
+        page.onSceneScriptIssue?(base.merging(["source": source.merging(["sha256": String(repeating: "b", count: 64)]) { _, new in new }]) { _, new in new })
+        XCTAssertEqual(session.scriptIssues.count, 2)
+        page.onSceneScriptIssue?(base.merging(["source": source, "count": 4]) { _, new in new })
+        XCTAssertEqual(session.scriptIssues.count, 2)
+        XCTAssertEqual(session.scriptIssues.first { $0.source?.sha256 == String(repeating: "a", count: 64) }?.count, 4)
+        try await session.close()
+    }
+
     func testFailedClosePreservesIssuesAndInvalidatesCallbacksUntilCleanupSucceeds() async throws {
         let page = PreviewPageFixture(); var cleanups = 0
         let session = EditorScenePreviewSession(makePage: { page }, cleanup: {
