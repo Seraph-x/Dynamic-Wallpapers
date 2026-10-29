@@ -5,6 +5,7 @@ const unsafeAnimationScalars = new Set(['maxwidth','pointsize','volume','intensi
 const effectTarget = target => typeof target === 'string' && /^effects\[(0|[1-9]\d*)\]\.visible$/.test(target) && Number.isSafeInteger(Number(target.slice(8,-9)));
 
 export function scriptValueKind(target) {
+  if(typeof target==='string'&&/^resource:(scalar|vector[234])$/.test(target))return target.slice(9);
   if (vectors.has(target)) return 'vector';
   if (scalars.has(target)) return 'scalar';
   if (target === 'visible' || effectTarget(target)) return 'boolean';
@@ -72,7 +73,7 @@ export function completionOptions(target, scope = '') {
   const text = target === 'text';
   let options = [];
   if (!scope) options = [...globals,...(!text ? [{label:'thisObject',type:'variable',detail:'Alias of thisLayer in the object/effect sandbox'}] : [])];
-  else if (scope === 'value') options = kind === 'vector' ? vectorMembers : kind === 'text' ? stringMembers : [];
+  else if (scope === 'value') options = /^vector[234]$/.test(kind)?fields('x y z w'.split(' ').slice(0,Number(kind.slice(6))).join(' '),'number'):kind === 'vector' ? vectorMembers : kind === 'text' ? stringMembers : [];
   else if (scope === 'thisLayer' || scope === 'thisObject' && !text) options = text ? textLayer : objectLayer;
   else if (scope === 'thisScene') options = text ? textScene : objectScene;
   else if (/^input\.cursor(?:WorldPosition|ScreenPosition|Position|PositionLast)$/.test(scope)) options = vectorMembers;
@@ -83,8 +84,10 @@ export function completionOptions(target, scope = '') {
   return options.map(option => ({...option}));
 }
 
-const capture = kind => kind === 'vector' ? 'new Vec3(value)' : 'value';
+const capture = kind => /^vector[234]$/.test(kind)?`{${'xyzw'.slice(0,Number(kind.slice(6))).split('').map(key=>`${key}:value.${key}`).join(',')}}`:kind === 'vector' ? 'new Vec3(value)' : 'value';
+const resourceScale=(kind,factor)=>`{${'xyzw'.slice(0,Number(kind.slice(6))).split('').map(key=>`${key}:initial.${key} * (${factor})`).join(',')}}`;
 function changedValue(target, baseline = 'initial') {
+  if(/^resource:vector[234]$/.test(target))return resourceScale(scriptValueKind(target),'0.5');
   if (target === 'origin') return `${baseline}.add(new Vec3(10, 0, 0))`;
   if (target === 'angles') return `${baseline}.add(new Vec3(0, 0, 10))`;
   if (target === 'scale') return `${baseline}.multiply(1.1)`;
@@ -102,6 +105,7 @@ function passthrough(callback = '', initBody = '') {
   return `export function init(value) {\n${initBody}  return value;\n}\n${callback ? '\n' + callback + '\n' : ''}\nexport function update(value) {\n  return value;\n}\n`;
 }
 function updateExpression(target) {
+  if(/^resource:vector[234]$/.test(target))return resourceScale(scriptValueKind(target),'0.75 + 0.25 * Math.sin(engine.runtime)');
   if (target === 'origin') return 'initial.add(new Vec3(Math.sin(engine.runtime) * 10, 0, 0))';
   if (target === 'angles') return 'initial.add(new Vec3(0, 0, Math.sin(engine.runtime) * 10))';
   if (target === 'scale') return 'initial.multiply(1 + 0.1 * Math.sin(engine.runtime))';
@@ -112,6 +116,7 @@ function updateExpression(target) {
   return target === 'text' ? "initial + ' ' + Math.floor(engine.runtime)" : 'initial';
 }
 function audioExpression(target) {
+  if(/^resource:vector[234]$/.test(target))return resourceScale(scriptValueKind(target),'0.5 + level * 0.5');
   if (target === 'color') return 'initial.multiply(0.5 + level * 0.5)';
   if (scriptValueKind(target) === 'vector') return 'initial.multiply(1 + level * 0.1)';
   if (target === 'alpha' || target === 'volume') return 'WEMath.clamp(initial * level, 0, 1)';
@@ -136,7 +141,7 @@ export function lifecycleTemplates(target) {
     audio: `const audio = engine.registerAudioBuffers(engine.AUDIO_RESOLUTION_16);\n${initial}\nexport function update(value) {\n  const level = WEMath.clamp(audio.average[0], 0, 1);\n  return ${audioExpression(target)};\n}\n`,
   };
   return Object.entries(sources).map(([id,source]) => {
-    const reason = kind === 'unknown' ? 'UNSUPPORTED_TARGET' : id === 'media' ? 'MEDIA_HOST_DISABLED' : id === 'cursor' && effectTarget(target) ? 'EFFECT_CURSOR_UNSUPPORTED' : id === 'animation' && unsafeAnimationScalars.has(target) ? 'ANIMATION_SCALAR_UNSUPPORTED' : id === 'audio' && missingInitialScalars.has(target) ? 'INITIAL_VALUE_UNAVAILABLE' : null;
+    const reason = kind === 'unknown' ? 'UNSUPPORTED_TARGET' : id === 'media' ? 'MEDIA_HOST_DISABLED' : id === 'cursor' && target.startsWith('resource:') ? 'RESOURCE_CURSOR_UNSUPPORTED' : id === 'cursor' && effectTarget(target) ? 'EFFECT_CURSOR_UNSUPPORTED' : id === 'animation' && unsafeAnimationScalars.has(target) ? 'ANIMATION_SCALAR_UNSUPPORTED' : id === 'audio' && missingInitialScalars.has(target) ? 'INITIAL_VALUE_UNAVAILABLE' : null;
     return {id,source,available:reason === null,reason};
   });
 }

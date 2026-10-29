@@ -1,5 +1,71 @@
 # Standalone Editor validation
 
+## External resource Script acceptance
+
+Run the data/draft/navigation tests and reproducible builds from the repository root:
+
+```sh
+node --test Editor/Web/*.test.mjs
+node scripts/scene-bundle.mjs --check
+node Editor/Web/build.mjs --check
+swift test --package-path Editor --filter EditorResourceScriptPersistenceTests
+swift test --package-path Editor --filter EditorScriptDiagnosticTests
+SCENE_CHROMIUM_EXECUTABLE='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' node Editor/Web/test-resource-script-runtime.mjs
+SCENE_CHROMIUM_EXECUTABLE='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' python3 scripts/test-editor-resource-scripts.py
+```
+
+`test-resource-script-runtime.mjs` uses the exact shared engine and real WebGL.
+It covers effect, mesh/per-mesh, tint, custom/generic particle materials, child
+overrides and emitter-rate sinks, plus inline parent/explicit/inheriting/event
+child precedence. Static/user/animation colors and every `scripts:false`
+consumer retain their bases without executing source. Actual exceptions retain
+source identity, and restart/close must stop real owned timers.
+
+`test-resource-script-workspace.mjs` uses visible CodeMirror input for material,
+child override and emitter-rate sources. It checks no source execution during
+authoring, actual syntax errors, failed staging recovery, one-step history,
+unrelated-edit local history, shared consumers, read-only unknown metadata,
+native freeze/save acknowledgement, saved reload, package-derived re-editing,
+current/pending/stale navigation, remove/template-add history and
+five-language/light-dark 850×540 layout. Discovery retires synchronously before
+document mutation; the retained Timeline draft/Undo race and runtime boundary
+test verify that retired scans cannot poison subsequent edits while current
+scan failures remain visible.
+The retained CodeMirror helpers use synchronous Playwright polling predicates
+and wait for the visible public EditorView to observe each real keyboard input.
+They never dispatch edits or force a private DOM-observer flush. Browser resource
+replies are bound to the originating document nonce/editor handle, so navigation
+explicitly retires old replies while current-document failures still fail tests.
+Expected resource bytes are independently constructed by replacing only the
+selected source token; the complete document must equal its original plus that
+single independently hashed override.
+
+The dedicated native runner builds with the existing 180-second budget and gives
+every execution phase 60 seconds under the process-group supervisor. Its
+`--resource-scripts-only` entry uses actual attached CEF keyboard input, checks
+focused freeze, exact staged bytes/hash, one project Undo/Redo, save
+acknowledgement and disk snapshot reopen. It plays that native edit's loose/PKG
+outputs through both independent preview and Main, reads real GPU pixels and
+the emitter's actual pool, and releases every page before one runtime shutdown.
+A long Unicode source exception must traverse the real fragmented native issue
+callback with its complete original digest/pointer/text/count/line and open a
+read-only capture when the current resource differs.
+
+After each native phase, `verify-editor-resource-script-export.mjs` opens its
+actual PKG and loose output and checks the complete inventory, independent scene,
+project metadata/entry and every resource byte sequence. Negative controls
+reject changed loose/PKG payload bytes, wrong entries in either project metadata
+file and extra package-output files. Browser-created packages are verified
+separately. `EditorResourceScriptPersistenceTests` exercises production Core
+loose/PKG import, exact JSON/JSONC resources, real session staging, unsaved preview
+capture, save/reopen/export/reimport and collection protection for history and
+saved versions. It runs via the independent Editor package; the CEF native
+harness's test snapshot receiver is not the production Swift Save controller.
+
+The full `test-editor-native.py` runner includes the resource browser phase,
+three native resource phases and their export-byte verifiers alongside retained
+inline, model, property, diagnostics and lifetime regressions.
+
 ## Resource session and collection checks
 
 An editing owner retains `EditorResourceSession` across every staged version,

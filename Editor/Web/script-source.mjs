@@ -4,6 +4,7 @@ const vectors = new Set(['origin','scale','angles','color']);
 const scalars = new Set(['alpha','brightness','maxwidth','pointsize','volume','intensity','exponent']);
 const defaults = Object.freeze({origin:'0 0 0',angles:'0 0 0',scale:'1 1 1',color:'1 1 1',alpha:1,visible:true});
 export const SCENE_SCRIPT_PROPERTIES = Object.freeze([...vectors,...scalars,'visible']);
+export const PARTICLE_SCRIPT_PROPERTIES=Object.freeze(['rate','count','size','speed','lifetime','brightness','alpha','colorn']);
 
 // Iterative copies and ancestor tracking handle deeply nested imported JSON and
 // expose cycles explicitly, while retaining shared, non-cyclic object references.
@@ -49,6 +50,11 @@ function anchor(scene, selection) {
   if (matches.length !== 1) throw new Error(matches.length ? 'Ambiguous duplicate layer ID' : 'Layer does not exist');
   const layer = matches[0], target = selection.target, path = ['objects',scene.objects.indexOf(layer)];
   if (SCENE_SCRIPT_PROPERTIES.includes(target) || (target === 'text' && own(layer,'text'))) return {container:layer,key:target,property:target,path:[...path,target]};
+  const particle=typeof target==='string'&&target.startsWith('instanceoverride.')?target.slice(17):null;
+  if(particle&&PARTICLE_SCRIPT_PROPERTIES.includes(particle)){
+    if(typeof layer.particle!=='string'||!layer.particle||!object(layer.instanceoverride)||!own(layer.instanceoverride,particle))throw new Error('Particle override has no owned base or consuming particle reference');
+    return {container:layer.instanceoverride,key:particle,property:particle==='colorn'?'particle-color':'particle-scalar',path:[...path,'instanceoverride',particle]};
+  }
   const effect = typeof target === 'string' ? /^effects\[(0|[1-9]\d*)\]\.visible$/.exec(target) : null;
   if (effect) {
     const index = Number(effect[1]);
@@ -59,11 +65,11 @@ function anchor(scene, selection) {
 }
 
 function validBase(value, property) {
-  if (vectors.has(property)) {
+  if (vectors.has(property)||property==='particle-color') {
     const components = typeof value === 'string' && value.trim() ? value.trim().split(/\s+/).map(Number) : value;
     return Array.isArray(components) && components.length === 3 && [0,1,2].every(index => Number.isFinite(components[index]));
   }
-  if (scalars.has(property)) return typeof value === 'number' && Number.isFinite(value);
+  if (scalars.has(property)||property==='particle-scalar') return typeof value === 'number' && Number.isFinite(value);
   return typeof value === (property === 'visible' ? 'boolean' : 'string');
 }
 
@@ -77,7 +83,7 @@ function stateOf({container,key,property}) {
   }
   try {
     if (hasSource) validSource(raw.script);
-    if ((!wrapper || own(raw,'value')) && !validBase(value,property)) throw new Error('Unsupported script base value');
+    if ((!wrapper || own(raw,'value')||property.startsWith('particle-')) && !validBase(value,property)) throw new Error('Unsupported script base value');
     if (wrapper && !own(raw,'value') && !hasSource) throw new Error('Unsupported property wrapper without a base value');
   } catch (error) { return {...state,kind:'unsupported',editable:false,reason:error.message}; }
   return state;
@@ -121,8 +127,9 @@ function sourceContext(scene, path) {
   const layerId = object(layer) ? layer.id : undefined;
   const direct = path.length === 4 && path[3] === 'script';
   const effect = path.length === 6 && path[2] === 'effects' && Number.isInteger(path[3]) && path[4] === 'visible' && path[5] === 'script';
+  const particle=path.length===5&&path[2]==='instanceoverride'&&PARTICLE_SCRIPT_PROPERTIES.includes(path[3])&&path[4]==='script';
   const target = layerIndex === undefined ? path.slice(0,-1).join('.') : effect ? `effects[${path[3]}].visible` : path.slice(2,-1).join('.');
-  const registered = object(layer) && ((direct && (SCENE_SCRIPT_PROPERTIES.includes(path[2]) || path[2] === 'text')) || effect);
+  const registered = object(layer) && ((direct && (SCENE_SCRIPT_PROPERTIES.includes(path[2]) || path[2] === 'text')) || effect||particle);
   if (!registered) return {layerId,target,registered:false,editable:false,reason:'Unregistered script-like metadata; native script semantics are unknown'};
   const state = inspectOwned(scene,{layerId,target});
   return {layerId,target,registered:true,editable:state.editable,...(state.reason ? {reason:state.reason} : {})};

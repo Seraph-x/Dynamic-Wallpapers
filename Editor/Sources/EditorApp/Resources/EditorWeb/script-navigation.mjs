@@ -1,5 +1,6 @@
 import { inspectSceneScript } from './script-source.mjs';
 import {validateResourceSource} from './resource-source.mjs';
+import {discoverEditorResourceScripts,equivalentSnapshot} from './resource-api.mjs';
 const fields=['documentIdentity','source','layerId','target','path','line','registered'];
 export function validateScriptLink(link) {
  const keys=link&&typeof link==='object'&&!Array.isArray(link)?Object.keys(link):[];
@@ -21,6 +22,22 @@ export function resolveScriptLink(value,{scene,documentIdentity,pending=false}) 
  if(current.source!==link.source)return captured('source');
  if(!current.editable)return captured('anchor');
  if(pending)return captured('pending');
+ return {kind:'current',link};
+}
+export async function resolveEditorScriptLink(value,{editor,pending=false,hasPending=()=>pending}){
+ const link=validateScriptLink(value),owner=editor.document,snapshot=owner.snapshot();
+ if(!link.resource)return resolveScriptLink(link,{scene:snapshot.scene,documentIdentity:editor.documentIdentity,pending:hasPending()});
+ const captured=reason=>({kind:'captured',reason,link});
+ const current=()=>editor.document===owner&&editor.documentIdentity===link.documentIdentity&&equivalentSnapshot(owner.snapshot(),snapshot);
+ if(editor.documentIdentity!==link.documentIdentity)return captured('document');
+ if(hasPending())return captured('pending');
+ let report;
+ try{report=await discoverEditorResourceScripts(editor);}catch(error){if(!current())return captured('document');throw error;}
+ if(!current())return captured('document');
+ if(hasPending())return captured('pending');
+ const resource=link.resource,record=report.records.find(record=>record.path===resource.path&&JSON.stringify(record.scriptPath)===JSON.stringify(resource.pointer));
+ if(!record?.editable||!record.hasScript)return captured('anchor');
+ if(record.resourceDigest!==resource.sha256||record.source!==link.source)return captured('source');
  return {kind:'current',link};
 }
 export function scriptLineSelection(source,line) {

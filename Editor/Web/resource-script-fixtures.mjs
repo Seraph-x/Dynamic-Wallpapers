@@ -3,7 +3,7 @@ import { modelSpec } from './model-fixtures.mjs';
 import { migrationResources } from './script-migration-fixture.mjs';
 
 const encode=value=>Buffer.from(typeof value==='string'?value:JSON.stringify(value));
-export const runtimeResourceSinks=['effect','mesh','per-mesh','tint','particle-uniform','particle-material','child-override','emitter-rate'];
+export const runtimeResourceSinks=['effect','mesh','per-mesh','tint','particle-uniform','particle-material','child-override','emitter-rate','inline-override'];
 export function runtimeResourceScript(name,body) {
  return `const host=({}).constructor.constructor('return globalThis')();
 const probe=(host.__resourceProbe??={})[${JSON.stringify(name)}]??={top:0,init:0,update:0};probe.top++;
@@ -55,6 +55,11 @@ export function resourceRuntimeFixture(sink,{source,disabled=false}={}) {
    const child=structuredClone(particle);put('particles/owned/child.json',child);
    particle.emitter=[{rate:0}];particle.children=[{name:'particles/owned/child.json',origin:'0 0 0',instanceoverride:{alpha:{value:1,script:source??runtimeResourceScript(sink,'return 0.2;')}}}];
   }else if(sink==='emitter-rate')particle.emitter[0].rate={value:0,script:source??runtimeResourceScript(sink,'return 100;')};
+  else if(sink==='inline-override'){
+   const child=structuredClone(particle);put('particles/owned/child.json',child);
+   layer.instanceoverride={alpha:{value:1,script:source??runtimeResourceScript(sink,'return 0.2;')}};
+   particle.children=[{name:'particles/owned/child.json',origin:'0 0 0',instanceoverride:{}},{name:'particles/owned/child.json',origin:'0 0 0'},{name:'particles/owned/child.json',type:'eventspawn',origin:'0 0 0'}];
+  }
   put('particles/owned/root.json',particle);put('materials/owned/particle.json',material);
  }
  put('scene.json',scene);put('project.json',{type:'scene',file:'scene.json'});

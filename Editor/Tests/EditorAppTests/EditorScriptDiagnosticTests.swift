@@ -61,6 +61,14 @@ final class EditorScriptDiagnosticTests: XCTestCase {
         XCTAssertEqual(serialized["sha256"] as? String, String(repeating: "a", count: 64))
         XCTAssertEqual(serialized["pointer"] as? [AnyHashable], ["passes", 0, "constantshadervalues", "颜色", "script"])
     }
+    func testParticleOverrideIssueResolvesRegisteredInlineSource() throws {
+        let source = "export function update(value){return value;}"
+        let capture = try EditorCapturedScriptSnapshot(documentIdentity: "capture", scene: ["objects": [["id": 1, "particle": "particles/owned.json", "instanceoverride": ["alpha": ["value": 1, "script": source]]]]])
+        let result = capture.resolve(try EditorScriptDiagnostic(validated: issue(["target": "instanceoverride.alpha"])))
+        XCTAssertEqual(result.link?.source, source)
+        XCTAssertEqual(result.link?.registered, true)
+        XCTAssertEqual(result.link?.path, ["objects", 0, "instanceoverride", "alpha", "script"])
+    }
     func testCapturedSourceIsDetachedAndUnknownMetadataRemainsReadOnly() throws {
         let wrapper = NSMutableDictionary(dictionary: ["script": "// original\r\n世界😀\n"])
         let layer = NSMutableDictionary(dictionary: ["id": 1, "future": wrapper])

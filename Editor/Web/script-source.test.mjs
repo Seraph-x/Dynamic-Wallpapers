@@ -9,6 +9,18 @@ const select = (target = 'origin') => ({layerId:1,target});
 const set = (target = 'origin', text = source) => ({...select(target),type:'set',source:text});
 const workspace = value => ({scene:value,project:{type:'scene'},title:'Scripts',entry:'scene.json'});
 
+test('particle instance overrides register only existing typed sinks with owned resource references',()=>{
+ const input=scene({particle:'particles/owned.json',instanceoverride:{alpha:{value:1,script:source,future:true},colorn:{value:'1 0 0',script:source},speed:2,unknown:{value:1,script:source}}});
+ for(const target of ['instanceoverride.alpha','instanceoverride.colorn','instanceoverride.speed']){
+  assert.equal(inspectSceneScript(input,select(target)).editable,true,target);
+  assert.equal(inspectSceneScript(editSceneScript(input,set(target,'replacement')),select(target)).source,'replacement');
+ }
+ const found=listSceneScripts(input);assert.equal(found.find(record=>record.target==='instanceoverride.alpha').registered,true);
+ assert.equal(found.find(record=>record.target==='instanceoverride.unknown').registered,false);
+ for(const bad of [scene({instanceoverride:input.objects[0].instanceoverride}),scene({particle:'particles/a.json',instanceoverride:{alpha:{script:source}}}),scene({particle:'particles/a.json',instanceoverride:{alpha:{value:1,user:'bound',script:source}}})])assert.equal(inspectSceneScript(bad,select('instanceoverride.alpha')).editable,false);
+ assert.equal(inspectSceneScript(input,select('instanceoverride.rate')).editable,false);
+});
+
 test('inspects owned constants and creates an owned wrapper without changing input', () => {
   const input = scene({scale:[1,2,3]}), before = structuredClone(input);
   assert.deepEqual(inspectSceneScript(input,select()),{kind:'constant',value:'1 2 3',editable:true});

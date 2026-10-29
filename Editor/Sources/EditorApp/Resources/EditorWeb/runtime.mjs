@@ -83,6 +83,7 @@ export function startEditor(config, options) {
   }
   async function changed(operation) {
     if (frozen) throw new Error('Editor is frozen for a native operation');
+    options.onBeforeDocumentChange?.();
     operation(document);
     await notifyDirty();
     return enqueue(render);
@@ -148,7 +149,10 @@ export function startEditor(config, options) {
         case 'snapshot': if (options.snapshotError?.()) throw options.snapshotError(); payload = { document: document.snapshot(),documentIdentity }; break;
         case 'freeze': frozen = true; options.setEditingEnabled(false); payload = { document:document.snapshot(),documentIdentity, dirty:isDirty() || Boolean(options.snapshotError?.()) }; break;
         case 'thaw': frozen = false; options.setEditingEnabled(true); break;
-        case 'load': document = new SceneDocument(value.document,config.sourcePackage);documentIdentity=crypto.randomUUID(); await render(); break;
+        case 'load': {
+          const replacement=new SceneDocument(value.document,config.sourcePackage);
+          options.onBeforeDocumentChange?.();document=replacement;documentIdentity=crypto.randomUUID();await render();break;
+        }
         case 'reveal-script': payload={navigation:await options.onRevealScript(value.link)};break;
         case 'mark-saved': document.markSaved(value.document); options.onChange(document, controls); break;
         case 'add-image': await changed(doc => doc.addImage(value.image)); break;

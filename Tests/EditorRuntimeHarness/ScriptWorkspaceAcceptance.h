@@ -27,6 +27,15 @@ static void scriptWorkspaceInstallInspection(DWWebPage* page) {
   [page editorTestScript:@"import(new URL('./code-editor-api.mjs',location.href)).then(api=>{window.__codeAcceptanceAPI=api;});"];
   [page clipTestAwait:@"Boolean(window.__codeAcceptanceAPI?.EditorView&&document.querySelector('#script-source .cm-content'))"];
 }
+static void scriptWorkspaceOpenColor(DWWebPage* page) {
+  [page editorTestScript:@"document.querySelector('#layers button[data-layer-id=\"1\"]').click();"];
+  command(page,@{@"type":@"snapshot"});
+  [page editorTestScript:@"document.getElementById('script-workspace').click();"];
+  command(page,@{@"type":@"snapshot"});
+  [page clipTestAwait:@"!document.getElementById('script-panel').hidden&&!document.getElementById('script-target').disabled&&[...document.getElementById('script-target').options].some(option=>option.value==='color')"];
+  [page editorTestScript:@"(()=>{const target=document.getElementById('script-target');target.value='color';target.dispatchEvent(new Event('change',{bubbles:true}));})();"];
+  command(page,@{@"type":@"snapshot"});
+}
 static void scriptWorkspaceAwaitSource(DWWebPage* page,NSString* source,BOOL focused=NO) {
   NSString* json=[[NSString alloc]initWithData:[NSJSONSerialization dataWithJSONObject:@{@"source":source,@"focused":@(focused)} options:0 error:nil] encoding:NSUTF8StringEncoding];
   try {
@@ -84,9 +93,7 @@ static void verifyScriptWorkspace(DWWebRuntime* runtime,NSString* projectRoot,NS
   void(^resourceHandler)(NSDictionary*)=[page.onEditorResource copy];page.onEditorResource=^(NSDictionary* event){if([event[@"action"] isEqual:@"stage"])++stages;resourceHandler(event);};
   NSWindow* window=fkHostWindow(page);[page start];waitUntil(^{return page.ready||failure!=nil;},20,"Native script workspace first frame timed out");require(!failure&&[page editorTestNativeViewIsAttached]&&[page scriptTestHasEditorSession],"Script workspace requires real attached CEF input");
   command(page,@{@"type":@"thaw"});
-  [page editorTestScript:@"document.querySelector('#layers button[data-layer-id=\"1\"]').click();document.getElementById('script-workspace').click();"];
-  [page clipTestAwait:@"document.getElementById('script-panel')&&!document.getElementById('script-panel').hidden&&document.getElementById('script-target').options.length>0"];
-  [page editorTestScript:@"(()=>{const target=document.getElementById('script-target');target.value='color';target.dispatchEvent(new Event('change',{bubbles:true}));})();"];
+  scriptWorkspaceOpenColor(page);
   fprintf(stderr,"Native Script workspace phase=initial-target\n");
   scriptWorkspaceInstallInspection(page);
   scriptWorkspaceAwaitSource(page,[original[@"scene"][@"objects"][0][@"color"][@"script"] stringByReplacingOccurrencesOfString:@"\r\n" withString:@"\n"]);

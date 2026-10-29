@@ -29,7 +29,7 @@ export async function testModelWorkspace(page,command,modelPath) {
   await page.locator('#model-delete-cancel').click();assert.deepEqual((await command({type:'snapshot'})).document,beforeCancel);
   await page.locator('#model-delete').click();await page.locator('#model-delete-confirm').click();await command({type:'snapshot'});
   assert.equal(await page.locator('#model-bones button').count(),3);await command({type:'undo'});
-  assert.equal(await page.locator('#model-bones button').count(),4);await command({type:'undo'});
+  await page.locator('#model-bones button').nth(3).waitFor();assert.equal(await page.locator('#model-bones button').count(),4);await command({type:'undo'});
   await page.locator('#model-bones button[data-bone="2"]').click();await page.locator('#model-delete').click();
   assert.equal(await page.locator('#model-delete-replacement').isVisible(),true);await page.locator('#model-delete-replacement').selectOption('0');
   await page.locator('#model-delete-confirm').click();await command({type:'snapshot'});assert.equal(await page.locator('#model-bones button').count(),2);await command({type:'undo'});

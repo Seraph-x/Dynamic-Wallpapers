@@ -19,14 +19,27 @@ export function codeInput(page) {
   return {
     inputValue:async()=>(await inspectCodeEditor(page)).source,
     async fill(source){
-      await page.waitForFunction(async()=>{
-        const {EditorView,EditorState}=await import('./code-editor-api.mjs');
-        const view=EditorView.findFromDOM(document.querySelector('#script-source .cm-content'));
-        return view&&!view.state.facet(EditorState.readOnly)&&view.state.facet(EditorView.editable);
+      // Playwright polls a synchronous predicate. An async predicate returns a
+      // truthy Promise and stops polling even when it later resolves false.
+      await page.waitForFunction(()=>{
+        const content=document.querySelector('#script-source .cm-content');
+        return content?.getAttribute('contenteditable')==='true'&&!document.getElementById('script-target').disabled;
       });
-      await codeContent(page).focus();await page.keyboard.press('ControlOrMeta+a');
+      await codeContent(page).click();await page.keyboard.press('ControlOrMeta+a');
       const before=await inspectCodeEditor(page);
       if(source)await page.keyboard.insertText(source);else await page.keyboard.press('Backspace');
+      // CDP input acknowledgement can precede CodeMirror's DOM observer. Read
+      // the current public view until that one input has actually settled.
+      const api=await page.evaluateHandle(()=>import('./code-editor-api.mjs'));
+      try{
+        await page.waitForFunction(({api,source})=>{
+          const view=api.EditorView.findFromDOM(document.querySelector('#script-source .cm-content'));
+          return Boolean(view&&view.state.sliceDoc()===source);
+        },{api,source});
+      }catch(error){
+        console.error('Code input did not settle',{before,after:await inspectCodeEditor(page),dom:await codeContent(page).innerText()});
+        throw error;
+      }finally{await api.dispose();}
       const after=await inspectCodeEditor(page);
       if(after.source!==source)console.error('Code input failure state',{before,after,active:await page.evaluate(()=>({tag:document.activeElement?.tagName,classes:document.activeElement?.className,inert:document.body.inert,contentEditable:document.querySelector('#script-source .cm-content').getAttribute('contenteditable')}))});
       assert.equal(after.source,source,'Real keyboard input did not reach the CodeMirror document');

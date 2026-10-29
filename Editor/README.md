@@ -39,8 +39,9 @@ tools use the actual pinned compiler without executing supplied source. All
 authoring-page scene mounts, including model-import preview, use `scripts:false`.
 Property curves and skeletal animation remain active; imported SceneScript runs
 through **Run preview** in a separate scene page. The
-[Script workspace](../docs/editor-script-workspace.md) edits supported inline
-sources with Check/Apply/Revert/Remove and recoverable drafts. Its bundled
+[Script workspace](../docs/editor-script-workspace.md) edits supported inline,
+material and particle resource sources with Check/Apply/Revert/Remove and
+recoverable drafts. Its bundled
 CodeMirror editor adds JavaScript highlighting, local undo/redo, target-aware
 API hints, lifecycle starters and find/replace without network dependencies.
 Script-bound inspector fields stay read-only. [Runtime diagnostics](../docs/editor-script-diagnostics.md) retain actual issues and
@@ -62,6 +63,18 @@ checks and commits the current text as one undoable edit; unchanged text creates
 no history. **Revert draft** discards pending text. **Remove script** explicitly
 discards that draft and removes the committed script while preserving its base
 and other wrapper metadata.
+
+Material and particle rows show their logical file, structural anchor and shared
+consumer count. Editing a shared resource affects every layer using that file.
+Expand **Affected consumers** to inspect each owning layer and effect, mesh or
+particle reference before applying an edit.
+Consumed first-pass material constants support scalar/vector2/3/4 values; child
+particle overrides and emitter rates use their registered typed sinks. Imported
+PKG resources use the same workflow. Unsupported or bound sources remain visible
+read-only with their reason. Resource changes preserve unrelated file bytes and
+use immutable versions for project undo/redo, save/reopen, preview and loose/PKG
+export. A staging or stale-source failure keeps the draft until correction or
+explicit Revert. See the [resource source contract](../docs/editor-resource-script-foundation.md).
 
 Changing source, layer or workspace, editing another tool, saving, previewing and
 native history commands first flush a valid draft. Invalid input keeps its text

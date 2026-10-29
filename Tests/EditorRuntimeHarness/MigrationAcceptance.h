@@ -23,11 +23,12 @@ static void migrationVerifyPlayback(DWWebRuntime* runtime, NSString* root, NSStr
   previewClose(page,0,runtime);
 }
 
-static void migrationVerifyMissingHandler(DWWebRuntime* runtime, NSString* root, NSString* runtimeRoot) {
+static void migrationVerifyMissingHandler(DWWebRuntime* runtime, NSString* root, NSString* runtimeRoot, NSString* resources) {
   NSDictionary* blank=@{@"title":@"Missing preview handler",@"entry":@"scene.json",@"project":@{@"type":@"scene",@"file":@"scene.json"},@"scene":@{@"general":@{@"orthogonalprojection":@{@"width":@640,@"height":@360}},@"objects":@[]}};
   NSError* error=nil;__block NSError* failure=nil;
   DWWebPage* page=[runtime editorPageWithProjectRoot:root runtimeRoot:runtimeRoot configuration:@{@"language":@"en",@"document":blank} size:NSMakeSize(1180,760) error:&error];
   require(page!=nil,error.localizedDescription.UTF8String ?: "Missing-handler Editor creation failed");page.onError=^(NSError* value){failure=value;};
+  configureResources(page,resources,root,^(NSError* value){failure=value;});
   NSWindow* window=fkHostWindow(page);[page start];waitUntil(^{return page.ready||failure!=nil;},20,"Missing-handler Editor first frame timed out");
   require(!failure&&page.onEditorPreview==nil,"Missing-handler Editor was not actually unhandled");command(page,@{@"type":@"thaw"});
   [page editorTestScript:@"document.getElementById('run-preview').focus();"];[page clipTestAwait:@"document.activeElement.id==='run-preview'"];[page gltfTestReturn];
@@ -112,6 +113,6 @@ static void verifyMigration(DWWebRuntime* runtime, NSString* projectRoot, NSStri
   migrationVerifyPlayback(runtime,projectRoot,mainRuntime,NO);migrationVerifyPlayback(runtime,packageRoot,mainRuntime,YES);
   require([previewFileBytes(projectRoot) isEqual:sourceBytes],"Playback changed original migration source files");
   require([NSFileManager.defaultManager removeItemAtPath:captureRoot error:&error],"Cannot remove released captured fixture");
-  migrationVerifyMissingHandler(runtime,projectRoot,editorRuntime);
+  migrationVerifyMissingHandler(runtime,projectRoot,editorRuntime,[cache stringByAppendingPathComponent:@"MissingPreviewResources"]);
   fprintf(stderr,"Native migration: quiet authoring, trusted Return/Space Run, actual callback freeze/valid capture/invalid rejection/thaw, unchanged history/resources, five real script anchors in isolated preview and both Main exports passed\n");
 }
