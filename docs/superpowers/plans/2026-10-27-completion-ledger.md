@@ -216,3 +216,13 @@ reproducible Python/Node build tooling and source-built media dependencies.
   records against actual source/tool/library bytes. Updated public measured
   records, acceptance pixels/JSON and their material index are prepared for a
   separate evidence PR. Final packaged apps still require their own acceptance.
+- Media evidence PR [#53](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/53)
+  merged at `90542cf66359c12342ebd0a6064a4c8f6341a9e1`, from `83e056b`. Its actual
+  twelve-case command, 13 material checks, 43 packaging checks and 18-file gate
+  pass. All 16 exact media binaries passed a separate privacy scan. Both final
+  candidates were built from that merged source; Main static/package-local tool
+  checks and Editor ZIP checks passed, but Main isolated startup preflight failed
+  on Foundation's existing/new `/private/tmp` spelling inconsistency. A six-case
+  physical-root path regression is now green with strict escape/symlink rules
+  preserved. A correction PR and fresh candidates remain required; nothing has
+  been published or installed.

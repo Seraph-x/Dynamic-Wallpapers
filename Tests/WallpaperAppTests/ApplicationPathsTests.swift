@@ -1,9 +1,41 @@
 import Foundation
+import Darwin
 import XCTest
 @testable import WallpaperApp
 
 final class ApplicationPathsTests: XCTestCase {
     private let productionID = "local.dynamicwallpaper.app"
+
+    private func physicalURL(_ url: URL) throws -> URL {
+        let pointer = try XCTUnwrap(url.path.withCString { realpath($0, nil) })
+        defer { free(pointer) }
+        return URL(fileURLWithPath: String(cString: pointer))
+    }
+
+    func testPrivateTemporaryRootAcceptsNewEvidenceWithOnePhysicalPathSpelling() throws {
+        let root = URL(fileURLWithPath: "/private/tmp").appendingPathComponent(UUID().uuidString)
+        let home = root.appendingPathComponent("Home")
+        let temporary = root.appendingPathComponent("Temp")
+        let evidence = root.appendingPathComponent("evidence/events.jsonl")
+        for directory in [home, temporary, evidence.deletingLastPathComponent()] {
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        }
+        defer {
+            do { try FileManager.default.removeItem(at: root) }
+            catch { XCTFail("Owned path fixture cleanup failed: \(error)") }
+        }
+        let physicalRoot = try physicalURL(root).path
+        XCTAssertFalse(FileManager.default.fileExists(atPath: evidence.path))
+        for spelling in [root.path, root.path.replacingOccurrences(of: "/private/tmp/", with: "/tmp/")] {
+            let paths = try ApplicationPaths.resolve(arguments: ["--validation-data-root", spelling,
+                "--validation-evidence", evidence.path], bundleIdentifier: productionID + ".validation.test",
+                configuredBundleIdentifier: productionID,
+                environment: ["CFFIXED_USER_HOME": home.path, "TMPDIR": temporary.path])
+            XCTAssertEqual(paths.validationRoot?.path, physicalRoot)
+            XCTAssertEqual(paths.evidence?.path, physicalRoot + "/evidence/events.jsonl")
+            XCTAssertTrue(paths.preflightRecord().paths.values.allSatisfy { $0.hasPrefix(physicalRoot + "/") })
+        }
+    }
 
     func testProductionRejectsEveryValidationArgument() throws {
         let root = FileManager.default.temporaryDirectory.resolvingSymlinksInPath().appendingPathComponent(UUID().uuidString)
@@ -30,17 +62,17 @@ final class ApplicationPathsTests: XCTestCase {
                 "--print-validation-paths", "--validation-evidence", evidence.path],
             bundleIdentifier: productionID + ".validation.test", configuredBundleIdentifier: productionID,
             environment: ["CFFIXED_USER_HOME": home.path, "TMPDIR": temporary.path])
-        let canonical = root.resolvingSymlinksInPath().standardizedFileURL
+        let canonical = try physicalURL(root)
         XCTAssertEqual(Set(paths.writablePaths.keys), ["applicationSupport", "library", "legacyLibrary",
             "screenSaverExport", "media", "systemWallpapers", "cefCache", "transcodeTemporary",
             "transcodeDiagnostics", "preferences", "logs", "evidence"])
         for path in paths.writablePaths.values {
-            XCTAssertTrue(path.standardizedFileURL.pathComponents.starts(with: canonical.pathComponents), path.path)
+            XCTAssertTrue(path.pathComponents.starts(with: canonical.pathComponents), path.path)
         }
-        XCTAssertEqual(paths.writablePaths["preferences"]?.standardizedFileURL.path,
-            home.appendingPathComponent("Library/Preferences").resolvingSymlinksInPath().standardizedFileURL.path)
-        XCTAssertEqual(paths.writablePaths["evidence"]?.standardizedFileURL.path,
-            evidence.resolvingSymlinksInPath().standardizedFileURL.path)
+        XCTAssertEqual(paths.writablePaths["preferences"]?.path,
+            canonical.appendingPathComponent("Home/Library/Preferences").path)
+        XCTAssertEqual(paths.writablePaths["evidence"]?.path,
+            canonical.appendingPathComponent("evidence/events.jsonl").path)
         XCTAssertEqual(paths.preflightRecord().bundleIdentifier, productionID + ".validation.test")
         XCTAssertEqual(paths.startupRecord().paths, paths.preflightRecord().paths)
     }

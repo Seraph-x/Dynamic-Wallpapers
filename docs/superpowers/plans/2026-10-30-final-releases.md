@@ -85,3 +85,20 @@ source/product/material-byte checks (green). It replaces the documented manual
 procedure gap; it has no simulated success path or runtime fallback. The public
 records and actual RGBA/JSON acceptance files are synchronized for review before
 final application builds. Raw local logs/paths are not publication attachments.
+
+The first actual final candidates were built from merged `90542cf`: Main's
+production build, static closure/signature/purpose-localization checks and six
+package-local FFmpeg conversions passed; Editor's application and ZIP extraction
+checks passed. Main's actual isolated preflight then failed before GUI startup.
+Foundation standardized existing `/private/tmp` directories to `/tmp` while a
+new evidence file kept `/private/tmp`, so the same physical child was falsely
+rejected. No GUI acceptance or release publication is claimed for these bytes.
+
+A new real `/private/tmp` regression reproduced the failure while the original
+five path tests passed. Validation paths now retain lexical input until
+`realpath` establishes one physical root. Existing boundary, dot/dotdot,
+per-component symlink and O_NOFOLLOW checks remain. Tests use an independent
+realpath oracle instead of the same existence-dependent Foundation method;
+all six path tests pass, including both `/private/tmp` and `/tmp` root spellings.
+Independent review found no Critical/Important issue. The corrected source must
+merge and both candidates must be rebuilt before final GUI/archive acceptance.
