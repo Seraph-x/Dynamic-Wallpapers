@@ -1,4 +1,5 @@
 import WallpaperAudioSpectrum
+import WallpaperMediaIntegration
 import AppKit
 import WebWallpaperBridge
 import WallpaperCore
@@ -9,6 +10,8 @@ import Darwin
 final class CEFApplicationRuntime: WebPageMaking, ScenePageMaking {
     let systemAudioSpectrum = SystemAudioSpectrumController()
     let sceneProperties = ScenePropertySessionOwner()
+    let sceneMedia: SceneMediaSessionOwner
+    var systemMedia: SystemMediaController { sceneMedia.controller }
     private var playingSceneIDs = Set<UUID>()
     private let paths: WebRuntimePaths
     private let sceneRuntimeRoot: URL?
@@ -22,8 +25,9 @@ final class CEFApplicationRuntime: WebPageMaking, ScenePageMaking {
 
     init(paths: WebRuntimePaths = .resolve(), cache: URL = ApplicationPaths.production(
         bundleIdentifier: Bundle.main.bundleIdentifier ?? ProcessInfo.processInfo.processName).cefCache,
-         sceneRuntimeRoot: URL? = nil) {
+         sceneRuntimeRoot: URL? = nil, systemMedia: SystemMediaController? = nil) {
         self.paths = paths; self.cache = cache; self.sceneRuntimeRoot = sceneRuntimeRoot
+        sceneMedia = SceneMediaSessionOwner(controller: systemMedia ?? SystemMediaController())
         systemAudioSpectrum.onSpectrum = { [weak self] value in
             guard let self else { return }
             for (id, session) in self.sceneSessions where value == .zero || self.playingSceneIDs.contains(id) {
@@ -104,6 +108,7 @@ final class CEFApplicationRuntime: WebPageMaking, ScenePageMaking {
         if playing { playingSceneIDs.insert(id) }
         else { playingSceneIDs.remove(id); sceneSessions[id]?.updateSpectrum(.zero) }
         systemAudioSpectrum.setPlaying(id, playing)
+        sceneMedia.setPlaying(id, playing)
     }
 
     func retireScene(_ id: UUID) {
@@ -122,6 +127,7 @@ final class CEFApplicationRuntime: WebPageMaking, ScenePageMaking {
             let closing = pages.map { page in Task { @MainActor in try await page.close() } }
                 + scenes.map { page in Task { @MainActor in try await page.close() } }
             try await PlaybackCloseBarrier.wait(for: closing)
+            await self.sceneMedia.shutdown()
             try await self.systemAudioSpectrum.shutdown()
             try self.bridge?.shutdown()
             if FileManager.default.fileExists(atPath: self.cache.path) {

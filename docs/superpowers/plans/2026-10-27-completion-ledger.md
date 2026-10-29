@@ -132,3 +132,20 @@ reproducible Python/Node build tooling and source-built media dependencies.
   Independent review of this batch has no remaining Important issues. Shared
   Main playback ownership, consent/settings, full integration review and the
   system-media PR remain open; this is not a completed or merged media feature.
+- System-media Task 4 now connects actual playing Main scenes to one shared
+  controller, including persisted selection, forced-off library-load failure,
+  empty preparation, acknowledged pause clears and close/shutdown draining.
+  Independent review's real native-worker cancellation finding was reproduced
+  with seven handshake regressions and fixed through the complete Task/GCD
+  chain. All 66 targeted Main/media/Core checks and 199 isolated media/Core/owner
+  tests pass after successful full/incremental builds. Actual owned Apple
+  Events/TLS and Main/Metal CEF loose/PKG runs for both dictionaries passed,
+  including preparing a new empty page while another has live data; latest run
+  `5acf3d94-15ec-44e8-8b9b-7e2c127b5a01` has all four acceptance records and both
+  real runtime shutdowns. No Critical/Important review findings remain. Main
+  settings/consent and the system-media PR are still open.
+- The current controlled media closure was rebuilt from locked tracked sources
+  in a neutral directory, then retained in the shared build cache. Current input
+  fingerprints, SDK/tool environment, all 14 libraries and signatures verify.
+  Final app/extracted-archive and distribution acceptance remain open; historical
+  media products are not substituted for the current verified build.

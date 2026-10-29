@@ -91,11 +91,43 @@ their separate scopes, including late load callbacks during teardown.
 
 ## Task 4: Shared Main lifetime and delivery
 
-- [ ] Add failing `Tests/WallpaperAppTests/SceneMediaIntegrationTests.swift` with injected native provider and page sinks: default off, one service across two playing scenes, no paused/preparing-instance disclosure, independent artwork completion, source-switch and disable clears, per-instance pause clears while another remains active, rejected stale control, delivery failure visible, close draining and rejected quit.
-- [ ] Add `WallpaperMediaIntegration` to Main/test dependencies and harness object inputs. Implement `SceneMediaSessionOwner` with an injected controller and fixed per-page data sinks, lifecycle registration before playback and explicit detach before close. Combine subscriptions must observe completed artwork as well as metadata; read the controller's current values after published changes to avoid `@Published` willSet stale values.
-- [ ] Wire the owner into `CEFApplicationRuntime` and `CEFScenePageSession`; attach an empty projection before presentation, supply data only to actual playing instances, synchronously clear native snapshot when an instance pauses, and gate controls on the same current scene/demand. Never query/launch another provider. Keep failures visible in controller/owner state and native diagnostics rather than swallowing them or destroying an otherwise healthy scene for ordinary provider unavailability.
-- [ ] Configure persisted `systemMediaSource` in `AppModel`, forced disabled on library-load failure. Drain media operations and artwork before native runtime shutdown; preserve the existing rejected-quit behavior and only restore fresh demand through new playback callbacks.
-- [ ] Run targeted media/Main tests within 60 seconds after a separate build. Extend `Tests/SceneRuntimeHarness/system-media.swift`, `swift-main.swift`, build and runner scripts for actual Swift owner + CEF loose/PKG playback with authored owned provider metadata/artwork and five commands. Use the real Apple Event fixture/TLS pipeline from `scripts/test-public-media.py`, not fake-success substitutes. Commit `feat: connect playing scenes to shared system media`.
+- [x] Add failing `Tests/WallpaperAppTests/SceneMediaIntegrationTests.swift` with injected native provider and page sinks: default off, one service across two playing scenes, no paused/preparing-instance disclosure, independent artwork completion, source-switch and disable clears, per-instance pause clears while another remains active, rejected stale control, delivery failure visible, close draining and rejected quit.
+- [x] Add `WallpaperMediaIntegration` to Main/test dependencies and harness object inputs. Implement `SceneMediaSessionOwner` with an injected controller and fixed per-page data sinks, lifecycle registration before playback and explicit detach before close. Combine subscriptions observe the emitted artwork state (because `@Published` sends before assignment) and the already-assigned metadata snapshot.
+- [x] Wire the owner into `CEFApplicationRuntime` and `CEFScenePageSession`; attach an empty projection before presentation, supply data only to actual playing instances, synchronously clear native snapshot when an instance pauses, and gate controls on the same current scene/demand. Never query/launch another provider. Keep failures visible in controller/owner state and native diagnostics rather than swallowing them or destroying an otherwise healthy scene for ordinary provider unavailability.
+- [x] Configure persisted `systemMediaSource` in `AppModel`, forced disabled on library-load failure. Drain media operations and artwork before native runtime shutdown; preserve the existing rejected-quit preflight behavior. Completed shutdown retires old scene IDs rather than resurrecting demand.
+- [x] Run targeted media/Main tests within 60 seconds after a separate build. Extend `Tests/SceneRuntimeHarness/system-media.swift`, `swift-main.swift`, build and runner scripts for actual Swift owner + CEF loose/PKG playback with authored owned provider metadata/artwork and five commands. Use the real Apple Event fixture/TLS pipeline from `scripts/test-public-media.py`, not fake-success substitutes. Commit `feat: connect playing scenes to shared system media`.
+
+The complete Swift application/test build passed in 139.23 seconds, followed by
+successful incremental builds for the final regressions. All 66 targeted Main,
+media and Core tests passed. The complete isolated package passed 45 native media,
+143 Core and 11 owner tests (199 total), including actual owned TLS.
+Independent review found a deeper Task/GCD cancellation window: seven handshake
+tests first failed after controls entered the actual blocked Apple Event worker.
+Per-control task cancellation now propagates through the controller into the
+existing worker cancellation gate, including pause/close while another instance
+stays active. The native queue regressions and all affected tests pass.
+`SceneSurface.close` also revokes playback intent before native retirement; its
+new test first observed the old true intent and now passes.
+
+Strict Swift/CEF test-host builds passed within the 180-second supervisor, using
+explicit isolated Keychain bridge objects while production objects stay intact.
+Actual Apple Event/TLS → Main owner → Metal CEF runs
+`a8482c7a-4d68-44e5-92f7-8e4a6d51b401` and
+`5acf3d94-15ec-44e8-8b9b-7e2c127b5a01` passed both owned dictionary adapters and
+loose/PKG scenes, five scene controls, actual metadata and PNG pixels, independent
+artwork/transport failures, explicit retry, per-instance pause and source-disable
+clears, and complete runtime shutdown. The second run explicitly prepares a new
+page while another already displays live native metadata/PNG and proves that
+new page stays empty until actual playback. Independent review has no remaining
+Critical/Important findings. This proves owned fixtures, not personal vendor-app
+playback. Main consent/settings and final PR integration remain open.
+
+Evidence logs: `/private/tmp/dw-media-worker-red-tests.log`,
+`/private/tmp/dw-media-worker-green-tests.log`,
+`/private/tmp/dw-system-media-close-red-tests.log`,
+`/private/tmp/dw-system-media-main-current-tests.log`,
+`/private/tmp/dw-system-media-complete-foundation-tests.log`,
+`/private/tmp/dw-system-media-main-preparing-automation.log`.
 
 ## Task 5: Main consent, settings and packaging
 

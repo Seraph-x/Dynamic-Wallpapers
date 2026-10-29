@@ -12,7 +12,7 @@ import subprocess
 import time
 
 
-def run_client(application, arguments, directory, label):
+def run_client(application, arguments, directory, label, *, timeout_seconds=20):
     result = directory / f'{label}-result.json'
     output = directory / f'{label}-client.log'
     output.touch()
@@ -27,7 +27,7 @@ def run_client(application, arguments, directory, label):
         launcher.wait(timeout=5)
         if launcher.returncode != 0:
             raise RuntimeError(f'LaunchServices could not launch the owned client: {launcher.returncode}')
-        deadline = time.monotonic() + 20
+        deadline = time.monotonic() + timeout_seconds
         value = None
         while time.monotonic() < deadline:
             if result.exists():
@@ -36,7 +36,7 @@ def run_client(application, arguments, directory, label):
                     break
             time.sleep(0.02)
         else:
-            raise TimeoutError(f'Owned client result/process exit exceeded 20 seconds; see {output}')
+            raise TimeoutError(f'Owned client result/process exit exceeded {timeout_seconds} seconds; see {output}')
         if value.get('status') != 'passed':
             raise RuntimeError(f'Owned client failed: {value}; see {output}')
         print(output.read_text(), end='', flush=True)
