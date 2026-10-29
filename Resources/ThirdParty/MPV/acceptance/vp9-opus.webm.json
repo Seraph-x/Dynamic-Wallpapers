@@ -38,8 +38,8 @@
   "firstRGBAFile" : "vp9-opus.webm-first.rgba",
   "videoCodec" : "vp9",
   "hardwareDecoder" : "videotoolbox-copy",
-  "maximumAudioPTS" : 1.740111376666668,
-  "distinctPixelHashes" : 24,
+  "maximumAudioPTS" : 1.7166488773333346,
+  "distinctPixelHashes" : 23,
   "loops" : 1,
   "settingsReadbacks" : {
     "pauseAndResumeVerified" : true,

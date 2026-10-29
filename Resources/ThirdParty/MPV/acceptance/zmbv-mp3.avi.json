@@ -38,7 +38,7 @@
   "firstRGBAFile" : "zmbv-mp3.avi-first.rgba",
   "videoCodec" : "zmbv",
   "hardwareDecoder" : "no",
-  "maximumAudioPTS" : 1.7622120010000013,
+  "maximumAudioPTS" : 1.7539951263333347,
   "distinctPixelHashes" : 23,
   "loops" : 1,
   "settingsReadbacks" : {

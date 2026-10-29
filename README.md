@@ -156,6 +156,7 @@ Use an Apple Silicon Mac with full Xcode, a macOS 26 SDK or newer, Python 3.11+,
 git clone https://github.com/Seraph-x/Dynamic-Wallpapers.git
 cd Dynamic-Wallpapers
 python3 scripts/prepare-public-build.py
+python3 scripts/verify-current-media.py
 bash scripts/build-app.sh --output dist/DynamicWallpaper-source-build.app
 ```
 

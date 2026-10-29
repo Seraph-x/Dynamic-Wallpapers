@@ -38,7 +38,7 @@
   "firstRGBAFile" : "mpeg4-mp3.avi-first.rgba",
   "videoCodec" : "mpeg4",
   "hardwareDecoder" : "no",
-  "maximumAudioPTS" : 1.7587738340000012,
+  "maximumAudioPTS" : 1.7287092920000013,
   "distinctPixelHashes" : 23,
   "loops" : 1,
   "settingsReadbacks" : {

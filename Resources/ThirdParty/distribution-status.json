@@ -29,7 +29,7 @@
       "version": "Controlled mpv 0.38.0+18 / c0dd2b32d52c66b9efa85a7ee69965569503f6b8",
       "license": "GPL-2.0-or-later mpv with LGPL FFmpeg/libplacebo/FriBidi and ISC/MIT/FTL components",
       "complete": true,
-      "scope": "Actual source build and closed arm64/macOS14 dylib graph verified; complete corresponding source, patches, notices and recipe retained; actual six-fixture native acceptance retained",
+      "scope": "Complete corresponding source, exact patches, original notices, real source-build record and six actual product-bridge acceptance phases retained; CoreAudio clock/output, software pixels, VT-copy, AV1 software decoding, loops, settings and strict teardown measured; acoustic speaker output not measured",
       "license_files": [
         "MPV/notices/mpv/Copyright",
         "MPV/notices/mpv/LICENSE.GPL",
@@ -119,7 +119,7 @@
     },
     {
       "path": "FFmpeg/BUILD-RECORD.json",
-      "sha256": "d19b60f860a75d35ba114a5e2f8a6d21ac2a596f4810561ff79cf74cba6c85a1",
+      "sha256": "812c118a0c146700811eaa931f1ae07264915d1b2e4d11b189cac380a344a760",
       "size": 3460
     },
     {
@@ -149,12 +149,12 @@
     },
     {
       "path": "FFmpeg/SOURCE.md",
-      "sha256": "ddd837e69bea4825cfc4bc118b8f0c3eca665d1fc1d099bcc273b10948f99138",
-      "size": 4875
+      "sha256": "fe925ef62662cc915119abd93b939da76606eeeacfaf92298a99366f670938c0",
+      "size": 5074
     },
     {
       "path": "FFmpeg/acceptance/software-transcode.json",
-      "sha256": "341e0214f18e8bcee96e6986183f146631472c1799a46536e0a8104023c2bea2",
+      "sha256": "882c5f709e2fcc7a9fbf021e90bab7e5529a448a15e8aa477565ba686c2e24e4",
       "size": 6679
     },
     {
@@ -209,7 +209,7 @@
     },
     {
       "path": "MPV/BUILD-RECORD.json",
-      "sha256": "b384b0b2206d011d83951ec1216fe2052d5d9c78547f45503c6a8e30a39e2ca5",
+      "sha256": "ec9f23c0aaef0291d55ead4951ee23d1cef2908d239f302dbc52190bb60adb0b",
       "size": 10514
     },
     {
@@ -244,13 +244,13 @@
     },
     {
       "path": "MPV/SOURCE-STATUS.md",
-      "sha256": "93a6b8dfd0f90462baf05fd3f6584234744d93fc68d55b2178edcc99701290ea",
-      "size": 4745
+      "sha256": "d5c187e7d4914aa277beee77946de02ce8e2eb64c1ed4b737f763f082ded6979",
+      "size": 5020
     },
     {
       "path": "MPV/acceptance/acceptance.json",
-      "sha256": "2fbc2ba221e2555001786cf51af5df8d6afed20316d9d84abded985ec8281793",
-      "size": 16254
+      "sha256": "b3ae7a395592a88b3413203df2f8ad7a52d09771d7d1c9b40eda7ceaca2e65b7",
+      "size": 16256
     },
     {
       "path": "MPV/acceptance/av1-opus.mkv-first.rgba",
@@ -264,7 +264,7 @@
     },
     {
       "path": "MPV/acceptance/av1-opus.mkv.json",
-      "sha256": "346c11727773e7e0f90e618c3e19d0ad889fc2397f134283e27c0495a86bd306",
+      "sha256": "9ae35d45b0a9440a8302ed4d2928d0c78429c3fc539edee58c696c0e13b1c020",
       "size": 1752
     },
     {
@@ -279,7 +279,7 @@
     },
     {
       "path": "MPV/acceptance/av1-opus.webm.json",
-      "sha256": "e0333dc2b2ac7a1ed62bcf5b21a227a643b7fb00c1db5dd4134ae8a1e18f1a87",
+      "sha256": "01ff71c06ff80653a350e5706767cbe3ca5c4a477d2d9e0e2150e73a4d03598f",
       "size": 1755
     },
     {
@@ -329,7 +329,7 @@
     },
     {
       "path": "MPV/acceptance/h264-aac.mkv.json",
-      "sha256": "742a1205b468f1168a85aa6d6438ac4325bbd5ea348585d1ce39083c97769880",
+      "sha256": "5e80a0ac83d75a094920929064d340c9ce2b5559ff5f236cc790f03f5e19fa67",
       "size": 1862
     },
     {
@@ -344,7 +344,7 @@
     },
     {
       "path": "MPV/acceptance/mpeg4-mp3.avi.json",
-      "sha256": "38e839b2c67ffaec7200a08b98576ddce965307539530d0136da0ca91b76ff72",
+      "sha256": "4ce0130b8ded5a0c4de0f475e5f43678988e43035e01ae253a719cc7b0edef1c",
       "size": 1775
     },
     {
@@ -359,8 +359,8 @@
     },
     {
       "path": "MPV/acceptance/vp9-opus.webm.json",
-      "sha256": "f506aa0d2b59c6553a1a7a78d869e608babe0e4a820a93379b6460ed7b07f411",
-      "size": 1780
+      "sha256": "31e373a75e95a279f4f45a3f720ede04b540c8f58e87b58a59ee16853b69384b",
+      "size": 1781
     },
     {
       "path": "MPV/acceptance/zmbv-mp3.avi-first.rgba",
@@ -374,7 +374,7 @@
     },
     {
       "path": "MPV/acceptance/zmbv-mp3.avi.json",
-      "sha256": "c51cc179ea3398ffd5db13affb623e4565dd30dd60353d0de14dd777965b8e76",
+      "sha256": "43a19298b4c9ad5d8e4cc0accc0d1b773bad2a3e38418e049babc19531eb5fd8",
       "size": 1781
     },
     {

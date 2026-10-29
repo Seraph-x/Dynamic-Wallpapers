@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "ffmpeg_sha256": "d219883d22697af98a5c1b361ee2717d1fa60b3c111d55502ba2e2c0662b01a0",
-  "ffprobe_sha256": "50c65f88da21e2f03964b5f7ab82cc69f9e1b7550a242e46fa51e86cc6f76abe",
+  "ffmpeg_sha256": "84243b0dc96d9177eea20d73bf20e4dfdd67039c748138b4ac96e0ef26d1310d",
+  "ffprobe_sha256": "1e8de479be52ae43c87f4a99d4de7fed55c60e85da359a2fa99472d2b89ec148",
   "cases": [
     {
       "fixture": "av1-opus.mkv",
@@ -22,7 +22,7 @@
         "pcm_sha256": "e9fb1dfd250379e0387b0e1df5344a12dd1eb35c61060d5e8959c1593ba18522",
         "software_av1_decoder_observed": false
       },
-      "converted_sha256": "713dccec6a372d52591c9d649f5875dfa3cdd1e862392eb48ec9d11fb7c83101"
+      "converted_sha256": "850d4773d45ec7e7ffa604238e325b872d63caf0ffa77c4e48804793c5e22aba"
     },
     {
       "fixture": "av1-opus.webm",
@@ -43,7 +43,7 @@
         "pcm_sha256": "e9fb1dfd250379e0387b0e1df5344a12dd1eb35c61060d5e8959c1593ba18522",
         "software_av1_decoder_observed": false
       },
-      "converted_sha256": "e2a6f9d16ace3ad3e41200924437adeab717eff0f783cb424db411ff927388dc"
+      "converted_sha256": "d3d088675552e3db804f677ed615dff6b427570e16d94c111550c73b248c2fc3"
     },
     {
       "fixture": "h264-aac.mkv",
@@ -64,7 +64,7 @@
         "pcm_sha256": "66048075a83e8481271edc61dd577ec17793027a0b79fed54e2cac085cf92f20",
         "software_av1_decoder_observed": false
       },
-      "converted_sha256": "2ca19b6de065219af03c8635adb4ac506f90123672a4c9b0dcaefc337f11009b"
+      "converted_sha256": "a0a1b591e3c99368e85638a52f742a7569127f52bb72d397fa1dfe4cd92fa552"
     },
     {
       "fixture": "vp9-opus.webm",
@@ -85,7 +85,7 @@
         "pcm_sha256": "e9fb1dfd250379e0387b0e1df5344a12dd1eb35c61060d5e8959c1593ba18522",
         "software_av1_decoder_observed": false
       },
-      "converted_sha256": "b8ac2c0a45dfcdb287a4ea630eb8acd6c5fce6c19dc488863eeaebd8409596c8"
+      "converted_sha256": "674a8eda722b7f7f51861fcc2dedb1e6a862d2830b5d1d45e6056a1047afd520"
     },
     {
       "fixture": "mpeg4-mp3.avi",
@@ -106,7 +106,7 @@
         "pcm_sha256": "fb9cf2d6857c55f20c2faa0a64ec702407fba22600b15a48cee11f993371a1b8",
         "software_av1_decoder_observed": false
       },
-      "converted_sha256": "b06df00509d1a0e987601a6041748878167b1e15c9497731f91dbb6b3867854e"
+      "converted_sha256": "b49d3d027e225e0fa73961632c852e8703adae1957649f46362d2f01432dafe9"
     },
     {
       "fixture": "zmbv-mp3.avi",
@@ -127,7 +127,7 @@
         "pcm_sha256": "fb9cf2d6857c55f20c2faa0a64ec702407fba22600b15a48cee11f993371a1b8",
         "software_av1_decoder_observed": false
       },
-      "converted_sha256": "1ecca573fafdd3fd646937c6c89346539681f785d4c42b4bd7639c9bfaa12538"
+      "converted_sha256": "a746cbf27878d10968fa4cc5ce0055c77d9bcd0c960b76b622873d86f1dcb639"
     }
   ],
   "runner_source_sha256": "501d2b05c8fcc9e5b37617111b19ede366d4ee2116bace5abdfc25d1b0034fbd"

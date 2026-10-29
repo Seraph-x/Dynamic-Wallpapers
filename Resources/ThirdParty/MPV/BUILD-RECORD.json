@@ -1,10 +1,10 @@
 {
   "environment": {
     "clang": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
-    "cmake": "cmake version 4.4.4",
+    "cmake": "cmake version 4.4.5",
     "make": "GNU Make 3.81",
     "pkg-config": "3.0.10",
-    "python": "3.15.1 (main, Oct 21 2026, 05:55:12) [Clang 21.0.0 (clang-2100.3.34.2)]",
+    "python": "3.15.2 (main, Oct 25 2026, 16:57:51) [Clang 21.0.0 (clang-2100.3.34.2)]",
     "sdk": "27.0",
     "source_build_tools": {
       "jinja": "git b08cd4bc64bb980df86ed2876978ae5735572280",
@@ -45,7 +45,7 @@
       ],
       "minimum_macos": "14.0",
       "sdk": "27.0",
-      "sha256": "240a4123a28f738afbd321d1233c14693dc8b0af37d6c8c27e27cf2e9e1718ea"
+      "sha256": "a95c576ba62deb65363c664d5c956e2e8f9f2274b5666fc58d4479d06cda2455"
     },
     "libavcodec.61.dylib": {
       "architecture": [
@@ -67,7 +67,7 @@
       ],
       "minimum_macos": "14.0",
       "sdk": "27.0",
-      "sha256": "5eaca068c68383e8ad638e866418030ecda82aff6b1a174d6b61b2d4144125fe"
+      "sha256": "59c85e64cc47243ab9619e86e8acee2dc63e80840e523f604227737e89a13038"
     },
     "libavfilter.10.dylib": {
       "architecture": [
@@ -93,7 +93,7 @@
       ],
       "minimum_macos": "14.0",
       "sdk": "27.0",
-      "sha256": "aad909aa5e8c28757c3db7eac8c5c9de2e1f38a510b1875f70cc639ca3b2928e"
+      "sha256": "94148643d36f9afa1cba8c564ba67c2950703d56e2e46c3563806d67446f097c"
     },
     "libavformat.61.dylib": {
       "architecture": [
@@ -117,7 +117,7 @@
       ],
       "minimum_macos": "14.0",
       "sdk": "27.0",
-      "sha256": "81b8b65c16bb0a2cbeaaf80dad4d244d9e62c9d2abb89f295f3bff2490769be5"
+      "sha256": "e37c2960ed6c753b4eea145e985339f2eee616099b633063ba0190ea98ce41ce"
     },
     "libavutil.59.dylib": {
       "architecture": [
@@ -133,7 +133,7 @@
       ],
       "minimum_macos": "14.0",
       "sdk": "27.0",
-      "sha256": "fa8df2b18f47fd3302527dc1b2f93a404aa12c520cfd91b75e9187f001d4fb50"
+      "sha256": "4709e041d8d240fdb21fd35e99d80b56b4da215470729cc85bd60187d79b0d9a"
     },
     "libdav1d.7.dylib": {
       "architecture": [
@@ -178,7 +178,7 @@
       ],
       "minimum_macos": "14.0",
       "sdk": "27.0",
-      "sha256": "3dcf63250091e3a7253963a8e3e899770c3a8087f5dbd425e28c68cbe127d298"
+      "sha256": "c7276d98787271691eade22eee5b358b8312bf263022129a9fa39d21db399394"
     },
     "liblzma.5.dylib": {
       "architecture": [
@@ -214,7 +214,7 @@
       ],
       "minimum_macos": "14.0",
       "sdk": "27.0",
-      "sha256": "05b23af90730d4653775d26a700a9e83105f271aa0cb59e3402f2ac92a40c659"
+      "sha256": "4dc9ef57355774a8628f8c40eda93e73220c5ff1a9fc6bdad86d1e6cb1d7e661"
     },
     "libplacebo.338.dylib": {
       "architecture": [
@@ -243,7 +243,7 @@
       ],
       "minimum_macos": "14.0",
       "sdk": "27.0",
-      "sha256": "adb085f028b2d9ef9c4ded4d6fde2f406dde3da397d5a51b02e7cb300a6c51d5"
+      "sha256": "dbfd82dd43d5188ea7c821394935edbbae21bc1947e6bfb94eb12a43d9355bb7"
     },
     "libswscale.8.dylib": {
       "architecture": [
@@ -260,7 +260,7 @@
       ],
       "minimum_macos": "14.0",
       "sdk": "27.0",
-      "sha256": "916f461c2cbcb06006cd1f1becf54f7629094aee81eeadd920b00adb15c4cc13"
+      "sha256": "200c53444c4b86ba12af6d14d3f200cbe7c51056360b99874435faa565bf5a95"
     }
   },
   "schema_version": 1
