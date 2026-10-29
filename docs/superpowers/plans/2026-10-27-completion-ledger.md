@@ -25,11 +25,11 @@ reproducible Python/Node build tooling and source-built media dependencies.
   restored initial state, live commands and lifetime tests.
 - [x] Real system media — provider scope choice, permissions/native source,
   metadata/transport, explicit unavailable states and end-to-end tests.
-- [ ] Dependency source/build/distribution closure — provable source/patch
+- [x] Dependency source/build/distribution closure — provable source/patch
   archives, complete notices, actual rebuild/verification and packaging gates.
 - [x] Historical documentation and current README/help — remove stale roadmap
   claims; describe implemented capabilities and real limits in five languages.
-- [ ] Final releases — Main and independent Editor assets, source archives,
+- [x] Final releases — Main and independent Editor assets, source archives,
   checksums, signature/closure/extracted-archive verification, privacy gate and
   published GitHub Release records.
 
@@ -226,3 +226,38 @@ reproducible Python/Node build tooling and source-built media dependencies.
   physical-root path regression is now green with strict escape/symlink rules
   preserved. A correction PR and fresh candidates remain required; nothing has
   been published or installed.
+
+- Validation-path correction PR
+  [#54](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/54) merged as
+  `c1e8c689d2f9dc4eb0a83ed5dafbd65a09592f8d`, from exact tested head
+  `5cfe4298c788ecc98f0b67a7b4cb1f4c5bf48be7`. All six physical-root Swift
+  regressions and five Python validation-copy checks passed; independent review
+  found no Critical/Important issue. Both final apps were rebuilt from this
+  exact merged source with current verified controlled-media records.
+- Main [1.1.0/build5](https://github.com/Seraph-x/Dynamic-Wallpapers/releases/tag/v1.1.0)
+  and independently versioned Editor
+  [0.1.0/build1](https://github.com/Seraph-x/Dynamic-Wallpapers/releases/tag/editor-v0.1.0)
+  are now published. All 15 Main and 13 Editor remote asset sizes/SHA256 digests,
+  public release state and exact tag targets were read back and matched. The
+  [release index](../../releases/2026-10-30-release-index.json) retains the actual
+  asset records; the [final plan](2026-10-30-final-releases.md#published-outcome)
+  records completed acceptance and excluded failed attempts. Source archives
+  each contain exactly 1437 tracked files, including complete locked dependency
+  sources/patches/recipes/notices, without Git history or local caches.
+- Actual final Main settings and five-language help, owned MKV/scene imports,
+  real rendering of both final Editor exports, Editor edit/Undo/Redo/save/reopen,
+  independent preview pause/resume/close, six package-local mpv cases, six actual
+  FFmpeg conversions and advancing/stopping bundled saver pixels passed.
+  An explicitly separate native bridge host used final Main dependencies/runtime
+  to check animated/paused/resumed loose/PKG pixels and complete release. Main
+  desktop-linked preview was not used and personal wallpaper was not changed.
+  Both apps and every helper exited normally. ZIPs and read-only-mounted DMG
+  passed exact-inventory/signature/closure checks; extracted payload/source/public
+  record gates passed after exact upstream CEF review. Independent publication
+  review found no Critical/Important issue. Full-suite inspector/cadence failures,
+  live vendor playback and platform/performance limits remain stated, alongside
+  ad-hoc signing and lack of Apple notarization; no full-suite pass is claimed.
+- The final obsolete system-media worktree was removed without force after
+  retaining its evidence/shared assets and merged branch head. Only the main
+  checkout remains registered. All work packages and the authorized publication
+  queue are complete; subsequent completion records do not change release bytes.
