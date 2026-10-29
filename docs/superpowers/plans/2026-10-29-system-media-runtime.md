@@ -131,16 +131,61 @@ Evidence logs: `/private/tmp/dw-media-worker-red-tests.log`,
 
 ## Task 5: Main consent, settings and packaging
 
-- [ ] Add targeted settings/localization/packaging assertions before implementation: disabled legacy default, exact three options, no prompt on selection, explicit authorization button, provider/permission/no-item/failure statuses and independent artwork errors/retry.
-- [ ] Implement `SystemMediaSettingsSection` using existing `@Localized`, observed controller/artwork and persisted mutation pattern. Explain that trusted scenes can read/control the selected already-running player, that no global source exists, and that artwork/lyrics availability is limited. Disable actions during shutdown/load failure.
-- [ ] Add `NSAppleEventsUsageDescription` and five localized purpose strings; if the actual distribution uses hardened runtime, add the Automation entitlement only to the Main executable's signing path. Preserve helper signing and state the actual signing/notarization status.
-- [ ] Run localization/product-configuration/packaging tests and actual settings/consent owned-fixture smoke in an isolated bundle. Do not launch Music/Spotify or modify user libraries/wallpaper for tests. Record actual vendor smoke separately; if no vendor is running/authorized, leave that acceptance item open rather than claiming the fixture proves it.
-- [ ] Commit `feat: expose localized system media consent and settings`.
+- [x] Add targeted settings/localization/packaging assertions before implementation: disabled legacy default, exact three options, no prompt on selection, explicit authorization button, provider/permission/no-item/failure statuses and independent artwork errors/retry.
+- [x] Implement `SystemMediaSettingsSection` using existing `@Localized`, observed controller/artwork and persisted mutation pattern. Explain that trusted scenes can read/control the selected already-running player, that no global source exists, and that artwork/lyrics availability is limited. Disable actions during shutdown/load failure.
+- [x] Add `NSAppleEventsUsageDescription` and five localized purpose strings; if the actual distribution uses hardened runtime, add the Automation entitlement only to the Main executable's signing path. Preserve helper signing and state the actual signing/notarization status.
+- [x] Run localization/product-configuration/packaging tests and actual settings/consent owned-fixture smoke in an isolated bundle. Do not launch Music/Spotify or modify user libraries/wallpaper for tests. Record actual vendor smoke separately; if no vendor is running/authorized, leave that acceptance item open rather than claiming the fixture proves it.
+- [x] Commit `feat: expose localized system media consent and settings`.
+
+Main now exposes the actual production section with three persisted choices,
+explicit authorization and separate metadata/artwork retries. Seven native
+AppKit/localization tests pass, including a save-failure regression that first
+failed and now shows the real persistence error without enabling the provider.
+Five localized Automation purpose strings and the root purpose are verified.
+Current signing is ad-hoc without hardened runtime; no unsupported hardened
+runtime/notarization claim or unnecessary entitlement is added.
+
+Actual settings run `74cd7439-90c3-4558-8085-58f91122e3e5` passed both owned
+Apple Event dictionary adapters through the production SwiftUI view, real
+metadata, decoded artwork pixels, independent artwork retry, visible provider
+failure, persisted disable and complete shutdown. Product configuration (42),
+permission copy (1), Editor product (3) and package isolation (4) checks passed.
+Neither Music nor Spotify was running in the read-only presence check. Their
+live vendor-app playback acceptance remains unverified; no personal app was
+launched and owned fixtures are not represented as vendor playback.
+
+The first broad Swift run failed. Missing authored MPV fixtures were restored
+using the documented fixture generator with explicitly selected Homebrew
+FFmpeg; the controlled runtime intentionally lacks the optional encoding
+libraries required to generate those test inputs. The shipped runtime remains
+the verified controlled build. Twenty selected media/TLS/MPV tests then passed;
+real audio and ScreenSaver playback also passed in the subsequent authorized
+run. Existing inspector UI and 30/60 Hz capture assertions still failed, and
+are retained as broad-suite limitations rather than hidden or relaxed.
+The old General checkbox assertion omitted the already-merged system-audio
+switch; it now asserts all eight switches and the separate three media radios.
+
+Evidence: `/private/tmp/dw-system-media-settings-final-ui-tests.log`,
+`/private/tmp/dw-system-media-settings-native.log`,
+`/private/tmp/dw-system-media-package-isolation-tests.log`,
+`/private/tmp/dw-system-media-full-swift-tests.log`,
+`/private/tmp/dw-system-media-restored-fixture-targeted.log`,
+`/private/tmp/dw-system-media-remaining-authorized.log`.
 
 ## Task 6: Review, verification, PR and completion record
 
-- [ ] Use `requesting-code-review` with a read-only independent reviewer for the whole change, fix material issues and rerun affected checks.
+- [x] Use `requesting-code-review` with a read-only independent reviewer for the whole change, fix material issues and rerun affected checks.
 - [ ] Run `verification-before-completion`: complete relevant Swift and Node suites, strict native harness build (180 seconds), each actual browser/CEF/Apple Event/TLS phase (60 seconds), same-input reproducible Main/Editor bundles, dependency/signature checks and changed-file sanitized-public-export gate.
 - [ ] Inspect final diff, preserve source originals and unknown metadata, record exact tested heads and actual receipts in `docs/superpowers/plans/2026-10-27-completion-ledger.md` (locate the existing ledger before editing if its filename differs). English commits/PR text use configured real identity. Documentation PR #49 merged as `3583cc0`; this branch includes that remote merge. Do not bypass automatic approval review.
 - [ ] Push and create the coherent system media PR under existing authorization, wait for actual checks, merge the exact tested head when review is available, verify remote merge state and update the ledger. A local passing implementation is not a merged PR.
 - [ ] Continue the remaining queue: controlled final dependency/app packaging, five-language README/help and historical roadmap correction, then Main/independent Editor releases built from final merged source. This plan does not mark those releases complete.
+
+Final independent whole-branch review found no Critical/Important issues in the
+native boundary, cancellation/lifetime, renderer/artwork, consent/settings or
+signing paths. Fresh focused run passed 5 projection, 8 Main media and 32 settings
+checks (45 total), with actual exit 0. Product configuration (42) and Editor
+product (3) checks passed again. The 24 changed authored files passed the external
+sanitized-public-export gate. Evidence:
+`/private/tmp/dw-system-media-final-focused-current.log`,
+`/private/tmp/dw-system-media-product-final.log`,
+`/private/tmp/dw-system-media-editor-product-final.log`.

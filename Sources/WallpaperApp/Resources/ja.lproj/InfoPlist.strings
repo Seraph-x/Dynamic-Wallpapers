@@ -1,1 +1,2 @@
 "NSAudioCaptureUsageDescription" = "システム音声を解析し、シーン壁紙を音に反応させます。音声は録音・アップロードしません。";
+"NSAppleEventsUsageDescription" = "再生中の信頼できるシーンが、選択した起動済みの Music または Spotify アプリの再生情報を取得し、操作できるようにします。";

@@ -1,6 +1,7 @@
 import XCTest
 import SwiftUI
 import WallpaperCore
+import WallpaperMediaIntegration
 @testable import WallpaperApp
 
 @MainActor
@@ -12,6 +13,7 @@ final class SettingsPresentationFixture {
     init(content: ((AppModel) -> AnyView)? = nil, presentation: TestApplicationPresentation? = nil,
          loginService: TestLoginItemService? = nil,
          webInteractionPermissions: (any WebInteractionPermissionServicing)? = nil,
+         systemMedia: SystemMediaController? = nil, invalidLibrary: Bool = false,
          setSystemDesktopImage: @escaping @MainActor (URL, String) throws -> Void = { _, _ in
              XCTFail("A settings test attempted an unexpected system wallpaper write")
              throw WallpaperError("Unexpected system wallpaper write in settings test")
@@ -28,9 +30,18 @@ final class SettingsPresentationFixture {
         var library = Library.empty
         library.settings.language = .chinese
         try store.save(library)
-        model = AppModel(store: store, presentation: presentation ?? TestApplicationPresentation(),
+        if invalidLibrary { try Data("invalid owned settings library".utf8).write(to: store.url) }
+        for folder in ["Home", "Temp"] {
+            try FileManager.default.createDirectory(at: output.appendingPathComponent(folder), withIntermediateDirectories: true)
+        }
+        let paths = try ApplicationPaths.resolve(arguments: ["--validation-data-root", output.path],
+            bundleIdentifier: "local.dynamicwallpaper.app.validation.settings", configuredBundleIdentifier: "local.dynamicwallpaper.app",
+            environment: ["CFFIXED_USER_HOME": output.appendingPathComponent("Home").path,
+                          "TMPDIR": output.appendingPathComponent("Temp").path])
+        model = AppModel(paths: paths, store: store, presentation: presentation ?? TestApplicationPresentation(),
                          loginItems: LoginItemController(service: loginService ?? TestLoginItemService()),
                          webInteractionPermissions: webInteractionPermissions,
+                         systemMedia: systemMedia,
                          setSystemDesktopImage: setSystemDesktopImage)
         window = NSWindow(contentRect: CGRect(origin: CGPoint(x: 80, y: 80), size: SettingsView.minimumSize),
                           styleMask: [.titled, .closable], backing: .buffered, defer: false)

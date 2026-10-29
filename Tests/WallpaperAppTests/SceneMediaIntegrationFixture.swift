@@ -6,12 +6,16 @@ actor SceneMediaProviderFixture: SystemMediaServicing, SystemMediaArtworkServici
     var reads: [(SystemMediaSource, Bool)] = []
     var commands: [SystemMediaCommand] = []
     var track = "owned-0"
+    var readResult: SystemMediaReadResult?
+    var readFailure: SystemMediaError?
     var holdRead = false
     var heldRead: CheckedContinuation<Void, Never>?
     var holdArtwork = false
     var heldArtwork: CheckedContinuation<Void, Never>?
 
     func setTrack(_ value: String) { track = value }
+    func setReadResult(_ value: SystemMediaReadResult?) { readResult = value }
+    func setReadFailure(_ value: SystemMediaError?) { readFailure = value }
     func holdNextRead() { holdRead = true }
     func readIsHeld() -> Bool { heldRead != nil }
     func releaseRead() { heldRead?.resume(); heldRead = nil }
@@ -22,6 +26,8 @@ actor SceneMediaProviderFixture: SystemMediaServicing, SystemMediaArtworkServici
     func read(source: SystemMediaSource, requestAuthorization: Bool) async throws -> SystemMediaReadResult {
         reads.append((source, requestAuthorization))
         if holdRead { holdRead = false; await withCheckedContinuation { heldRead = $0 } }
+        if let readFailure { throw readFailure }
+        if let readResult { return readResult }
         return .current(try SystemMediaSnapshot(source: source, trackID: track, state: .playing,
             title: track, artist: "Owned Artist", album: "Owned Album", albumArtist: nil, position: 1, duration: 20))
     }

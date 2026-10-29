@@ -1,1 +1,2 @@
 "NSAudioCaptureUsageDescription" = "分析系统音频，让场景壁纸随声音变化。不会录制或上传音频。";
+"NSAppleEventsUsageDescription" = "允许播放中的受信任场景读取播放信息，并控制所选的已运行 Music 或 Spotify 应用。";

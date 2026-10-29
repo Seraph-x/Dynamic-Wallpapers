@@ -149,3 +149,13 @@ reproducible Python/Node build tooling and source-built media dependencies.
   fingerprints, SDK/tool environment, all 14 libraries and signatures verify.
   Final app/extracted-archive and distribution acceptance remain open; historical
   media products are not substituted for the current verified build.
+- System-media Task 5 implements localized Main consent/settings and actual
+  failure/retry presentation. Seven targeted UI/localization checks and owned
+  settings Automation run `74cd7439-90c3-4558-8085-58f91122e3e5` pass for both
+  dictionary adapters with actual Apple Events and artwork pixels. Product,
+  permission-copy and package-isolation checks pass. Neither vendor application
+  is running; live Music/Spotify playback remains unverified. Broad regression
+  first lacked authored MPV fixtures; documented generation restored the inputs
+  and 20 affected media/TLS tests pass. Actual audio and ScreenSaver reruns pass;
+  inspector UI and capture-cadence assertions remain failed, not waived or
+  represented as a successful full suite. Final review/PR and releases stay open.
