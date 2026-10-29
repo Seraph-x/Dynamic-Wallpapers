@@ -1,6 +1,6 @@
 # Third-party dependencies and notices
 
-Local app candidate: DynamicWallpaper 1.0.0/build 4.
+Local app candidate: DynamicWallpaper 1.1.0/build 5.
 
 This directory retains third-party source references and license materials for source builds and local app candidates. [`distribution-status.json`](distribution-status.json) records each retained file's SHA256 and the completeness of each dependency record. A valid code signature confirms the signed bundle's integrity; it does not verify source provenance, license compliance, or application behavior.
 

@@ -1,6 +1,6 @@
 # User Help Documentation Maintenance
 
-The documentation corresponds to **v1.0.0 / build 4** and targets end users after the app is installed.
+The documentation corresponds to **v1.1.0 / build 5** and targets end users after the app is installed.
 
 ## Reading Entry Points
 

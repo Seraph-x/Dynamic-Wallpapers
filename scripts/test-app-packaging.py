@@ -587,6 +587,10 @@ class PackagingTransactions(unittest.TestCase):
                 for prefix in ('/Users/', '/private/tmp/', '/opt/homebrew/'):
                     self.assertNotIn(prefix, content, str(path))
 
+    def test_checked_in_material_label_matches_current_product(self):
+        materials = pathlib.Path(__file__).resolve().parents[1] / 'Resources/ThirdParty'
+        bundle.verify_third_party_product_label(materials, bundle.CONFIG)
+
     def test_missing_dynamically_loaded_cef_sandbox_is_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
             app = pathlib.Path(directory) / 'Candidate.app'; write_payload_fixture(app)
