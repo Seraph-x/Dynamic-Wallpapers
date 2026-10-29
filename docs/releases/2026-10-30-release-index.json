@@ -1,0 +1,200 @@
+{
+  "schema_version": 1,
+  "release_source_revision": "c1e8c689d2f9dc4eb0a83ed5dafbd65a09592f8d",
+  "releases": [
+    {
+      "tag": "v1.1.0",
+      "source_revision": "c1e8c689d2f9dc4eb0a83ed5dafbd65a09592f8d",
+      "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/tag/v1.1.0",
+      "published_at": "2026-10-29T19:23:24Z",
+      "draft": false,
+      "prerelease": false,
+      "assets": [
+        {
+          "name": "BUILD_RECEIPT.json",
+          "size": 104508,
+          "sha256": "83ecc8d7ff876107c8709eacf31d862103332ee07a3f10c5be6cfdaa676e46b1",
+          "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/download/v1.1.0/BUILD_RECEIPT.json"
+        },
+        {
+          "name": "BUNDLE_MANIFEST.json",
+          "size": 151801,
+          "sha256": "5e38c5e048ea417a01624f96e9302ad84ef5f12fa7e1ddc15734a3f64585b665",
+          "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/download/v1.1.0/BUNDLE_MANIFEST.json"
+        },
+        {
+          "name": "DynamicWallpaper-1.1.0-build5-arm64.dmg",
+          "size": 286821328,
+          "sha256": "20d7862a13231da91ecfc22f1e966fa0cbd2bd25d473c19613bfb25a5963a4e3",
+          "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/download/v1.1.0/DynamicWallpaper-1.1.0-build5-arm64.dmg"
+        },
+        {
+          "name": "DynamicWallpaper-1.1.0-build5-arm64.zip",
+          "size": 268599090,
+          "sha256": "436127a4e8d1852e6a8acb4b114b8503877c4921db757726d0f8219e0394179f",
+          "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/download/v1.1.0/DynamicWallpaper-1.1.0-build5-arm64.zip"
+        },
+        {
+          "name": "DynamicWallpaper-1.1.0-source.tar.gz",
+          "size": 92053251,
+          "sha256": "8afb4b1780ea8de78b9c1b943417cb633f98bb38dbe31da2a6a497a0396c21d3",
+          "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/download/v1.1.0/DynamicWallpaper-1.1.0-source.tar.gz"
+        },
+        {
+          "name": "INSTALL-en.md",
+          "size": 2362,
+          "sha256": "2dfa85dee574ed22452f5d70a137bb9149ace98c161b5052fceb62c00fcc0baa",
+          "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/download/v1.1.0/INSTALL-en.md"
+        },
+        {
+          "name": "INSTALL-es.md",
+          "size": 2324,
+          "sha256": "f6543068ec169fa06df56827240751f0e9bc099da55248c5c0abae67bd716834",
+          "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/download/v1.1.0/INSTALL-es.md"
+        },
+        {
+          "name": "INSTALL-fr.md",
+          "size": 2493,
+          "sha256": "5eec53ce64e960991b5769ece2da0a989751ed29a6d99cb06d8d73915f469726",
+          "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/download/v1.1.0/INSTALL-fr.md"
+        },
+        {
+          "name": "INSTALL-ja.md",
+          "size": 2794,
+          "sha256": "ae94942dd0930f2fa90698ede1e488c02c3bea604f232232894b37b95e9de88c",
+          "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/download/v1.1.0/INSTALL-ja.md"
+        },
+        {
+          "name": "INSTALL-zh-Hans.md",
+          "size": 2087,
+          "sha256": "83ac76ae1f17145f7877cced1c7482e3421fcbce50d5bb6033d25e22872886f7",
+          "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/download/v1.1.0/INSTALL-zh-Hans.md"
+        },
+        {
+          "name": "LICENSE.txt",
+          "size": 35147,
+          "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+          "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/download/v1.1.0/LICENSE.txt"
+        },
+        {
+          "name": "MEDIA_ACCEPTANCE.json",
+          "size": 20707,
+          "sha256": "ed1b5d8ca0e23dacd31841b147d9537b676090889a67ceecddb4b08bc576056b",
+          "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/download/v1.1.0/MEDIA_ACCEPTANCE.json"
+        },
+        {
+          "name": "RELEASE_NOTES.md",
+          "size": 3795,
+          "sha256": "f119f351e3f9ff75598c4b09f4dfce63c68f9e17b9eaab0e0e3875fade70db76",
+          "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/download/v1.1.0/RELEASE_NOTES.md"
+        },
+        {
+          "name": "RELEASE_VERIFICATION.json",
+          "size": 7012,
+          "sha256": "9beb9c95cbee2ba2e4d81e7abe911eb9fd91ead3caee3ce7d4dee9682a49b525",
+          "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/download/v1.1.0/RELEASE_VERIFICATION.json"
+        },
+        {
+          "name": "SHA256SUMS.txt",
+          "size": 1233,
+          "sha256": "a828cab86fdddb6e50abe730b8f807f1b437483c51cec6d80e3b5198f5f44bc4",
+          "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/download/v1.1.0/SHA256SUMS.txt"
+        }
+      ]
+    },
+    {
+      "tag": "editor-v0.1.0",
+      "source_revision": "c1e8c689d2f9dc4eb0a83ed5dafbd65a09592f8d",
+      "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/tag/editor-v0.1.0",
+      "published_at": "2026-10-29T19:23:35Z",
+      "draft": false,
+      "prerelease": false,
+      "assets": [
+        {
+          "name": "BUILD_RECEIPT.json",
+          "size": 23571,
+          "sha256": "ef114892a7a83ff542cfb8ed159fb70197e2eaab1016e51c7df6dbd2c4631b8d",
+          "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/download/editor-v0.1.0/BUILD_RECEIPT.json"
+        },
+        {
+          "name": "BUNDLE_MANIFEST.json",
+          "size": 137678,
+          "sha256": "11155acd7f4f8c34d2bed8ae7093dca1926cbbfca51f2b99d57819de40de3cf0",
+          "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/download/editor-v0.1.0/BUNDLE_MANIFEST.json"
+        },
+        {
+          "name": "DynamicWallpaperEditor-0.1.0-build1-arm64.zip",
+          "size": 148785779,
+          "sha256": "f26fce5b37de001548f855315bd06a57034633b4af5ba3cc282f01467dbae891",
+          "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/download/editor-v0.1.0/DynamicWallpaperEditor-0.1.0-build1-arm64.zip"
+        },
+        {
+          "name": "DynamicWallpaperEditor-0.1.0-source.tar.gz",
+          "size": 92053478,
+          "sha256": "b232d62c0e93a1249d95d1cd1e5610bb206db67a521ebf9e5f53d80a3f518c4f",
+          "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/download/editor-v0.1.0/DynamicWallpaperEditor-0.1.0-source.tar.gz"
+        },
+        {
+          "name": "INSTALL-en.md",
+          "size": 1095,
+          "sha256": "93310ecf4308f82ba4d5f10cd42219ce25613ec224054db63c2dcdde72e86406",
+          "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/download/editor-v0.1.0/INSTALL-en.md"
+        },
+        {
+          "name": "INSTALL-es.md",
+          "size": 1073,
+          "sha256": "6ef85855b7258fb2cad6413531f125c30934fa5d939ac21a36dcf768d5883f6b",
+          "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/download/editor-v0.1.0/INSTALL-es.md"
+        },
+        {
+          "name": "INSTALL-fr.md",
+          "size": 1141,
+          "sha256": "201ec49f9888f2f0a4560026717bf32cd061c1f0fe892766ea189213b1670735",
+          "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/download/editor-v0.1.0/INSTALL-fr.md"
+        },
+        {
+          "name": "INSTALL-ja.md",
+          "size": 1289,
+          "sha256": "1b9c6cce268f9b51cd9685bc649f1413a42bea7069e210f4e86d2f8b80610b91",
+          "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/download/editor-v0.1.0/INSTALL-ja.md"
+        },
+        {
+          "name": "INSTALL-zh-Hans.md",
+          "size": 964,
+          "sha256": "62f283967af4fa8d6de3095b1b11400f3c8238dc323b42aae236d7a0401b44c0",
+          "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/download/editor-v0.1.0/INSTALL-zh-Hans.md"
+        },
+        {
+          "name": "LICENSE.txt",
+          "size": 35147,
+          "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+          "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/download/editor-v0.1.0/LICENSE.txt"
+        },
+        {
+          "name": "RELEASE_NOTES.md",
+          "size": 2598,
+          "sha256": "8b6223dff481b9f5c850a59a336f82bc9a4bcdffea4769379fa7286cb28ef374",
+          "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/download/editor-v0.1.0/RELEASE_NOTES.md"
+        },
+        {
+          "name": "RELEASE_VERIFICATION.json",
+          "size": 4459,
+          "sha256": "9154d6ddcd3f87ba294e393994ea35d4e93c39ac6c6bf46e72cab473d52c687a",
+          "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/download/editor-v0.1.0/RELEASE_VERIFICATION.json"
+        },
+        {
+          "name": "SHA256SUMS.txt",
+          "size": 1051,
+          "sha256": "ac26bc901f8dd4d7e322264b6b5529c51a7b1dee4a51a33ab0e2e64dc7f2238e",
+          "url": "https://github.com/Seraph-x/Dynamic-Wallpapers/releases/download/editor-v0.1.0/SHA256SUMS.txt"
+        }
+      ]
+    }
+  ],
+  "verification": "GitHub asset digests and sizes matched all local artifacts before and after publication; remote tag targets matched the exact release source. The later completion-record PR changes documentation only.",
+  "limits": [
+    "Ad-hoc signed, not Apple-notarized.",
+    "Complete Swift suite remains nonpassing: unrelated inspector UI and measured 30/60 Hz capture-cadence assertions are recorded.",
+    "Live vendor Music/Spotify playback, every supported OS, 4K/multidisplay performance and acoustic synchronization remain unverified."
+  ]
+}

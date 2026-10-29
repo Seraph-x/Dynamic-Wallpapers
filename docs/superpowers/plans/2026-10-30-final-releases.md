@@ -25,29 +25,29 @@
 
 ## Task 3: Neutral builds and current dependency closure
 
-- [ ] Export `git archive <merged revision>` into a fresh `/private/tmp/dynamic-wallpaper-final-*` directory. Record revision and tracked inventory outside release artifacts. No local symlinks, build caches, Git history or personal logs enter source archives.
-- [ ] Copy locked downloaded inputs, rebuild CEF wrapper in the neutral source root, and either rebuild controlled media or reuse only neutral-built products whose full current source/recipe/toolchain/product records verify against this exact source. Verify FFmpeg tool and all 14 runtime-library signatures/closures. Do not substitute Homebrew/runtime historical binaries. Run `python3 scripts/verify-current-media.py` to execute and retain the actual six native and six software-conversion cases for those precise products.
-- [ ] If regenerated public build/native acceptance records differ from tracked evidence, run their actual byte-bound native/convert checks, synchronize only those measured records/notices/manifest back to the repository, review and merge the evidence update. Re-export that new merged revision into the same neutral source directory while preserving only verified build products; record it as the final release source. Final application binaries/resources must be built after this step, with no uncommitted material drift.
-- [ ] `bash scripts/build-app.sh --output dist/main/Dynamic\ Wallpaper.app`; verify the standalone `.saver` is included and closed.
-- [ ] `python3 scripts/build-editor-app.py --output dist/editor/Dynamic\ Wallpaper\ Editor.app --zip`. Verify its independent identity/version and absence of mpv/FFmpeg.
-- [ ] Verify actual top-level localized Automation/audio purpose strings, offline help/resources/provenance, Mach-O closure and `codesign --verify --deep --strict` for each original app. Record ad-hoc signing and lack of Apple notarization accurately.
+- [x] Export `git archive <merged revision>` into a fresh `/private/tmp/dynamic-wallpaper-final-*` directory. Record revision and tracked inventory outside release artifacts. No local symlinks, build caches, Git history or personal logs enter source archives.
+- [x] Copy locked downloaded inputs, rebuild CEF wrapper in the neutral source root, and either rebuild controlled media or reuse only neutral-built products whose full current source/recipe/toolchain/product records verify against this exact source. Verify FFmpeg tool and all 14 runtime-library signatures/closures. Do not substitute Homebrew/runtime historical binaries. Run `python3 scripts/verify-current-media.py` to execute and retain the actual six native and six software-conversion cases for those precise products.
+- [x] If regenerated public build/native acceptance records differ from tracked evidence, run their actual byte-bound native/convert checks, synchronize only those measured records/notices/manifest back to the repository, review and merge the evidence update. Re-export that new merged revision into the same neutral source directory while preserving only verified build products; record it as the final release source. Final application binaries/resources must be built after this step, with no uncommitted material drift.
+- [x] `bash scripts/build-app.sh --output dist/main/Dynamic\ Wallpaper.app`; verify the standalone `.saver` is included and closed.
+- [x] `python3 scripts/build-editor-app.py --output dist/editor/Dynamic\ Wallpaper\ Editor.app --zip`. Verify its independent identity/version and absence of mpv/FFmpeg.
+- [x] Verify actual top-level localized Automation/audio purpose strings, offline help/resources/provenance, Mach-O closure and `codesign --verify --deep --strict` for each original app. Record ad-hoc signing and lack of Apple notarization accurately.
 
 ## Task 4: Functional and extracted-archive acceptance
 
-- [ ] Exercise actual apps through owned validation copies/data roots only; keep original release bytes untouched. Main test copy uses its existing `.validation.*` identifier and explicit validation root, CFFIXED_USER_HOME and TMPDIR. Editor uses its existing explicit data-root environment and a separate validation identity/preferences. Never replace installed apps, alter personal wallpaper or launch personal players.
-- [ ] Check final Main launch/settings/help, owned scene import/render/pause/close and full process/resource shutdown. Record exactly which validation-copy metadata differs from the original executable.
-- [ ] Exercise final Main's package-local controlled mpv with authored video/audio, verify its actual decoder/output and close. Run the packaged FFmpeg through actual conversion and decode the output. Exercise the bundled `.saver` in an owned test window, with actual advancing frames and complete stop, without installing it or changing personal wallpaper.
-- [ ] Exercise final Editor's real edit → undo/redo → save/reopen → loose/PKG export flows in isolated owned projects, then render both exported forms in final Main or the final independent preview. Assert known pixels/resource bytes and normal close; retain actual app/process evidence. Source-tree harness passes and static closure alone do not establish this final-package acceptance.
-- [ ] Create Main ZIP using `create-local-release.py` and a DMG with app plus five installation notes. Extract ZIPs and mount DMG read-only; reverify exact contents/signatures/closure, inventory and hashes, then detach.
-- [ ] Gate the actual extracted app payloads and authored notes for personal paths/credentials, preserving pinned third-party notices as documented upstream material. Report and fix unexpected findings; do not mask failures or invent runtime success.
+- [x] Exercise actual apps through owned validation copies/data roots only; keep original release bytes untouched. Main test copy uses its existing `.validation.*` identifier and explicit validation root, CFFIXED_USER_HOME and TMPDIR. Editor uses its existing explicit data-root environment and a separate validation identity/preferences. Never replace installed apps, alter personal wallpaper or launch personal players.
+- [x] Check final Main launch/settings/help, owned scene import/render/pause/close and full process/resource shutdown. Record exactly which validation-copy metadata differs from the original executable.
+- [x] Exercise final Main's package-local controlled mpv with authored video/audio, verify its actual decoder/output and close. Run the packaged FFmpeg through actual conversion and decode the output. Exercise the bundled `.saver` in an owned test window, with actual advancing frames and complete stop, without installing it or changing personal wallpaper.
+- [x] Exercise final Editor's real edit → undo/redo → save/reopen → loose/PKG export flows in isolated owned projects, then render both exported forms in final Main or the final independent preview. Assert known pixels/resource bytes and normal close; retain actual app/process evidence. Source-tree harness passes and static closure alone do not establish this final-package acceptance.
+- [x] Create Main ZIP using `create-local-release.py` and a DMG with app plus five installation notes. Extract ZIPs and mount DMG read-only; reverify exact contents/signatures/closure, inventory and hashes, then detach.
+- [x] Gate the actual extracted app payloads and authored notes for personal paths/credentials, preserving pinned third-party notices as documented upstream material. Report and fix unexpected findings; do not mask failures or invent runtime success.
 
 ## Task 5: Source, receipts and actual publication
 
-- [ ] Create exact tracked-source archives from the recorded merged revision, with complete locked dependency source/patch/notice/build recipes and no Git history/cache. Verify extracted inventory and privacy; use a fresh-source build/check path for reproducibility. Do not rely on the legacy private-mirror exporter requiring a nonexistent PUBLIC_README.md.
-- [ ] Attach sanitized public build/closure/signature records, licenses, release notes, five-language install directions and SHA256SUMS.txt. Keep raw local paths, screenshots/diagnostic logs and commit-author email out of artifacts.
-- [ ] Create distinct Main `v1.1.0` and Editor `editor-v0.1.0` releases targeting the exact merged revision. Upload only verified assets; read back asset names/sizes/digests and release state. Publish both under existing authorization and verify public tag/release records.
-- [ ] Update completion ledger with PRs, exact revision, actual releases/asset hashes, verification scope and residual limitations. Mark complete only after publication and all required verification actually finish.
-- [ ] Remove the now-unused system-media worktree after preserving required receipts/shared build assets. Recheck remaining registered worktrees and keep branch heads/user files intact.
+- [x] Create exact tracked-source archives from the recorded merged revision, with complete locked dependency source/patch/notice/build recipes and no Git history/cache. Verify extracted inventory and privacy; use a fresh-source build/check path for reproducibility. Do not rely on the legacy private-mirror exporter requiring a nonexistent PUBLIC_README.md.
+- [x] Attach sanitized public build/closure/signature records, licenses, release notes, five-language install directions and SHA256SUMS.txt. Keep raw local paths, screenshots/diagnostic logs and commit-author email out of artifacts.
+- [x] Create distinct Main `v1.1.0` and Editor `editor-v0.1.0` releases targeting the exact merged revision. Upload only verified assets; read back asset names/sizes/digests and release state. Publish both under existing authorization and verify public tag/release records.
+- [x] Update completion ledger with PRs, exact revision, actual releases/asset hashes, verification scope and residual limitations. Mark complete only after publication and all required verification actually finish.
+- [x] Remove the now-unused system-media worktree after preserving required receipts/shared build assets. Recheck remaining registered worktrees and keep branch heads/user files intact.
 
 Preparation evidence: product configuration 42, five-language help 14, Editor
 product 3 and local archive-tool 5 checks passed. The metadata bump first exposed
@@ -102,3 +102,63 @@ realpath oracle instead of the same existence-dependent Foundation method;
 all six path tests pass, including both `/private/tmp` and `/tmp` root spellings.
 Independent review found no Critical/Important issue. The corrected source must
 merge and both candidates must be rebuilt before final GUI/archive acceptance.
+
+
+## Published outcome
+
+Main [v1.1.0](https://github.com/Seraph-x/Dynamic-Wallpapers/releases/tag/v1.1.0)
+and independent Editor
+[editor-v0.1.0](https://github.com/Seraph-x/Dynamic-Wallpapers/releases/tag/editor-v0.1.0)
+are published from `c1e8c689d2f9dc4eb0a83ed5dafbd65a09592f8d`.
+PR [#54](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/54) merged the
+physical-root correction; both final candidates were rebuilt after that merge.
+The public [release index](../../releases/2026-10-30-release-index.json) records
+all 28 uploaded assets, GitHub SHA256 digests, sizes and download URLs. Each
+release also carries its own checksums, exact 1437-file tracked-source archive,
+sanitized build receipt, bundle inventory, verification scope, license and five
+installation notes. Main remains the repository's latest product release.
+
+Actual final-package acceptance completed Main settings/all five offline guides,
+owned MKV and scene imports, and real CEF rendering of both Editor exports.
+Editor completed isolated text editing, Undo/Redo, save/close/reopen, loose/PKG
+export, actual independent preview pixels and acknowledged pause/resume/close.
+Main's desktop-linked preview and wallpaper application were not exercised;
+those would change the personal desktop. A native bridge harness built from
+this exact source instead used byte-identical final Main CEF/helpers and final
+runtime assets in an owned window: both scene representations advanced pixels,
+remained stable when paused, resumed, accepted pointer input, closed all 12 file
+handles and shut CEF down. This is explicitly a package-dependency/bridge test,
+not a claim of final Main desktop playback. Both actual GUI applications and all
+their helper processes were absent after normal Quit.
+
+All six actual package-local mpv fixtures and six packaged FFmpeg conversion
+cases passed. The bundled saver loaded in an owned window, advanced real GIF
+pixels, handled process-local power notifications, revoked output on stop and
+released its lease. Its static-image negative control failed as intended. No
+saver was installed. Main ZIP and Editor ZIP contents match the originals;
+Main DMG was mounted read-only, its app matched exactly, five installation
+notes and strict signatures/closure passed, and it was detached.
+
+The actual extracted app privacy gates scanned 310 Main and 371 Editor files.
+Six exact upstream CEF matches per app were reviewed: a generic NUL-terminated
+home prefix followed by ICU symbols and known Chromium/Chromecast/Quad9 URL
+paths. No detector was globally disabled. Source archives and public records
+also passed their gates. Independent final review found no Critical/Important
+issue and independently matched source files, manifests, Mach-O hashes, ZIP
+payloads and every asset checksum.
+
+Failed attempts remain excluded and documented in the public verification:
+initial validation-path preflight, Editor sandbox exit and unisolated auto-launch,
+an incorrect file-panel selection, a saver fixture missing measured duration,
+sandbox bookmark denial, and the first cross-application CEF helper layout.
+The successful Editor rerun first confirmed its dedicated instance/data root.
+Newly created excluded test data was preserved outside the default app directory.
+The contained CEF rerun kept its sandbox enabled. None of these failures was
+silently treated as success or repaired through a product fallback.
+
+The existing complete-suite inspector/cadence failures, untested live vendor
+players and platform/performance limits remain explicit release limitations.
+Both apps are ad-hoc signed and not notarized. The final obsolete system-media
+worktree was removed without force after preserving its evidence and branch
+head; only the original main checkout remains registered. Publication and
+cleanup are complete; this later record does not change released source bytes.
