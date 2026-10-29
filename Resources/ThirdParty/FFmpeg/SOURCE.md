@@ -17,16 +17,16 @@ python3 scripts/prepare-public-build.py ffmpeg
 
 This verifies the pinned archive, configures/builds in a unique staging directory and writes a local build record binding source, recipe, SDK/compiler and actual tool hashes. Existing prepared tools require that matching record; stale or tampered tools are rejected rather than silently rebuilt. The build targets arm64/macOS 14.0, uses Apple clang and the selected SDK, and has only operating-system runtime dependencies.
 
-`BUILD-RECORD.json` contains renewed evidence measured from the actual prepared executables on 2026-10-27. Both tool hashes match the verified local record, and actual `ffmpeg -L`, `ffmpeg -buildconf` and corresponding generated `config.h` were checked. `CONFIG_GPL`, `CONFIG_NONFREE`, `CONFIG_VERSION3` and `CONFIG_NETWORK` are all zero; the executable reports LGPL-2.1-or-later. Only prefix and SDK path values in configure options are replaced by named tokens. Hashes of exact raw outputs and generated configuration are retained to make normalization explicit.
+`BUILD-RECORD.json` contains renewed evidence measured from the current actual prepared executables. Both tool hashes match the verified local record, and actual `ffmpeg -L`, `ffmpeg -buildconf` and corresponding generated `config.h` were checked. `CONFIG_GPL`, `CONFIG_NONFREE`, `CONFIG_VERSION3` and `CONFIG_NETWORK` are all zero; the executable reports LGPL-2.1-or-later. Only prefix and SDK path values in configure options are replaced by named tokens. Hashes of exact raw outputs and generated configuration are retained to make normalization explicit.
 
-The measured SDK is 27.0 and compiler is Apple clang 21.0.0. Actual unsigned-input tool SHA256 values are:
-
-- ffmpeg: `d219883d22697af98a5c1b361ee2717d1fa60b3c111d55502ba2e2c0662b01a0`
-- ffprobe: `50c65f88da21e2f03964b5f7ab82cc69f9e1b7550a242e46fa51e86cc6f76abe`
+The measured SDK/compiler, build-tool versions and exact unsigned-input tool
+SHA256 values are recorded in `BUILD-RECORD.json`, including its `tools.ffmpeg`
+and `tools.ffprobe` fields. The source/recipe fingerprints identify the inputs
+for those precise tool bytes.
 
 Bundle signing is a later explicit transformation and the release manifest records the final signed bytes. These hashes are evidence for this build, not acceptance values imposed on rebuilds with other SDKs or compilers. Retained inputs support source rebuilds; byte-for-byte identity across toolchains is not claimed.
 
-`scripts/export-media-build-records.py ffmpeg` renews public evidence from a verified local build. Packaging verifies that the distributed record matches actual tools. Static FFmpeg libraries belong only to separate command-line executables; the application invokes transcoding in a subprocess. This FFmpeg9 tool is separate from controlled FFmpeg7 libraries used by libmpv.
+`scripts/verify-current-media.py` reruns owned native and conversion cases and renews public evidence from the verified current build. Packaging verifies that the distributed record matches actual tools. Static FFmpeg libraries belong only to separate command-line executables; the application invokes transcoding in a subprocess. This FFmpeg9 tool is separate from controlled FFmpeg7 libraries used by libmpv.
 
 ## Software AV1 and compressed media
 
@@ -53,13 +53,17 @@ Both AV1 inputs use the actual default libdav1d software decoder with hardware
 decoding disabled. The record is bound to the exact tools, fixtures and runner;
 packaging rejects a missing, partial, stale or mismatched record.
 
-Run a fresh actual acceptance after rebuilding and retain its resulting JSON:
+After preparing all current media products, run the complete byte-bound
+acceptance and record update from the corresponding application source root:
 
 ```sh
-python3 scripts/test-ffmpeg-av1-tools.py --output .build/verification/ffmpeg-transcode
-cp .build/verification/ffmpeg-transcode/acceptance.json Resources/ThirdParty/FFmpeg/acceptance/software-transcode.json
-python3 scripts/export-media-build-records.py ffmpeg
+python3 scripts/verify-current-media.py
 ```
+
+It retains all six conversion cases and all six native mpv cases, refreshes the
+material manifest, and rejects any record that differs from the actual current
+source, tools, libraries, fixtures or runners. Real media is decoded and audio
+is output on the logged-in build host. It never installs or launches Main.
 
 Publication builds use a neutral directory below `/private/tmp`; actual binary
 inspection confirms no personal home paths are embedded. Build configuration

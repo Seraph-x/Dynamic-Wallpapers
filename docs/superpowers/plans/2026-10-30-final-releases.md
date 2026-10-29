@@ -21,12 +21,13 @@
 ## Task 2: Review and merge preparation
 
 - [x] Read-only independent review of metadata, translations, installation and release truthfulness; resolve material issues.
-- [ ] Commit in English, push preparation PR, verify exact head and actual configured checks, then merge. Record the final merged revision before building distribution apps.
+- [x] Commit in English, push preparation PR, verify exact head and actual configured checks, then merge. Record the final merged revision before building distribution apps.
 
 ## Task 3: Neutral builds and current dependency closure
 
 - [ ] Export `git archive <merged revision>` into a fresh `/private/tmp/dynamic-wallpaper-final-*` directory. Record revision and tracked inventory outside release artifacts. No local symlinks, build caches, Git history or personal logs enter source archives.
-- [ ] Copy locked downloaded inputs, rebuild CEF wrapper in the neutral source root, and either rebuild controlled media or reuse only neutral-built products whose full current source/recipe/toolchain/product records verify against this exact source. Verify FFmpeg tool and all 14 runtime-library signatures/closures. Do not substitute Homebrew/runtime historical binaries.
+- [ ] Copy locked downloaded inputs, rebuild CEF wrapper in the neutral source root, and either rebuild controlled media or reuse only neutral-built products whose full current source/recipe/toolchain/product records verify against this exact source. Verify FFmpeg tool and all 14 runtime-library signatures/closures. Do not substitute Homebrew/runtime historical binaries. Run `python3 scripts/verify-current-media.py` to execute and retain the actual six native and six software-conversion cases for those precise products.
+- [ ] If regenerated public build/native acceptance records differ from tracked evidence, run their actual byte-bound native/convert checks, synchronize only those measured records/notices/manifest back to the repository, review and merge the evidence update. Re-export that new merged revision into the same neutral source directory while preserving only verified build products; record it as the final release source. Final application binaries/resources must be built after this step, with no uncommitted material drift.
 - [ ] `bash scripts/build-app.sh --output dist/main/Dynamic\ Wallpaper.app`; verify the standalone `.saver` is included and closed.
 - [ ] `python3 scripts/build-editor-app.py --output dist/editor/Dynamic\ Wallpaper\ Editor.app --zip`. Verify its independent identity/version and absence of mpv/FFmpeg.
 - [ ] Verify actual top-level localized Automation/audio purpose strings, offline help/resources/provenance, Mach-O closure and `codesign --verify --deep --strict` for each original app. Record ad-hoc signing and lack of Apple notarization accurately.
@@ -66,3 +67,21 @@ edit/undo/save/reopen/export playback. No final runtime claim is made from these
 preparation checks. The main checkout's historical FFmpeg cache has an obsolete
 record schema, so it will not be reused; the final neutral build must produce
 current FFmpeg tools and evidence from the locked sources.
+
+Preparation PR #52 merged as `5f37c04e488e4499d96fe9689ec16ffe59b6987a`, from
+reviewed/tested head `d956074548b665cc41c2788eed0ef98a63bfa8c1`. No remote CI
+checks are configured. A neutral tracked-source snapshot of that merged commit
+is now preparing fresh CEF/FFmpeg and actual six-format controlled-mpv acceptance.
+If these produce new measured material records, they must be committed/merged
+before final app packaging; no stale acceptance record will be reused for new
+binary bytes. Final app/source/archive/tag identity remains an explicit gate.
+
+Fresh neutral CEF/FFmpeg preparation completed with real exit 0. Current controlled
+mpv acceptance passed all six native fixtures, and FFmpeg software decode plus
+H.264/AAC conversion passed all six formats without frame loss and with actual
+PCM evidence. The new reproducible `verify-current-media.py` command first was
+absent (red), then its full real run passed all twelve cases and strict current
+source/product/material-byte checks (green). It replaces the documented manual
+procedure gap; it has no simulated success path or runtime fallback. The public
+records and actual RGBA/JSON acceptance files are synchronized for review before
+final application builds. Raw local logs/paths are not publication attachments.

@@ -19,6 +19,7 @@ python3 -m venv .build/help-venv
 .build/help-venv/bin/python -m pip install -r scripts/help-requirements.txt
 .build/help-venv/bin/python scripts/build-help.py --check
 python3 scripts/prepare-public-build.py
+python3 scripts/verify-current-media.py
 bash scripts/build-app.sh --output dist/DynamicWallpaper-source-build.app
 python3 scripts/verify-app-bundle.py dist/DynamicWallpaper-source-build.app \
   --report .build/source-build-verification.json
@@ -26,7 +27,13 @@ python3 scripts/verify-app-bundle.py dist/DynamicWallpaper-source-build.app \
 
 Choose a new output and report name for each attempt; existing candidates and reports are never overwritten. The build uses the selected Xcode macOS SDK. FFmpeg's local build record binds the pinned source, build script, SDK, compiler version, and exact tool bytes. If these change, rebuild FFmpeg in a fresh cache instead of accepting a stale product.
 
-Preparation is non-GUI and does not install the application. Bundle verification checks static contents, signatures, and dependency closure; it does not prove that GUI playback works on every macOS version. A source build for personal use is separate from permission to redistribute the resulting binary. Verify the complete retained [third-party material manifest](Resources/ThirdParty/distribution-status.json), corresponding-source archives, patches and measured records before distributing a built application.
+Preparation is non-GUI and does not install the application. The subsequent
+`verify-current-media.py` command runs owned video/audio fixtures and actual
+H.264/AAC conversion on the logged-in build host, then updates the retained
+build/acceptance records and their manifest to the precise prepared binary
+bytes. It neither launches Main nor installs a screen saver or writes personal
+wallpaper. A failed decode, conversion or byte-bound record check stops the
+command; old receipts are not accepted for rebuilt tools. Bundle verification checks static contents, signatures, and dependency closure; it does not prove that GUI playback works on every macOS version. A source build for personal use is separate from permission to redistribute the resulting binary. Verify the complete retained [third-party material manifest](Resources/ThirdParty/distribution-status.json), corresponding-source archives, patches and measured records before distributing a built application.
 
 ## Package a sanitized release
 
@@ -39,6 +46,7 @@ RELEASE_SOURCE=$(mktemp -d /tmp/dynamic-wallpaper-release.XXXXXX)
 git archive HEAD | tar -x -C "$RELEASE_SOURCE"
 cd "$RELEASE_SOURCE"
 python3 scripts/prepare-public-build.py
+python3 scripts/verify-current-media.py
 bash scripts/build-app.sh --output dist/DynamicWallpaper-1.1.0.app
 python3 scripts/create-local-release.py \
   --app dist/DynamicWallpaper-1.1.0.app \

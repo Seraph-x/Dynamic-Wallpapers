@@ -195,3 +195,24 @@ reproducible Python/Node build tooling and source-built media dependencies.
   help (14), Editor product (3), archive-tool (5) and packaging (42) checks pass.
   The approved final package/release matrix is in
   `2026-10-30-final-releases.md`; no final binary or publication is claimed yet.
+- Release preparation PR [#52](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/52)
+  merged as `5f37c04e488e4499d96fe9689ec16ffe59b6987a`, from exact reviewed head
+  `d956074548b665cc41c2788eed0ef98a63bfa8c1`. Main is configured as 1.1.0/build5;
+  Editor remains independently 0.1.0/build1. All 43 packaging checks include a
+  current-tree product/material-label regression, with its original red and
+  corrected green results retained. All 34 preparation inputs passed privacy
+  and local-link checks; final apps and releases remain open.
+- The neutral snapshot of that merge passed all six actual current libmpv
+  product-bridge phases: H.264/AAC, VP9/Opus, MPEG-4/MP3, AV1/Opus in MKV/WebM
+  and ZMBV/MP3, with changing frames, audio clocks, loops and strict release.
+  CEF's wrapper rebuilt successfully in the neutral source root. Standalone
+  FFmpeg is rebuilding from locked sources because the main checkout cache has
+  obsolete build-record schema. Newly measured build/acceptance records must
+  be merged before final apps are built, rather than retaining old binary-bound
+  receipts for new products. Exact final revision remains to be recorded.
+- Fresh neutral FFmpeg and CEF builds passed. All six actual current mpv native
+  phases and all six FFmpeg software decode/conversion cases passed, then the
+  reproducible current-media command reran all twelve and verified retained
+  records against actual source/tool/library bytes. Updated public measured
+  records, acceptance pixels/JSON and their material index are prepared for a
+  separate evidence PR. Final packaged apps still require their own acceptance.

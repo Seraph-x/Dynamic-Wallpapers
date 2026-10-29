@@ -6,8 +6,8 @@
   "sdk_version": "27.0",
   "toolchain_version": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
   "tools": {
-    "ffmpeg": "d219883d22697af98a5c1b361ee2717d1fa60b3c111d55502ba2e2c0662b01a0",
-    "ffprobe": "50c65f88da21e2f03964b5f7ab82cc69f9e1b7550a242e46fa51e86cc6f76abe"
+    "ffmpeg": "84243b0dc96d9177eea20d73bf20e4dfdd67039c748138b4ac96e0ef26d1310d",
+    "ffprobe": "1e8de479be52ae43c87f4a99d4de7fed55c60e85da359a2fa99472d2b89ec148"
   },
   "build_inputs": {
     "Resources/ThirdParty/MPV/sources/dav1d-1.5.3.tar.bz2": "e099f53253f6c247580c554d53a13f1040638f2066edc3c740e4c2f15174ce22",
@@ -24,10 +24,10 @@
     "scripts/swift_sdk.py": "5af3ad440fe01a7f6fd123881b589f0f471e61d446c2caabee360c583110a0db"
   },
   "build_tools": {
-    "cmake": "cmake version 4.4.4",
+    "cmake": "cmake version 4.4.5",
     "make": "GNU Make 3.81",
     "pkg-config": "3.0.10",
-    "python": "3.15.1 (main, Oct 21 2026, 05:55:12) [Clang 21.0.0 (clang-2100.3.34.2)]"
+    "python": "3.15.2 (main, Oct 25 2026, 16:57:51) [Clang 21.0.0 (clang-2100.3.34.2)]"
   },
   "license": "LGPL-2.1-or-later",
   "measured_config_flags": {
@@ -60,8 +60,8 @@
     "--enable-zlib",
     "--enable-bzlib"
   ],
-  "config_h_sha256": "9962574ce04c77861d5636b0c66d3ada3c0349b774e83967428378e49ae28ad1",
+  "config_h_sha256": "4c5194258acdc89a17528c5cc1609ac41b67c1cee0e43486a6567a6ff47589ee",
   "license_output_sha256": "a0abd25510978f275a835fce3f90affce1d580efdc7b37edc17b7a57b2e9e9fd",
-  "configuration_output_sha256": "ae5b88556ccf5229fa6f544745bb578859900f4fb373849a7041a5f9cca6e7c8",
+  "configuration_output_sha256": "6021968c6e6af016f58c7345ba166b7b13431ec3dbb772110de7929c00e2f811",
   "normalization": "Only occurrences of actual build-prefix and SDK path values use named tokens; raw output hashes and all other actual options are retained."
 }

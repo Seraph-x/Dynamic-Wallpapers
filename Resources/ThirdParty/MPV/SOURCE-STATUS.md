@@ -37,8 +37,13 @@ The application uses libmpv's software render API, CoreAudio, `videotoolbox-copy
 
 Completeness is controlled by `../distribution-status.json`. A successful source build and static closure check alone do not claim native playback/audio/VideoToolbox acceptance.
 
-The retained record and six-case native captures were renewed from an actual
-neutral-path source rebuild on 2026-10-27. All 512 decoder registrations remain
-identical; source archives, recipes and options were unchanged. Direct binary
-inspection found no personal home paths in any of the 14 resulting dylibs.
-The record describes the new actual bytes and normal native resource teardown.
+The current record and six-case native captures are bound to the precise
+prepared libraries by `scripts/verify-current-media.py`. That command also
+checks the corresponding source/recipe and actual toolchain environment before
+updating the retained material manifest. Its reports include actual changing
+pixels, audio clocks, loops and normal native resource teardown.
+
+The initial neutral-path audit on 2026-10-27 observed all 512 decoder
+registrations unchanged and no personal home paths in the 14 libraries.
+Current final application/archive acceptance is recorded separately; historical
+captures are not substituted for the byte-bound current native reports.
