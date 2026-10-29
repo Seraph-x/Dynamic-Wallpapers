@@ -179,7 +179,9 @@ struct ApplicationPaths: Sendable {
     private static func checkedAbsolute(_ raw: String) throws -> URL {
         guard raw.hasPrefix("/"), !raw.split(separator: "/").contains(".."),
               !raw.split(separator: "/").contains(".") else { throw PathError.invalid(raw) }
-        return URL(fileURLWithPath: raw).standardizedFileURL
+        // Foundation rewrites existing /private/tmp directories differently from
+        // new child files. Keep lexical paths until realpath establishes the root.
+        return URL(fileURLWithPath: raw)
     }
 
     static func isValidationIdentifier(_ identifier: String, configured: String) -> Bool {
@@ -214,7 +216,7 @@ struct ApplicationPaths: Sendable {
                 throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO)
             }
         }
-        return canonical.standardizedFileURL
+        return canonical
     }
 
     private static func requireDirectory(_ url: URL) throws {
@@ -228,6 +230,6 @@ struct ApplicationPaths: Sendable {
         let pointer = url.withUnsafeFileSystemRepresentation { Darwin.realpath($0!, nil) }
         guard let pointer else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
         defer { free(pointer) }
-        return URL(fileURLWithPath: String(cString: pointer)).standardizedFileURL
+        return URL(fileURLWithPath: String(cString: pointer))
     }
 }
