@@ -27,7 +27,7 @@ reproducible Python/Node build tooling and source-built media dependencies.
   metadata/transport, explicit unavailable states and end-to-end tests.
 - [ ] Dependency source/build/distribution closure — provable source/patch
   archives, complete notices, actual rebuild/verification and packaging gates.
-- [ ] Historical documentation and current README/help — remove stale roadmap
+- [x] Historical documentation and current README/help — remove stale roadmap
   claims; describe implemented capabilities and real limits in five languages.
 - [ ] Final releases — Main and independent Editor assets, source archives,
   checksums, signature/closure/extracted-archive verification, privacy gate and
@@ -185,3 +185,13 @@ reproducible Python/Node build tooling and source-built media dependencies.
   checks pass; documentation review's source/release scope, trust wording and
   repository-anchor issues are corrected. Documentation PR integration remains
   pending until the final gate below.
+- Current-guide PR [#51](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/51)
+  merged as `4c87109c5e339116fe9bf4e86026bb39b5eb0a54` from reviewed head
+  `5edbf0769c96c0c9275fa1c417293bbf5e310d5c`. All five deterministic help pages,
+  14 help checks, 42 packaging checks and the 14-file privacy gate pass.
+  Final-release preparation now targets Main 1.1.0/build 5 and independent Editor
+  0.1.0/build 1; five installation/removal notes per application, current help,
+  release notes and controlled-build instructions are prepared. Product (42),
+  help (14), Editor product (3), archive-tool (5) and packaging (42) checks pass.
+  The approved final package/release matrix is in
+  `2026-10-30-final-releases.md`; no final binary or publication is claimed yet.
