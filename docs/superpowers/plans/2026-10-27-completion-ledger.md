@@ -159,3 +159,12 @@ reproducible Python/Node build tooling and source-built media dependencies.
   and 20 affected media/TLS tests pass. Actual audio and ScreenSaver reruns pass;
   inspector UI and capture-cadence assertions remain failed, not waived or
   represented as a successful full suite. Final review/PR and releases stay open.
+- System-media draft PR [#50](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/50)
+  at `cd06927` passed all 54 complete Editor browser/native phases in run
+  `636258f5-57d7-433f-838b-edb47e02ed5b`, fresh Main native run
+  `2c311dee-61ad-40eb-bd22-ceb999e75a09`, all 199 isolated checks and fresh owned
+  settings run `51321e21-afa0-4208-a6ce-54e5e0502f34`. Packaging first exposed an
+  old WebWallGL provenance entry in the material manifest; the actual hash/size
+  were regenerated and all 42 packaging checks pass. No remote CI checks are
+  configured. Broad-suite UI/cadence limits and final distribution acceptance
+  remain recorded separately; merge is not yet claimed.

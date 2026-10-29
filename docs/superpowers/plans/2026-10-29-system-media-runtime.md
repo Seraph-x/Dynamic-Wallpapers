@@ -189,3 +189,25 @@ sanitized-public-export gate. Evidence:
 `/private/tmp/dw-system-media-final-focused-current.log`,
 `/private/tmp/dw-system-media-product-final.log`,
 `/private/tmp/dw-system-media-editor-product-final.log`.
+
+Current feature head `cd0692731624963700a4ab6fc59cb8e70b617d69` passed all 54
+Editor browser/native phases in run `636258f5-57d7-433f-838b-edb47e02ed5b`,
+strict build (180 seconds) and each execution phase (60 seconds), with actual
+export pixels and normal CEF shutdown. Fresh Main native run
+`2c311dee-61ad-40eb-bd22-ceb999e75a09` passed build/protocol/runtime and every
+media/boundary receipt. All 199 isolated media/Core/owner tests passed again.
+Actual production settings run `51321e21-afa0-4208-a6ce-54e5e0502f34` passed
+both owned native adapters and complete consent/artwork/retry/shutdown receipts.
+
+The complete packaging check exposed a stale distribution-material manifest:
+its WebWallGL provenance hash still described an earlier renderer patch record.
+The existing manifest generator updated only that file's actual SHA256/size;
+all 42 packaging tests then passed. Its original failing run is retained in
+`/private/tmp/dw-system-media-final-packaging-tests.log`, with green result in
+`/private/tmp/dw-system-media-packaging-green.log`. This is a material-index
+correction, not a renderer/runtime change. Final candidate/archive verification
+and the documented broad-suite UI/cadence limits remain distinct.
+
+Draft PR: https://github.com/Seraph-x/Dynamic-Wallpapers/pull/50. GitHub reports
+no configured checks for this branch; local receipts and the exact head are
+recorded explicitly instead of inventing a remote CI pass.
