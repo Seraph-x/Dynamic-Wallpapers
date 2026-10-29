@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 #include "SceneProtocol.hpp"
 #include <cmath>
+#include <cstring>
 #include <stdexcept>
 #include <string_view>
 
@@ -268,6 +269,43 @@ static bool validateScriptIssue(const std::string& bytes) {
     throw std::runtime_error("Scene script issue must be a strict JSON object");
   return validation.rawDisplay;
 }
+void validateSceneMediaSnapshot(const std::string& body) { @autoreleasepool {
+  if (!IssueJSONSyntax(body).valid(9)) throw std::runtime_error("Scene media requires strict nine-field JSON");
+  NSData* bytes = [NSData dataWithBytes:body.data() length:body.size()];
+  if (![[NSString alloc] initWithData:bytes encoding:NSUTF8StringEncoding])
+    throw std::runtime_error("Scene media must be UTF8");
+  id value = [NSJSONSerialization JSONObjectWithData:bytes options:0 error:nil];
+  NSSet* keys = [NSSet setWithArray:@[@"hasMedia", @"state", @"title", @"artist", @"album", @"albumArtist", @"position", @"duration", @"thumbnail"]];
+  if (![value isKindOfClass:NSDictionary.class] || ![[NSSet setWithArray:[value allKeys]] isEqual:keys])
+    throw std::runtime_error("Unknown or missing scene media fields");
+  NSDictionary* snapshot = value;
+  id enabled = snapshot[@"hasMedia"];
+  if (![enabled isKindOfClass:NSNumber.class] || CFGetTypeID((__bridge CFTypeRef)enabled) != CFBooleanGetTypeID() ||
+      !integer(snapshot[@"state"], 0, 2)) throw std::runtime_error("Invalid scene media state");
+  for (NSString* key in @[@"title", @"artist", @"album", @"albumArtist"])
+    if (![snapshot[key] isKindOfClass:NSString.class]) throw std::runtime_error("Scene media metadata must be strings");
+  for (NSString* key in @[@"position", @"duration"]) {
+    id number = snapshot[key];
+    if (![number isKindOfClass:NSNumber.class] || CFGetTypeID((__bridge CFTypeRef)number) == CFBooleanGetTypeID() ||
+        !std::isfinite([number doubleValue]) || [number doubleValue] < 0)
+      throw std::runtime_error("Invalid scene media timeline");
+  }
+  id thumbnail = snapshot[@"thumbnail"];
+  if (thumbnail != NSNull.null) {
+    NSString* prefix = @"data:image/png;base64,";
+    if (![thumbnail isKindOfClass:NSString.class] || ![thumbnail hasPrefix:prefix])
+      throw std::runtime_error("Scene media artwork must be native PNG data");
+    NSString* encoded = [thumbnail substringFromIndex:prefix.length];
+    NSData* png = [[NSData alloc] initWithBase64EncodedString:encoded options:0];
+    const unsigned char signature[] = {137, 80, 78, 71, 13, 10, 26, 10};
+    if (!png || ![[png base64EncodedStringWithOptions:0] isEqual:encoded] || png.length < sizeof(signature) ||
+        std::memcmp(png.bytes, signature, sizeof(signature)) != 0)
+      throw std::runtime_error("Scene media artwork requires canonical PNG base64");
+  }
+  if (![enabled boolValue] && ![snapshot isEqual:@{@"hasMedia": @NO, @"state": @0, @"title": @"", @"artist": @"", @"album": @"",
+      @"albumArtist": @"", @"position": @0, @"duration": @0, @"thumbnail": NSNull.null}])
+    throw std::runtime_error("Empty scene media must clear every item field");
+} }
 SceneEvent parseSceneEvent(const std::string& body, const std::string& sceneID, uint64_t generation) { @autoreleasepool {
   if (body.empty() || body.size() > 8192) throw std::runtime_error("Scene event body exceeds bounds");
   NSData* data = [NSData dataWithBytes:body.data() length:body.size()];
@@ -279,6 +317,27 @@ SceneEvent parseSceneEvent(const std::string& body, const std::string& sceneID, 
       [event[@"generation"] unsignedLongLongValue] != generation || !text(event[@"type"], 32))
     throw std::runtime_error("Stale or invalid scene event identity");
   NSString* type = event[@"type"];
+  if ([type isEqual:@"media-artwork-error"]) {
+    NSSet* keys = [NSSet setWithArray:@[@"type", @"sceneID", @"generation", @"message", @"mediaRevision"]];
+    if (![[NSSet setWithArray:event.allKeys] isEqual:keys] || !text(event[@"message"], 2048) ||
+        !integer(event[@"mediaRevision"], 1, 9007199254740991ULL) || !IssueJSONSyntax(body).valid(5))
+      throw std::runtime_error("Invalid scene media artwork failure event");
+    SceneEvent result{}; result.type = "media-artwork-error";
+    result.message = [event[@"message"] UTF8String];
+    result.mediaRevision = [event[@"mediaRevision"] unsignedLongLongValue];
+    return result;
+  }
+  if ([type isEqual:@"media-control"]) {
+    NSSet* keys = [NSSet setWithArray:@[@"type", @"sceneID", @"generation", @"command", @"mediaRevision"]];
+    NSSet* commands = [NSSet setWithArray:@[@"play", @"pause", @"playPause", @"skipNext", @"skipPrevious"]];
+    if (![[NSSet setWithArray:event.allKeys] isEqual:keys] || ![commands containsObject:event[@"command"]] ||
+        !integer(event[@"mediaRevision"], 1, 9007199254740991ULL) || !IssueJSONSyntax(body).valid(5))
+      throw std::runtime_error("Invalid scene media control event");
+    SceneEvent result{}; result.type = "media-control";
+    result.mediaCommand = [event[@"command"] UTF8String];
+    result.mediaRevision = [event[@"mediaRevision"] unsignedLongLongValue];
+    return result;
+  }
   if ([type isEqual:@"script-issue-part"]) {
     NSSet* keys = [NSSet setWithArray:@[@"type", @"sceneID", @"generation", @"transferID", @"ordinal", @"final", @"data"]];
     if (![[NSSet setWithArray:event.allKeys] isEqual:keys]) throw std::runtime_error("Unknown scene script issue part fields");

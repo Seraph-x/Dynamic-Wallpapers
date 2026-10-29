@@ -14,11 +14,12 @@ export function mediaStatusChanged(e){enabled=e.enabled;}
 export function mediaPropertiesChanged(e){title=e.title;}
 export function mediaTimelineChanged(e){position=e.position;duration=e.duration;}
 export function mediaPlaybackChanged(e){state=e.state;}
-export function update(value){return !enabled ? new Vec3(1,0,0) : title===${JSON.stringify(ownedMedia.title)} && position===12.75 && duration===180.5 && state===1 ? new Vec3(0,1,0) : new Vec3(0,0,1);}`,
+export function update(value){const s=engine.media.snapshot;const neutral=s.primaryColor.x===0&&s.primaryColor.y===0&&s.primaryColor.z===0&&s.secondaryColor.x===0&&s.secondaryColor.y===0&&s.secondaryColor.z===0&&s.tertiaryColor.x===0&&s.tertiaryColor.y===0&&s.tertiaryColor.z===0&&s.textColor.x===1&&s.textColor.y===1&&s.textColor.z===1&&s.highContrastColor.x===1&&s.highContrastColor.y===1&&s.highContrastColor.z===1;return !enabled ? new Vec3(1,0,0) : title===${JSON.stringify(ownedMedia.title)} && position===12.75 && duration===180.5 && state===1 && neutral ? new Vec3(0,1,0) : new Vec3(0,0,1);}`,
     } },
     { id: 2, name: 'Actual owned PNG pixels', image: 'models/cover.json', size: '160 80', origin: '320 230 0',
-      instance: { usertextures: [{ name: '$mediaThumbnail' }] }, color: { value: '1 1 1', script:
-        'export function init(value){thisObject.visible=false;return value;} export function mediaThumbnailChanged(e){thisObject.visible=e.hasThumbnail;}' } },
+      instance: { usertextures: [{ name: '$mediaThumbnail' }] }, color: '1 1 1' },
+    { id: 3, name: 'Always visible previous artwork texture', image: 'models/cover.json', size: '160 80', origin: '320 130 0',
+      instance: { usertextures: [{ name: '$mediaPreviousThumbnail' }] }, color: '1 1 1' },
     ...commands.map((command, index) => ({ id: index + 10, name: `Actual ${command} hook`, solid: true,
       size: '80 50', origin: `${70 + index * 120} 60 0`, color: { value: '1 1 1',
         script: `export function cursorClick(event){engine.media.${command}();}` } })),

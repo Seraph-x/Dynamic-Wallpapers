@@ -21,7 +21,8 @@ export function startSceneRuntime(value, options) {
   let propertyCatalog;
   const event = payload => options.report({ ...payload, sceneID: config.sceneID, generation: config.generation });
   const media = createSceneMediaSource({ createMediaSource: options.createMediaSource, report: event,
-    onError: error => console.error('System media control reporting failed', error) });
+    onArtworkError: (error, mediaRevision) => event({ type: 'media-artwork-error', mediaRevision, message: errorMessage(error) }),
+    onError: error => console.error('System media reporting failed', error) });
   const destroy = () => {
     if (destroyed) return;
     destroyed = true;

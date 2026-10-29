@@ -59,6 +59,12 @@ NS_SWIFT_UI_ACTOR @interface DWWebPage : NSObject
 /// Original complete JSON when isolated UTF16 escapes prevent Foundation decoding.
 /// Display only as explicitly labelled raw JSON; no source location can be inferred.
 @property(nonatomic, copy, nullable) void (^onSceneScriptRawIssue)(NSString* rawJSON);
+/// Fixed trusted-scene transport request: command and positive mediaRevision.
+/// The native owner must reject stale selection/item/demand before controlling a player.
+@property(nonatomic, copy, nullable) void (^onSceneMediaControl)(NSDictionary<NSString*, id>* request);
+/// Data-only actual renderer artwork failure: message and mediaRevision.
+/// Metadata remains valid; the owner exposes the error and an explicit artwork retry.
+@property(nonatomic, copy, nullable) void (^onSceneMediaArtworkError)(NSDictionary<NSString*, id>* issue);
 @property(nonatomic, copy, nullable) void (^onEditorDirty)(BOOL dirty);
 /// Payload-free snapshot request from an Editor page; scene pages cannot emit this event.
 @property(nonatomic, copy, nullable) void (^onEditorPreview)(void);
@@ -84,6 +90,11 @@ NS_SWIFT_UI_ACTOR @interface DWWebPage : NSObject
 /// JSON object bytes retain exact property names across Swift dictionary bridging.
 - (void)setSceneUserPropertiesJSONData:(NSData*)data
                            completion:(void (^)(NSError * _Nullable error))completion;
+/// Actual native media only; nine-field snapshot JSON and owner-issued revision.
+/// Completion follows the actual media frame. Image failures clear textures and
+/// arrive independently via onSceneMediaArtworkError without discarding metadata.
+- (void)setSceneMediaSnapshotJSONData:(NSData*)data mediaRevision:(uint64_t)revision
+                          completion:(void (^)(NSError * _Nullable error))completion;
 /// Replace the latest stereo spectrum. Exactly 64 finite values in [0,1] per channel.
 - (BOOL)setSceneSpectrumLeft:(NSArray<NSNumber*>*)left right:(NSArray<NSNumber*>*)right
                        error:(NSError * _Nullable * _Nullable)error;

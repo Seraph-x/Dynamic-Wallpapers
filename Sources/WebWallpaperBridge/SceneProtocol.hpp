@@ -17,10 +17,14 @@ struct SceneScriptIssuePart {
 };
 struct SceneEvent {
   std::string type, message, commandID, payload;
+  std::string mediaCommand;
+  uint64_t mediaRevision = 0;
   std::optional<SceneScriptIssuePart> issuePart;
 };
 SceneRoute sceneRoute(const std::string& path, const std::string& method, bool mainFrame);
 SceneEvent parseSceneEvent(const std::string& body, const std::string& sceneID, uint64_t generation);
+/// Strict data-only native media projection; no executable fields or external artwork URLs.
+void validateSceneMediaSnapshot(const std::string& body);
 struct EditorEvent { std::string type, id, payload; bool dirty = false; };
 /// Editor has its own process and protocol; scene playback events remain unchanged.
 struct EditorSession final {

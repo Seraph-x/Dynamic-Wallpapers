@@ -86,3 +86,48 @@ test('queued transport cannot cross a changed native media revision or disposal'
   await new Promise(resolve => setImmediate(resolve));
   assert.deepEqual(events, []);
 });
+
+test('artwork decode failure keeps real metadata, clears failed artwork until explicit change, and reports once', async () => {
+  const reports = [], failure = new Error('actual platform PNG decode failed');
+  const owner = media.createSceneMediaSource({ createMediaSource, report: async () => {}, onError: assert.fail,
+    onArtworkError: async (error, mediaRevision) => reports.push({ error, mediaRevision }) });
+  owner.replace({ ...current(), thumbnail: png }, 1);
+  assert.equal(typeof owner.source.onArtworkError, 'function');
+  owner.source.onArtworkError(failure, png, 1);
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(owner.source.snapshot.hasMedia, true);
+  assert.equal(owner.source.snapshot.title, current().title);
+  assert.equal(owner.source.snapshot.hasThumbnail, false);
+  assert.equal(owner.source.snapshot.thumbnail, undefined);
+  assert.deepEqual(reports, [{ error: failure, mediaRevision: 1 }]);
+  owner.replace({ ...current(), thumbnail: png }, 1);
+  assert.equal(owner.source.snapshot.hasThumbnail, false, 'metadata refresh is not an implicit retry');
+  owner.source.onArtworkError(failure, png, 1);
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(reports.length, 1);
+  owner.replace(current(), 2);
+  owner.replace({ ...current(), thumbnail: png }, 3);
+  assert.equal(owner.source.snapshot.hasThumbnail, true, 'explicit clear/new artwork may retry the source');
+  owner.dispose(); owner.source.onArtworkError(failure, png, 3);
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(reports.length, 1, 'retired image errors do not attach to a new owner');
+});
+
+test('same PNG on a new native identity retries and rejects the old identity failure', async () => {
+  const reports = [], failure = new Error('Owned upload failure');
+  const owner = media.createSceneMediaSource({ createMediaSource, report: async () => {}, onError: assert.fail,
+    onArtworkError: async (error, mediaRevision) => reports.push({ error, mediaRevision }) });
+  owner.replace({ ...current(), thumbnail: png }, 1);
+  owner.source.onArtworkError(failure, png, 1);
+  await new Promise(resolve => setImmediate(resolve));
+  owner.replace({ ...current(), thumbnail: png }, 2);
+  assert.equal(owner.source.mediaRevision, 2);
+  assert.equal(owner.source.snapshot.hasThumbnail, true, 'new item/provider may legitimately share the exact PNG');
+  owner.source.onArtworkError(failure, png, 1);
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(owner.source.snapshot.hasThumbnail, true, 'retired decoder failure cannot mask new identity');
+  assert.equal(reports.length, 1);
+  owner.source.onArtworkError(failure, png, 2);
+  await new Promise(resolve => setImmediate(resolve));
+  assert.deepEqual(reports.map(value => value.mediaRevision), [1, 2]);
+});

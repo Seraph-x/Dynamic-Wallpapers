@@ -2,10 +2,18 @@ import { createRequire } from 'node:module';
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import assert from 'node:assert/strict';
+import { setTimeout as delay } from 'node:timers/promises';
 import { emptyMedia, ownedMedia, mediaFixture, mediaPackage } from './system-media-fixture.mjs';
 const require = createRequire(new URL('./scene-runtime-build/package.json', import.meta.url));
 const { chromium } = require('playwright');
 const events = [];
+async function waitForEvent(predicate, message) {
+  const deadline = performance.now() + 10000;
+  while (!events.some(predicate)) {
+    assert(performance.now() < deadline, `${message}: ${JSON.stringify(events)}`);
+    await delay(10);
+  }
+}
 const runtimeRoot = process.env.SCENE_MEDIA_RUNTIME_ROOT ?? 'Sources/WallpaperApp/Resources/SceneRuntime';
 let representation = 'loose';
 const server = createServer(async (request, response) => {
@@ -54,9 +62,7 @@ try {
       assert(events.some(event => event.type === 'command-ack' && event.commandID === id), JSON.stringify(events));
     };
     // Native preparation also waits for ready before sending commands.
-    await page.waitForFunction(() => typeof window.__mediaStats === 'function');
-    await page.waitForTimeout(100);
-    assert(events.some(event => event.type === 'ready'), JSON.stringify(events));
+    await waitForEvent(event => event.type === 'ready', 'Actual engine ready event missing');
     const pixels = async () => {
       const png = await page.screenshot();
       return page.evaluate(async encoded => {
@@ -64,11 +70,11 @@ try {
         const canvas = document.createElement('canvas'); canvas.width = 640; canvas.height = 360;
         const context = canvas.getContext('2d'); context.drawImage(image, 0, 0);
         const at = (x, y) => Array.from(context.getImageData(x, y, 1, 1).data).slice(0, 3);
-        return { status: at(100, 50), left: at(250, 130), right: at(390, 130) };
+        return { status: at(100, 50), left: at(250, 130), right: at(390, 130), previous: at(250, 230) };
       }, png.toString('base64'));
     };
     await command({ type: 'pause' });
-    assert.deepEqual((await pixels()).status, [255, 0, 0]);
+    assert.deepEqual(await pixels(), { status: [255, 0, 0], left: [0, 0, 0], right: [0, 0, 0], previous: [0, 0, 0] });
     await command({ type: 'media', media: ownedMedia, mediaRevision: 1 });
     const actual = await pixels();
     assert.deepEqual(actual.status, [0, 255, 0], `${form}: real media hook metadata/timeline/state`);
@@ -80,8 +86,41 @@ try {
       assert(events.some(event => event.type === 'media-control' && event.command === name && event.mediaRevision === 1), `${form}: actual ${name} hook must cross the report boundary`);
     }
     await command({ type: 'pause' });
-    await command({ type: 'media', media: emptyMedia, mediaRevision: 2 });
-    assert.deepEqual(await pixels(), { status: [255, 0, 0], left: [0, 0, 0], right: [0, 0, 0] });
+    const invalidPNG = { ...ownedMedia, thumbnail: 'data:image/png;base64,iVBORw0KGgo=' };
+    await command({ type: 'media', media: invalidPNG, mediaRevision: 2 });
+    await waitForEvent(event => event.type === 'media-artwork-error' && event.mediaRevision === 2, 'Actual decoder error event missing');
+    assert.deepEqual(await pixels(), { status: [0, 255, 0], left: [0, 0, 0], right: [0, 0, 0], previous: [0, 0, 0] });
+    assert.equal(await page.evaluate(() => window.__mediaStats().hasThumbnail), false);
+    await command({ type: 'media', media: invalidPNG, mediaRevision: 2 });
+    assert.equal(events.filter(event => event.type === 'media-artwork-error').length, 1, 'metadata refresh must not retry failed artwork');
+    await command({ type: 'media', media: emptyMedia, mediaRevision: 3 });
+    await command({ type: 'media', media: ownedMedia, mediaRevision: 4 });
+    assert.deepEqual((await pixels()).status, [0, 255, 0], 'explicit new artwork restores actual metadata/PNG');
+    await command({ type: 'media', media: emptyMedia, mediaRevision: 5 });
+    assert.deepEqual(await pixels(), { status: [255, 0, 0], left: [0, 0, 0], right: [0, 0, 0], previous: [0, 0, 0] });
+    // Inject an upload failure at the actual GL boundary after real decoding;
+    // observe that the real ImageBitmap is closed and metadata still draws.
+    await page.evaluate(() => {
+      window.__ownedBitmapCloses = 0;
+      const close = ImageBitmap.prototype.close;
+      ImageBitmap.prototype.close = function () { window.__ownedBitmapCloses++; return close.call(this); };
+      const upload = WebGL2RenderingContext.prototype.texImage2D;
+      WebGL2RenderingContext.prototype.texImage2D = function (...args) {
+        if (typeof args[3] === 'number' && args[3] > 1 && args[4] > 1) {
+          WebGL2RenderingContext.prototype.texImage2D = upload;
+          throw new Error('Owned actual upload boundary failure');
+        }
+        return upload.apply(this, args);
+      };
+    });
+    await command({ type: 'media', media: ownedMedia, mediaRevision: 6 });
+    await waitForEvent(event => event.type === 'media-artwork-error' && event.mediaRevision === 6, 'Actual upload error event missing');
+    assert.equal(await page.evaluate(() => window.__ownedBitmapCloses), 1, 'actual decoded bitmap must close when upload throws');
+    assert.deepEqual(await pixels(), { status: [0, 255, 0], left: [0, 0, 0], right: [0, 0, 0], previous: [0, 0, 0] });
+    await command({ type: 'media', media: ownedMedia, mediaRevision: 7 });
+    assert.deepEqual((await pixels()).status, [0, 255, 0]);
+    assert.equal(await page.evaluate(() => window.__ownedBitmapCloses), 2, 'same URI on a new native identity must really decode again');
+    await command({ type: 'media', media: emptyMedia, mediaRevision: 9 });
     // Delay the real platform decoder, then queue clear behind the in-flight
     // update. No acknowledgement can cross that actual decode/draw boundary.
     await page.evaluate(() => {
@@ -91,19 +130,19 @@ try {
         return decode(...args);
       };
     });
-    const loading = command({ type: 'media', media: ownedMedia, mediaRevision: 3 });
+    const loading = command({ type: 'media', media: ownedMedia, mediaRevision: 10 });
     await page.waitForFunction(() => typeof window.__releaseOwnedMediaDecode === 'function');
     const clearingID = String(++nextCommand) + '-clear-pending';
     await page.evaluate(({ id, media }) => {
-      window.__ownedPendingClear = window.__dynamicWallpaperScene.command({ id, type: 'media', media, mediaRevision: 4, sceneID: 'owned-media', generation: 1 });
+      window.__ownedPendingClear = window.__dynamicWallpaperScene.command({ id, type: 'media', media, mediaRevision: 11, sceneID: 'owned-media', generation: 1 });
     }, { id: clearingID, media: emptyMedia });
     assert(!events.some(event => event.type === 'command-ack' && event.commandID === clearingID));
     await page.evaluate(() => window.__releaseOwnedMediaDecode());
     await loading; await page.evaluate(() => window.__ownedPendingClear);
     assert(events.some(event => event.type === 'command-ack' && event.commandID === clearingID));
-    assert.deepEqual(await pixels(), { status: [255, 0, 0], left: [0, 0, 0], right: [0, 0, 0] });
+    assert.deepEqual(await pixels(), { status: [255, 0, 0], left: [0, 0, 0], right: [0, 0, 0], previous: [0, 0, 0] });
     assert.deepEqual(errors, [], JSON.stringify(diagnostics));
     await command({ type: 'destroy' }); await page.close();
-    console.log(`SCENE_MEDIA PASS representation=${form} actualHooks=1 actualPNG=1 pausedFrameAck=1 fiveControls=1 emptyClears=1 delayedDecodeClear=1 closed=1`);
+    console.log(`SCENE_MEDIA PASS representation=${form} actualHooks=1 actualPNG=1 neutralColors=1 pausedFrameAck=1 fiveControls=1 emptyTexturesClear=1 decoderErrorVisible=1 uploadFailureBitmapClosed=1 samePNGNewIdentity=1 explicitRetry=1 delayedDecodeClear=1 closed=1`);
   }
 } finally { await browser?.close(); await new Promise(resolve => server.close(resolve)); }

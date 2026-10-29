@@ -118,3 +118,17 @@ reproducible Python/Node build tooling and source-built media dependencies.
   acceptance, both reproducible builds and identical renderer copies passed.
   Independent review had no remaining Important issues; all 69 changed/new files
   passed the publication scan. The external-resource scripting package is closed.
+
+- Completion record PR
+  [#49](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/49) merged at
+  `3583cc0`. The following system-media worktree includes that merge.
+- System-media runtime plan Tasks 1–3 are implemented locally: immutable native
+  projection, explicit renderer source and generation/revision-bound CEF data,
+  transport and independent artwork failures. The 40 media tests, 23 targeted
+  renderer checks, 464 Editor Node checks and actual Main/Editor loose/PKG
+  browser fixtures pass. Fresh native run `2f6128aa-d10f-4d12-979d-5fbc8edd6696`
+  passed build, protocol, real pixels/control/boundary tests and full shutdown;
+  the test host explicitly uses isolated credentials, not production Keychain.
+  Independent review of this batch has no remaining Important issues. Shared
+  Main playback ownership, consent/settings, full integration review and the
+  system-media PR remain open; this is not a completed or merged media feature.

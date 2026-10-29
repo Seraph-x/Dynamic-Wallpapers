@@ -295,6 +295,19 @@ std::string entryURL(const std::string& host, const char* entry) {
   }
   [self setSceneUserProperties:properties completion:completion];
 }
+- (void)setSceneMediaSnapshotJSONData:(NSData*)data mediaRevision:(uint64_t)revision completion:(void (^)(NSError*))completion {
+  DWRequireWebMainThread();
+  if (![data isKindOfClass:NSData.class] || revision == 0 || revision > 9007199254740991ULL) {
+    completion(DWWebError(@"Invalid scene media bytes or revision")); return;
+  }
+  try {
+    dw::validateSceneMediaSnapshot(std::string(static_cast<const char*>(data.bytes), data.length));
+  } catch (const std::exception& failure) { completion(DWWebError(@(failure.what()))); return; }
+  NSError* error = nil;
+  NSDictionary* snapshot = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+  if (!snapshot) { completion(error); return; }
+  [self sceneCommand:@{@"type": @"media", @"media": snapshot, @"mediaRevision": @(revision)} completion:completion];
+}
 - (BOOL)setSceneSpectrumLeft:(NSArray<NSNumber*>*)left right:(NSArray<NSNumber*>*)right error:(NSError**)error {
   DWRequireWebMainThread();
   auto state = _resources->state;
@@ -353,6 +366,10 @@ std::string entryURL(const std::string& host, const char* entry) {
     } else if (event.type == "script-issue-raw") {
       NSString* rawJSON = [[NSString alloc] initWithBytes:event.payload.data() length:event.payload.size() encoding:NSUTF8StringEncoding];
       if (_onSceneScriptRawIssue) _onSceneScriptRawIssue(rawJSON);
+    } else if (event.type == "media-artwork-error") {
+      if (_onSceneMediaArtworkError) _onSceneMediaArtworkError(@{@"message": @(event.message.c_str()), @"mediaRevision": @(event.mediaRevision)});
+    } else if (event.type == "media-control") {
+      if (_onSceneMediaControl) _onSceneMediaControl(@{@"command": @(event.mediaCommand.c_str()), @"mediaRevision": @(event.mediaRevision)});
     } else if (event.type == "command-ack") {
       NSString* identifier = @(event.commandID.c_str());
       void (^completion)(NSError*) = _sceneCompletions[identifier];

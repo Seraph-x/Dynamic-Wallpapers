@@ -210,11 +210,74 @@ static void scriptIssueRawUnicodeTests() {
   }
   require(session.events.size() == before);
 }
+static void mediaSnapshotTests() {
+  auto empty = @{@"hasMedia": @NO, @"state": @0, @"title": @"", @"artist": @"", @"album": @"",
+    @"albumArtist": @"", @"position": @0, @"duration": @0, @"thumbnail": NSNull.null};
+  validateSceneMediaSnapshot(json(empty));
+  NSMutableDictionary* actual = [empty mutableCopy];
+  actual[@"hasMedia"] = @YES; actual[@"state"] = @1; actual[@"title"] = @"真实 🎵\n<script>\0";
+  actual[@"position"] = @12.75; actual[@"duration"] = @180.5;
+  NSData* png = [NSData dataWithContentsOfFile:@"Tests/MediaAutomationHarness/Fixtures/owned-artwork.png"];
+  require(png != nil);
+  actual[@"thumbnail"] = [@"data:image/png;base64," stringByAppendingString:[png base64EncodedStringWithOptions:0]];
+  validateSceneMediaSnapshot(json(actual));
+  for (NSDictionary* patch in @[@{@"state": @YES}, @{@"state": @3}, @{@"hasMedia": @1}, @{@"title": NSNull.null},
+      @{@"position": @(-1)}, @{@"duration": @YES}, @{@"thumbnail": @"https://untrusted.example/image"},
+      @{@"thumbnail": @"data:image/png;base64,aGVsbG8="}, @{@"extra": @1}, @{@"hasMedia": @NO}]) {
+    NSMutableDictionary* invalid = [actual mutableCopy]; [invalid addEntriesFromDictionary:patch];
+    rejects([&] { validateSceneMediaSnapshot(json(invalid)); });
+  }
+  for (NSString* key in empty.allKeys) {
+    NSMutableDictionary* missing = [actual mutableCopy]; [missing removeObjectForKey:key];
+    rejects([&] { validateSceneMediaSnapshot(json(missing)); });
+  }
+  NSMutableDictionary* large = [actual mutableCopy]; large[@"title"] = [@"真实🎵" stringByPaddingToLength:20000 withString:@"真实🎵" startingAtIndex:0];
+  validateSceneMediaSnapshot(json(large)); // Media data does not use the bounded control-event body.
+  for (const std::string& invalid : std::vector<std::string>{"[]", "null", "invalid", json(actual) + ",", json(actual).substr(0, json(actual).size() - 1) + ",}"})
+    rejects([&] { validateSceneMediaSnapshot(invalid); });
+  auto duplicate = json(actual); duplicate.insert(1, "\"title\":\"duplicate\",");
+  rejects([&] { validateSceneMediaSnapshot(duplicate); });
+}
+static void mediaControlTests() {
+  NSMutableDictionary* event = [@{@"type": @"media-control", @"sceneID": @"scene", @"generation": @7,
+    @"command": @"play", @"mediaRevision": @1} mutableCopy];
+  for (NSString* command in @[@"play", @"pause", @"playPause", @"skipNext", @"skipPrevious"]) {
+    event[@"command"] = command;
+    auto value = parseSceneEvent(json(event), "scene", 7);
+    require(value.type == "media-control" && value.mediaCommand == command.UTF8String && value.mediaRevision == 1);
+  }
+  for (NSDictionary* patch in @[@{@"command": @"quit"}, @{@"command": @[]}, @{@"mediaRevision": @0},
+      @{@"mediaRevision": @YES}, @{@"mediaRevision": @9007199254740992ULL}, @{@"mediaRevision": @1.5},
+      @{@"sceneID": @"other"}, @{@"generation": @8}, @{@"extra": @1}]) {
+    NSMutableDictionary* invalid = [event mutableCopy]; [invalid addEntriesFromDictionary:patch];
+    rejects([&] { parseSceneEvent(json(invalid), "scene", 7); });
+  }
+  for (NSString* key in event.allKeys) {
+    NSMutableDictionary* missing = [event mutableCopy]; [missing removeObjectForKey:key];
+    rejects([&] { parseSceneEvent(json(missing), "scene", 7); });
+  }
+  SceneSession retired("scene", 7, "{}"); retired.retire();
+  require(!retired.receive(json(event)) && retired.events.empty());
+}
+static void mediaArtworkEventTests() {
+  NSDictionary* event = @{@"type": @"media-artwork-error", @"sceneID": @"scene", @"generation": @7,
+    @"message": @"Actual platform PNG decode failed", @"mediaRevision": @2};
+  auto value = parseSceneEvent(json(event), "scene", 7);
+  require(value.type == "media-artwork-error" && value.message == "Actual platform PNG decode failed" && value.mediaRevision == 2);
+  for (NSDictionary* patch in @[@{@"mediaRevision": @0}, @{@"mediaRevision": @YES}, @{@"message": @1},
+      @{@"message": @""}, @{@"command": @"play"}, @{@"sceneID": @"other"}, @{@"generation": @8}]) {
+    NSMutableDictionary* invalid = [event mutableCopy]; [invalid addEntriesFromDictionary:patch];
+    rejects([&] { parseSceneEvent(json(invalid), "scene", 7); });
+  }
+}
 int main() { @autoreleasepool {
   try {
     scriptIssueTests();
     scriptIssueTransferTests();
     scriptIssueRawUnicodeTests();
+    mediaSnapshotTests();
+    mediaControlTests();
+    mediaArtworkEventTests();
     require(sceneRoute("__runtime/index.html", "GET", false).mount == SceneMount::runtime);
     require(sceneRoute("__project/scene.pkg", "GET", false).path == "scene.pkg");
     require(sceneRoute("__scene/config", "GET", true).mount == SceneMount::config);

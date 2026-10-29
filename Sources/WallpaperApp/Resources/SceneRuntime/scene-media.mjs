@@ -1,6 +1,8 @@
 const fields = ['hasMedia', 'state', 'title', 'artist', 'album', 'albumArtist', 'position', 'duration', 'thumbnail'];
 const empty = () => ({ hasMedia: false, state: 0, title: '', artist: '', album: '', albumArtist: '', position: 0, duration: 0, thumbnail: null });
 
+// Validate the wire representation here; the actual browser decoder reports
+// image/decode/upload failures independently from valid metadata.
 function validThumbnail(value) {
   if (value === null) return true;
   if (typeof value !== 'string' || !value.startsWith('data:image/png;base64,')) return false;
@@ -37,9 +39,10 @@ function project(value) {
   };
 }
 
-export function createSceneMediaSource({ createMediaSource, report, onError }) {
+export function createSceneMediaSource({ createMediaSource, report, onError, onArtworkError }) {
   let disposed = false;
   let revision = 0;
+  let latest = empty(), failedThumbnail;
   const controls = Object.fromEntries(['play', 'pause', 'playPause', 'skipNext', 'skipPrevious'].map(command => [command, () => {
     if (disposed) throw new Error('System media source is disposed');
     if (!source.snapshot.hasMedia) throw new Error('No current system media item');
@@ -52,18 +55,32 @@ export function createSceneMediaSource({ createMediaSource, report, onError }) {
     }).catch(onError);
   }]));
   const source = createMediaSource(project(empty()), controls);
+  Object.defineProperty(source, 'mediaRevision', { get: () => revision });
+  Object.defineProperty(source, 'onArtworkError', { value(error, thumbnail, failedRevision) {
+    if (disposed || failedRevision !== revision || typeof thumbnail !== 'string' || latest.thumbnail !== thumbnail || failedThumbnail === thumbnail) return;
+    failedThumbnail = thumbnail;
+    source.set(project({ ...latest, thumbnail: null }));
+    void Promise.resolve().then(() => {
+      if (disposed || revision !== failedRevision) return;
+      return onArtworkError(error, failedRevision);
+    }).catch(onError);
+  } });
   return Object.freeze({
     source,
     replace(value, mediaRevision) {
       if (disposed) throw new Error('System media source is disposed');
       if (!Number.isSafeInteger(mediaRevision) || mediaRevision <= 0) throw new TypeError('Invalid system media revision');
-      source.set(project(validateMediaSnapshot(value)));
+      const validated = validateMediaSnapshot(value);
+      if (validated.thumbnail !== latest.thumbnail || mediaRevision !== revision) failedThumbnail = undefined;
+      latest = { ...validated };
+      source.set(project({ ...latest, thumbnail: latest.thumbnail === failedThumbnail ? null : latest.thumbnail }));
       revision = mediaRevision;
     },
     dispose() {
       if (disposed) return;
       disposed = true;
-      source.set(project(empty()));
+      latest = empty(); failedThumbnail = undefined;
+      source.set(project(latest));
     },
   });
 }

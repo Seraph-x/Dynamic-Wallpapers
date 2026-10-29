@@ -38,16 +38,23 @@ Logs: `/private/tmp/dw-system-media-projection-red.log`,
 
 ## Task 2: Explicit external renderer source
 
-Completed locally: 21 targeted Node checks and 464 Editor Node tests pass;
+Completed locally: 23 targeted Node checks and 464 Editor Node tests pass;
 Main and Editor actual full Chrome/Metal WebGL each pass loose/PKG metadata,
 PNG pixels, five controls, paused frame acknowledgement, empty clearing and a
 held real decoder followed by queued clear. Both reproducible bundle checks and
 five Editor packaging checks pass. Current shared engine SHA256:
-`0a45b3acc7a6ec65ca260f8a803ec6c276139aef5a0fb3a249a6f168481d27ca`.
+`86afbcd49cb54f87bad2bb78e97b29abf5b5e326d9a97fb27915258150b40e5a`.
 Evidence: `/private/tmp/dw-scene-media-rendering-delayed-clear.log`,
 `/private/tmp/dw-system-media-editor-unit.log`,
 `/private/tmp/dw-scene-media-unit-final.log`. Generated engine string literals
 retain pinned whitespace; authored-source diff checks exclude generated bundles.
+Independent review also exposed neutral-color writeback, stale current/previous
+GPU textures, an upload-failure bitmap leak and same-URI identity retirement.
+Their regression tests now exercise the actual decoder, GL upload failure,
+independent artwork error and explicit retry for both Main and Editor loose/PKG
+renderers. Evidence: `/private/tmp/dw-scene-media-identity-unit.log`,
+`/private/tmp/dw-scene-media-identity-browser.log`,
+`/private/tmp/dw-system-media-editor-final.log`.
 
 - [x] Consult `modern-web-guidance` before client code. Add failing Node tests in `scripts/test-scene-media.mjs` for full validation before mutation, identity/generation mismatch at the command boundary, unknown fields, invalid numeric/thumbnail values, empty item clearing all prior metadata/artwork, disposed controls and visible report failures.
 - [x] Run `node --test scripts/test-scene-media.mjs` and observe the missing behavior. Implement the pure source in `scene-media.mjs`. The source implements the engine's structural driver contract (`snapshot`, `update`, five controls), provides explicit neutral colors and empty lyrics, and never progresses time independently. Transport reports exactly `media-control` plus one of `play`, `pause`, `playPause`, `skipNext`, `skipPrevious`; report request failures explicitly without unhandled promises or fabricated player success.
@@ -65,10 +72,22 @@ button cannot control a newly selected player. The nine snapshot fields remain
 unchanged. Clear invalidates owner state synchronously; the ordered empty command
 then awaits its actual frame acknowledgement.
 
-- [ ] Add failing cases in `Tests/SceneRuntimeHarness/protocol-tests.mm`: fixed media-control events require exact scene/generation, exact fields and command allowlist. Native snapshot validation rejects malformed/nonfinite/wrong-type values and unknown/missing fields. Existing trusted-main-frame POST authorization remains mandatory.
-- [ ] Implement `validateSceneMediaSnapshot` in the native protocol and a fixed `media` scene command carrying the exact nine-field snapshot. Bind scene ID/generation and unpredictable command ID using the existing `sceneCommand` method. Publish actual PNG as JSON data without an arbitrary body/image cap. Existing 8192-byte control-event limit remains sufficient because artwork is never sent as an event.
-- [ ] Expose `setSceneMediaSnapshotJSONData:completion:` and `onSceneMediaControl` on `DWWebPage`; reject closed/unready pages and complete only on the existing frame-owned command acknowledgement. Extend the existing event drain. No generic Editor resource or command capability is granted. Test cancellation/late queued events and malformed data.
-- [ ] Run `bash scripts/build-scene-native-test.sh` with 180-second build supervisor and the existing protocol phase within 60 seconds. Actual CEF phase must receive native metadata/artwork, invoke all five real hook controls, reject stale/cross-frame requests and release the page. Commit `feat: add generation-bound CEF system media channel`.
+- [x] Add failing cases in `Tests/SceneRuntimeHarness/protocol-tests.mm`: fixed media-control events require exact scene/generation, exact fields and command allowlist. Native snapshot validation rejects malformed/nonfinite/wrong-type values and unknown/missing fields. Existing trusted-main-frame POST authorization remains mandatory.
+- [x] Implement `validateSceneMediaSnapshot` in the native protocol and a fixed `media` scene command carrying the exact nine-field snapshot. Bind scene ID/generation and unpredictable command ID using the existing `sceneCommand` method. Publish actual PNG as JSON data without an arbitrary body/image cap. Existing 8192-byte control-event limit remains sufficient because artwork is never sent as an event.
+- [x] Expose `setSceneMediaSnapshotJSONData:mediaRevision:completion:`, `onSceneMediaControl` and independent `onSceneMediaArtworkError` on `DWWebPage`; reject closed/unready pages and complete only on the existing frame-owned command acknowledgement. Extend the existing event drain. No generic Editor resource or command capability is granted. Test cancellation/late queued events and malformed data.
+- [x] Run `bash scripts/build-scene-native-test.sh` with 180-second build supervisor and the existing protocol phase within 60 seconds. Actual CEF phase must receive native metadata/artwork, invoke all five real hook controls, reject stale/cross-frame requests and release the page. Commit `feat: add generation-bound CEF system media channel`.
+
+Native build/protocol/runtime passed in runs
+`bad4c25f-6d67-4e05-8ffe-9882a816d69f` and fresh precommit
+`2f6128aa-d10f-4d12-979d-5fbc8edd6696`, including real loose/PKG PNG pixels,
+neutral colors, five native controls, malformed-data rejection, decoder failure,
+same-PNG/new-item retry, close cancellation, stale identity and blocked frames.
+All resources release through `DWWEB after-runtime-shutdown`. Earlier failures
+remain recorded: system Keychain blocked CEF shutdown; the explicitly selected
+`SCENE_NATIVE_TEST_KEYCHAIN=isolated` test-host mode avoids personal credentials
+under the previously approved harness policy and does not alter production
+Keychain behavior. CSP page-load failure and operation-close failure now retain
+their separate scopes, including late load callbacks during teardown.
 
 ## Task 4: Shared Main lifetime and delivery
 

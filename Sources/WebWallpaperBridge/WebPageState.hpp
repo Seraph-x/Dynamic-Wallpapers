@@ -8,6 +8,7 @@
 #include <unordered_set>
 
 struct DWWebPageState {
+  enum class FailureScope { operation, page };
   const std::string host;
   const int width, height;
   const float scale;
@@ -30,11 +31,13 @@ struct DWWebPageState {
   std::string error, closeError;
   std::unordered_set<std::string> optionalResourceURLs;
   DWWebPageState(std::string value, int w, int h, float s) : host(std::move(value)), width(w), height(h), scale(s) {}
-  void fail(const std::string& message) {
+  void fail(const std::string& message, FailureScope scope = FailureScope::operation) {
     if (audio) audio->fail(DWWebAudioError::stream);
     fprintf(stderr, "DWWEB ERROR origin=%s closing=%d %s\n", host.c_str(), int(closing.load()), message.c_str());
     std::lock_guard lock(errorMutex);
-    auto& destination = closing ? closeError : error;
+    // Content callbacks may arrive after close starts. Their actual error stays
+    // visible as a page failure; only teardown failures own the close outcome.
+    auto& destination = scope == FailureScope::page ? error : (closing ? closeError : error);
     if (destination.empty()) destination = message;
   }
   std::string failure(bool duringClose) {
