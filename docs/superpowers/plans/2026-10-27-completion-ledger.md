@@ -23,7 +23,7 @@ reproducible Python/Node build tooling and source-built media dependencies.
   capture/undo safety, exact orphan reclamation and visible failures.
 - [x] Main per-wallpaper properties — persistent typed overrides, UI/reset,
   restored initial state, live commands and lifetime tests.
-- [ ] Real system media — provider scope choice, permissions/native source,
+- [x] Real system media — provider scope choice, permissions/native source,
   metadata/transport, explicit unavailable states and end-to-end tests.
 - [ ] Dependency source/build/distribution closure — provable source/patch
   archives, complete notices, actual rebuild/verification and packaging gates.
@@ -168,3 +168,20 @@ reproducible Python/Node build tooling and source-built media dependencies.
   were regenerated and all 42 packaging checks pass. No remote CI checks are
   configured. Broad-suite UI/cadence limits and final distribution acceptance
   remain recorded separately; merge is not yet claimed.
+- System-media PR [#50](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/50)
+  is merged as `c19508575322bba9fc70afd35e2cdcccaa311533`, from exact reviewed
+  feature head `f2cd1cd9dfe74e6066f9b73679395ff4c6768ae0`. Its final follow-up
+  changes only the actual material-index hash/size and verification records;
+  all 42 packaging tests passed again at that head. There are no configured
+  remote checks. This completes native-to-playing-scene integration and consent
+  delivery; live vendor-app playback stays explicitly unverified. The complete
+  Swift suite's unrelated inspector/cadence failures remain visible, and final
+  distribution/releases are still separate open work packages.
+- Current five-language help and README now explain actual persisted Main scene
+  properties, explicit Music/Spotify consent, playing-scene disclosure, provider
+  and artwork recovery, unsupported lyrics/colors and empty Editor media. The
+  historical advanced-authoring roadmap now links delivered areas to merged
+  PRs without claiming released binaries. Generated offline help and 14 help
+  checks pass; documentation review's source/release scope, trust wording and
+  repository-anchor issues are corrected. Documentation PR integration remains
+  pending until the final gate below.

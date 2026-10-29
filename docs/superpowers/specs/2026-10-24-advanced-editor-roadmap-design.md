@@ -2,6 +2,22 @@
 
 Status: the user approved the five-PR scope and acceptance standard on 2026-10-24.
 
+Delivery update (2026-10-30): this is the historical approved design, not a list
+of unimplemented features. The five areas were delivered through smaller merged
+PRs, with current usage and limitations in [Editor documentation](../../../Editor/README.md).
+
+| Approved area | Merged delivery | Current reference |
+| --- | --- | --- |
+| Resource transactions | [#12](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/12), plus collection #38 | [Resource ownership](../../editor-model-resources.md) |
+| Property timeline | [#13](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/13) | [Timeline](../../editor-timeline.md) |
+| Skeleton and skin | [#15–20](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/20) | [Model workspace](../../editor-model-workspace.md) |
+| Skeletal animation | [#21–27](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/27) | [Clips](../../editor-clips.md), [FK](../../editor-fk-posing.md), [IK](../../editor-ik-posing.md) |
+| SceneScript IDE | [#28–33](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/33), external resources #41/#47/#48 | [Script workspace](../../editor-script-workspace.md), [resource scripts](../../editor-resource-script-foundation.md) |
+
+These merges establish source delivery. Final packaged-release acceptance and
+publication are tracked separately in the [completion ledger](../plans/2026-10-27-completion-ledger.md).
+
+
 ## Product contract
 
 The standalone Editor gains keyframe animation, skeletal authoring and a

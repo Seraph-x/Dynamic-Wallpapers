@@ -29,7 +29,7 @@ Imports create independent copies in the library. Changes to the original files 
 
 - Set different wallpapers per display or use **All Displays · Synchronized**.
 - Use menu-bar controls to pause, resume, switch wallpapers or mute output. Configure volume per item or playlist entry.
-- Scenes and web pages use fixed playlist durations. Scene playback uses the author’s default properties; compatibility depends on the pinned WebWallGL engine.
+- Scenes and web pages use fixed playlist durations. Published 1.0.0 uses the author’s default scene properties; source builds also support saved per-wallpaper overrides; compatibility depends on the pinned WebWallGL engine.
 - Enable **Web Interaction** and its macOS permissions for empty-desktop clicks and scene mouse movement. It is off by default.
 - Publish supported media to the bundled native screen saver. Web and scene projects are excluded.
 - Optionally synchronize a still system wallpaper or transcode eligible videos from the app.
@@ -39,6 +39,12 @@ The app and its bundled offline help support **简体中文, English, 日本語,
 ## System audio response (source builds)
 
 Optional system audio response uses Core Audio Tap on macOS 14.2+. Enable it in Settings → General → Sound and allow system audio recording when prompted. Playing scenes share one stereo spectrum capture; wallpaper output mute is independent. Capture excludes this app’s audio, uses no microphone, and does not save or upload audio. Pausing/closing all scenes or disabling the setting stops capture. Capture errors remain visible and offer an explicit retry. Other app features retain macOS 14.0 support. These additions are not part of the published 1.0.0 binaries.
+
+## Music and Spotify for playing scenes (source builds)
+
+In **Settings → General → Media Information and Controls**, choose **Off**, **Music** or **Spotify**. The default is Off. Selection saves the source without requesting consent; click **Authorize Player** to request macOS Automation access. The selected player must already be running. Playing scenes receive its current metadata and available artwork and may use five playback controls. Use only scenes you trust. Paused/preparing scenes receive empty media, and disabling the source clears it. Other players and a system-wide Now Playing source are unsupported.
+
+Metadata and artwork errors remain visible with separate retry actions. Lyrics and artwork-derived colors are unavailable. Editor previews keep empty system media and have no player authorization setting. This feature is not included in published 1.0.0 binaries. See the [five-language guide](docs/help/en.md) for permissions and recovery.
 
 ## Standalone Editor (source builds)
 
@@ -98,6 +104,8 @@ capabilities. See the [supported API catalogue](docs/editor-script-api.md).
 [Runtime diagnostics](docs/editor-script-diagnostics.md) retain genuine script
 issues and renderer warnings, link to matching current source or a read-only
 captured view, and preserve invalid drafts when viewing older previews.
+
+The [external resource Script workspace](docs/editor-resource-script-foundation.md) edits supported material/particle sources in their owning resources. Check uses the actual offline compiler; Apply publishes one resource/history transaction, Revert restores the captured source, and saved loose/PKG exports retain the edited resources. Independent preview executes supported sinks and links retained diagnostics back to the matching inline or external source. Unsupported bindings and missing resources remain explicit errors.
 
 The two applications share source modules in this repository and ship their own
 runtime dependencies. Editor has its own version (currently 0.1.0), bundle
