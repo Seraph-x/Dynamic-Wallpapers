@@ -4,6 +4,61 @@ import {patchSceneResourceScripts} from './scene-resource-script-patches.mjs';
 // Every anchor count is part of the pin: unknown upstream source is rejected.
 const edits=[
  {
+  id:'explicit-external-media-precedence',reason:'A selected native provider remains authoritative when empty; never substitute another live player, wallpaper audio or simulated media.',
+  before:'      const currentMediaDriver = () => hasLiveMedia(liveMediaOverride) ? liveMediaOverride : hasLiveMedia(rt.mediaSource) ? rt.mediaSource : (wallpaperAudio.hasCurrent() ? wallpaperAudio : null) ?? simMedia;',
+  after:'      const currentMediaDriver = () => rt.mediaSource ?? (hasLiveMedia(liveMediaOverride) ? liveMediaOverride : (wallpaperAudio.hasCurrent() ? wallpaperAudio : null) ?? simMedia);',
+ },
+ {
+  id:'explicit-external-media-control-precedence',reason:'Transport actions target the same explicitly selected provider as metadata, including an empty external source.',
+  before:'      const controlMediaDriver = () => mediaButtons.pickControlDriver(liveMediaOverride, injectedControlSource(), currentMediaDriver());',
+  after:'      const controlMediaDriver = () => mediaButtons.hasMediaControl(rt.mediaSource) ? rt.mediaSource : mediaButtons.pickControlDriver(liveMediaOverride, injectedControlSource(), currentMediaDriver());',
+ },
+ {
+  id:'media-artwork-task-ownership',reason:'Track real asynchronous PNG decoding/upload so a paused media acknowledgement can wait for its pixels.',
+  before:'      let mediaThumbnailLastSrc;',
+  after:'      let mediaThumbnailLastSrc;\n      let mediaArtworkTask;',
+ },
+ {
+  id:'media-empty-artwork-invalidation',reason:'Clearing an item invalidates its pending upload before it can attach artwork or colors to a later empty snapshot.',
+  before:'            if (mediaThumbnailLastSrc !== snap.thumbnail && typeof snap.thumbnail === "string" && snap.thumbnail) {',
+  after:'            if (!snap.hasThumbnail || !snap.thumbnail) mediaThumbnailLastSrc = void 0;\n            if (mediaThumbnailLastSrc !== snap.thumbnail && typeof snap.thumbnail === "string" && snap.thumbnail) {',
+ },
+ {
+  id:'media-artwork-awaitable-upload',reason:'Retain the actual source decode/upload promise without introducing a new polling or simulated path.',
+  before:'              void (async () => {\n                try {\n                  const blob = await fetch(nextSrc, { cache: "no-store" }).then(',
+  after:'              mediaArtworkTask = (async () => {\n                try {\n                  const blob = await fetch(nextSrc, { cache: "no-store" }).then(',
+ },
+ {
+  id:'media-artwork-retired-upload-rejection',reason:'Late artwork decode cannot touch retired GPU resources or a newer/empty snapshot.',
+  before:'                  if (mediaThumbnailLastSrc !== nextSrc) {',
+  after:'                  if (disposed || mediaThumbnailLastSrc !== nextSrc || mediaSnapshot().thumbnail !== nextSrc) {',
+ },
+ {
+  id:'media-native-png-without-fetch',reason:'Decode validated native PNG data directly into a Blob; the trusted shell keeps connect-src self and never needs data-URL network access.',
+  before:`                  const blob = await fetch(nextSrc, { cache: "no-store" }).then(
+                    (r) => r.ok ? r.blob() : null
+                  );`,
+  after:`                  const nativePNGPrefix = "data:image/png;base64,";
+                  const blob = nextSrc.startsWith(nativePNGPrefix)
+                    ? new Blob([Uint8Array.from(atob(nextSrc.slice(nativePNGPrefix.length)), c => c.charCodeAt(0))], { type: "image/png" })
+                    : await fetch(nextSrc, { cache: "no-store" }).then(r => r.ok ? r.blob() : null);`,
+ },
+ {
+  id:'media-refresh-frame-ownership',reason:'Expose the existing real paused/playing frame promise through a fixed data-only media refresh method.',
+  before:'  let applyLiveImpl;\n  let pauseImpl;',
+  after:'  let applyLiveImpl;\n  let refreshMediaImpl;\n  let pauseImpl;',
+ },
+ {
+  id:'media-refresh-controller',reason:'Media updates await an actual frame without writing unrelated user properties or granting Editor controls.',
+  before:'    applyUserProperties(props) {\n      if (applyLiveImpl) applyLiveImpl(props);',
+  after:'    refreshMedia() {\n      if (!refreshMediaImpl) return Promise.reject(new Error("Scene media is not ready"));\n      return refreshMediaImpl();\n    },\n    applyUserProperties(props) {\n      if (applyLiveImpl) applyLiveImpl(props);',
+ },
+ {
+  id:'public-media-frame-result',reason:'Native command acknowledgements wait for the frame that consumes the newly selected external snapshot.',
+  before:'      rt.mediaSource = src ?? null;\n      rt.mediaDisabled = false;\n    },',
+  after:'      rt.mediaSource = src ?? null;\n      rt.mediaDisabled = false;\n      return rt.sceneCtl?.refreshMedia?.();\n    },',
+ },
+ {
   id:'text-binding-preflight',reason:'Reject invalid directly bound text/font values before a live patch changes any properties.',
   before:'      const applyLiveProps = (wire) => {\n        if (disposed) return;\n        const properties = scene.properties ||= {};',
   after:`      const applyLiveProps = (wire) => {
@@ -117,6 +172,17 @@ const edits=[
  {
   id:'public-property-frame-result',reason:'Callers may await data acceptance and actual drawing without receiving Editor controls.',
   before:'      rt.sceneCtl?.applyUserProperties(wire);',after:'      return rt.sceneCtl?.applyUserProperties(wire);',
+ },
+ {
+  id:'media-refresh-render-frame',reason:'Bind media refresh to the same frame-owned renderer promise after scene preparation.',
+  before:'      applyLiveImpl = props => { applyLiveProps(props); return renderOnce(); };',
+  after:`      applyLiveImpl = props => { applyLiveProps(props); return renderOnce(); };
+      refreshMediaImpl = async () => {
+        await renderOnce();
+        await mediaArtworkTask;
+        if (disposed) throw new Error("scene disposed");
+        return renderOnce();
+      };`,
  },
 ];
 

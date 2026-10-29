@@ -28,21 +28,71 @@
     "treeShaking": true
   },
   "files": {
-    "Sources/WallpaperApp/Resources/SceneRuntime/webwallgl.bundle.mjs": "822c8a221bac0f8b74d8bd4ccec0106ea4a64af79c29e8699b51bcd2937ba31c"
+    "Sources/WallpaperApp/Resources/SceneRuntime/webwallgl.bundle.mjs": "0a45b3acc7a6ec65ca260f8a803ec6c276139aef5a0fb3a249a6f168481d27ca"
   },
   "localPatches": {
     "source": "scripts/scene-engine-patches.mjs",
-    "sha256": "fb76ea866e7b1bc35576326d84d1909a594a0e0f28fcc2a2c6b3eb38baa8007f",
+    "sha256": "417c25364b882491f84e0ecc6ba2204aa6b5ce1b0fff3bcef33892cadb4ceb43",
     "inputs": {
-      "scene-engine-patches.mjs": "a980eaea4919976350c7aab42815e26cb0875f009b9fd409b812eb1c1dffd805",
+      "scene-engine-patches.mjs": "eb03c7e23269e81d2bb8d8b2f33bc60c31a60134f424c420ef76dfdef8ecef4f",
       "scene-resource-script-patches.mjs": "ac97b6ac818367a7235ecca710a719e50e7ea9cd814ee8381a26ce2e6a71d753",
       "../Resources/SceneScript/resource-source.mjs": "d4ec82ec31c497a77a821d1573dcfd7717ef2fe43d3d73c6a55f121fd7651240",
       "../Resources/SceneScript/resource-runtime.mjs": "0b965f7bc9bdea230051230e42bc7ef822bbad5b31428ac67feb7f3f377decb8",
       "../Resources/SceneScript/resource-contract.mjs": "77e42d4fe914d9ad332c72df1341b860212f191fa8dea3564475e800eb996f06",
       "../Resources/SceneScript/json-spans.mjs": "57c09884961c03bcf94beabc039a6dd2b9e750deb2097ba97b15bc81066b7a66"
     },
-    "patchedEntrySHA256": "093dea4bb002597aa96dcc3a38a824ce844535af8ce7098d9adcf415eb36d561",
+    "patchedEntrySHA256": "df425783b90e26c5d5bedf1e8f41d5465c975c07bb8f95c7bc3baa74d3702e9e",
     "items": [
+      {
+        "id": "explicit-external-media-precedence",
+        "reason": "A selected native provider remains authoritative when empty; never substitute another live player, wallpaper audio or simulated media.",
+        "matches": 1
+      },
+      {
+        "id": "explicit-external-media-control-precedence",
+        "reason": "Transport actions target the same explicitly selected provider as metadata, including an empty external source.",
+        "matches": 1
+      },
+      {
+        "id": "media-artwork-task-ownership",
+        "reason": "Track real asynchronous PNG decoding/upload so a paused media acknowledgement can wait for its pixels.",
+        "matches": 1
+      },
+      {
+        "id": "media-empty-artwork-invalidation",
+        "reason": "Clearing an item invalidates its pending upload before it can attach artwork or colors to a later empty snapshot.",
+        "matches": 1
+      },
+      {
+        "id": "media-artwork-awaitable-upload",
+        "reason": "Retain the actual source decode/upload promise without introducing a new polling or simulated path.",
+        "matches": 1
+      },
+      {
+        "id": "media-artwork-retired-upload-rejection",
+        "reason": "Late artwork decode cannot touch retired GPU resources or a newer/empty snapshot.",
+        "matches": 1
+      },
+      {
+        "id": "media-native-png-without-fetch",
+        "reason": "Decode validated native PNG data directly into a Blob; the trusted shell keeps connect-src self and never needs data-URL network access.",
+        "matches": 1
+      },
+      {
+        "id": "media-refresh-frame-ownership",
+        "reason": "Expose the existing real paused/playing frame promise through a fixed data-only media refresh method.",
+        "matches": 1
+      },
+      {
+        "id": "media-refresh-controller",
+        "reason": "Media updates await an actual frame without writing unrelated user properties or granting Editor controls.",
+        "matches": 1
+      },
+      {
+        "id": "public-media-frame-result",
+        "reason": "Native command acknowledgements wait for the frame that consumes the newly selected external snapshot.",
+        "matches": 1
+      },
       {
         "id": "text-binding-preflight",
         "reason": "Reject invalid directly bound text/font values before a live patch changes any properties.",
@@ -96,6 +146,11 @@
       {
         "id": "public-property-frame-result",
         "reason": "Callers may await data acceptance and actual drawing without receiving Editor controls.",
+        "matches": 1
+      },
+      {
+        "id": "media-refresh-render-frame",
+        "reason": "Bind media refresh to the same frame-owned renderer promise after scene preparation.",
         "matches": 1
       },
       {

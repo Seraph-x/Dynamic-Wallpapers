@@ -89,7 +89,7 @@ def verify_offline_resources(resources, root):
             path = localized / folder / name
             if not path.is_file() or sha256(path) != digest:
                 raise ValueError(f'Editor resource differs from pinned provenance: {folder}/{name}')
-    shared = ('index.html', 'scene.css', 'scene-runtime.mjs', 'scene-spectrum.mjs', 'scene-properties.mjs',
+    shared = ('index.html', 'scene.css', 'scene-runtime.mjs', 'scene-spectrum.mjs', 'scene-properties.mjs', 'scene-media.mjs',
               'scene-source.mjs', 'scene-protocol.mjs', 'webwallgl.bundle.mjs')
     if not {'scene-shell.mjs', 'scene-preview-api.mjs', *shared}.issubset(provenance['previewFiles']):
         raise ValueError('Missing Editor preview resource provenance')

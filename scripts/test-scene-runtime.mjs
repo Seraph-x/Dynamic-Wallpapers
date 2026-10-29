@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { createMediaSource } from './scene-media-test-input.mjs';
 const base = new URL('../Sources/WallpaperApp/Resources/SceneRuntime/', import.meta.url);
 const load = name => import(new URL(name, base));
 const config = { version: 1, sceneID: 'fixture', generation: 1, project: { representation: 'loose', entryPath: 'scene.json' }, viewport: { width: 640, height: 360 }, fps: 30, fit: 'cover', volume: 1, muted: true };
@@ -84,8 +85,8 @@ test('runtime publishes engine first-frame readiness, preserves pause and emits 
     setFps: value => calls.push(['fps', value]), pushPointer: (...args) => calls.push(['pointer', ...args]),
     pointerLeave: () => calls.push('leave'), destroy: value => calls.push(['destroy', value]),
   };
-  const runtime = startSceneRuntime(config, { element: {}, sourceOptions: { origin: 'https://fixture.test' }, report: async value => events.push(value), createScene: (_element, options) => {
-    assert.equal(options.volume, 0); assert.equal(options.autoQuality, false); assert.equal(options.media, null);
+  const runtime = startSceneRuntime(config, { createMediaSource, element: {}, sourceOptions: { origin: 'https://fixture.test' }, report: async value => events.push(value), createScene: (_element, options) => {
+    assert.equal(options.volume, 0); assert.equal(options.autoQuality, false); assert.equal(options.media.snapshot.hasMedia, false);
     assert.ok([...options.audio.snapshot().left].every(value => value === 0));
     return instance;
   } });
@@ -103,7 +104,7 @@ test('runtime publishes engine first-frame readiness, preserves pause and emits 
 test('destroy during preparation never publishes ready and stale commands visibly fail', async () => {
   const { startSceneRuntime } = await load('scene-runtime.mjs');
   const events = []; let finishLoad, destroyCount = 0;
-  const runtime = startSceneRuntime(config, { element: {}, sourceOptions: { origin: 'https://fixture.test' }, report: async value => events.push(value), createScene: () => ({ load: () => new Promise(resolve => { finishLoad = resolve; }), destroy: () => destroyCount++ }) });
+  const runtime = startSceneRuntime(config, { createMediaSource, element: {}, sourceOptions: { origin: 'https://fixture.test' }, report: async value => events.push(value), createScene: () => ({ load: () => new Promise(resolve => { finishLoad = resolve; }), destroy: () => destroyCount++ }) });
   runtime.destroy(); finishLoad();
   await assert.rejects(runtime.ready, /destroyed/);
   assert.equal(events.length, 0); assert.equal(destroyCount, 1);
@@ -115,7 +116,7 @@ test('paused clicks and stale commands report an explicit failure without an ack
   try {
     for (const payload of [{ type: 'pointer', kind: 'click', x: .5, y: .5 }, { type: 'play', generation: 2 }]) {
       const events = [];
-      const runtime = startSceneRuntime(config, { element: {}, sourceOptions: { origin: 'https://fixture.test' }, report: async event => events.push(event), createScene: () => ({ paused: true, load: async () => {}, destroy: () => {} }) });
+      const runtime = startSceneRuntime(config, { createMediaSource, element: {}, sourceOptions: { origin: 'https://fixture.test' }, report: async event => events.push(event), createScene: () => ({ paused: true, load: async () => {}, destroy: () => {} }) });
       await runtime.ready;
       await runtime.command({ id: 'failure', sceneID: config.sceneID, generation: 1, ...payload });
       assert.equal(events.filter(event => event.type === 'error').length, 1);
@@ -130,6 +131,7 @@ test('properties validate captured metadata, await renderer acknowledgement and 
   const events = [], calls = [];
   let finishUpdate, reads = 0, paused = true;
   const runtime = startSceneRuntime(config, {
+    createMediaSource,
     element: {}, report: async value => events.push(value),
     sourceOptions: { origin: 'https://fixture.test', fetch: async () => { reads++; return new Response(JSON.stringify({ type: 'scene', general: { properties: { amount: { type: 'slider', value: .25, min: 0, max: 1 } } } })); } },
     createScene: () => ({
@@ -159,6 +161,7 @@ test('an invalid property patch applies nothing and exposes error without a succ
     for (const properties of [{ enabled: false, amount: 5 }, { missing: 1 }, { legacy: 2 }]) {
       const events = [], calls = [];
       const runtime = startSceneRuntime(config, {
+        createMediaSource,
         element: {}, report: async event => events.push(event),
         sourceOptions: { origin: 'https://fixture.test', fetch: async () => new Response(JSON.stringify({ type: 'scene', preset: { legacy: 1 }, general: { properties: { enabled: { type: 'bool', value: true }, amount: { type: 'slider', value: .5, max: 1 } } } })) },
         createScene: () => ({ load: async () => {}, setProperties: value => calls.push(value), destroy: () => {} }),
@@ -177,6 +180,7 @@ test('property renderer rejection stays visible and destroy during await never a
     for (const disposed of [false, true]) {
       const events = []; let finish, reject;
       const runtime = startSceneRuntime(config, {
+        createMediaSource,
         element: {}, report: async event => events.push(event),
         sourceOptions: { origin: 'https://fixture.test', fetch: async () => new Response('{"type":"scene","general":{"properties":{"enabled":{"type":"bool","value":true}}}}') },
         createScene: () => ({ load: async () => {}, setProperties: () => new Promise((resolve, fail) => { finish = resolve; reject = fail; }), destroy: () => {} }),
@@ -190,4 +194,40 @@ test('property renderer rejection stays visible and destroy during await never a
       if (!disposed) assert.match(events.find(event => event.type === 'error').message, /renderer rejected/);
     }
   } finally { console.error = original; }
+});
+
+test('media commands bind identity and revision and acknowledge only the actual ordered frame', async () => {
+  const { validateCommand } = await load('scene-protocol.mjs');
+  const { startSceneRuntime } = await load('scene-runtime.mjs');
+  const empty = { hasMedia: false, state: 0, title: '', artist: '', album: '', albumArtist: '', position: 0, duration: 0, thumbnail: null };
+  const current = { ...empty, hasMedia: true, state: 1, title: '实际标题', position: 2.5, duration: 12 };
+  const payload = { id: 'm', type: 'media', media: current, mediaRevision: 1, sceneID: 'fixture', generation: 1 };
+  assert.equal(validateCommand(payload, config), payload);
+  for (const patch of [{ sceneID: 'other' }, { generation: 2 }, { mediaRevision: 0 }, { media: null }, { run: 'anything' }]) {
+    assert.throws(() => validateCommand({ ...payload, ...patch }, config));
+  }
+  const events = [], frames = []; let source;
+  const runtime = startSceneRuntime(config, {
+    createMediaSource, element: {}, sourceOptions: { origin: 'https://fixture.test' }, report: async event => events.push(event),
+    createScene: (_element, options) => {
+      source = options.media;
+      return { load: async () => {}, destroy: () => {}, setMedia: value => {
+        assert.equal(value, source);
+        return new Promise(resolve => frames.push({ snapshot: { ...value.snapshot }, finish: resolve }));
+      } };
+    },
+  });
+  await runtime.ready;
+  const first = runtime.command(payload);
+  const clear = runtime.command({ ...payload, id: 'clear', media: empty, mediaRevision: 2 });
+  await waitForDispatch(() => frames.length === 1);
+  assert.equal(frames[0].snapshot.title, current.title);
+  assert.equal(events.filter(event => event.type === 'command-ack').length, 0);
+  frames[0].finish(); await first;
+  await waitForDispatch(() => frames.length === 2);
+  assert.equal(frames[1].snapshot.hasMedia, false);
+  frames[1].finish(); await clear;
+  assert.deepEqual(events.filter(event => event.type === 'command-ack').map(event => event.commandID), ['m', 'clear']);
+  runtime.destroy();
+  assert.throws(() => source.play(), /disposed/);
 });

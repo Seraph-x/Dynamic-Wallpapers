@@ -1,4 +1,5 @@
 import { createPreviewSceneFactory } from './scene-preview-api.mjs';
+import { createMediaSource } from './webwallgl.bundle.mjs';
 import { startSceneRuntime } from './scene-runtime.mjs';
 import { pollSpectrum } from './scene-spectrum.mjs';
 
@@ -13,6 +14,7 @@ const report = async (event, {signal} = {}) => {
     if (!result.ok) throw new Error(`Scene event ${event.type}: HTTP ${result.status}`);
 };
 const runtime = startSceneRuntime(config, {
+  createMediaSource,
   createScene: createPreviewSceneFactory({...config,report}),
   element: document.getElementById('scene'),
   startSpectrum: (source, onError) => pollSpectrum(source, { onError }),

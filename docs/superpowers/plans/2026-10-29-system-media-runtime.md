@@ -38,14 +38,32 @@ Logs: `/private/tmp/dw-system-media-projection-red.log`,
 
 ## Task 2: Explicit external renderer source
 
-- [ ] Consult `modern-web-guidance` before client code. Add failing Node tests in `scripts/test-scene-media.mjs` for full validation before mutation, identity/generation mismatch at the command boundary, unknown fields, invalid numeric/thumbnail values, empty item clearing all prior metadata/artwork, disposed controls and visible report failures.
-- [ ] Run `node --test scripts/test-scene-media.mjs` and observe the missing behavior. Implement the pure source in `scene-media.mjs`. The source implements the engine's structural driver contract (`snapshot`, `update`, five controls), provides explicit neutral colors and empty lyrics, and never progresses time independently. Transport reports exactly `media-control` plus one of `play`, `pause`, `playPause`, `skipNext`, `skipPrevious`; report request failures explicitly without unhandled promises or fabricated player success.
-- [ ] Add runtime integration tests, then wire `scene-runtime.mjs` and its strict command protocol: always pass this explicit source, accept `media` snapshot commands only after full validation, await its actual frame, and dispose controls with the runtime. Editor scene preview stays empty on the same shared runtime; workbench preview stays media-disabled. Control failure is reported visibly and does not masquerade as player success.
-- [ ] Add an exact-match patch changing `currentMediaDriver` to honor `rt.mediaSource` even when `snapshot.hasMedia` is false. Add a regression in `scripts/test-scene-engine-patches.mjs`; regenerate Main and both Editor bundle copies with the existing bundle scripts, recording all hashes. Do not edit upstream cached input.
-- [ ] Extend actual WebGL loose/PKG fixtures to include wallpaper audio and real media hooks. Verify external current and empty snapshots, actual thumbnail pixels, all five control callbacks, no simulated/audio fallback and paused/resumed clearing. Hold an old publication across pause/source-disable and prove it cannot restore old metadata/artwork after the clear acknowledgement; use native revision/invalidation and ordered commands rather than a timing assumption. Expose the existing `renderOnce()` through a recorded `sceneCtl` media-refresh method, return its promise from `instance.setMedia`, and prove paused pixels before acknowledgement without applying unrelated user properties.
-- [ ] Run Node/runtime/engine tests and `node scripts/scene-bundle.mjs --check`, Editor bundle reproducibility checks, then the existing supervised full browser phases (60 seconds each). Commit `feat: deliver explicit external media to scene rendering`.
+Completed locally: 21 targeted Node checks and 464 Editor Node tests pass;
+Main and Editor actual full Chrome/Metal WebGL each pass loose/PKG metadata,
+PNG pixels, five controls, paused frame acknowledgement, empty clearing and a
+held real decoder followed by queued clear. Both reproducible bundle checks and
+five Editor packaging checks pass. Current shared engine SHA256:
+`0a45b3acc7a6ec65ca260f8a803ec6c276139aef5a0fb3a249a6f168481d27ca`.
+Evidence: `/private/tmp/dw-scene-media-rendering-delayed-clear.log`,
+`/private/tmp/dw-system-media-editor-unit.log`,
+`/private/tmp/dw-scene-media-unit-final.log`. Generated engine string literals
+retain pinned whitespace; authored-source diff checks exclude generated bundles.
+
+- [x] Consult `modern-web-guidance` before client code. Add failing Node tests in `scripts/test-scene-media.mjs` for full validation before mutation, identity/generation mismatch at the command boundary, unknown fields, invalid numeric/thumbnail values, empty item clearing all prior metadata/artwork, disposed controls and visible report failures.
+- [x] Run `node --test scripts/test-scene-media.mjs` and observe the missing behavior. Implement the pure source in `scene-media.mjs`. The source implements the engine's structural driver contract (`snapshot`, `update`, five controls), provides explicit neutral colors and empty lyrics, and never progresses time independently. Transport reports exactly `media-control` plus one of `play`, `pause`, `playPause`, `skipNext`, `skipPrevious`; report request failures explicitly without unhandled promises or fabricated player success.
+- [x] Add runtime integration tests, then wire `scene-runtime.mjs` and its strict command protocol: always pass this explicit source, accept `media` snapshot commands only after full validation, await its actual frame, and dispose controls with the runtime. Editor scene preview stays empty on the same shared runtime; workbench preview stays media-disabled. Control failure is reported visibly and does not masquerade as player success.
+- [x] Add an exact-match patch changing `currentMediaDriver` to honor `rt.mediaSource` even when `snapshot.hasMedia` is false. Add a regression in `scripts/test-scene-engine-patches.mjs`; regenerate Main and both Editor bundle copies with the existing bundle scripts, recording all hashes. Do not edit upstream cached input.
+- [x] Extend actual WebGL loose/PKG fixtures to include wallpaper audio and real media hooks. Verify external current and empty snapshots, actual thumbnail pixels, all five control callbacks, no simulated/audio fallback and paused/resumed clearing. Hold an old publication across pause/source-disable and prove it cannot restore old metadata/artwork after the clear acknowledgement; use native revision/invalidation and ordered commands rather than a timing assumption. Expose the existing `renderOnce()` through a recorded `sceneCtl` media-refresh method, return its promise from `instance.setMedia`, and prove paused pixels before acknowledgement without applying unrelated user properties.
+- [x] Run Node/runtime/engine tests and `node scripts/scene-bundle.mjs --check`, Editor bundle reproducibility checks, then the existing supervised full browser phases (60 seconds each). Commit `feat: deliver explicit external media to scene rendering`.
 
 ## Task 3: Private CEF data and transport boundary
+
+The media command envelope and each control event also carry a positive safe
+integer `mediaRevision`. The owner changes it when the provider/track or instance
+demand changes, checks it before dispatch, and rejects stale actions so an old
+button cannot control a newly selected player. The nine snapshot fields remain
+unchanged. Clear invalidates owner state synchronously; the ordered empty command
+then awaits its actual frame acknowledgement.
 
 - [ ] Add failing cases in `Tests/SceneRuntimeHarness/protocol-tests.mm`: fixed media-control events require exact scene/generation, exact fields and command allowlist. Native snapshot validation rejects malformed/nonfinite/wrong-type values and unknown/missing fields. Existing trusted-main-frame POST authorization remains mandatory.
 - [ ] Implement `validateSceneMediaSnapshot` in the native protocol and a fixed `media` scene command carrying the exact nine-field snapshot. Bind scene ID/generation and unpredictable command ID using the existing `sceneCommand` method. Publish actual PNG as JSON data without an arbitrary body/image cap. Existing 8192-byte control-event limit remains sufficient because artwork is never sent as an event.
@@ -72,6 +90,6 @@ Logs: `/private/tmp/dw-system-media-projection-red.log`,
 
 - [ ] Use `requesting-code-review` with a read-only independent reviewer for the whole change, fix material issues and rerun affected checks.
 - [ ] Run `verification-before-completion`: complete relevant Swift and Node suites, strict native harness build (180 seconds), each actual browser/CEF/Apple Event/TLS phase (60 seconds), same-input reproducible Main/Editor bundles, dependency/signature checks and changed-file sanitized-public-export gate.
-- [ ] Inspect final diff, preserve source originals and unknown metadata, record exact tested heads and actual receipts in `docs/superpowers/plans/2026-10-27-completion-ledger.md` (locate the existing ledger before editing if its filename differs). English commits/PR text use configured real identity. PR #49 remains a separate pending documentation merge; do not bypass automatic approval review.
+- [ ] Inspect final diff, preserve source originals and unknown metadata, record exact tested heads and actual receipts in `docs/superpowers/plans/2026-10-27-completion-ledger.md` (locate the existing ledger before editing if its filename differs). English commits/PR text use configured real identity. Documentation PR #49 merged as `3583cc0`; this branch includes that remote merge. Do not bypass automatic approval review.
 - [ ] Push and create the coherent system media PR under existing authorization, wait for actual checks, merge the exact tested head when review is available, verify remote merge state and update the ledger. A local passing implementation is not a merged PR.
 - [ ] Continue the remaining queue: controlled final dependency/app packaging, five-language README/help and historical roadmap correction, then Main/independent Editor releases built from final merged source. This plan does not mark those releases complete.

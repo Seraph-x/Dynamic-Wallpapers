@@ -36,7 +36,7 @@
     "w3c-keyname": "2.2.8"
   },
   "editorEntrySHA256": "7480ae1ad96f54cadffebef536f78352db6e84be9477bb2cda22ac1909881d84",
-  "engineSHA256": "822c8a221bac0f8b74d8bd4ccec0106ea4a64af79c29e8699b51bcd2937ba31c",
+  "engineSHA256": "0a45b3acc7a6ec65ca260f8a803ec6c276139aef5a0fb3a249a6f168481d27ca",
   "files": {
     "editor-api.mjs": "01ad2136319122edc3cf473322ee258df8adf49068e1228c6fcf6762969a4bd6",
     "model-api.mjs": "7ace6cf3367a98ba3e68dba86c81e80c8362699218d5d3849e6561d76207393b",
@@ -45,7 +45,7 @@
     "resource-api.mjs": "4e8e9de46652aecdacddf732efcd05ebd8876ee20dbcee49aab3776af0734008",
     "resource-script-draft.mjs": "7c380d0ac8e35fa4ffd06ff3274c49a30160b78cc7a4da32081d93901cef542d",
     "code-editor-api.mjs": "8f63ea62075026c7fa51690fbf23a78113bbb494f589026714bd8ccf89b87a29",
-    "webwallgl.bundle.mjs": "822c8a221bac0f8b74d8bd4ccec0106ea4a64af79c29e8699b51bcd2937ba31c",
+    "webwallgl.bundle.mjs": "0a45b3acc7a6ec65ca260f8a803ec6c276139aef5a0fb3a249a6f168481d27ca",
     "property-bindings.mjs": "6241f388bc146ef588af27e4190835d6d66c05041788990db9968caea956d2f6",
     "property-binding-dialog.mjs": "0b554aa28f06172d75fb913562a92943b097a2ec69f684a2ce1e6b97fb6e9437",
     "property-binding-view.mjs": "5b939c460033d9d2de003e7f1b09b842e566c6f81669e17bb44118ed29172d9b",
@@ -131,13 +131,14 @@
   "previewFiles": {
     "index.html": "f83588dc86ce34f285b0439dba688429dd55ca8b7aa1211e2261ca9df18d6413",
     "scene.css": "e3124aebf699467a70770a53ed3d898250f6149a67a8332bef225750ece98aae",
-    "scene-runtime.mjs": "25e386b63fa815f2f074c2409adee9396beb2e217aba12104545e25d400c8492",
+    "scene-runtime.mjs": "7a8c95aefc0d52350c5f60e7927de6ce3e9aa06081e057fb5e0193a6327c9ef1",
     "scene-spectrum.mjs": "2882906abf50b1de963cfc7338a0b37fcccefddf5345cc4bdfa98697b1688811",
     "scene-source.mjs": "6e71f9ceefce7b91f2e91de2f987ccb09a58848fd8e272c8768fc9ac95d162fd",
-    "scene-protocol.mjs": "b43d5a14121eaacc6b30872369cb9f2bebea890c053fb0aea22f9026105bbf84",
+    "scene-protocol.mjs": "97b708554290dddbc96a02adfc7542ae15ff5743329eb0613e796d1d0af07259",
     "scene-properties.mjs": "608336b3ae80015fff1bd5d7ede83b822b814ec980e2d65b8414a18080adab89",
-    "webwallgl.bundle.mjs": "822c8a221bac0f8b74d8bd4ccec0106ea4a64af79c29e8699b51bcd2937ba31c",
-    "scene-shell.mjs": "0dfd597e56d0af3f27b189fc8962a95199ad34f8a3d01ed881f0cc88c239a979",
-    "scene-preview-api.mjs": "63d88c536c02c6c15c01d99b5c2df179684a074189e04cf6c48fb0d176cb7c73"
+    "scene-media.mjs": "1021fb8e4939a90b7638334752d02ec35aced34a859e548cee661ce751478161",
+    "webwallgl.bundle.mjs": "0a45b3acc7a6ec65ca260f8a803ec6c276139aef5a0fb3a249a6f168481d27ca",
+    "scene-shell.mjs": "cd8fa05f35d453f7de7d1d359caac091beec4cea9debb062c61cf348db0adf07",
+    "scene-preview-api.mjs": "20a2978c1695c5462162be16043348a21c06d243539c687b7bb355287ceea4df"
   }
 }
