@@ -17,7 +17,7 @@ reproducible Python/Node build tooling and source-built media dependencies.
 
 - [x] Live text/font user bindings — actual playing/paused renderer, tracked
   pin patch and reproducible Main/Editor assets.
-- [ ] External resource scripts — scan/edit/check/revert, atomic resource
+- [x] External resource scripts — scan/edit/check/revert, atomic resource
   history, native capture, diagnostics and true loose/PKG playback.
 - [x] Safe resource collection — cross-process session leases, saved roots,
   capture/undo safety, exact orphan reclamation and visible failures.
@@ -102,3 +102,19 @@ reproducible Python/Node build tooling and source-built media dependencies.
   copies passed; all 33 changed files passed the publication scan. Resource
   workspace authoring and complete native resource edit/export acceptance remain
   open until the final approved stage.
+
+- Complete resource Script workspace PR
+  [#48](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/48) merged at
+  `721e940` from tested implementation head `4fbdc7b`. Material/particle and
+  package-derived source editing, complete shared-consumer disclosure, exact
+  immutable edits/history and current/captured navigation are implemented.
+  All 489 Node checks and 98 Editor Swift tests passed. Every one of the 54
+  defined Editor browser/native phases has supervised exit-zero evidence,
+  including recorded continuations after asynchronous fixture/input fixes;
+  failed earlier invocations remain recorded as failures. Actual native material,
+  child override and emitter edits passed save/reopen, preview and Main loose/PKG
+  playback, full resource/metadata byte checks, long fragmented source diagnostics
+  and lifetime release. Five damaged-output negative controls, Main scene native
+  acceptance, both reproducible builds and identical renderer copies passed.
+  Independent review had no remaining Important issues; all 69 changed/new files
+  passed the publication scan. The external-resource scripting package is closed.
