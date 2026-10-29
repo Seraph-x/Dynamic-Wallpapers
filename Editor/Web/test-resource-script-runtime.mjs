@@ -41,22 +41,36 @@ try{
    await page.waitForTimeout(650);
    const observed=await observe(page,fixture.samples);
    assert.deepEqual(observed.errors,[]);
-   const probe=observed.probe[sink];assert(probe?.top===1||sink==='mesh'&&probe?.top===2,`${sink}: actual resource initializer absent/duplicated: ${JSON.stringify(observed)}`);
+   const probe=observed.probe[sink];assert(probe?.top===1||sink==='mesh'&&probe?.top===2||sink==='inline-override'&&probe?.top===2,`${sink}: actual resource initializer absent/duplicated: ${JSON.stringify(observed)}`);
    assert(probe.init>=1&&probe.update>=1,`${sink}: actual update absent`);
    if(['effect','mesh','per-mesh','tint','particle-uniform'].includes(sink)){
     assert(observed.pixels[0][1]>160&&observed.pixels[0][0]<60,`${sink}: actual green pixels missing: ${JSON.stringify(observed)}`);
     if(sink==='per-mesh')assert(observed.pixels[1][2]>160&&observed.pixels[1][0]<60,`${sink}: second mesh actual blue pixels missing: ${JSON.stringify(observed)}`);
-   }else if(sink==='emitter-rate')assert(observed.particles.systems[0].live>15,`${sink}: no actual emitted particles: ${JSON.stringify(observed)}`);
+   }else if(sink==='inline-override')assert.deepEqual(observed.particles.systems.map(system=>system.opacityMul),[.2,1,.2,1],'Parent scripts must respect explicit child override objects and event-child noninheritance');
+   else if(sink==='emitter-rate')assert(observed.particles.systems[0].live>15,`${sink}: no actual emitted particles: ${JSON.stringify(observed)}`);
    else assert(observed.pixels[0][0]>20&&observed.pixels[0][0]<100,`${sink}: expected actual dimmed pixels: ${JSON.stringify(observed)}`);
    outcomes.push({sink,status:'pass',observed});console.log('PASS',sink,JSON.stringify(observed));
   }catch(error){outcomes.push({sink,status:'fail',message:error.message});console.error('FAIL',sink,error.message);}
   finally{await page.close();}
  }
- {
-  const sink='scripts-false',fixture=resourceRuntimeFixture('effect',{disabled:true}),page=await browser.newPage({viewport:{width:320,height:180}});
+ for(const [name,wrapper,disabled] of [
+  ['static',{value:'1 0 0'},false],['user',{value:'1 0 0',user:'tint'},false],['animation',{value:'1 0 0',animation:{}},false],
+  ['disabled-script',{value:'1 0 0',script:'throw Error("DisabledColorSourceExecuted"); export function update(value){return value;}'},true]
+ ]){
+  const sink='inline-color:'+name,fixture=resourceRuntimeFixture('emitter-rate',{disabled}),page=await browser.newPage({viewport:{width:320,height:180}});
+  fixture.scene.objects[0].instanceoverride={colorn:wrapper};fixture.files.set('scene.json',Buffer.from(JSON.stringify(fixture.scene)));
   try{await mount(page,fixture);await page.waitForTimeout(350);const observed=await observe(page,fixture.samples);
-   assert.deepEqual(observed.errors,[]);assert.equal(observed.probe.effect,undefined);assert.deepEqual(observed.issues,[]);
-   assert(observed.pixels[0][0]>160&&observed.pixels[0][1]<60,`${sink}: static red base was not preserved: ${JSON.stringify(observed)}`);
+   assert.deepEqual(observed.errors,[]);assert.deepEqual(observed.issues,[]);
+   assert(observed.pixels[0][0]>160&&observed.pixels[0][1]<40&&observed.pixels[0][2]<40,`${sink}: authored red base/binding was overwritten: ${JSON.stringify(observed.pixels)}`);
+   outcomes.push({sink,status:'pass',observed});console.log('PASS',sink,JSON.stringify(observed));
+  }catch(error){outcomes.push({sink,status:'fail',message:error.message});console.error('FAIL',sink,error.message);}finally{await page.close();}
+ }
+ for(const disabledSink of runtimeResourceSinks){
+  const sink='scripts-false:'+disabledSink,fixture=resourceRuntimeFixture(disabledSink,{disabled:true}),page=await browser.newPage({viewport:{width:320,height:180}});
+  try{await mount(page,fixture);await page.waitForTimeout(350);const observed=await observe(page,fixture.samples);
+   assert.deepEqual(observed.errors,[]);assert.deepEqual(observed.probe,{});assert.deepEqual(observed.issues,[]);
+   const red=['effect','mesh','per-mesh','tint','particle-uniform'].includes(disabledSink);
+   for(const pixel of observed.pixels)assert(red?pixel[0]>160&&pixel[1]<60&&pixel[2]<60:pixel[0]>160&&pixel[1]>160&&pixel[2]>160,`${sink}: authored static base was not preserved: ${JSON.stringify(observed)}`);
    outcomes.push({sink,status:'pass',observed});console.log('PASS',sink,JSON.stringify(observed));
   }catch(error){outcomes.push({sink,status:'fail',message:error.message});console.error('FAIL',sink,error.message);}finally{await page.close();}
  }

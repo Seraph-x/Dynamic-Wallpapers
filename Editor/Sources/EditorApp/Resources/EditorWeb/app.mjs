@@ -1,6 +1,6 @@
 import { PropertyBindingDialog } from './property-binding-dialog.mjs';
 import { PropertyWorkspace } from './property-workspace.mjs';
-import { resolveScriptLink } from './script-navigation.mjs';
+import { resolveEditorScriptLink } from './script-navigation.mjs';
 import { createCapturedScriptView } from './captured-script-view.mjs';
 import { ScriptWorkspace } from './script-workspace.mjs';
 import { createScene } from './webwallgl.bundle.mjs';
@@ -53,13 +53,14 @@ try {
     if(script?.dirty||property?.dirty){$('saved').textContent=t.unsaved;$('saved').dataset.dirty='true';}
   }
   editor = startEditor(config, { createScene, editorOf, buildScenePkg, checkWeCompat, element:$('canvas'), report, onChange:update, onError:showError,
+    onBeforeDocumentChange:()=>script?.cancelDiscovery(),
     setEditingEnabled: value => { document.body.inert = !value;model?.setFrozen(!value);gltf?.setFrozen(!value);script?.setFrozen(!value);property?.setFrozen(!value);binding?.setFrozen(!value); }, snapshotError: () => gltf?.error??binding?.error??property?.error??script?.error??editFailure, draftDirty:()=>Boolean(script?.dirty||property?.dirty),
     onRevealScript:async link=>{
       const focusedInput=document.activeElement?.matches?.('#project-title,#inspector input,#inspector textarea,#inspector select');
-      const pending=Boolean(focusedInput||pendingActions.size||drag||selectionPointer?.down||editFailure||binding.hasPendingInput||property.hasPendingInput||script.hasPendingInput||model.hasPendingInput||timeline.hasPendingInput||gltf.error||document.querySelector('dialog[open]'));
-      const result=resolveScriptLink(link,{scene:editor.document.snapshot().scene,documentIdentity:editor.documentIdentity,pending});
+      const hasPending=()=>Boolean(document.activeElement?.matches?.('#project-title,#inspector input,#inspector textarea,#inspector select')||pendingActions.size||drag||selectionPointer?.down||editFailure||binding.hasPendingInput||property.hasPendingInput||script.hasPendingInput||model.hasPendingInput||timeline.hasPendingInput||gltf.error||document.querySelector('dialog[open]'));
+      const result=await resolveEditorScriptLink(link,{editor,hasPending});
       if(result.kind==='captured')capturedView.show(result,{preserveFocus:Boolean(focusedInput)});
-      else {capturedView.close();selected=link.layerId;model.deactivate();property.deactivate();update(editor.document);script.reveal(link);}
+      else {capturedView.close();selected=link.layerId;model.deactivate();property.deactivate();update(editor.document);await script.reveal(link);}
       return {kind:result.kind,...(result.reason?{reason:result.reason}:{})};
     },
     importModel:source=>gltf.open(source),

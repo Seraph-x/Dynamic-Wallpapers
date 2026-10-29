@@ -28,20 +28,20 @@
     "treeShaking": true
   },
   "files": {
-    "Sources/WallpaperApp/Resources/SceneRuntime/webwallgl.bundle.mjs": "a740b7fd5ac335ac76146a69771509ce6b7dd2bdef5cc5b7bef080c479e65880"
+    "Sources/WallpaperApp/Resources/SceneRuntime/webwallgl.bundle.mjs": "822c8a221bac0f8b74d8bd4ccec0106ea4a64af79c29e8699b51bcd2937ba31c"
   },
   "localPatches": {
     "source": "scripts/scene-engine-patches.mjs",
-    "sha256": "906cc91bc052c2d44af01ae2b5b2bdb8feb3663bb238420608d0ff16926dd517",
+    "sha256": "fb76ea866e7b1bc35576326d84d1909a594a0e0f28fcc2a2c6b3eb38baa8007f",
     "inputs": {
       "scene-engine-patches.mjs": "a980eaea4919976350c7aab42815e26cb0875f009b9fd409b812eb1c1dffd805",
-      "scene-resource-script-patches.mjs": "40410d3e027fb3b7a3f35dba455a745b6898b523e5af6a074498f0318f334cf3",
+      "scene-resource-script-patches.mjs": "ac97b6ac818367a7235ecca710a719e50e7ea9cd814ee8381a26ce2e6a71d753",
       "../Resources/SceneScript/resource-source.mjs": "d4ec82ec31c497a77a821d1573dcfd7717ef2fe43d3d73c6a55f121fd7651240",
       "../Resources/SceneScript/resource-runtime.mjs": "0b965f7bc9bdea230051230e42bc7ef822bbad5b31428ac67feb7f3f377decb8",
       "../Resources/SceneScript/resource-contract.mjs": "77e42d4fe914d9ad332c72df1341b860212f191fa8dea3564475e800eb996f06",
       "../Resources/SceneScript/json-spans.mjs": "57c09884961c03bcf94beabc039a6dd2b9e750deb2097ba97b15bc81066b7a66"
     },
-    "patchedEntrySHA256": "06b6e20eb1b0a32f1a9e671d068102ef656e2090650740808e00015f30b764b8",
+    "patchedEntrySHA256": "093dea4bb002597aa96dcc3a38a824ce844535af8ce7098d9adcf415eb36d561",
     "items": [
       {
         "id": "text-binding-preflight",
@@ -196,6 +196,11 @@
       {
         "id": "resource-script-runtime-mount",
         "reason": "Construct one owner-scoped runtime with the same scene environment and lifecycle hooks as inline constants.",
+        "matches": 1
+      },
+      {
+        "id": "resource-script-inline-particle-owner",
+        "reason": "Use the same typed per-system evaluator for registered scene overrides so explicit child overrides retain their precedence.",
         "matches": 1
       },
       {

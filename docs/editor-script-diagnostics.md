@@ -31,9 +31,11 @@ in the captured view without becoming a new editable source target.
 Source resolution uses the immutable captured scene's structural anchors.
 External material/particle issues carry the engine-owned logical path, original
 resource SHA-256, literal JSON pointer and exact compiled source. They open that
-independent captured source read-only; no mutable resource is reread to invent a
-location. Current-resource editing remains unavailable until the resource source
-workspace integration is complete. A missing/ambiguous inline layer ID or
+independent captured source. When the owning document, full resource digest,
+literal pointer and exact source still match, and no input is pending, Open
+source reveals the current resource workspace. Otherwise it opens the captured
+source read-only. The captured location never depends on rereading a mutable file.
+A missing/ambiguous inline layer ID or
 unrecognized runtime target remains visible with an explicit unavailable-source
 reason. Nothing is matched by layer name, console text or a guessed default ID.
 

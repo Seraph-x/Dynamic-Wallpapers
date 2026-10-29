@@ -39,3 +39,19 @@ test('Run preview reports only the transport request and never edits history',as
  await editor.command({type:'freeze',id:'freeze',session:'edit',generation:1});await assert.rejects(editor.requestPreview(),/frozen/);
  editor.destroy();await assert.rejects(editor.requestPreview(),/closed/);
 });
+test('document changes retire readers before mutation and asynchronous rendering',async()=>{
+ const events=[];
+ const controls={time:0,setTimeScale(){},async seek(){}};
+ const element={replaceChildren(){},append(){},ownerDocument:{createElement:()=>({style:{},getContext:()=>null})}};
+ const editor=startEditor({version:1,session:'edit',generation:1,document:snapshot},{element,
+  createScene:()=>({async load(){events.push('render');},setVolume(){},destroy(){}}),editorOf:()=>controls,
+  onBeforeDocumentChange:()=>events.push('retire:'+editor.document.snapshot().title),
+  report:async()=>{},onChange(){},onError(){},setEditingEnabled(){}});
+ await editor.ready;events.length=0;
+ await assert.rejects(editor.change(doc=>doc.rename('Frozen')),/frozen/);assert.deepEqual(events,[]);
+ await editor.command({type:'thaw',id:'thaw',session:'edit',generation:1});
+ await editor.change(doc=>{events.push('mutate');doc.rename('Changed');});
+ assert.deepEqual(events,['retire:Editing','mutate','render']);events.length=0;
+ await editor.command({type:'load',document:snapshot,id:'load',session:'edit',generation:1});
+ assert.deepEqual(events,['retire:Changed','render']);editor.destroy();
+});

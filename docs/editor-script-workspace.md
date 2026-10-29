@@ -1,4 +1,4 @@
-# Edit inline SceneScript
+# Edit SceneScript sources
 
 The Script workspace is an offline CodeMirror source editor with JavaScript
 highlighting, local undo/redo, SceneScript API hints, lifecycle starters and
@@ -13,7 +13,14 @@ restart or change an already captured preview.
 ## Select and edit a source
 
 Select a layer, choose **Script** beside **Properties / Model**, then choose a
-property in **Property / source**. The layer list and canvas remain available.
+property or resource file/anchor in **Property / source**. Referenced material
+and particle files, package-extracted resources and unrecognized source metadata
+appear in the same chooser. Resource rows identify the logical file and literal
+structural path; the scope note shows how many consumers share the file. A
+resource edit changes that shared file for every consumer. The layer list and canvas remain available.
+Expand **Affected consumers** for the complete list of owning layer names and
+literal effect/mesh/particle reference slots. Its native summary supports keyboard
+focus and Enter to expand or collapse.
 The source field scrolls horizontally for long lines; the workspace and Timeline
 retain the minimum-window layout, light/dark appearances and five UI languages.
 Text input and composition use the visible CodeMirror content. Tab moves focus
@@ -60,6 +67,11 @@ nor resolve arbitrary expressions. The catalogue omits unavailable host operatio
 and known no-op engine members; accepting a hint still requires real playback
 validation. See the [API catalogue](editor-script-api.md) for actual pinned
 members and target-specific limits.
+
+Resource vector values expose their exact `x/y`, `x/y/z` or `x/y/z/w` components.
+Their starters preserve that dimension rather than constructing a Vec3 for every
+constant. Resource constants and particle overrides do not receive cursor
+callbacks; the cursor starter stays visible with that explicit limitation.
 
 **Find / Replace** opens CodeMirror's search panel. The editor-scoped find
 shortcut opens the same panel. Search and match selection do not change a draft;
@@ -124,8 +136,24 @@ supported existing scalar bases, text and `effects[N].visible`. See the
 the exact defaults and base requirements. User-property/animation bindings,
 malformed bases and ambiguous layer identities stay read-only with their reason.
 Unknown inline source metadata discovered on the selected layer is shown with
-its structural path and retained without editing or execution. External material,
-particle and package-resource scripts are outside this workspace's source scan.
+its structural path and retained without editing or execution. The resource scan
+also retains unsupported material passes, unconsumed assets, standalone modules,
+unknown particle fields and resource read/parse failures with their actual reason.
+
+Resource authoring covers consumed first-pass material constants with finite
+scalar/vector2/3/4 bases, supported child `instanceoverride` fields and direct
+particle `emitter[N].rate`. Scene-layer particle `instanceoverride` targets use
+the same supported numeric/color subset. Missing bases and user/animation-bound
+wrappers remain read-only. See the [resource contracts](editor-resource-script-foundation.md).
+
+For a resource source, Check prepares an owned span-only edit without staging.
+Apply stages immutable bytes, verifies the original digest and complete document
+revision around each asynchronous operation, then commits one resource version.
+Failures preserve the draft for correction or explicit Revert. Original JSON/JSONC
+comments, BOM, numeric lexemes, unknown duplicate fields and unrelated bytes stay
+intact. Undo/redo, saved workspaces, preview captures and both export forms retain
+the selected version at its logical path. A live resource session protects staged
+and history versions from collection while the window remains open.
 
 The code editor displays normalized LF line endings. Merely opening, checking or
 saving imported source preserves its exact bytes, including Unicode, CRLF and
@@ -144,7 +172,8 @@ reverse stateful scripts or particles.
 
 The preview retains actual script issues and renderer warnings in a selectable
 list. Open source navigates only when the owning document, unique anchor and
-exact source still match; otherwise it shows an independent read-only capture
+exact source still match; resource links additionally compare the full original
+resource digest and literal source pointer. Otherwise it shows an independent read-only capture
 without flushing or overwriting a pending draft. Missing, transformed or
 out-of-range locations remain explicitly unmapped. See
 [runtime diagnostics](editor-script-diagnostics.md) for line, count and upstream
@@ -157,11 +186,14 @@ separation within CEF does not imply operating-system process isolation. See
 
 ## Implementation and attribution
 
-`ScriptDraft` owns temporary source, while `SceneDocument` owns committed content
+`ScriptDraft` and its asynchronous `ResourceScriptDraft` adapter own temporary source, while `SceneDocument` owns committed content
 and undo/redo. The workspace uses the existing checked proposal transaction and
 adds no source-evaluation endpoint or animation format. `CodeEditor` owns the
 visible editing widget and its local history; source identity includes both layer
-and anchor, preventing history from crossing into another source with equal text.
+and anchor (or logical resource file/pointer), preventing history from crossing
+into another source with equal text. Asynchronous discovery publishes only its
+latest completed selection and never temporarily replaces a resource editor with
+an inline editor, preserving local history during unrelated document edits.
 The [source API](editor-script-contracts.md) and
 [validation guide](testing/standalone-editor.md#script-workspace-acceptance)
 describe the developer contracts and reproducible checks.

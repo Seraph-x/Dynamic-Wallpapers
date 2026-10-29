@@ -47,9 +47,7 @@ static void verifyCodeTools(DWWebRuntime* runtime,NSString* projectRoot,NSString
   require(page!=nil,error.localizedDescription.UTF8String ?: "Native CodeMirror creation failed");page.onError=^(NSError* value){failure=value;};configureResources(page,resources,projectRoot,^(NSError* value){failure=value;});
   void(^resourceHandler)(NSDictionary*)=[page.onEditorResource copy];page.onEditorResource=^(NSDictionary* event){if([event[@"action"] isEqual:@"stage"])++stages;resourceHandler(event);};
   NSWindow* window=fkHostWindow(page);[page start];waitUntil(^{return page.ready||failure!=nil;},20,"Native CodeMirror first frame timed out");require(!failure&&[page editorTestNativeViewIsAttached],"Code tools must use actual attached CEF input");command(page,@{@"type":@"thaw"});
-  [page editorTestScript:@"document.querySelector('#layers button[data-layer-id=\"1\"]').click();document.getElementById('script-workspace').click();"];
-  [page clipTestAwait:@"document.getElementById('script-target').options.length>0"];
-  [page editorTestScript:@"(()=>{const target=document.getElementById('script-target');target.value='color';target.dispatchEvent(new Event('change',{bubbles:true}));})();"];
+  scriptWorkspaceOpenColor(page);
   scriptWorkspaceInstallInspection(page);scriptWorkspaceAwaitSource(page,original[@"scene"][@"objects"][0][@"color"][@"script"]);
   [page clipTestAwait:@"document.querySelector('#script-source').tagName==='DIV'&&!document.querySelector('#script-source textarea')&&document.querySelector('#script-source .cm-content').getAttribute('role')==='textbox'"];
   fprintf(stderr,"Native code tools phase=template-freeze-cancel\n");

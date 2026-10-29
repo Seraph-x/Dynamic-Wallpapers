@@ -12,6 +12,20 @@ const targets = ['origin','scale','angles','color','alpha','brightness','maxwidt
 const ids = ['init','update','properties','cursor','media','animation','resize','timer','audio'];
 const labels = (target, scope = '') => api().completionOptions(target,scope).map(option => option.label);
 
+test('resource templates and value hints retain scalar and exact vector dimensions',()=>{
+ for(const kind of ['scalar','vector2','vector3','vector4']){
+  const target='resource:'+kind;
+  assert.equal(api().scriptValueKind(target),kind);
+  assert.deepEqual(labels(target,'value'),kind==='scalar'?[]:['x','y','z','w'].slice(0,Number(kind.slice(6))));
+  assert.equal(api().lifecycleTemplates(target).find(template=>template.id==='cursor').reason,'RESOURCE_CURSOR_UNSUPPORTED');
+  for(const template of api().lifecycleTemplates(target)){
+   assert.equal(checkSceneScript(template.source).ok,true);
+   assert(!template.source.includes('new Vec3(value)'));
+   assert(!template.source.includes('initial.multiply('));
+  }
+ }
+});
+
 test('value classification uses the actual source target rather than its layer type', () => {
   for (const target of targets) assert.equal(api().scriptValueKind(target), ['origin','scale','angles','color'].includes(target) ? 'vector' : ['visible','effects[0].visible'].includes(target) ? 'boolean' : target === 'text' ? 'text' : 'scalar');
   for (const target of [undefined,null,{},'general.zoom','effects[01].visible','effects[-1].visible','effects[9007199254740992].visible','future.script']) assert.equal(api().scriptValueKind(target),'unknown');

@@ -48,3 +48,40 @@ The foundation started from `9472eda7d8b566d92712efc5c4638ae4db272a13` and was s
 - [x] Complete independent review, reproducible manifest checks, full Node regression and changed-source privacy/diff gates on the final revision.
 
 Only the first approved PR is represented by this checklist. Runtime execution and complete workspace/native playback acceptance remain open until their own stages pass.
+
+## Later-stage execution checkpoints
+
+- [x] Runtime/diagnostics stage merged as PR #47 at `6349c0a`; all eight original sinks, strict descriptor transport, disposal and complete existing Editor/Main native regression passed.
+- [x] Add failing asynchronous resource-draft, chooser, typed template and current/captured navigation tests; implement the adapters and offline API bundle.
+- [x] Real-input browser material/child/emitter edit, check, invalid draft, Revert, remove, one-step history, exact PKG bytes and current/pending/stale navigation passed. Existing complete inline workspace and navigation browser regressions passed.
+- [x] Register typed scene instanceoverride sources and reproduce/fix parent override broadcasts crossing explicit child overrides; actual inherited/explicit/inherited opacity is `0.2/1/0.2` with per-instance sandboxes.
+- [x] Complete five-language resource UI/shared-consumer/unknown-source layout, saved reload, package-derived import and fault/race acceptance. The full shared-consumer list retains every owning layer/reference slot and uses keyboard-operable native disclosure.
+- [x] Complete actual native material/particle edit, freeze, undo/redo, save/reopen, captured preview, loose/PKG Main playback, resource/GC/lifetime and long-origin diagnostics acceptance.
+- [ ] Run full relevant regressions, review, privacy/build gates, truthful docs and the final workspace English PR/merge. Only then close the umbrella item.
+
+## Workspace verification before integration
+
+- All 489 Node checks and the complete 98-test Editor Swift suite passed. The
+  Swift persistence case uses actual Core loose/PKG stores, staging, preview,
+  save/reopen/reimport and collection rather than an in-memory save substitute.
+- All 54 defined Editor browser/native phases have supervised exit-zero
+  evidence. After correcting asynchronous test-selection/input barriers, the
+  remaining phases were completed through the same runner command definitions
+  and verified native build with new cache directories. The combined receipt is
+  `.build/verification/editor-native/72a86401-0799-4427-8e81-5d9214a61e3d/completed-matrix.json`;
+  earlier failing invocations are not reported as passing full invocations.
+- Actual material, child-override and emitter-rate native edits passed focused
+  keyboard/freeze, exact one-step history, save acknowledgement, disk reopen,
+  independent preview and Main loose/PKG GPU/simulation checks and full release.
+  Each actual native export passed complete inventory, project/entry and byte
+  comparison; five damaged-output negative controls were rejected.
+- A real resource exception with more than 8192 bytes of Unicode/CRLF source
+  passed fragmented native transport, original-byte digest/pointer/text,
+  phase/count/line and independent read-only captured navigation checks.
+- Main scene native build, protocol and runtime exited zero. Both reproducible
+  build checks passed; all three engine copies have SHA-256
+  `822c8a221bac0f8b74d8bd4ccec0106ea4a64af79c29e8699b51bcd2937ba31c`.
+- Independent review found no remaining Important issues. All 69 changed/new
+  files passed the publication scan. Source diff checks passed; existing shader
+  whitespace inside the three generated engine bundles is unchanged upstream
+  content, excluded from that source-only whitespace check.

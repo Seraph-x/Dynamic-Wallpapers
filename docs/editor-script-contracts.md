@@ -1,7 +1,9 @@
 # Check and preserve SceneScript source
 
 Source transactions and offline syntax diagnostics support inline native
-layer/effect scripts. The [Script workspace](editor-script-workspace.md) now
+layer/effect/particle-override scripts. Separate
+[resource contracts](editor-resource-script-foundation.md) cover owned material
+and particle file discovery and immutable span-only transactions. The [Script workspace](editor-script-workspace.md) now
 provides an offline CodeMirror editor and Check/Apply/Revert/Remove on these
 contracts. The
 [execution migration](editor-script-migration.md) disables SceneScript in every
@@ -107,18 +109,22 @@ or evaluate source. Use prepare/apply when syntax diagnostics are required.
 | `visible` | Boolean; absent field uses native default true |
 | `text` | Existing text field with a string base |
 | `effects[N].visible` | Existing effect with boolean visibility, or native default true |
+| `instanceoverride.rate/count/size/speed/lifetime/brightness/alpha` | Existing finite numeric base and a consuming particle resource |
+| `instanceoverride.colorn` | Existing finite three-component color base and a consuming particle resource |
 
 Absent origin/angles use `0 0 0`; absent scale/color use `1 1 1`.
-Existing script wrappers without a base remain without a base; no value is
-invented. Wrappers controlled by a user property or animation, malformed bases,
+Existing ordinary layer script wrappers without a base remain without a base;
+particle overrides require their explicit typed base. No value is invented.
+Wrappers controlled by a user property or animation, malformed bases,
 duplicate/missing layer IDs and unsupported anchors remain read-only with an
 explicit reason. There is no automatic replacement of another binding.
 Only the selected structural anchor changes, including when API input shares
 wrappers/effects elsewhere. Returned data is owned; cyclic input is rejected.
 
 Discovery preserves unknown inline script-like metadata and its structural path.
-It does not resolve referenced material/particle/package-resource scripts, load
-assets or claim those sources have been checked.
+The inline CLI and `listSceneScripts` do not resolve resource files. The workspace
+uses the separate asynchronous `discoverEditorResourceScripts` scan for those
+assets; discovery itself never executes or checks source.
 
 ## Keep temporary source outside history
 
@@ -150,6 +156,13 @@ Invalid drafts return the committed freeze document with dirty state, and the
 owner's validation snapshot rejects them. Thaw and explicit Revert retain the
 existing recovery path. Mark-saved and redraw cannot erase pending text.
 
+`ResourceScriptDraft.open(editor, record)` captures an authentic resource discovery
+record. It offers the same `state/source/dirty/diagnostics`, `setSource`, `check`
+and `restoreInput` contract; its `apply`, `remove` and `revert` operations are
+asynchronous. Apply/Remove delegate to the resource transaction owner rather than
+running an asynchronous callback inside `editor.change`. Read/hash/stage errors
+and stale owner/revision checks remain observable, and preserve uncommitted input.
+
 ## Verification and remaining IDE work
 
 The browser and native tests keep the live workbench blank while preparing,
@@ -172,7 +185,8 @@ isolation. The source workspace adds real UI compiler/draft tests and actual CEF
 focused input; its authored loose/PKG scene must play independently in Main.
 Offline CodeMirror acceptance adds highlighting, completion, template
 confirmation, search/replace and local history without changing these source
-transactions. Linked retained runtime diagnostics remain subsequent IDE work. The
+transactions. Linked retained runtime diagnostics cover current and captured
+inline/resource sources. The
 independent preview already supports restarting its captured revision.
 
 The compiler, runtime semantics and package writer come from the pinned WebWallGL

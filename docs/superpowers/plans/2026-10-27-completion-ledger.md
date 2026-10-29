@@ -93,8 +93,8 @@ reproducible Python/Node build tooling and source-built media dependencies.
   lifecycle errors.
 
 - External resource runtime/diagnostics PR
-  [#47](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/47), implementation
-  head `d9222a3`: all eight actual renderer/simulation sinks, disabled execution,
+  [#47](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/47) merged at
+  `6349c0a`, implementation head `d9222a3`: all eight actual renderer/simulation sinks, disabled execution,
   source exceptions and restart/close timer disposal passed in real Chrome.
   All 451 Editor Web tests, complete Editor browser/native CEF acceptance,
   Main scene native acceptance, strict protocol tests and eight focused Swift

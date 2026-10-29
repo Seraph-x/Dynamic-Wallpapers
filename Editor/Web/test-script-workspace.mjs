@@ -17,11 +17,12 @@ const h=await openEditorHarness(configuration),{page,resources,command,events,er
 const sourceRequests=[];page.on('request',request=>{if(request.url().includes('migration-source-probe='))sourceRequests.push(request.url());});
 const snapshot=async()=>(await command({type:'snapshot'})).document;
 async function selectLayer(id){await page.locator(`#layers button[data-layer-id="${id}"]`).click();}
-async function open(){await selectLayer(1);await page.locator('#script-workspace').click();await page.locator('#script-target').selectOption('color');}
+async function selectSource(value){await page.locator('#script-target').selectOption(value);await page.waitForFunction(()=>!document.getElementById('script-target').disabled);}
+async function open(){await selectLayer(1);await page.locator('#script-workspace').click();await selectSource('color');}
 const input=()=>codeInput(page);
 async function check(){await page.locator('#script-check').click();}
 async function apply(){await page.locator('#script-apply').click();}
-async function revert(){await page.locator('#script-revert').click();}
+async function revert(){await page.locator('#script-revert').click();await page.waitForFunction(()=>!document.getElementById('script-target').disabled);}
 async function quiet(){assert.deepEqual(await page.evaluate(()=>({migration:globalThis.__migrationProbe??null,unknown:globalThis.__migrationUnknownMetadataRan??null,authored:globalThis.__workspaceMustNotRun??null})),{migration:null,unknown:null,authored:null});}
 try{
  assert.equal(await page.locator('#script-workspace').count(),1,'Missing real Script workspace entry');
@@ -46,13 +47,13 @@ try{
  // The visible code editor's local undo must not become a document-history operation.
  await input().focus();await page.keyboard.press('ControlOrMeta+End');await page.keyboard.type(' ');await page.keyboard.press('ControlOrMeta+z');
  assert.equal(await input().inputValue(),original.scene.objects[0].color.script.replaceAll('\r\n','\n'));assert.deepEqual(await snapshot(),original);
- await page.locator('#script-target').selectOption('alpha');await input().focus();await page.keyboard.type('x');await page.keyboard.press('ControlOrMeta+z');assert.equal(await input().inputValue(),'');
+ await selectSource('alpha');await input().focus();await page.keyboard.type('x');await page.keyboard.press('ControlOrMeta+z');assert.equal(await input().inputValue(),'');
  const emptyUndone=await command({type:'freeze'});assert.deepEqual(emptyUndone.document,original);assert.equal(emptyUndone.dirty,false);await command({type:'thaw'});
- await apply();const emptyAlpha=await snapshot();assert.deepEqual(emptyAlpha.scene.objects[0].alpha,{value:1,script:''});await command({type:'undo'});assert.deepEqual(await snapshot(),original);await page.locator('#script-target').selectOption('color');
+ await apply();const emptyAlpha=await snapshot();assert.deepEqual(emptyAlpha.scene.objects[0].alpha,{value:1,script:''});await command({type:'undo'});assert.deepEqual(await snapshot(),original);await selectSource('color');
  // Imported CRLF is preserved without an input event; subsequent real input
  // keeps consistent CRLF. Mixed source intentionally follows LF after input.
  const crlf=structuredClone(original);crlf.scene.objects[0].color.script=authoredSource;
- await command({type:'load',document:crlf});assert.equal(await input().inputValue(),authoredSource.replaceAll('\r\n','\n'));assert.deepEqual(await snapshot(),crlf);
+ await command({type:'load',document:crlf});assert.deepEqual(await snapshot(),crlf);assert.equal(await input().inputValue(),authoredSource.replaceAll('\r\n','\n'));
  await input().fill(authoredSource.replaceAll('\r\n','\n')+'// edited');await apply();
  const crlfEdited=structuredClone(crlf);crlfEdited.scene.objects[0].color.script=authoredSource+'// edited';assert.deepEqual(await snapshot(),crlfEdited);
  const mixed=structuredClone(original);mixed.scene.objects[0].color.script='// mixed\r\nexport function update(value){return value;}\n';
@@ -62,10 +63,10 @@ try{
  await page.locator('#script-remove').click();const removed=await snapshot();assert(!Object.hasOwn(removed.scene.objects[0].color,'script'));assert.equal(removed.scene.objects[0].color.value,'0 1 0');assert.deepEqual(removed.scene.objects[0].color.future,{keep:true});
  await command({type:'undo'});assert.equal((await snapshot()).scene.objects[0].color.script,'');await command({type:'undo'});assert.deepEqual(await snapshot(),original);
  const unsupported=structuredClone(original);unsupported.scene.objects[0].alpha={value:1,script:'export function update(v){return v;}',user:'bound'};
- await command({type:'load',document:unsupported});await page.locator('#script-target').selectOption('alpha');assert(await codeReadOnly(page));assert((await page.locator('#script-diagnostics').textContent()).trim());assert.deepEqual(await snapshot(),unsupported);
- await selectLayer(2);await page.locator('#script-target').selectOption('text');assert.equal(await input().inputValue(),original.scene.objects[2].text.script);const metadata=await page.locator('#script-target option').evaluateAll(options=>options.map(o=>o.value).filter(v=>v.startsWith('metadata:')));assert(metadata.length>0,'Unknown inline source must remain discoverable');
- await page.locator('#script-target').selectOption(metadata[0]);assert(await codeReadOnly(page));assert.equal(await input().inputValue(),original.scene.objects[2].future.script);assert.deepEqual(await snapshot(),unsupported);
- await selectLayer(3);await page.locator('#script-target').selectOption('effects[0].visible');assert.equal(await input().inputValue(),original.scene.objects[1].effects[0].visible.script);
+ await command({type:'load',document:unsupported});await selectSource('alpha');assert(await codeReadOnly(page));assert((await page.locator('#script-diagnostics').textContent()).trim());assert.deepEqual(await snapshot(),unsupported);
+ await selectLayer(2);await selectSource('text');assert.equal(await input().inputValue(),original.scene.objects[2].text.script);const metadata=await page.locator('#script-target option').evaluateAll(options=>options.map(o=>o.value).filter(v=>v.startsWith('metadata:')));assert(metadata.length>0,'Unknown inline source must remain discoverable');
+ await selectSource(metadata[0]);assert(await codeReadOnly(page));assert.equal(await input().inputValue(),original.scene.objects[2].future.script);assert.deepEqual(await snapshot(),unsupported);
+ await selectLayer(3);await selectSource('effects[0].visible');assert.equal(await input().inputValue(),original.scene.objects[1].effects[0].visible.script);
  await command({type:'load',document:original});await open();await page.locator('#timeline-toggle').click();
  await page.locator('.timeline-key[data-property="origin"][data-channel="0"][data-frame="0"]').click();await page.locator('#timeline-key-value').fill('335');
  await input().fill(authoredSource.replaceAll('\r\n','\n'));await apply();

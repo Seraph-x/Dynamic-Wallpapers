@@ -5,7 +5,7 @@ const edits = [
     before: 'import { Input, ALL_FORMATS, UrlSource, VideoSampleSink } from "mediabunny";',
     after: `import { Input, ALL_FORMATS, UrlSource, VideoSampleSink } from "mediabunny";
 import { createResourceOrigins } from "@dynamic-wallpapers/scene-resource-source";
-import { createResourceScriptRuntime, RESOURCE_SCRIPT_UNAVAILABLE, resourceParticleConstants, setResourceParticleConstants } from "@dynamic-wallpapers/scene-resource-runtime";`,
+import { createResourceScriptRuntime, RESOURCE_SCRIPT_UNAVAILABLE, particleOverrideValueKind, resourceParticleConstants, setResourceParticleConstants } from "@dynamic-wallpapers/scene-resource-runtime";`,
   },
   {
     id: 'resource-script-effect-material-origin',
@@ -244,14 +244,16 @@ import { createResourceScriptRuntime, RESOURCE_SCRIPT_UNAVAILABLE, resourceParti
         });
         renderer.setResourceScriptRuntime?.(resourceScriptRuntime);
         applyResourceParticleScripts = (ps) => {
+          if (scriptsOff) return;
           const override = ps.override || {};
           for (const [key, wrapper] of Object.entries(override)) {
-            if (!wrapper || typeof wrapper !== "object" || !resourceOrigins.owns(wrapper)) continue;
+            if (!particleOverrideValueKind(key) || !wrapper || typeof wrapper !== "object" || typeof wrapper.script !== "string" || Object.hasOwn(wrapper, "user") || Object.hasOwn(wrapper, "animation") || (!resourceOrigins.owns(wrapper) && ps.override !== ps.layer?.instanceoverride)) continue;
             const value = resourceScriptRuntime.value(wrapper, {
               consumer: ps,
               layer: ps.layer,
               slot: "instanceoverride",
               key,
+              inline: ps.override === ps.layer?.instanceoverride,
               kind: "particle",
               target: "instanceoverride." + key
             }, resourceScriptFrame);
@@ -302,6 +304,17 @@ import { createResourceScriptRuntime, RESOURCE_SCRIPT_UNAVAILABLE, resourceParti
           };
         }
         renderer.setConstantScriptRuntime?.(evalObjectScript2, {`,
+  },
+  {
+    id: 'resource-script-inline-particle-owner',
+    reason: 'Use the same typed per-system evaluator for registered scene overrides so explicit child overrides retain their precedence.',
+    before: `          const defs = layer.particleOverrideScripts;
+          if (!defs) continue;
+          for (const [key, def] of Object.entries(defs)) {`,
+    after: `          const defs = layer.particleOverrideScripts;
+          if (!defs) continue;
+          for (const [key, def] of Object.entries(defs)) {
+            if (particleOverrideValueKind(key)) continue;`,
   },
   {
     id: 'resource-script-animation-events',

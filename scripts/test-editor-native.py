@@ -45,6 +45,7 @@ commands = [
     ('browser-script-navigation', ['node', str(root / 'Editor/Web/test-script-navigation.mjs')], 60),
     ('browser-code-tools', ['node', str(root / 'Editor/Web/test-code-tools.mjs')], 60),
     ('browser-script-workspace', ['node', str(root / 'Editor/Web/test-script-workspace.mjs')], 60),
+    ('browser-resource-script-workspace', ['node', str(root / 'Editor/Web/test-resource-script-workspace.mjs')], 60),
     ('native', [str(app / 'Contents/MacOS/EditorNativeTests'),
                 str(frameworks / 'Chromium Embedded Framework.framework'),
                 str(frameworks / f'{helper}.app/Contents/MacOS' / helper), str(run / 'context'),
@@ -142,6 +143,14 @@ bindings_native = [native[0], '--property-bindings-only', native[1], native[2], 
                    str(run / 'browser-export/BindingsLoose'), str(run / 'browser-export/BindingsPackage'),
                    str(run / 'browser-export/bindings-source.json'), str(run / 'browser-export/bindings-expected.json')]
 commands.append(('native-property-bindings', bindings_native, 60))
+for sink in ['effect', 'child-override', 'emitter-rate']:
+    commands.append(('native-resource-script-' + sink, [native[0], '--resource-scripts-only', native[1], native[2],
+        str(run / ('resource-script-' + sink + '-context')), native[4],
+        str(run / 'browser-export/ResourceScripts' / sink),
+        str(root / 'Editor/Sources/EditorApp/Resources/ScenePreviewWeb'), native[6]], 60))
+    commands.append(('native-resource-script-' + sink + '-export-bytes', ['node',
+        str(root / 'scripts/verify-editor-resource-script-export.mjs'), str(run / 'browser-export/ResourceScripts' / sink),
+        str(run / ('resource-script-' + sink + '-context'))], 60))
 print(f'EDITOR_NATIVE artifacts={run}', flush=True)
 for name, command, budget in commands:
     print(f'EDITOR_NATIVE phase={name} budget={budget}s', flush=True)

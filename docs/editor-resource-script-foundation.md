@@ -1,9 +1,9 @@
-# External resource script foundation
+# External resource script contracts
 
-The foundation supplies data-only authoring APIs. The shared renderer now also
-executes the registered material and particle sinks described below, while the
-Script workspace retains its existing inline-source scope until the final UI and
-persistence stage in the [approved staged plan](superpowers/plans/2026-10-27-external-resource-scripts.md).
+The Script workspace discovers and edits registered material/particle sources
+through the data-only APIs below. It uses the shared renderer's actual typed
+sinks for independent preview and exported playback. The implementation follows
+the [approved staged plan](superpowers/plans/2026-10-27-external-resource-scripts.md).
 Discovery still never executes source, and syntax checking alone never claims
 runtime success.
 
@@ -28,6 +28,11 @@ bases and color requires three components; uniform consumers support their
 numeric scalar/vector authoring shapes. Existing user/animation bindings,
 unsupported bases, unconsumed material keys/passes and alternate MDL skins retain
 a read-only reason. Unregistered script-like metadata remains visible.
+
+For example, `materials/shared.json` with the literal anchor
+`["passes",0,"constantshadervalues","Color"]` identifies one source wrapper;
+punctuation in a file name or constant key is not split into extra path segments.
+The chooser displays all consumers of that shared file before an edit is applied.
 
 ## Discovery APIs
 
@@ -83,6 +88,29 @@ original-file writer or package mutation path. Closed/frozen/stale owners and
 out-of-band source changes fail explicitly. Abandoned staged blobs remain under
 the existing session/closed-project collection policy.
 
+## Workspace adapter and source navigation
+
+The offline `resource-api.mjs` bundle exposes the discovery/capture/prepare/commit
+functions without renderer imports. `ResourceScriptDraft.open(editor, record)`
+adapts these operations to the existing Script input contract. Apply, Remove and
+Revert are asynchronous; document history mutation remains synchronous inside
+the resource transaction owner. Selection/save/preview/export/close barriers
+wait for accepted work, and a failed stage or stale source keeps its local draft.
+
+Resource vector starters preserve their exact dimensions. Cursor starters are
+explicitly unavailable because resource constant sandboxes receive no cursor
+callback. Scene `instanceoverride` registration uses the same numeric/color
+subset; runtime application targets only the actual inheriting particle systems.
+Explicit child overrides, including empty objects, and event-child noninheritance
+retain their authored precedence. Static/user/animation-bound wrappers are never
+sent to a scripted write sink, and disabled authoring execution preserves bases.
+
+Structured issues retain the logical path, original-byte digest, literal script
+pointer and compiled text. Open source reveals the current resource only if all
+those identities match and inputs remain settled throughout the asynchronous
+read. Otherwise the independently captured text is shown read-only. Viewing a
+capture never flushes another draft.
+
 ## Verification boundary
 
 Tests cover exact span preservation, deep/wide structures, prototype-like names,
@@ -91,8 +119,8 @@ real MDL references, graph failures, opaque proposal ownership, stage failures,
 no-op/concurrent/stale/close/freeze races, actual filesystem staging and saved
 snapshot reopen. Real PKG encoding/extraction/rebuilding verifies original and
 unrelated byte preservation using the pinned packager, independently bundled
-without a renderer or DOM shim. These checks do not substitute for the later
-complete Editor workspace, save/reopen and loose/PKG native acceptance.
+without a renderer or DOM shim. Workspace and native acceptance complement these
+data-layer checks rather than treating compilation as playback evidence.
 
 The renderer stage adds engine-owned origins for exact material/particle bytes,
 typed per-consumer sandboxes and actual effect, mesh/per-mesh, generic tint,
@@ -102,8 +130,9 @@ issue with exact source identity and never write the failed result. Restart and
 close dispose owned timers. Main, Editor workbench and Editor preview use the
 same hash-verified bundle and recorded patch inputs.
 
-Real Chrome/WebGL acceptance covers all eight visible/simulation sinks plus
-disabled execution, source exceptions and restart/close timer disposal. Pure
+Real Chrome/WebGL acceptance covers all eight external visible/simulation sinks,
+inline particle inheritance, static/bound color preservation, disabled execution
+for every consumer, source exceptions and restart/close timer disposal. Pure
 tests cover scalar and exact vector2/3/4 typing, independent shared-resource
 consumers, malformed returns and layer disposal. ObjC++ and Swift tests validate
 the optional source descriptor while preserving the legacy seven-field issue.
@@ -116,5 +145,6 @@ process-group runner enforced a 60-second execution timeout. Both
 passed on the original foundation without changing the shared engine. Independent review corrections cover
 typed generic tint bases, prototype-like constant names and unreferenced
 glTF/JSONC metadata. The changed-source privacy gate passed with no allowed or
-retained patterns; `git diff --check` was clean. Complete workspace/native export
-playback remains outside the renderer stage's verified scope.
+retained patterns; `git diff --check` was clean. These are historical foundation
+results. Current workspace, native persistence/playback and full export-byte
+checks are described in the [validation guide](testing/standalone-editor.md#external-resource-script-acceptance).

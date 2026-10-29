@@ -1,10 +1,13 @@
 import { CodeEditor } from './code-editor.mjs';
 import { lifecycleTemplates } from './script-language.mjs';
+import { resourceConsumerLabels } from './script-workspace-targets.mjs';
 
 export function initializeScriptView(t,{onError,onResolved}) {
   const panel=document.getElementById('script-panel');
   panel.innerHTML=`<label for="script-target" data-script-text="scriptTarget"></label><select id="script-target"></select>
     <p id="script-note" class="script-note" data-script-text="scriptDraftNote"></p>
+    <p id="script-resource-scope" class="script-note" hidden></p>
+    <details id="script-resource-consumers" class="script-note" hidden><summary data-script-text="scriptConsumers"></summary><ul></ul></details>
     <p id="script-source-label" class="script-source-label" data-script-text="scriptSource"></p><div id="script-source"></div>
     <div class="script-actions"><button id="script-check" type="button" data-script-text="scriptCheck"></button><button id="script-apply" type="button" class="primary-button" data-script-text="scriptApply"></button><button id="script-revert" type="button" data-script-text="scriptRevert"></button><button id="script-remove" type="button" data-script-text="scriptRemove"></button></div>
     <p id="script-runtime-location" class="script-note" role="status" hidden></p><p id="script-state" class="script-note"></p><pre id="script-diagnostics" class="script-diagnostics" aria-live="polite"></pre>
@@ -36,8 +39,14 @@ export function initializeScriptView(t,{onError,onResolved}) {
   dialog.addEventListener('close',resolveTemplate);
   return {panel,target,onInput:callback=>code.onInput(callback),
     targets(records,key){target.replaceChildren(...records.map(record=>{const option=document.createElement('option');option.value=record.key;option.textContent=record.label+(record.state.editable?'':` · ${t.scriptReadOnly}`);return option;}));target.value=key??'';},
-    render({source='',state,dirty=false,locked:blocked=false,failure,diagnostics:issues=[],context,key,target:sourceTarget}) {
+    render({source='',state,dirty=false,locked:blocked=false,failure,diagnostics:issues=[],context,key,target:sourceTarget,resource,consumers=[]}) {
       locked=blocked;editable=Boolean(state?.editable);
+      $('script-resource-scope').hidden=!resource;
+      $('script-resource-scope').textContent=resource?`${t.scriptResourceScope}: ${resource.path} · ${JSON.stringify(resource.anchor)} · ${t.scriptConsumers}: ${consumers.length}`:'';
+      $('script-resource-consumers').hidden=!resource||!consumers.length;
+      $('script-resource-consumers').querySelector('ul').replaceChildren(...resourceConsumerLabels(consumers,context?.snapshot().scene??{}).map(consumer=>{
+        const item=document.createElement('li');item.textContent=`${t.layerSection} ${consumer.name} · ${consumer.location}`;return item;
+      }));
       $('script-runtime-location').hidden=true;
       code.setSource(source,context,key,sourceTarget);code.setAccess(editable&&!locked,Boolean(failure));
       target.disabled=locked||!target.options.length;

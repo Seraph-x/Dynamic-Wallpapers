@@ -96,6 +96,7 @@ struct EditorCapturedScriptSnapshot {
     private let sources: [Source]
     private let ambiguousIDs: Set<Double>
     private static let properties = Set(["origin", "scale", "angles", "color", "alpha", "brightness", "maxwidth", "pointsize", "volume", "intensity", "exponent", "visible", "text"])
+    private static let particleProperties = Set(["rate", "count", "size", "speed", "lifetime", "brightness", "alpha", "colorn"])
 
     init(documentIdentity: String, scene: [String: Any]) throws {
         guard !documentIdentity.isEmpty, !documentIdentity.contains("\0") else { throw WallpaperError(text("diagnosticMissingCapture")) }
@@ -120,7 +121,9 @@ struct EditorCapturedScriptSnapshot {
                 let local = layerIndex == nil ? Array(path.dropLast()) : Array(path.dropFirst(2).dropLast())
                 let effect = local.count == 3 && local[0].base as? String == "effects" && local[1].base is Int && local[2].base as? String == "visible"
                 let target = effect ? "effects[\(local[1])].visible" : local.map { String(describing: $0.base) }.joined(separator: ".")
-                let registered = layer != nil && ((local.count == 1 && Self.properties.contains(target)) || effect)
+                let particle = local.count == 2 && local[0].base as? String == "instanceoverride" &&
+                    Self.particleProperties.contains(String(describing: local[1].base)) && !(layer?["particle"] as? String ?? "").isEmpty
+                let registered = layer != nil && ((local.count == 1 && Self.properties.contains(target)) || effect || particle)
                 // null identity belongs only to actual general wrappers, never a layer with a string/missing ID.
                 if layerIndex == nil || layerID != nil {
                     found.append(Source(source: source, layerID: layerID, target: target, path: path, registered: registered))

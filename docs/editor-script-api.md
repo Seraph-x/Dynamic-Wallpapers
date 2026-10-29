@@ -2,6 +2,13 @@
 
 The Script workspace offers a static, offline catalogue for the pinned WebWallGL **3.0.0** runtime. Hints and syntax checking do not execute source or prove its types, runtime capabilities or event delivery. These catalogue limits never make existing author-written source read-only: the source anchor, base value and existing bindings still determine editability.
 
+Resource targets retain their actual scalar or vector2/3/4 value kind. Component
+hints and lifecycle starters preserve that dimension; they do not expose Vec3
+methods on the plain component objects passed to resource callbacks. Resource
+constants and scene particle overrides do not receive cursor events, so their
+cursor starter is explicitly unavailable. Existing authored source remains
+governed by the source-anchor/binding contract rather than template availability.
+
 The current app supplies audio or silence and passes `media: null`. System-media templates are unavailable. Native snapshot previews supply zero spectrum by default; a separate Editor preview opt-in enables real stereo spectrum on macOS 14.2+. Main has its own capture setting. User-property callbacks receive initial values. Independent previews can also [test live values](editor-preview-properties.md), including while paused, without saving or changing exports. Main’s ordinary playback still uses authored defaults.
 
 ## Choose a starter
