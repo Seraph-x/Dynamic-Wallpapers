@@ -1,6 +1,12 @@
 # Complete external resource Script workspace design proposal
 
-Status: approved design. The data-only foundation is implemented in the first PR; renderer sinks, workspace UI and native playback acceptance remain required in subsequent PRs. No unsupported runtime path is marked complete.
+Status: completed approved design. The data-only foundation, actual renderer and
+diagnostics, and complete workspace/native acceptance merged in PRs
+[#41](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/41),
+[#47](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/47) and
+[#48](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/48). The completion ledger
+records tested revisions and evidence; unsupported runtime paths retain their
+explicit read-only limitations.
 
 ## Complete delivery contract
 

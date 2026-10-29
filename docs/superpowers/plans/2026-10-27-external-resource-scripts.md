@@ -57,7 +57,7 @@ Only the first approved PR is represented by this checklist. Runtime execution a
 - [x] Register typed scene instanceoverride sources and reproduce/fix parent override broadcasts crossing explicit child overrides; actual inherited/explicit/inherited opacity is `0.2/1/0.2` with per-instance sandboxes.
 - [x] Complete five-language resource UI/shared-consumer/unknown-source layout, saved reload, package-derived import and fault/race acceptance. The full shared-consumer list retains every owning layer/reference slot and uses keyboard-operable native disclosure.
 - [x] Complete actual native material/particle edit, freeze, undo/redo, save/reopen, captured preview, loose/PKG Main playback, resource/GC/lifetime and long-origin diagnostics acceptance.
-- [ ] Run full relevant regressions, review, privacy/build gates, truthful docs and the final workspace English PR/merge. Only then close the umbrella item.
+- [x] Run full relevant regressions, review, privacy/build gates, truthful docs and the final workspace English PR/merge. PR #48 merged at `721e940` from tested implementation head `4fbdc7b`; the umbrella external-resource scripting item is closed.
 
 ## Workspace verification before integration
 
