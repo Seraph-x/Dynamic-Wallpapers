@@ -175,9 +175,9 @@ Evidence: `/private/tmp/dw-system-media-settings-final-ui-tests.log`,
 ## Task 6: Review, verification, PR and completion record
 
 - [x] Use `requesting-code-review` with a read-only independent reviewer for the whole change, fix material issues and rerun affected checks.
-- [ ] Run `verification-before-completion`: complete relevant Swift and Node suites, strict native harness build (180 seconds), each actual browser/CEF/Apple Event/TLS phase (60 seconds), same-input reproducible Main/Editor bundles, dependency/signature checks and changed-file sanitized-public-export gate.
-- [ ] Inspect final diff, preserve source originals and unknown metadata, record exact tested heads and actual receipts in `docs/superpowers/plans/2026-10-27-completion-ledger.md` (locate the existing ledger before editing if its filename differs). English commits/PR text use configured real identity. Documentation PR #49 merged as `3583cc0`; this branch includes that remote merge. Do not bypass automatic approval review.
-- [ ] Push and create the coherent system media PR under existing authorization, wait for actual checks, merge the exact tested head when review is available, verify remote merge state and update the ledger. A local passing implementation is not a merged PR.
+- [x] Run `verification-before-completion`: complete relevant Swift and Node suites, strict native harness build (180 seconds), each actual browser/CEF/Apple Event/TLS phase (60 seconds), same-input reproducible Main/Editor bundles, dependency/signature checks and changed-file sanitized-public-export gate.
+- [x] Inspect final diff, preserve source originals and unknown metadata, record exact tested heads and actual receipts in `docs/superpowers/plans/2026-10-27-completion-ledger.md` (locate the existing ledger before editing if its filename differs). English commits/PR text use configured real identity. Documentation PR #49 merged as `3583cc0`; this branch includes that remote merge. Do not bypass automatic approval review.
+- [x] Push and create the coherent system media PR under existing authorization, wait for actual checks, merge the exact tested head when review is available, verify remote merge state and update the ledger. A local passing implementation is not a merged PR.
 - [ ] Continue the remaining queue: controlled final dependency/app packaging, five-language README/help and historical roadmap correction, then Main/independent Editor releases built from final merged source. This plan does not mark those releases complete.
 
 Final independent whole-branch review found no Critical/Important issues in the
@@ -211,3 +211,11 @@ and the documented broad-suite UI/cadence limits remain distinct.
 Draft PR: https://github.com/Seraph-x/Dynamic-Wallpapers/pull/50. GitHub reports
 no configured checks for this branch; local receipts and the exact head are
 recorded explicitly instead of inventing a remote CI pass.
+
+PR #50 merged as `c19508575322bba9fc70afd35e2cdcccaa311533` from exact feature
+head `f2cd1cd9dfe74e6066f9b73679395ff4c6768ae0`; remote state was read back as
+MERGED. The final head passed all 42 packaging checks again. The final relevant
+verification checklist was executed with the broad-suite failures and live
+vendor limitations above explicitly retained; it is not a claim that every
+full-suite assertion passed. Subsequent documentation and final release work
+continues in the companion ledger.
