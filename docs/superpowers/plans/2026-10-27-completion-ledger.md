@@ -118,3 +118,53 @@ reproducible Python/Node build tooling and source-built media dependencies.
   acceptance, both reproducible builds and identical renderer copies passed.
   Independent review had no remaining Important issues; all 69 changed/new files
   passed the publication scan. The external-resource scripting package is closed.
+
+- Completion record PR
+  [#49](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/49) merged at
+  `3583cc0`. The following system-media worktree includes that merge.
+- System-media runtime plan Tasks 1–3 are implemented locally: immutable native
+  projection, explicit renderer source and generation/revision-bound CEF data,
+  transport and independent artwork failures. The 40 media tests, 23 targeted
+  renderer checks, 464 Editor Node checks and actual Main/Editor loose/PKG
+  browser fixtures pass. Fresh native run `2f6128aa-d10f-4d12-979d-5fbc8edd6696`
+  passed build, protocol, real pixels/control/boundary tests and full shutdown;
+  the test host explicitly uses isolated credentials, not production Keychain.
+  Independent review of this batch has no remaining Important issues. Shared
+  Main playback ownership, consent/settings, full integration review and the
+  system-media PR remain open; this is not a completed or merged media feature.
+- System-media Task 4 now connects actual playing Main scenes to one shared
+  controller, including persisted selection, forced-off library-load failure,
+  empty preparation, acknowledged pause clears and close/shutdown draining.
+  Independent review's real native-worker cancellation finding was reproduced
+  with seven handshake regressions and fixed through the complete Task/GCD
+  chain. All 66 targeted Main/media/Core checks and 199 isolated media/Core/owner
+  tests pass after successful full/incremental builds. Actual owned Apple
+  Events/TLS and Main/Metal CEF loose/PKG runs for both dictionaries passed,
+  including preparing a new empty page while another has live data; latest run
+  `5acf3d94-15ec-44e8-8b9b-7e2c127b5a01` has all four acceptance records and both
+  real runtime shutdowns. No Critical/Important review findings remain. Main
+  settings/consent and the system-media PR are still open.
+- The current controlled media closure was rebuilt from locked tracked sources
+  in a neutral directory, then retained in the shared build cache. Current input
+  fingerprints, SDK/tool environment, all 14 libraries and signatures verify.
+  Final app/extracted-archive and distribution acceptance remain open; historical
+  media products are not substituted for the current verified build.
+- System-media Task 5 implements localized Main consent/settings and actual
+  failure/retry presentation. Seven targeted UI/localization checks and owned
+  settings Automation run `74cd7439-90c3-4558-8085-58f91122e3e5` pass for both
+  dictionary adapters with actual Apple Events and artwork pixels. Product,
+  permission-copy and package-isolation checks pass. Neither vendor application
+  is running; live Music/Spotify playback remains unverified. Broad regression
+  first lacked authored MPV fixtures; documented generation restored the inputs
+  and 20 affected media/TLS tests pass. Actual audio and ScreenSaver reruns pass;
+  inspector UI and capture-cadence assertions remain failed, not waived or
+  represented as a successful full suite. Final review/PR and releases stay open.
+- System-media draft PR [#50](https://github.com/Seraph-x/Dynamic-Wallpapers/pull/50)
+  at `cd06927` passed all 54 complete Editor browser/native phases in run
+  `636258f5-57d7-433f-838b-edb47e02ed5b`, fresh Main native run
+  `2c311dee-61ad-40eb-bd22-ceb999e75a09`, all 199 isolated checks and fresh owned
+  settings run `51321e21-afa0-4208-a6ce-54e5e0502f34`. Packaging first exposed an
+  old WebWallGL provenance entry in the material manifest; the actual hash/size
+  were regenerated and all 42 packaging checks pass. No remote CI checks are
+  configured. Broad-suite UI/cadence limits and final distribution acceptance
+  remain recorded separately; merge is not yet claimed.

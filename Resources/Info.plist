@@ -7,4 +7,5 @@
     <key>LSUIElement</key><true/>
     <key>NSSupportsAutomaticTermination</key><false/>
     <key>NSPrincipalClass</key><string>NSApplication</string>
+    <key>NSAppleEventsUsageDescription</key><string>Allow trusted playing scenes to read playback information and control the selected running Music or Spotify app.</string>
 </dict></plist>

@@ -1,1 +1,2 @@
 "NSAudioCaptureUsageDescription" = "Analizar el audio del sistema para animar las escenas. El audio no se graba ni se sube.";
+"NSAppleEventsUsageDescription" = "Permitir que las escenas de confianza en reproducción lean información de reproducción y controlen la app Music o Spotify seleccionada que ya esté abierta.";

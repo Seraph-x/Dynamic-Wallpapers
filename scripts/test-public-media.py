@@ -32,6 +32,20 @@ def package():
             raise ValueError(f'Test source link points at a different checkout: {destination}')
         if not destination.exists():
             destination.symlink_to(ROOT / source, target_is_directory=True)
+    for directory, names, source in [
+        ('SceneMediaOwner', ['SceneMediaSessionOwner.swift'], 'Sources/WallpaperApp/Media'),
+        ('SceneMediaOwner', ['ApplicationTermination.swift'], 'Sources/WallpaperApp'),
+        ('SceneMediaOwnerTests', ['SceneMediaIntegrationTests.swift', 'SceneMediaIntegrationFixture.swift', 'SceneMediaNativeQueueTests.swift'], 'Tests/WallpaperAppTests'),
+    ]:
+        destination = PACKAGE / directory
+        destination.mkdir(exist_ok=True)
+        for name in names:
+            link = destination / name
+            expected = ROOT / source / name
+            if link.is_symlink() and link.resolve() != expected.resolve():
+                raise ValueError(f'Test source link points at a different checkout: {link}')
+            if not link.is_symlink():
+                link.symlink_to(expected)
     (PACKAGE / 'Package.swift').write_text('''// swift-tools-version: 6.0
 import PackageDescription
 let package = Package(name: "PublicMediaTests", platforms: [.macOS(.v14)], products: [
@@ -42,6 +56,8 @@ let package = Package(name: "PublicMediaTests", platforms: [.macOS(.v14)], produ
  .target(name: "WallpaperMediaIntegration", dependencies: ["WallpaperCore"], path: "WallpaperMediaIntegration"),
  .testTarget(name: "WallpaperCoreTests", dependencies: ["WallpaperCore"], path: "WallpaperCoreTests"),
  .testTarget(name: "WallpaperMediaIntegrationTests", dependencies: ["WallpaperMediaIntegration", "WallpaperCore"], path: "WallpaperMediaIntegrationTests"),
+ .target(name: "WallpaperApp", dependencies: ["WallpaperMediaIntegration", "WallpaperCore"], path: "SceneMediaOwner"),
+ .testTarget(name: "SceneMediaOwnerTests", dependencies: ["WallpaperApp", "WallpaperMediaIntegration", "WallpaperCore"], path: "SceneMediaOwnerTests"),
  .executableTarget(name: "MediaAutomationFixture", path: "MediaAutomationHarness", exclude: ["Client.swift", "Fixtures", "https-artwork-server.py"], sources: ["Fixture.swift"]),
  .executableTarget(name: "MediaAutomationClient", dependencies: ["WallpaperMediaIntegration", "WallpaperCore"], path: "MediaAutomationHarness", exclude: ["Fixture.swift", "Fixtures", "https-artwork-server.py"], sources: ["Client.swift"]),
 ], swiftLanguageModes: [.v5])

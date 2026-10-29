@@ -23,6 +23,7 @@ public final class SystemMediaController: ObservableObject {
     private var subscribers = Set<UUID>()
     private var revision = 0
     private var operation: Task<Void, Never>?
+    private var controls: [UUID: Task<Void, Error>] = [:]
     private var pendingReads = Set<Int>()
     private var authorizing = false
     private var blocked = false
@@ -42,7 +43,7 @@ public final class SystemMediaController: ObservableObject {
 
     public func configure(source: SystemMediaSource) {
         guard !shuttingDown, self.source != source else { return }
-        self.source = source; revision += 1; failure = nil; blocked = false
+        self.source = source; revision += 1; cancelControls(); failure = nil; blocked = false
         stopTimer(); publish(nil)
         reconcile()
     }
@@ -53,6 +54,7 @@ public final class SystemMediaController: ObservableObject {
         if value { subscribers.insert(id) } else { subscribers.remove(id) }
         guard wasActive != wantsReads else { return }
         revision += 1
+        cancelControls()
         if !wantsReads { stopTimer(); publish(nil) }
         reconcile()
     }
@@ -87,31 +89,39 @@ public final class SystemMediaController: ObservableObject {
 
     public func settled() async { await operation?.value }
 
-    public func perform(_ command: SystemMediaCommand) async throws {
+    /// Recheck the owning scene at actual OS dispatch, after any queued reads.
+    /// A shared provider can remain active after this particular scene retires.
+    public func perform(_ command: SystemMediaCommand,
+                        whileCurrent: @escaping @MainActor () -> Bool = { true }) async throws {
+        try Task.checkCancellation()
+        guard whileCurrent() else { throw CancellationError() }
         guard !shuttingDown, source != .disabled else { throw SystemMediaError.disabled }
         guard wantsReads, !blocked, snapshot != nil else { throw SystemMediaError.noCurrentItem }
-        let request = revision, selected = source
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            append { [self] in
-                guard request == revision, wantsReads else {
-                    continuation.resume(throwing: CancellationError()); return
-                }
-                guard !blocked, snapshot != nil else {
-                    continuation.resume(throwing: SystemMediaError.noCurrentItem); return
-                }
-                do {
-                    try await service.perform(command, source: selected)
-                    guard request == revision, wantsReads else { throw CancellationError() }
-                    let result = try await service.read(source: selected, requestAuthorization: false)
-                    guard request == revision, wantsReads else { throw CancellationError() }
-                    apply(result)
-                    continuation.resume()
-                } catch {
-                    if request == revision, !shuttingDown, !(error is CancellationError) { fail(error) }
-                    continuation.resume(throwing: error)
-                }
+        let request = revision, selected = source, previous = operation, token = UUID()
+        let task = Task { @MainActor [self] in
+            await previous?.value
+            try Task.checkCancellation()
+            guard request == revision, wantsReads, whileCurrent() else { throw CancellationError() }
+            guard !blocked, snapshot != nil else { throw SystemMediaError.noCurrentItem }
+            do {
+                try await service.perform(command, source: selected)
+                try Task.checkCancellation()
+                guard request == revision, wantsReads, whileCurrent() else { throw CancellationError() }
+                let result = try await service.read(source: selected, requestAuthorization: false)
+                try Task.checkCancellation()
+                guard request == revision, wantsReads, whileCurrent() else { throw CancellationError() }
+                apply(result)
+            } catch {
+                if request == revision, !shuttingDown, !(error is CancellationError) { fail(error) }
+                throw error
             }
         }
+        controls[token] = task
+        // Preserve shared operation ordering without losing the individual task's
+        // cancellation handler at the Task/GCD native-work boundary.
+        operation = Task { _ = await task.result }
+        defer { controls.removeValue(forKey: token) }
+        try await withTaskCancellationHandler { try await task.value } onCancel: { task.cancel() }
     }
 
     /// Stops new work and drains dispatched OS operations. An already dispatched
@@ -119,6 +129,7 @@ public final class SystemMediaController: ObservableObject {
     public func shutdown() async {
         if let shutdownTask { await shutdownTask.value; return }
         shuttingDown = true; revision += 1; subscribers.removeAll()
+        cancelControls()
         stopTimer(); publish(nil); status = .disabled
         let pending = operation
         let task = Task { @MainActor [self] in
@@ -201,6 +212,8 @@ public final class SystemMediaController: ObservableObject {
             await work()
         }
     }
+
+    private func cancelControls() { for task in controls.values { task.cancel() } }
 
     private func startTimer() {
         guard timer == nil else { return }

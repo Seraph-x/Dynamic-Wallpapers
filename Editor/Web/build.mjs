@@ -84,7 +84,7 @@ async function putPreview(name,bytes) {
 }
 // Preserve Main's trusted entry and playback modules byte-for-byte. Only the
 // Editor shell selects the closure-scoped, read-only issue observer wrapper.
-for(const name of ['index.html','scene.css','scene-runtime.mjs','scene-spectrum.mjs','scene-source.mjs','scene-protocol.mjs','scene-properties.mjs','webwallgl.bundle.mjs']) {
+for(const name of ['index.html','scene.css','scene-runtime.mjs','scene-spectrum.mjs','scene-source.mjs','scene-protocol.mjs','scene-properties.mjs','scene-media.mjs','webwallgl.bundle.mjs']) {
   await putPreview(name,await readFile(path.join(repo,'Sources/WallpaperApp/Resources/SceneRuntime',name)));
 }
 await putPreview('scene-shell.mjs',await readFile(path.join(web,'scene-preview-shell.mjs')));

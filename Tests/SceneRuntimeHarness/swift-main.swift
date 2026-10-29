@@ -6,7 +6,7 @@ import WebWallpaperBridge
 
 /// Observation only: every operation executes against the real CEF session.
 @MainActor
-private final class ObservedScenePage: ScenePageSession {
+final class ObservedScenePage: ScenePageSession {
     let underlying: any ScenePageSession
     private(set) var gains: [Double] = []
     private(set) var closeCount = 0
@@ -27,7 +27,7 @@ private final class ObservedScenePage: ScenePageSession {
 }
 
 @MainActor
-private final class ObservedSceneFactory: ScenePageMaking {
+final class ObservedSceneFactory: ScenePageMaking {
     let runtime: CEFApplicationRuntime
     private(set) var pages: [ObservedScenePage] = []
     init(_ runtime: CEFApplicationRuntime) { self.runtime = runtime }
@@ -164,13 +164,12 @@ struct SceneSwiftHarness {
     @MainActor
     static func run() async throws {
         let arguments = CommandLine.arguments
-        let options = Array(arguments.dropFirst(5))
-        guard arguments.count >= 5, options.allSatisfy({ ["--system-audio", "--properties"].contains($0) }),
-              Set(options).count == options.count else {
-            throw WallpaperError("Expected runtime, loose project, package project, cache paths and optional --system-audio/--properties")
-        }
+        guard arguments.count >= 5 else { throw WallpaperError("Expected runtime, loose project, package project and cache paths") }
+        let parsed = try Self.options(Array(arguments.dropFirst(5)))
+        let options = parsed.flags
+        let media = try parsed.media.map { try OwnedSystemMediaConfiguration(directory: $0) }
         let runtime = CEFApplicationRuntime(paths: .resolve(), cache: URL(fileURLWithPath: arguments[4]),
-            sceneRuntimeRoot: URL(fileURLWithPath: arguments[1]))
+            sceneRuntimeRoot: URL(fileURLWithPath: arguments[1]), systemMedia: try media?.makeController())
         do {
             try await exercise(project: SceneProjectReference(root: URL(fileURLWithPath: arguments[2]),
                 entry: "scene.json", representation: .loose), runtime: runtime)
@@ -185,6 +184,10 @@ struct SceneSwiftHarness {
                     entry: "scene.json", representation: .loose), runtime: runtime,
                     directory: URL(fileURLWithPath: arguments[4]).deletingLastPathComponent())
             }
+            if let media {
+                try await SystemMediaSceneEvidence.run(runtime: runtime, configuration: media,
+                    projects: URL(fileURLWithPath: arguments[4]).deletingLastPathComponent().appendingPathComponent("media"))
+            }
             try await runtime.shutdown()
             print("SCENE_SWIFT SHUTDOWN activePages=0")
         } catch {
@@ -194,14 +197,45 @@ struct SceneSwiftHarness {
         }
     }
 
+    private static func options(_ arguments: [String]) throws -> (flags: Set<String>, media: URL?) {
+        var flags = Set<String>(), media: URL?, index = 0
+        while index < arguments.count {
+            let option = arguments[index]
+            try require(flags.insert(option).inserted, "Duplicate scene test option")
+            switch option {
+            case "--system-audio", "--properties": break
+            case "--system-media", "--result-file":
+                try require(index + 1 < arguments.count, "Missing scene test option value")
+                index += 1
+                if option == "--system-media" { media = URL(fileURLWithPath: arguments[index]) }
+            default: throw WallpaperError("Unknown scene test option: \(option)")
+            }
+            index += 1
+        }
+        return (flags, media)
+    }
+
     @MainActor
     static func main() {
         DWWebCreateApplication()
         NSApp.setActivationPolicy(.accessory)
         Task { @MainActor in
-            do { try await run(); Darwin.exit(0) }
-            catch { fputs("SCENE_SWIFT FAILED \(error.localizedDescription)\n", stderr); Darwin.exit(1) }
+            do { try record("running"); try await run(); try record("passed"); Darwin.exit(0) }
+            catch {
+                fputs("SCENE_SWIFT FAILED \(error.localizedDescription)\n", stderr)
+                do { try record("failed", error: error.localizedDescription) }
+                catch { fputs("SCENE_SWIFT result write failed: \(error)\n", stderr) }
+                Darwin.exit(1)
+            }
         }
         NSApp.run()
+    }
+
+    private static func record(_ status: String, error: String? = nil) throws {
+        let arguments = CommandLine.arguments
+        guard let index = arguments.firstIndex(of: "--result-file"), index + 1 < arguments.count else { return }
+        var result: [String: Any] = ["status": status, "pid": ProcessInfo.processInfo.processIdentifier]
+        if let error { result["error"] = error }
+        try JSONSerialization.data(withJSONObject: result).write(to: URL(fileURLWithPath: arguments[index + 1]), options: .atomic)
     }
 }

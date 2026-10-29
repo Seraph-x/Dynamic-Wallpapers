@@ -1,6 +1,7 @@
 import AppKit
 import Combine
 import WallpaperCore
+import WallpaperMediaIntegration
 
 @MainActor
 struct AppCompositionOverrides {
@@ -15,6 +16,7 @@ struct AppCompositionOverrides {
     let webInteractionPermissions: (any WebInteractionPermissionServicing)?
     let screenSaver: ScreenSaverModel?
     let fullScreenMonitor: OtherAppFullScreenMonitor?
+    let systemMedia: SystemMediaController?
 
     init(paths: ApplicationPaths? = nil, store: LibraryStore? = nil, transcoding: TranscodeModel? = nil,
          inspectorMedia: InspectorMediaModel? = nil, managedImport: ManagedMediaImport? = nil,
@@ -22,7 +24,8 @@ struct AppCompositionOverrides {
          loginItems: LoginItemController? = nil,
          webInteractionPermissions: (any WebInteractionPermissionServicing)? = nil,
          screenSaver: ScreenSaverModel? = nil,
-         fullScreenMonitor: OtherAppFullScreenMonitor? = nil) {
+         fullScreenMonitor: OtherAppFullScreenMonitor? = nil,
+         systemMedia: SystemMediaController? = nil) {
         self.paths = paths
         self.store = store
         self.transcoding = transcoding
@@ -34,6 +37,7 @@ struct AppCompositionOverrides {
         self.webInteractionPermissions = webInteractionPermissions
         self.screenSaver = screenSaver
         self.fullScreenMonitor = fullScreenMonitor
+        self.systemMedia = systemMedia
     }
 }
 
@@ -73,7 +77,7 @@ enum AppCompositionRoot {
         let presentation = overrides.presentation ?? SystemApplicationPresentation()
         let loginItems = overrides.loginItems ?? LoginItemController(service: SystemLoginItemService())
         let webRuntime = CEFApplicationRuntime(cache: paths.cefCache,
-            sceneRuntimeRoot: Bundle.module.url(forResource: "SceneRuntime", withExtension: nil))
+            sceneRuntimeRoot: Bundle.module.url(forResource: "SceneRuntime", withExtension: nil), systemMedia: overrides.systemMedia)
         let surfaceFactory = SurfaceFactory(webPages: webRuntime, scenePages: webRuntime)
         let thumbnails = overrides.thumbnails ?? ThumbnailLifetime(load: { item in
             try await MediaThumbnail.load(item, webPages: webRuntime, scenePages: webRuntime)

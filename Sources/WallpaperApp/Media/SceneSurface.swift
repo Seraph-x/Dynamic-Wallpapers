@@ -216,6 +216,7 @@ final class SceneSurface: NSView, PlaybackSurface {
         revision += 1
         state = .closing
         let retiring = page
+        retiring?.setPlaybackIntent(false)
         retiring?.onError = nil
         // Gate before the first suspension, then still close after a gate error.
         var gateFailure: Error?

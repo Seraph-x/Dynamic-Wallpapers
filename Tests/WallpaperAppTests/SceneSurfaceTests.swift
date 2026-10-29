@@ -115,6 +115,17 @@ final class SceneSurfaceTests: XCTestCase {
         XCTAssertThrowsError(try surface.sendClick(at: .zero, clickCount: 1, expectedPageID: id))
         try await surface.close()
     }
+
+    func testCloseRevokesPlaybackDemandBeforeNativeRetirement() async throws {
+        let factory = TestSceneFactory()
+        let surface = SceneSurface(size: CGSize(width: 320, height: 180), fit: .fill, pageFactory: factory)
+        try await surface.prepare(item: item, scale: 1, fit: .fill)
+        surface.play(); await surface.waitForPlaybackCommand()
+        XCTAssertTrue(factory.page.playbackIntent)
+        try await surface.close()
+        XCTAssertEqual(factory.page.intentAtClose, false,
+                       "Provider demand must be invalidated before the native close await")
+    }
 }
 
 @MainActor
@@ -132,6 +143,7 @@ private final class TestScenePage: ScenePageSession {
     var playing: [Bool] = []
     var pointer: [CGPoint] = []
     var closeCount = 0
+    var intentAtClose: Bool?
     var closeError: Error?
     var holdPrepare = false
     var prepareContinuation: CheckedContinuation<Void, Error>?
@@ -155,6 +167,7 @@ private final class TestScenePage: ScenePageSession {
     func finishPlay() { continuation?.resume(); continuation = nil }
     func sendPointer(at point: CGPoint, kind: String) throws { pointer.append(point) }
     func close() async throws {
+        intentAtClose = playbackIntent
         closeCount += 1
         prepareContinuation?.resume(throwing: CancellationError()); prepareContinuation = nil
         if let closeError { throw closeError }

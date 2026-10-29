@@ -231,6 +231,26 @@ final class SystemMediaControllerTests: XCTestCase {
         await controller.shutdown()
     }
 
+    func testSceneAuthorizationIsRecheckedInsideQueuedNativeDispatch() async throws {
+        let service = Service(), controller = SystemMediaController(service: service, pollInterval: 3600)
+        controller.configure(source: .music); controller.setPlaying(UUID(), true); await controller.settled()
+        await service.holdNext()
+        let refresh = Task { await controller.refresh() }
+        try await waitUntil { await service.isPending() }
+        var current = true, checks = 0
+        let control = Task {
+            try await controller.perform(.skipNext, whileCurrent: { checks += 1; return current })
+        }
+        try await waitUntil { checks == 1 }
+        current = false
+        await service.release(.noCurrentItem); await refresh.value
+        do { try await control.value; XCTFail("Expected scene invalidation before OS dispatch") }
+        catch { XCTAssertTrue(error is CancellationError) }
+        let commands = await service.controls; XCTAssertTrue(commands.isEmpty)
+        XCTAssertEqual(checks, 2)
+        await controller.shutdown()
+    }
+
     private func waitUntil(_ condition: () async -> Bool) async throws {
         let deadline = ContinuousClock.now + .seconds(2)
         while !(await condition()) {

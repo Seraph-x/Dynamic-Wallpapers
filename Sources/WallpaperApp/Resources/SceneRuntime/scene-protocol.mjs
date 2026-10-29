@@ -1,4 +1,5 @@
 import { validatePropertyWire } from './scene-properties.mjs';
+import { validateMediaSnapshot } from './scene-media.mjs';
 
 const fits = new Set(['cover', 'contain']);
 const record = value => value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -28,6 +29,7 @@ const fields = {
   play: [], pause: [], destroy: [], volume: ['volume', 'muted'], fit: ['fit'], fps: ['fps'],
   pointer: ['kind', 'x', 'y'],
   properties: ['properties'],
+  media: ['media', 'mediaRevision'],
 };
 export function validateCommand(command, config) {
   requireValue(record(command) && identity(command.id) && Object.hasOwn(fields, command.type), 'Invalid scene command');
@@ -40,6 +42,10 @@ export function validateCommand(command, config) {
     case 'fit': requireValue(fits.has(command.fit), 'Invalid fit'); break;
     case 'fps': requireValue(finite(command.fps, 1, 2147483647), 'Invalid FPS'); break;
     case 'properties': validatePropertyWire(command.properties); break;
+    case 'media':
+      requireValue(Number.isSafeInteger(command.mediaRevision) && command.mediaRevision > 0, 'Invalid system media revision');
+      validateMediaSnapshot(command.media);
+      break;
     case 'pointer':
       requireValue(['move', 'leave', 'click'].includes(command.kind), 'Invalid pointer kind');
       requireValue(command.kind === 'leave' && command.x === undefined && command.y === undefined || finite(command.x, 0, 1) && finite(command.y, 0, 1), 'Invalid pointer coordinates');

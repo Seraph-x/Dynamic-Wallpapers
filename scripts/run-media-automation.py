@@ -12,7 +12,7 @@ import subprocess
 import time
 
 
-def run_client(application, arguments, directory, label):
+def run_client(application, arguments, directory, label, *, timeout_seconds=20):
     result = directory / f'{label}-result.json'
     output = directory / f'{label}-client.log'
     output.touch()
@@ -27,7 +27,7 @@ def run_client(application, arguments, directory, label):
         launcher.wait(timeout=5)
         if launcher.returncode != 0:
             raise RuntimeError(f'LaunchServices could not launch the owned client: {launcher.returncode}')
-        deadline = time.monotonic() + 20
+        deadline = time.monotonic() + timeout_seconds
         value = None
         while time.monotonic() < deadline:
             if result.exists():
@@ -36,7 +36,7 @@ def run_client(application, arguments, directory, label):
                     break
             time.sleep(0.02)
         else:
-            raise TimeoutError(f'Owned client result/process exit exceeded 20 seconds; see {output}')
+            raise TimeoutError(f'Owned client result/process exit exceeded {timeout_seconds} seconds; see {output}')
         if value.get('status') != 'passed':
             raise RuntimeError(f'Owned client failed: {value}; see {output}')
         print(output.read_text(), end='', flush=True)
@@ -89,6 +89,41 @@ def owned_tls(artifacts):
                 process.kill()
                 process.wait(timeout=2)
                 raise RuntimeError('Owned TLS fixture failed to exit during SIGTERM cleanup')
+
+
+@contextmanager
+def owned_player(executable, directory, *, source, tls):
+    if source not in ('music', 'spotify'):
+        raise ValueError('Owned fixture supports only music and spotify dictionary adapters')
+    directory.mkdir()
+    (directory / 'mode').write_text('normal')
+    (directory / 'receipts.json').write_text('[]')
+    (directory / 'server.json').write_text(json.dumps(tls))
+    (directory / 'artwork-url').write_text(tls['url'] + '/image')
+    png = Path(__file__).resolve().parent.parent / 'Tests/MediaAutomationHarness/Fixtures/owned-artwork.png'
+    shutil.copy2(png, directory / 'owned-artwork.png')
+    with (directory / 'fixture.log').open('wb') as output:
+        process = subprocess.Popen([str(executable), str(directory), source], stdout=output, stderr=subprocess.STDOUT)
+        try:
+            deadline = time.monotonic() + 10
+            while not (directory / 'ready').exists():
+                if process.poll() is not None:
+                    raise RuntimeError(f'Owned fixture exited {process.returncode}')
+                if time.monotonic() >= deadline:
+                    raise TimeoutError('Owned fixture readiness exceeded 10 seconds')
+                time.sleep(0.02)
+            pid = int((directory / 'ready').read_text())
+            if pid != process.pid:
+                raise RuntimeError('Owned fixture PID mismatch')
+            yield pid
+        finally:
+            if process.poll() is None:
+                process.terminate()
+            try:
+                process.wait(timeout=2)
+            except subprocess.TimeoutExpired:
+                process.kill(); process.wait(timeout=2)
+                raise RuntimeError('Owned player fixture failed SIGTERM cleanup')
 
 
 def main():

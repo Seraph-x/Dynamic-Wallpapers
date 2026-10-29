@@ -2,6 +2,7 @@ import { validateConfig, validateCommand } from './scene-protocol.mjs';
 import { createProjectSource } from './scene-source.mjs';
 import { createSpectrumSource } from './scene-spectrum.mjs';
 import { createPropertyCatalog, validatePropertyPatch } from './scene-properties.mjs';
+import { createSceneMediaSource } from './scene-media.mjs';
 
 function errorMessage(error) {
   const text = String(error?.message ?? error);
@@ -19,10 +20,14 @@ export function startSceneRuntime(value, options) {
   let stopSpectrum;
   let propertyCatalog;
   const event = payload => options.report({ ...payload, sceneID: config.sceneID, generation: config.generation });
+  const media = createSceneMediaSource({ createMediaSource: options.createMediaSource, report: event,
+    onArtworkError: (error, mediaRevision) => event({ type: 'media-artwork-error', mediaRevision, message: errorMessage(error) }),
+    onError: error => console.error('System media reporting failed', error) });
   const destroy = () => {
     if (destroyed) return;
     destroyed = true;
     stopSpectrum?.(); spectrum.clear();
+    media.dispose();
     source.dispose();
     instance?.destroy({ releasePkgCache: true });
   };
@@ -36,7 +41,7 @@ export function startSceneRuntime(value, options) {
   const source = createProjectSource(config.project, { ...options.sourceOptions, onError: fail });
   instance = options.createScene(options.element, {
     fps: config.fps, fit: config.fit, volume: config.muted ? 0 : config.volume,
-    audio: spectrum, media: null, autoQuality: false, debugHooks: false,
+    audio: spectrum, media: media.source, autoQuality: false, debugHooks: false,
     onError: fail,
     onDiagnostic: (message, level) => {
       if (level === 'error') fail(new Error(message));
@@ -68,6 +73,12 @@ export function startSceneRuntime(value, options) {
       case 'volume': instance.setVolume(command.muted ? 0 : command.volume); break;
       case 'fit': instance.setFit(command.fit); break;
       case 'fps': fps = command.fps; instance.setFps(fps); break;
+      case 'media': {
+        media.replace(command.media, command.mediaRevision);
+        await instance.setMedia(media.source);
+        if (destroyed || failed) throw new Error('Scene destroyed during media update');
+        break;
+      }
       case 'properties': {
         propertyCatalog ??= createPropertyCatalog(await source.project());
         if (destroyed || failed) throw new Error('Scene destroyed during property preparation');

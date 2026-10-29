@@ -606,7 +606,7 @@ let explicitTargets: [Target] = [
                 linkerSettings: [.linkedFramework("AppKit"), .linkedFramework("QuartzCore"),
                     .linkedFramework("AVFoundation"), .linkedFramework("CoreAudio"),
                     .unsafeFlags([cefWrapper])]),
-        .executableTarget(name: "WallpaperApp", dependencies: ["WallpaperAudioSpectrum", "WallpaperCore", "WallpaperNative", "ScreenSaverCore", "ScreenSaverRuntime", "MPVBridge", "WebWallpaperBridge"],
+        .executableTarget(name: "WallpaperApp", dependencies: ["WallpaperAudioSpectrum", "WallpaperMediaIntegration", "WallpaperCore", "WallpaperNative", "ScreenSaverCore", "ScreenSaverRuntime", "MPVBridge", "WebWallpaperBridge"],
                           resources: [.process("Resources/en.lproj"), .process("Resources/zh-Hans.lproj"),
                                       .process("Resources/es.lproj"), .process("Resources/ja.lproj"),
                                       .process("Resources/fr.lproj"), .copy("Resources/SceneRuntime"), .copy("Help")]),
@@ -616,7 +616,7 @@ let explicitTargets: [Target] = [
         .testTarget(name: "ScreenSaverCoreTests", dependencies: ["ScreenSaverCore", "WallpaperCore"]),
         .testTarget(name: "ScreenSaverRuntimeTests", dependencies: ["ScreenSaverRuntime", "ScreenSaverCore", "WallpaperCore", "WallpaperNative"]),
         .testTarget(name: "WallpaperScreenSaverTests", dependencies: ["WallpaperScreenSaver", "ScreenSaverCore"]),
-        .testTarget(name: "WallpaperAppTests", dependencies: ["WallpaperAudioSpectrum", "WallpaperApp", "WallpaperCore", "WallpaperNative", "ScreenSaverCore"])
+        .testTarget(name: "WallpaperAppTests", dependencies: ["WallpaperAudioSpectrum", "WallpaperMediaIntegration", "WallpaperApp", "WallpaperCore", "WallpaperNative", "ScreenSaverCore"])
 ]
 
 let products: [Product] = [

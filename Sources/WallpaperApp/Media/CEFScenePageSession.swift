@@ -1,4 +1,5 @@
 import WallpaperAudioSpectrum
+import WallpaperMediaIntegration
 import AppKit
 import WallpaperCore
 import WebWallpaperBridge
@@ -32,6 +33,7 @@ final class CEFScenePageSession: ScenePageSession {
         guard let project = item.sceneProject, item.backend == .scene else { throw WallpaperError("场景工程无效。") }
         started = true
         owner.sceneProperties.register(id, item: item)
+        owner.sceneMedia.register(id)
         try Task.checkCancellation()
         let readProperties = readProperties
         let capture = try await metadata { try readProperties(item) }
@@ -39,6 +41,7 @@ final class CEFScenePageSession: ScenePageSession {
         try Task.checkCancellation()
         let page = try owner.createScenePage(project: project, id: id, size: size, scale: scale)
         self.page = page
+        bindMediaCallbacks(page)
         try await withTaskCancellationHandler {
             try Task.checkCancellation()
             try await withCheckedThrowingContinuation { continuation in
@@ -64,6 +67,10 @@ final class CEFScenePageSession: ScenePageSession {
                 guard let self, let page else { throw CancellationError() }
                 try await self.command { page.setSceneUserPropertiesJSONData(bytes, completion: $0) }
             }
+            try await owner.sceneMedia.prepare(id) { [weak self, weak page] bytes, revision in
+                guard let self, let page else { throw CancellationError() }
+                try await self.command { page.setSceneMediaSnapshotJSONData(bytes, mediaRevision: revision, completion: $0) }
+            }
             try await owner.sceneProperties.attach(id) { self.view = page.view }
         } onCancel: {
             Task { @MainActor [weak self] in self?.finishPreparation(.failure(CancellationError())) }
@@ -80,9 +87,13 @@ final class CEFScenePageSession: ScenePageSession {
     }
     func setPlaying(_ value: Bool) async throws {
         guard !closing, let page else { throw CancellationError() }
-        if !value { owner.setScenePlaying(id, false) }
+        if !value {
+            owner.setScenePlaying(id, false)
+            try await owner.sceneMedia.settled(id)
+        }
         try await command { page.setScenePlaying(value, completion: $0) }
         owner.setScenePlaying(id, value && playbackIntent)
+        try await owner.sceneMedia.settled(id)
     }
     func setPlaybackIntent(_ value: Bool) {
         playbackIntent = value
@@ -104,6 +115,27 @@ final class CEFScenePageSession: ScenePageSession {
     func sendPointer(at point: CGPoint, kind: String) throws {
         guard !closing, let page, page.ready else { throw WallpaperError("场景当前不能接收鼠标输入。") }
         try page.sendScenePointer(at: point, kind: kind)
+    }
+    private func bindMediaCallbacks(_ page: DWWebPage) {
+        page.onSceneMediaControl = { [weak self] event in
+            guard let self, !self.closing else { return }
+            guard let raw = event["command"] as? String, let command = SystemMediaCommand(rawValue: raw),
+                  let revision = event["mediaRevision"] as? NSNumber else {
+                self.onError?(WallpaperError("Invalid native media control event.")); return
+            }
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                do { try await self.owner.sceneMedia.perform(command, id: self.id, revision: revision.uint64Value) }
+                catch { fputs("DWWEB MEDIA control failed: \(error.localizedDescription)\n", stderr) }
+            }
+        }
+        page.onSceneMediaArtworkError = { [weak self] event in
+            guard let self, !self.closing else { return }
+            guard let message = event["message"] as? String, let revision = event["mediaRevision"] as? NSNumber else {
+                self.onError?(WallpaperError("Invalid native media artwork event.")); return
+            }
+            self.owner.sceneMedia.artworkFailed(self.id, revision: revision.uint64Value, message: message)
+        }
     }
     private func metadata(_ read: @escaping @Sendable () throws -> ScenePropertyCatalogCapture) async throws -> ScenePropertyCatalogCapture {
         let task = Task.detached(operation: read)
@@ -129,9 +161,11 @@ final class CEFScenePageSession: ScenePageSession {
         if let closeTask { try await closeTask.value; return }
         closing = true
         owner.sceneProperties.beginClose(id)
+        owner.sceneMedia.beginClose(id)
         owner.setScenePlaying(id, false)
         finishPreparation(.failure(CancellationError()))
         page?.onReady = nil; page?.onError = nil
+        page?.onSceneMediaControl = nil; page?.onSceneMediaArtworkError = nil
         let pendingMetadata = metadataTask
         pendingMetadata?.cancel()
         let page = self.page
@@ -147,6 +181,7 @@ final class CEFScenePageSession: ScenePageSession {
                 }
             }
             try await self.owner.sceneProperties.retire(self.id)
+            await self.owner.sceneMedia.retire(self.id)
             self.page = nil
             self.owner.retireScene(self.id)
             if let gateFailure { throw gateFailure }

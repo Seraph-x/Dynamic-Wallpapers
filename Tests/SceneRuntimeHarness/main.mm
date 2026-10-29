@@ -48,8 +48,9 @@ static void playing(DWWebPage* page, BOOL value) {
   waitUntil(^{ return BOOL(complete); }, 5, "actual scene lifecycle acknowledgement timed out");
   require(!failure, failure.localizedDescription.UTF8String ?: "scene lifecycle failed");
 }
+#include "SystemMediaAcceptance.h"
 int main(int argc, char** argv) { @autoreleasepool {
-  if (argc != 7) { fprintf(stderr, "usage: SceneRuntimeHarness FRAMEWORK HELPER CACHE RUNTIME LOOSE PACKAGE\n"); return 64; }
+  if (argc != 7 && argc != 8) { fprintf(stderr, "usage: SceneRuntimeHarness FRAMEWORK HELPER CACHE RUNTIME LOOSE PACKAGE [MEDIA_FIXTURES]\n"); return 64; }
   DWWebCreateApplication(); [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory];
   DWWebRuntime* runtime = [[DWWebRuntime alloc] initWithFrameworkDirectory:@(argv[1]) helperExecutable:@(argv[2]) cacheDirectory:@(argv[3])];
   NSError* error = nil;
@@ -102,6 +103,10 @@ int main(int argc, char** argv) { @autoreleasepool {
       require(!failure && page.closed && runtime.activePageCount == 0 && cancelledCommand, "scene resources or command remain owned");
       fprintf(stderr, "SCENE_RUNTIME representation=%s ready=1 animated=1 pauseStable=1 resume=1 pointerPixels=1 cancelledCommand=1 closed=1 frameHash=%llu\n",
           index ? "package" : "loose", static_cast<unsigned long long>(paused));
+    }
+    if (argc == 8) {
+      systemMediaAcceptance(runtime, @(argv[4]), @(argv[7]));
+      systemMediaBoundaryAcceptance(runtime, @(argv[4]), @(argv[7]));
     }
     require([runtime shutdownWithError:&error], error.localizedDescription.UTF8String ?: "CEF shutdown failed");
     return 0;

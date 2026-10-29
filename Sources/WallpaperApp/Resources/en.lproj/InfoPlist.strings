@@ -1,1 +1,2 @@
 "NSAudioCaptureUsageDescription" = "Analyze system audio to animate scene wallpapers. Audio is not recorded or uploaded.";
+"NSAppleEventsUsageDescription" = "Allow trusted playing scenes to read playback information and control the selected running Music or Spotify app.";

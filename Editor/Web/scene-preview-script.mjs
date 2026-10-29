@@ -26,6 +26,7 @@ export function createPreviewSceneFactory({sceneID,generation,report}) {
       setVolume: value => instance.setVolume(value),
       setFit: value => instance.setFit(value),
       setFps: value => instance.setFps(value),
+      setMedia: source => instance.setMedia(source),
       async setProperties(properties) {
         if (destroyed) throw new Error('Scene is destroyed');
         if (!controls || typeof controls.declareUserProperties !== 'function') throw new Error('Pinned scene user-property API unavailable');

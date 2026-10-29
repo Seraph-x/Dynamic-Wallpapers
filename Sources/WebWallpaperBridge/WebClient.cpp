@@ -103,7 +103,7 @@ class WebClient final : public CefClient, public CefLifeSpanHandler, public CefR
   void OnLoadError(CefRefPtr<CefBrowser>, CefRefPtr<CefFrame>, ErrorCode code,
                    const CefString& message, const CefString& url) override {
     if (code == ERR_ABORTED && state_->closing) return;  // An explicitly cancelled load, not a successful page.
-    state_->fail("Load error " + std::to_string(code) + ": " + url.ToString() + ": " + message.ToString());
+    state_->fail("Load error " + std::to_string(code) + ": " + url.ToString() + ": " + message.ToString(), DWWebPageState::FailureScope::page);
   }
   bool OnBeforeBrowse(CefRefPtr<CefBrowser>, CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request, bool, bool) override {
     try {

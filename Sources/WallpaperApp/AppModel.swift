@@ -1,4 +1,5 @@
 import WallpaperAudioSpectrum
+import WallpaperMediaIntegration
 import AppKit
 import Combine
 import SwiftUI
@@ -16,6 +17,7 @@ final class AppModel: ObservableObject {
             mirrorFrameRate.value = library.settings.appearance.fullScreenFrameRate
             webRuntime.setFrameRate(library.settings.webWallpaperFrameRate)
             webRuntime.systemAudioSpectrum.setEnabled(!loadFailed && library.settings.systemAudioSpectrumEnabled)
+            webRuntime.systemMedia.configure(source: loadFailed ? .disabled : library.settings.systemMediaSource)
         }
     }
     @Published var section: SidebarSection? = .library {
@@ -101,6 +103,7 @@ final class AppModel: ObservableObject {
          webInteractionPermissions suppliedPermissions: (any WebInteractionPermissionServicing)? = nil,
          screenSaver suppliedScreenSaver: ScreenSaverModel? = nil,
          fullScreenMonitor suppliedFullScreenMonitor: OtherAppFullScreenMonitor? = nil,
+         systemMedia suppliedSystemMedia: SystemMediaController? = nil,
          setSystemDesktopImage: @escaping @MainActor (URL, String) throws -> Void = { url, displayID in
              try SystemDesktopImageService().setImage(at: url, displayID: displayID)
          }) {
@@ -108,7 +111,7 @@ final class AppModel: ObservableObject {
             inspectorMedia: suppliedInspectorMedia, managedImport: suppliedManagedImport,
             thumbnails: suppliedThumbnails, presentation: suppliedPresentation,
             loginItems: suppliedLoginItems, webInteractionPermissions: suppliedPermissions,
-            screenSaver: suppliedScreenSaver, fullScreenMonitor: suppliedFullScreenMonitor)
+            screenSaver: suppliedScreenSaver, fullScreenMonitor: suppliedFullScreenMonitor, systemMedia: suppliedSystemMedia)
         let environment = AppCompositionRoot.make(overrides: overrides,
             setSystemDesktopImage: setSystemDesktopImage)
         paths = environment.paths
@@ -134,6 +137,7 @@ final class AppModel: ObservableObject {
         catch { library = .empty; loadFailed = true; failure = PresentedFailure(error, context: .library) }
         webRuntime.setFrameRate(library.settings.webWallpaperFrameRate)
         webRuntime.systemAudioSpectrum.setEnabled(!loadFailed && library.settings.systemAudioSpectrumEnabled)
+        webRuntime.systemMedia.configure(source: loadFailed ? .disabled : library.settings.systemMediaSource)
         screenSaver?.attach(library: library, loaded: !loadFailed)
         mirrorFrameRate.value = library.settings.appearance.fullScreenFrameRate
         wallpaperSource.onChange = { [weak sync = systemWallpaperSync] in sync?.updateTargets($0) }

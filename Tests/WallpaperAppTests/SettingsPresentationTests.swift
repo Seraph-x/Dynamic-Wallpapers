@@ -32,8 +32,11 @@ final class SettingsPresentationTests: XCTestCase {
                      "立即应用到所有窗口和菜单。跟随系统时按语言偏好匹配，不支持的语言使用英语。"] {
             XCTAssertFalse(fixture.contains(text), "General must not show explanatory copy: \(text)")
         }
-        XCTAssertEqual(fixture.elements.filter { $0.accessibilityRole?() == .checkBox }.count, 7,
-                       "General exposes seven switches; System Events remains informational")
+        XCTAssertEqual(fixture.elements.filter { $0.accessibilityRole?() == .checkBox }.count, 8,
+                       "General exposes eight switches including system audio; System Events remains informational")
+        _ = try fixture.element("系统音频响应", role: .checkBox)
+        XCTAssertEqual(fixture.elements.filter { $0.accessibilityRole?() == .radioButton }.count, 3,
+                       "System media offers three source choices without another switch")
         XCTAssertEqual(try fixture.model.store.load(), fixture.model.library)
         try await fixture.model.shutdownAndWait()
     }
