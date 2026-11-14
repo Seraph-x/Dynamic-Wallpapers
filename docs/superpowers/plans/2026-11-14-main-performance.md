@@ -34,10 +34,10 @@ window/notification access. Keep logs in `.build/verification/main-performance-s
 - [x] Run audio/editor/lifecycle tests and native panel-close and real playback checks; review; commit `perf: commit volume edits once per interaction`.
 
 ## 3. Index library validation and reuse filtering
-- [ ] Add large-library and duplicate/missing-reference tests in `Tests/WallpaperCoreTests/LibraryStoreTests.swift` (or a focused validation test file).
-- [ ] Build indexes in `WallpaperCore/Models.swift` after duplicate validation; retain all existing validation errors.
-- [ ] Reuse `filteredMedia` in `UI/LibraryView.swift`; make inspector selection test its selected item directly using the shared predicate in `BatchActions.swift`.
-- [ ] Run core/library/selection tests and record a fixed large-library workload; review; commit `perf: index library validation and reuse filtered media`.
+- [x] Add large-library and duplicate/missing-reference tests in `Tests/WallpaperCoreTests/LibraryStoreTests.swift` (or a focused validation test file).
+- [x] Build indexes in `WallpaperCore/Models.swift` after duplicate validation; retain all existing validation errors.
+- [x] Reuse `filteredMedia` in `UI/LibraryView.swift`; make inspector selection test its selected item directly using the shared predicate in `BatchActions.swift`.
+- [x] Run core/library/selection tests and record a fixed large-library workload; review; commit `perf: index library validation and reuse filtered media`.
 
 ## 4. Reuse extended-video frame storage
 - [ ] Add native buffer ownership/reuse tests that hold old frames across newer renders and resize.

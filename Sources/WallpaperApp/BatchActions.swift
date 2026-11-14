@@ -3,9 +3,11 @@ import WallpaperCore
 
 extension AppModel {
     var filteredMedia: [MediaItem] {
-        library.media.filter {
-            (section != .favorites || $0.isFavorite) && (search.isEmpty || $0.name.localizedCaseInsensitiveContains(search))
-        }
+        library.media.filter(matchesMediaFilter)
+    }
+
+    func matchesMediaFilter(_ item: MediaItem) -> Bool {
+        (section != .favorites || item.isFavorite) && (search.isEmpty || item.name.localizedCaseInsensitiveContains(search))
     }
 
     var visibleBatchIDs: Set<UUID> {

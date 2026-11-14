@@ -26,7 +26,7 @@ struct InspectorSelection: Identifiable {
               let item = model.library.media.first(where: { $0.id == model.selectedMediaID }) else { return nil }
         switch section {
         case .library, .favorites:
-            guard model.filteredMedia.contains(where: { $0.id == item.id }) else { return nil }
+            guard model.matchesMediaFilter(item) else { return nil }
             context = section == .favorites ? .favorites : .library
             id = ID(section: section, mediaID: item.id, entryID: nil)
         case .playlist:

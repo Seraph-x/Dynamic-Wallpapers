@@ -126,23 +126,24 @@ struct LibraryView: View {
     }
 
     private var mediaLibrary: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        let items = model.filteredMedia
+        return VStack(alignment: .leading, spacing: 18) {
             Text(model.section == .favorites ? l10n("我的收藏") : l10n("壁纸"))
                 .font(.title2.weight(.semibold))
             HStack {
                 Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
                 TextField(l10n("搜索壁纸"), text: $model.search).textFieldStyle(.plain)
-                Text(l10n("\(model.filteredMedia.count) 项")).font(.caption).foregroundStyle(.secondary)
+                Text(l10n("\(items.count) 项")).font(.caption).foregroundStyle(.secondary)
             }.padding(10).background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 9))
             BatchToolbar(model: model)
-            if model.filteredMedia.isEmpty {
+            if items.isEmpty {
                 Spacer()
                 libraryEmptyState
                 Spacer()
             } else {
                 ScrollView {
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 190), spacing: 16)], spacing: 18) {
-                        ForEach(model.filteredMedia) { item in
+                        ForEach(items) { item in
                             MediaCard(item: item, thumbnails: model.thumbnails, selected: model.batchSelection.isActive ? model.batchSelection.ids.contains(item.id) : item.id == model.selectedMediaID)
                                 .overlay(alignment: .topTrailing) {
                                     if model.batchSelection.isActive {
