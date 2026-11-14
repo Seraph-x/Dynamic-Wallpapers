@@ -8,12 +8,26 @@ struct CurrentWallpaperAudioTarget: Identifiable, Equatable {
     }
 
     let id: ID
+    let mediaID: UUID
+    var editTarget: AudioEditTarget { AudioEditTarget(id: id, mediaID: mediaID) }
     let playlistName: String?
     let mediaName: String
     let audio: AudioSettings
 }
 
 extension AppModel {
+    @discardableResult
+    func editAudio(_ audio: AudioSettings, target: AudioEditTarget) -> Bool {
+        do { try audioEdits.update(audio, target: target); return true }
+        catch { report(error, context: .save); return false }
+    }
+
+    @discardableResult
+    func finishAudioEdit() -> Bool {
+        do { try audioEdits.finish(); return true }
+        catch { report(error, context: .save); return false }
+    }
+
     var currentWallpaperAudioTargets: [CurrentWallpaperAudioTarget] {
         let connectedDisplays = Set(displays.map(\.id))
         var seen = Set<CurrentWallpaperAudioTarget.ID>()
@@ -64,12 +78,12 @@ extension AppModel {
                   let media = library.media.first(where: { $0.id == entry.mediaID }),
                   media.supportsAudio else { return nil }
             return CurrentWallpaperAudioTarget(id: .playlist(playlistID: playlistID, entryID: entryID),
-                playlistName: playlist.name, mediaName: media.name, audio: entry.audio)
+                mediaID: media.id, playlistName: playlist.name, mediaName: media.name, audio: entry.audio)
         case .media(let mediaID, let audio):
             guard let media = library.media.first(where: { $0.id == mediaID }),
                   media.supportsAudio else { return nil }
             return CurrentWallpaperAudioTarget(id: .direct(groupID: binding.groupID),
-                playlistName: nil, mediaName: media.name, audio: audio)
+                mediaID: media.id, playlistName: nil, mediaName: media.name, audio: audio)
         }
     }
 }

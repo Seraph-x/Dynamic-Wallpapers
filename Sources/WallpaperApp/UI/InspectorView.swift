@@ -47,7 +47,13 @@ private struct InspectorDetails: View {
         if case .playlist = selection.context { return true }
         return false
     }
-    private var playbackAudio: AudioSettings { isPlaylistEntry ? selection.audio : directAudio }
+    private var audioTarget: AudioEditTarget? {
+        guard case .playlist(let playlist, let entry) = selection.context else { return nil }
+        return AudioEditTarget(id: .playlist(playlistID: playlist.id, entryID: entry.id), mediaID: item.id)
+    }
+    private var playbackAudio: AudioSettings {
+        audioTarget.map { model.audioEdits.value(for: $0, persisted: selection.audio) } ?? directAudio
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -72,8 +78,9 @@ private struct InspectorDetails: View {
             if case .playlist(let playlist, let entry) = selection.context {
                 Divider()
                 if item.supportsAudio {
-                    EntryAudioEditor(audio: entry.audio, globallyMuted: model.library.settings.isMuted) {
-                        model.updateEntryAudio($0, playlistID: playlist.id, entryID: entry.id)
+                    EntryAudioEditor(audio: playbackAudio, globallyMuted: model.library.settings.isMuted,
+                        onEditingChanged: { if !$0 { model.finishAudioEdit() } }) {
+                        if let audioTarget { model.editAudio($0, target: audioTarget) }
                     }
                     Divider()
                 }
@@ -82,7 +89,7 @@ private struct InspectorDetails: View {
                 }
             }
         }
-        .onDisappear { previewing = false }
+        .onDisappear { previewing = false; if audioTarget != nil { model.finishAudioEdit() } }
     }
 
     private var metadata: some View {

@@ -47,6 +47,7 @@ final class DesktopCoordinator {
     private var reconcileTask: Task<Void, Never>?
     private var retirementTasks: [String: Task<Void, Error>] = [:]
     private var latestLibrary: Library?
+    private var audioEdit: (target: AudioEditTarget, audio: AudioSettings)?
     private var paused = false
     private var isShuttingDown = false
     private var webInteractionEnabled = false
@@ -162,9 +163,34 @@ final class DesktopCoordinator {
         return mirror
     }
 
+    func updateAudio(_ audio: AudioSettings, target: AudioEditTarget) {
+        audioEdit = (target, audio)
+        applyAudio(audio, target: target)
+    }
+
+    func finishAudioEdit() { audioEdit = nil }
+
+    private func applyAudio(_ audio: AudioSettings, target: AudioEditTarget) {
+        for (groupID, session) in sessions {
+            switch target.id {
+            case .playlist(let playlistID, let entryID):
+                if configurations[groupID]?.sourceID == .playlist(playlistID) {
+                    session.updateAudio(audio, entryID: entryID)
+                }
+            case .direct(let targetGroup):
+                if groupID == targetGroup, configurations[groupID]?.sourceID == .media(target.mediaID) {
+                    session.updateAudio(audio, entryID: target.mediaID)
+                }
+            }
+        }
+    }
+
     func reconcile(_ library: Library) {
         guard !isShuttingDown else { return }
-        defer { publishWebInteractionStatus(); wallpaperSourceChanges.send() }
+        defer {
+            if let audioEdit { applyAudio(audioEdit.audio, target: audioEdit.target) }
+            publishWebInteractionStatus(); wallpaperSourceChanges.send()
+        }
         latestLibrary = library
         // Sound controls must apply even while structural reconciliation waits for a transition.
         windows.values.forEach { $0.setGlobalMute(library.settings.isMuted) }

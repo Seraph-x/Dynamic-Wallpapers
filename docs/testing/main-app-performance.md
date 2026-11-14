@@ -76,3 +76,9 @@ packaged or installed release.
 Same-source concurrent consumers now share one decode. Source metadata participates in cache validity; name/favorite edits do not. The last subscriber cancels the decode, while deletion and shutdown still await actual cleanup and retain release failures.
 
 Validation: 31 thumbnail/inspector/managed-media tests passed. Regression evidence includes overlap (2 callers → 1 decode), independent cancellation, late old-source completion, and one release-error notification with both removal/shutdown still failing. Logs: `.build/verification/main-performance-six/1-{red,green}.log`. No whole-process CPU/RSS improvement is inferred from these counts.
+
+## Six-stage follow-up: 2. Audio edit sessions
+
+Volume samples now update the matching playback endpoints and inspector preview without library serialization/reconciliation. Slider completion, target changes, native panel close, other library mutations and application shutdown flush the draft. The captured media identity prevents a late draft from changing a replacement wallpaper. Failed saves remain visible, retain the draft, and prevent successful shutdown until retried. Reconciliation reapplies the active transient value.
+
+Validation: 67 audio/app-model/lifecycle tests passed in 15.288 seconds after a separate build. A 100-sample workload applies 100 player updates with zero intermediate writes and exactly one final commit. Integration checks assert unchanged disk bytes during the drag, final persistence on shutdown, save-failure retry, actual AVPlayer volume changes without replacement, and reentrant native panel closing. Two combined build/test attempts exceeded the 60-second budget; the final --skip-build run passed. Evidence: `.build/verification/main-performance-six/2-{red,build,build-timeout,green}.log`. Physical mouse dragging was not automated; SwiftUI editing completion/identity wiring was reviewed.

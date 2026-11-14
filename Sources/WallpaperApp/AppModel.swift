@@ -70,6 +70,21 @@ final class AppModel: ObservableObject {
     let transcoding: TranscodeModel
     let systemWallpaperSync: SystemWallpaperSync
     let screenSaver: ScreenSaverModel?
+    private(set) lazy var audioEdits: AudioEditSession = {
+        let editor = AudioEditSession(apply: { [weak self] target, audio in
+            guard let self, !self.isShuttingDown, !self.loadFailed else { throw CancellationError() }
+            _ = try target.audio(in: self.library)
+            self.desktop.updateAudio(audio, target: target)
+        }, commit: { [weak self] target, audio in
+            guard let self else { throw CancellationError() }
+            guard self.mutate({ try target.write(audio, to: &$0) }) else {
+                throw self.failure ?? PresentedFailure(WallpaperError("无法保存声音设置。"))
+            }
+            self.desktop.finishAudioEdit()
+        })
+        editor.onChange = { [weak self] in self?.objectWillChange.send() }
+        return editor
+    }()
     private let desktop: DesktopCoordinator
     private let mirrorFrameRate: CurrentValueSubject<WallpaperMirrorFrameRate, Never>
     let webRuntime: CEFApplicationRuntime
@@ -222,6 +237,7 @@ final class AppModel: ObservableObject {
         guard !isShuttingDown else { report(WallpaperError("应用正在退出，无法修改素材库。"), context: .save); return false }
         guard !loadFailed else { report(WallpaperError("素材库无法读取，编辑已停用。"), context: .save); return false }
         do {
+            try audioEdits.finish()
             let coordinator = LibraryCommitCoordinator(save: store.save,
                 validateRemoval: transcoding.validateRemoval,
                 withCommitLock: { operation in
@@ -741,7 +757,12 @@ final class AppModel: ObservableObject {
     func shutdownAndWait() async throws { try await beginShutdown().value }
 
     private func beginShutdown() -> Task<Void, Error> {
-        lifecycle.beginShutdown(plan: ApplicationShutdownPlan(
+        do { try audioEdits.finish() }
+        catch {
+            report(error, context: .save)
+            return Task { throw error }
+        }
+        return lifecycle.beginShutdown(plan: ApplicationShutdownPlan(
             immediate: {
                 self.isShuttingDown = true
                 self.scenePropertyEditor.shutdown()

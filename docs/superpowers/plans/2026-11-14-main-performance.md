@@ -28,10 +28,10 @@ window/notification access. Keep logs in `.build/verification/main-performance-s
 - [x] Run thumbnail, inspector and managed-media lifecycle tests; review; commit `perf: coalesce thumbnail decoding requests`.
 
 ## 2. Separate audio editing and persistence
-- [ ] Add edit-session tests proving many updates yield one save, immediate audio application, cancellation/stale target handling, and observable save failures.
-- [ ] Add a focused audio-edit owner and wire `EntryAudioEditor`, `CurrentWallpaperAudioMenu`, inspector and application shutdown to it.
-- [ ] Apply audio through existing playback endpoints without whole-library reconciliation on every sample; persist through the existing transaction at edit completion.
-- [ ] Run audio/editor/lifecycle tests and real slider UI checks; review; commit `perf: commit volume edits once per interaction`.
+- [x] Add edit-session tests proving many updates yield one save, immediate audio application, cancellation/stale target handling, and observable save failures.
+- [x] Add a focused audio-edit owner and wire `EntryAudioEditor`, `CurrentWallpaperAudioMenu`, inspector and application shutdown to it.
+- [x] Apply audio through existing playback endpoints without whole-library reconciliation on every sample; persist through the existing transaction at edit completion.
+- [x] Run audio/editor/lifecycle tests and native panel-close and real playback checks; review; commit `perf: commit volume edits once per interaction`.
 
 ## 3. Index library validation and reuse filtering
 - [ ] Add large-library and duplicate/missing-reference tests in `Tests/WallpaperCoreTests/LibraryStoreTests.swift` (or a focused validation test file).
