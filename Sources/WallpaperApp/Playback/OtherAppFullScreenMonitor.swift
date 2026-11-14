@@ -12,6 +12,8 @@ final class OtherAppFullScreenMonitor {
     private let sample: @MainActor () throws -> Bool
     private var observers: [(NotificationCenter, NSObjectProtocol)] = []
     private var timer: Timer?
+    private var enabled = false
+    private var suspended = false
     private var lastReportedError: String?
     private(set) var isActive = false
     var onChange: ((Bool) -> Void)?
@@ -26,8 +28,26 @@ final class OtherAppFullScreenMonitor {
     }
 
     func setEnabled(_ enabled: Bool) {
-        guard enabled != (timer != nil) else { return }
-        if enabled {
+        guard enabled != self.enabled else { return }
+        self.enabled = enabled
+        updatePolling()
+        if !enabled {
+            lastReportedError = nil
+            publish(false)
+        }
+    }
+
+    /// Retain the last fullscreen result while power policy already pauses playback.
+    /// On resume, refresh synchronously before the owner publishes its pause reasons.
+    func setSuspended(_ suspended: Bool) {
+        guard suspended != self.suspended else { return }
+        self.suspended = suspended
+        updatePolling()
+    }
+
+    private func updatePolling() {
+        if enabled && !suspended {
+            guard timer == nil else { return }
             let timer = Timer(timeInterval: 1, repeats: true) { [weak self] _ in
                 Task { @MainActor in self?.refresh() }
             }
@@ -37,8 +57,6 @@ final class OtherAppFullScreenMonitor {
         } else {
             timer?.invalidate()
             timer = nil
-            lastReportedError = nil
-            publish(false)
         }
     }
 
@@ -55,6 +73,7 @@ final class OtherAppFullScreenMonitor {
     }
 
     func shutdown() {
+        enabled = false
         timer?.invalidate()
         timer = nil
         observers.forEach { $0.0.removeObserver($0.1) }

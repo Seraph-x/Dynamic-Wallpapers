@@ -179,4 +179,68 @@ final class OtherAppFullScreenTests: XCTestCase {
         monitor.setEnabled(false)
         XCTAssertFalse(monitor.isActive)
     }
+
+    func testSuspensionStopsTimerAndWorkspaceSamplesUntilResume() async {
+        var samples = 0
+        let unwantedSample = expectation(description: "no scans during suspension")
+        unwantedSample.isInverted = true
+        var suspended = false
+        let monitor = OtherAppFullScreenMonitor(sample: {
+            samples += 1
+            if suspended { unwantedSample.fulfill() }
+            return true
+        })
+        defer { monitor.shutdown() }
+        monitor.setEnabled(true)
+        XCTAssertEqual(samples, 1)
+
+        suspended = true
+        monitor.setSuspended(true)
+        monitor.setEnabled(true)
+        monitor.refresh()
+        NSWorkspace.shared.notificationCenter.post(name: NSWorkspace.activeSpaceDidChangeNotification, object: nil)
+        await fulfillment(of: [unwantedSample], timeout: 1.2)
+        XCTAssertTrue(monitor.isActive, "Suspension retains the last known fullscreen state")
+        XCTAssertEqual(samples, 1)
+
+        suspended = false
+        monitor.setSuspended(false)
+        XCTAssertEqual(samples, 2)
+    }
+
+    func testSettingCanBeDisabledDuringSuspensionWithoutRestartingPolling() {
+        var samples = 0
+        let monitor = OtherAppFullScreenMonitor(sample: { samples += 1; return true })
+        defer { monitor.shutdown() }
+        monitor.setSuspended(true)
+        monitor.setEnabled(true)
+        XCTAssertEqual(samples, 0, "Enabling a setting must not scan while power-paused")
+        monitor.setSuspended(false)
+        XCTAssertTrue(monitor.isActive)
+        XCTAssertEqual(samples, 1)
+
+        monitor.setSuspended(true)
+        monitor.setEnabled(false)
+        XCTAssertFalse(monitor.isActive)
+        monitor.setSuspended(false)
+        monitor.refresh()
+        XCTAssertEqual(samples, 1)
+    }
+
+    func testResumeSamplingFailureRetainsFullScreenPauseAndReportsError() {
+        var shouldFail = false
+        var failures = 0
+        let monitor = OtherAppFullScreenMonitor(sample: {
+            if shouldFail { throw WallpaperError("Window sampling failed") }
+            return true
+        })
+        defer { monitor.shutdown() }
+        monitor.onError = { _ in failures += 1 }
+        monitor.setEnabled(true)
+        monitor.setSuspended(true)
+        shouldFail = true
+        monitor.setSuspended(false)
+        XCTAssertTrue(monitor.isActive)
+        XCTAssertEqual(failures, 1)
+    }
 }

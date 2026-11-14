@@ -178,6 +178,38 @@ final class ApplicationLifecycleControllerTests: XCTestCase {
         XCTAssertEqual(pausePublications, initialPausePublications)
     }
 
+    func testPowerPauseStopsSamplingAndResumeRefreshesBeforePlaybackCanResume() async throws {
+        let power = PowerMonitor()
+        var samples = 0
+        var fullScreenActive = false
+        let fullScreen = OtherAppFullScreenMonitor(sample: {
+            samples += 1
+            return fullScreenActive
+        })
+        let controller = makeController(power: power, fullScreen: fullScreen)
+        var settings = AppSettings()
+        settings.pauseOnOtherAppFullScreen = true
+        settings.pauseOnLowPower = false
+        settings.pauseOnHighTemperature = false
+        controller.update(settings: settings)
+        var published: [Set<String>] = []
+        controller.onPauseReasons = { published.append($0) }
+
+        power.onChange?(["已锁屏", "显示器休眠"])
+        let samplesBeforePause = samples
+        fullScreen.refresh()
+        power.onChange?(["已锁屏"])
+        fullScreen.refresh()
+        XCTAssertEqual(samples, samplesBeforePause, "Power-paused playback needs no window scans")
+
+        fullScreenActive = true
+        power.onChange?([])
+        XCTAssertEqual(samples, samplesBeforePause + 1, "Resume must immediately sample current windows")
+        XCTAssertEqual(published.last, ["其他应用全屏"])
+        XCTAssertFalse(published.contains([]), "Do not briefly resume before checking fullscreen windows")
+        try await controller.beginShutdown(plan: emptyPlan()).value
+    }
+
     private func makeController(power: PowerMonitor? = nil,
                                 fullScreen: OtherAppFullScreenMonitor? = nil,
                                 notifications: NotificationCenter = NotificationCenter())
