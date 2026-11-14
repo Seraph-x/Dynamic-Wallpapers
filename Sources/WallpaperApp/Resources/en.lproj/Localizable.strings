@@ -644,7 +644,7 @@
 "导入场景项目" = "Import Scene Project";
 "选择场景项目目录" = "Choose Scene Project Folder";
 "选择包含 project.json 与场景资源的目录；整个项目将复制到应用目录。" = "Choose the folder containing project.json and the scene assets. The entire project will be copied into the app library.";
-"支持本地 loose JSON 和 PKG 场景，按作者默认设置播放。场景编辑请使用菜单栏的 Editor。" = "Local loose JSON and PKG scenes use the author’s defaults. Use Editor in the menu bar to edit scenes.";
+"支持本地 loose JSON 和 PKG 场景，按作者默认设置播放。场景编辑请使用独立的 Wallpaper Editor。" = "Local loose JSON and PKG scenes use the author’s defaults. Edit scenes with the separate Wallpaper Editor application.";
 "暂停时保留场景，继续播放时从原位置恢复。" = "Pausing retains the scene. Playback resumes from the same position.";
 "包含网页或场景时，仅支持固定停留时长。" = "Selections containing web pages or scenes support fixed durations only.";
 "网页和场景壁纸仅支持固定停留时长。" = "Web and scene wallpapers support fixed durations only.";
@@ -661,16 +661,8 @@
 "正在分析系统音频。" = "Analyzing system audio.";
 "系统音频响应已停止，请查看错误并重试。" = "System audio response stopped. Review the error and retry.";
 
-/* Optional standalone Editor. */
-"Editor" = "Editor";
-"是否安装 Editor？" = "Install Editor?";
-"Editor 是独立应用。是否前往下载并安装？壁纸功能不需要安装它。" = "Editor is a separate application. Would you like to download and install it? Wallpaper playback does not require it.";
-"下载 Editor" = "Download Editor";
-"无法打开 Editor 下载页面。" = "Could not open the Editor download page.";
-"所选应用不是兼容的 Editor。" = "The selected application is not a compatible Editor.";
-"应用正在退出，无法打开 Editor。" = "The application is quitting and cannot open Editor.";
+/* Independent scene authoring and cross-application import. */
 "此链接不是 Editor 工程导入请求。" = "This link is not an Editor project import request.";
-"无法打开 Editor" = "Could Not Open Editor";
 
 /* Per-wallpaper scene properties. */
 "场景属性" = "Scene properties";
@@ -716,3 +708,6 @@
 "场景封面显示失败，播放信息仍可用。" = "The scene could not display artwork. Playback information is still available.";
 "场景媒体操作失败。" = "A scene media operation failed.";
 "媒体来源未保存。" = "The media source was not saved.";
+
+"Wallpaper Editor 项目与下载" = "Wallpaper Editor project and downloads";
+"无法导入场景" = "Could Not Import Scene";

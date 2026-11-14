@@ -575,7 +575,7 @@ let explicitNames: Set<String> = [
     "WallpaperAudioSpectrum", "WallpaperAudioSpectrumTests",
     "WallpaperMediaIntegration", "WallpaperMediaIntegrationTests",
     "WallpaperCoreTests", "ScreenSaverCoreTests", "ScreenSaverRuntimeTests",
-    "WallpaperScreenSaverTests", "WallpaperAppTests", "WallpaperEditorCore", "WallpaperEditorCoreTests",
+    "WallpaperScreenSaverTests", "WallpaperAppTests",
 ]
 let collisions = configuredNames.intersection(explicitNames)
 guard collisions.isEmpty else {
@@ -593,8 +593,6 @@ let explicitTargets: [Target] = [
         .testTarget(name: "WallpaperMediaIntegrationTests", dependencies: ["WallpaperMediaIntegration", "WallpaperCore"]),
         .target(name: "WallpaperAudioSpectrum", dependencies: ["WallpaperCore"]),
         .testTarget(name: "WallpaperAudioSpectrumTests", dependencies: ["WallpaperAudioSpectrum"]),
-        .target(name: "WallpaperEditorCore", dependencies: ["WallpaperCore"]),
-        .testTarget(name: "WallpaperEditorCoreTests", dependencies: ["WallpaperEditorCore", "WallpaperCore"]),
         .target(name: "MPVBridge", publicHeadersPath: "include",
                 cxxSettings: [.unsafeFlags(["-I", mpvRoot + "/include", "-fobjc-arc"])],
                 linkerSettings: [.linkedFramework("Foundation"),
@@ -623,7 +621,6 @@ let products: [Product] = [
     .library(name: "WallpaperMediaIntegration", targets: ["WallpaperMediaIntegration"]),
     .library(name: "WallpaperAudioSpectrum", targets: ["WallpaperAudioSpectrum"]),
     .library(name: "WallpaperCore", targets: ["WallpaperCore"]),
-    .library(name: "WallpaperEditorCore", targets: ["WallpaperEditorCore"]),
     .library(name: "WebWallpaperBridge", targets: ["WebWallpaperBridge"]),
     .executable(name: configuration.swiftPMProduct, targets: ["WallpaperApp"]),
     .executable(name: "ScreenSaverLeaseHarness", targets: ["ScreenSaverLeaseHarness"]),

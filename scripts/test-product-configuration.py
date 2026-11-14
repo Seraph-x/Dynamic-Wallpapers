@@ -132,8 +132,8 @@ class ProductConfigurationTests(unittest.TestCase):
     def test_checked_in_document_loads_with_exact_values(self):
         configuration = load()
         self.assertEqual(CONFIGURATION_PATH, ROOT / "scripts/product-configuration.json")
-        self.assertEqual(configuration.version, "1.1.0")
-        self.assertEqual(configuration.build, "5")
+        self.assertEqual(configuration.version, "1.1.1")
+        self.assertEqual(configuration.build, "6")
         self.assertEqual(configuration.target.architecture, "arm64")
         self.assertEqual(configuration.target.minimum_macos, "14.0")
         self.assertEqual(configuration.target.swift_language_mode, "5")

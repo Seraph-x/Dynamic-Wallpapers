@@ -2,18 +2,18 @@
 
 Play local videos, animations, images, web projects and scene wallpapers on an Apple Silicon Mac. Apply one wallpaper or rotate a playlist across independent or synchronized displays.
 
-[Download v1.1.0](https://github.com/Seraph-x/Dynamic-Wallpapers/releases/tag/v1.1.0) · [中文指南](docs/help/zh-Hans.md) · [English guide](docs/help/en.md) · [日本語](docs/help/ja.md) · [Français](docs/help/fr.md) · [Español](docs/help/es.md)
+[Download v1.1.1](https://github.com/Seraph-x/Dynamic-Wallpapers/releases/tag/v1.1.1) · [中文指南](docs/help/zh-Hans.md) · [English guide](docs/help/en.md) · [日本語](docs/help/ja.md) · [Français](docs/help/fr.md) · [Español](docs/help/es.md)
 
-## Install 1.1.0
+## Install 1.1.1
 
 Requires **Apple Silicon (arm64), macOS 14.0 or later**. Intel Macs are not supported by these builds.
 
-1. Download `DynamicWallpaper-1.1.0-arm64.dmg` and `SHA256SUMS.txt` from the release page.
-2. Verify the download: `shasum -a 256 DynamicWallpaper-1.1.0-arm64.dmg`, then compare the result with `SHA256SUMS.txt`.
+1. Download `DynamicWallpaper-1.1.1-build6-arm64.dmg` and `SHA256SUMS.txt` from the release page.
+2. Verify the download: `shasum -a 256 DynamicWallpaper-1.1.1-build6-arm64.dmg`, then compare the result with `SHA256SUMS.txt`.
 3. Open the DMG, drag **Dynamic Wallpaper.app** into **Applications**, then eject the DMG.
 4. Launch the app from Applications. This build is ad-hoc signed and is **not Apple-notarized**. If macOS blocks it, verify the download first, then use **System Settings → Privacy & Security → Open Anyway** for this app.
 
-A ZIP build is available too. Extract it and move the app into Applications. Installation notes in all five app languages are included in the DMG and attached to the release. Read the [1.1.0 release notes](docs/releases/1.1.0/RELEASE_NOTES.md) for tested behavior and limitations.
+A ZIP build is available too. Extract it and move the app into Applications. Installation notes in all five app languages are included in the DMG and attached to the release. Read the [1.1.1 release notes](docs/releases/1.1.1/RELEASE_NOTES.md) for tested behavior and limitations.
 
 ## Use your own wallpapers
 
@@ -44,108 +44,21 @@ Optional system audio response uses Core Audio Tap on macOS 14.2+. Enable it in 
 
 In **Settings → General → Media Information and Controls**, choose **Off**, **Music** or **Spotify**. The default is Off. Selection saves the source without requesting consent; click **Authorize Player** to request macOS Automation access. The selected player must already be running. Playing scenes receive its current metadata and available artwork and may use five playback controls. Use only scenes you trust. Paused/preparing scenes receive empty media, and disabling the source clears it. Other players and a system-wide Now Playing source are unsupported.
 
-Metadata and artwork errors remain visible with separate retry actions. Lyrics and artwork-derived colors are unavailable. Editor previews keep empty system media and have no player authorization setting. See the [five-language guide](docs/help/en.md) for permissions and recovery.
+Metadata and artwork errors remain visible with separate retry actions. Lyrics and artwork-derived colors are unavailable. See the [five-language guide](docs/help/en.md) for permissions and recovery.
 
 ## Standalone Editor
 
-The [scene Editor](Editor/README.md) is an independent application with its own
-version, process, projects and runtime. It is never installed with the wallpaper
-app. Open it directly from Applications after installing it separately.
-Download the independent Editor 0.1.0 release from
-[its release page](https://github.com/Seraph-x/Dynamic-Wallpapers/releases/tag/editor-v0.1.0). Independent preview
-windows support optional [system audio response](docs/editor-preview-audio.md)
-on macOS 14.2+, with a separate default-off Editor setting.
-They also provide [live user-property tests](docs/editor-preview-properties.md)
-for captured declarations, without changing saved projects or exports.
+[Wallpaper Editor](https://github.com/Seraph-x/Wallpaper-Editor) has its own source repository, build, version and releases. Install it separately from [its releases page](https://github.com/Seraph-x/Wallpaper-Editor/releases). Both applications build and run independently.
 
-Create or import loose/PKG scenes, edit image/text layers with live preview,
-animate transforms/color/opacity on a keyframe timeline, undo/redo, save projects
-and export loose/PKG. **File → Open in Dynamic Wallpaper**
-imports an owned copy into the wallpaper library without automatically applying
-it. Both applications work independently. Removing Editor leaves saved projects
-and wallpaper playback intact. See [installation and removal](docs/editor-install.md).
-The [Model workspace](docs/editor-model-workspace.md) creates skinned grids from
-ordinary images and edits model hierarchies, local rest transforms and
-painted/numeric skin weights,
-with bone/vertex picking, complete undo and resource export.
-[glTF/GLB import](docs/editor-gltf-import.md) preserves source files, converts
-hierarchy/skin/materials and bakes animation with explicit conversion consent.
-[Skeletal clip tools](docs/editor-clips.md) create, duplicate, delete and retime
-clips, with temporary preview and explicit saved playback assignments.
-[Bone pose frames](docs/editor-bone-poses.md) edit local sampled TRS, copy/paste,
-reset to bind and bake between endpoints. [Clip layers](docs/editor-clip-mixing.md)
-edit ordered normal/additive blending, speed and visibility without rewriting
-model resources. [Frame events](docs/editor-frame-events.md) create, edit, copy
-and order native markers while preserving opaque metadata and imported callbacks.
-[FK local deltas](docs/editor-fk-posing.md) preview and bake local transforms
-to inclusive native sample ranges, with child bones following their parent.
-[Two-segment IK](docs/editor-ik-posing.md) solves a model-space target and pole,
-previews both joints, and bakes native rotation samples with undo/save/export.
-[Sparse bone keys](docs/editor-bone-keys.md) add/edit/move/copy/delete native
-pose keys, reduce them losslessly and retain authoring locations through save/export.
-[SceneScript source contracts](docs/editor-script-contracts.md) provide data-only
-source transactions and an offline syntax-check command using the pinned native
-compiler. [Snapshot preview](docs/editor-scene-preview.md) opens an unsaved revision
-in an independent native scene window with pause/resume, restart and visible
-runtime diagnostics. It neither saves the workspace nor applies wallpaper.
-The edit canvas and model-import preview disable SceneScript with the pinned
-engine's `scripts:false` option; property curves and skeletal animation still
-play while editing. **Run preview** opens the current valid edits in that
-independent script-enabled window. [Execution migration](docs/editor-script-migration.md)
-separates pages, origins and authoring channels within CEF, without promising
-operating-system process isolation. The [Script workspace](docs/editor-script-workspace.md)
-edits supported inline sources in an offline CodeMirror editor, with syntax
-highlighting, local undo/redo, target-aware API hints, lifecycle starters and
-find/replace. Check/Apply/Revert/Remove, recoverable drafts and ordinary
-history/save/export retain their source contracts. Starters replace nonempty
-drafts only after confirmation; hints and Check do not prove runtime types or
-capabilities. See the [supported API catalogue](docs/editor-script-api.md).
-[Runtime diagnostics](docs/editor-script-diagnostics.md) retain genuine script
-issues and renderer warnings, link to matching current source or a read-only
-captured view, and preserve invalid drafts when viewing older previews.
+Use Editor to create or edit scenes, then choose **File → Open in Dynamic Wallpaper** to import a saved copy into this app’s library without applying it or adding it to a playlist. You can also import the saved loose/PKG project folder directly. Each application owns its managed copy; later edits are not synchronized automatically. Removing Editor does not affect wallpaper playback or imported scenes.
 
-The [external resource Script workspace](docs/editor-resource-script-foundation.md) edits supported material/particle sources in their owning resources. Check uses the actual offline compiler; Apply publishes one resource/history transaction, Revert restores the captured source, and saved loose/PKG exports retain the edited resources. Independent preview executes supported sinks and links retained diagnostics back to the matching inline or external source. Unsupported bindings and missing resources remain explicit errors.
-
-The two applications share source modules in this repository and ship their own
-runtime dependencies. Editor has its own version (currently 0.1.0), bundle
-identity and CEF cache. Building Editor requires the complete repository;
-the resulting application can run on its own.
-
-### Repository and data layout
-
-```text
-Dynamic-Wallpapers/
-├── Package.swift                    # Main app and shared library products
-├── Sources/
-│   ├── WallpaperApp/                # Wallpaper app, including the Editor entry
-│   ├── WallpaperCore/               # Shared models and versioned file contracts
-│   ├── WallpaperEditorCore/         # Editor-owned projects, resources and export
-│   └── WebWallpaperBridge/          # Shared native CEF rendering bridge
-├── Editor/
-│   ├── Package.swift                # Independent Editor application package
-│   ├── product.json                 # Editor identity and version
-│   ├── Sources/EditorApp/            # Native Editor host and offline resources
-│   └── Web/                         # Workbench source and browser tests
-├── Tests/
-└── scripts/build-editor-app.py      # Separate Editor app/ZIP builder
-```
-
-| Application | User data | Removing the application |
-| --- | --- | --- |
-| Dynamic Wallpaper | `~/Library/Application Support/DynamicWallpaper/` | Editor and its projects remain available |
-| Dynamic Wallpaper Editor | `~/Library/Application Support/DynamicWallpaperEditor/` | Existing wallpaper playback and saved Editor projects remain available |
-
-Editor workspaces live in `Projects/<project ID>/workspace.json`, with scene
-assets alongside them in `Project/`. `Handoffs/` holds exported snapshots and
-`CEFCache/` holds Editor's browser cache. Main's `Media/` stores its own imported
-copies. Each application saves its own managed copy; edits are not synchronized
-automatically.
+This repository owns the wallpaper app, screen saver and Scene playback runtime. Main stores its library and imported `Media/` under `~/Library/Application Support/DynamicWallpaper/`. Authoring source, Editor projects, build instructions and documentation live in the separate repository.
 
 ## Scene compatibility and data
 
 Import projects you trust: scene scripts execute inside the CEF renderer. Scenes are rendered locally using bundled WebWallGL/CEF; the app does not download an engine from a CDN or require Node at runtime. The optional Editor is packaged separately; scene screen-saver playback is not included. Some unsupported effects produce engine warnings. See [scene validation and limits](docs/testing/scene-wallpapers.md).
 
-Version 1.1.0 saves library schema 4. Libraries from earlier supported versions load without rewriting the existing file until a save. An older app may reject a library saved by 1.1.0. Keep a separate copy of your library data before upgrading if you need to downgrade later; see the guide’s [data section](docs/help/en.md#data).
+Version 1.1.1 saves library schema 4. Libraries from earlier supported versions load without rewriting the existing file until a save. An older app may reject a library saved by 1.1.1. Keep a separate copy of your library data before upgrading if you need to downgrade later; see the guide’s [data section](docs/help/en.md#data).
 
 ## Build from source
 
@@ -159,7 +72,7 @@ python3 scripts/verify-current-media.py
 bash scripts/build-app.sh --output dist/DynamicWallpaper-source-build.app
 ```
 
-Preparation verifies pinned inputs and builds the complete controlled mpv closure and FFmpeg tools from locked sources. The scene bundle is checked into source; Node is only needed to reproduce that bundle or run browser tests. Build commands create a new candidate and do not replace the installed app or alter its library. See [BUILDING.md](BUILDING.md) for verification and [release notes](docs/releases/1.1.0/RELEASE_NOTES.md) for release packaging.
+Preparation verifies pinned inputs and builds the complete controlled mpv closure and FFmpeg tools from locked sources. The scene bundle is checked into source; Node is only needed to reproduce that bundle or run browser tests. Build commands create a new candidate and do not replace the installed app or alter its library. See [BUILDING.md](BUILDING.md) for verification and [release notes](docs/releases/1.1.1/RELEASE_NOTES.md) for release packaging.
 
 ## References and acknowledgements
 
@@ -168,11 +81,9 @@ The scene-wallpaper work draws on these projects:
 | Project | Role in Dynamic Wallpaper |
 | --- | --- |
 | [DSH Wallpaper Engine](https://github.com/elysia395/dsh-wallpaper-engine) | Design reference for hosting WebWallGL scene wallpapers and supplying audio spectrum and pointer input from the host application. |
-| [WebWallGL](https://github.com/oneincase/webwallgl) | The bundled scene renderer: parses local Wallpaper Engine projects and renders them with WebGL. The current playback integration pins version 3.0.0. The standalone Editor uses the pinned `@webwallgl/editor` 3.0.0 API, image/text scene conventions and PKG builder. |
-| [WebWallGL glTF helpers](docs/editor-gltf-import.md#source-references) | Selected MIT matrix/quaternion, animation sampling and PNG helpers from a recorded source commit; our importer adds strict compatibility checks, explicit conversion and atomic resource history. |
+| [WebWallGL](https://github.com/oneincase/webwallgl) | The bundled scene renderer: parses local Wallpaper Engine projects and renders them with WebGL. The current playback integration pins version 3.0.0. |
 | [Chromium Embedded Framework](https://github.com/chromiumembedded/cef) | The embedded Chromium runtime used for web and scene wallpaper playback. |
 | [mpv](https://github.com/mpv-player/mpv) and [FFmpeg](https://ffmpeg.org/) | Extended media playback, probing and transcoding. |
-| [CodeMirror](https://codemirror.net/) | The standalone Editor bundles the MIT-licensed CodeMirror 6 editor and JavaScript language, completion and search modules for offline source editing. The SceneScript API catalogue and starter modules are implemented here against the pinned runtime. |
 | [Mediabunny](https://github.com/Vanilagy/mediabunny) | Media handling included in the pinned WebWallGL bundle. |
 
 WebWallGL's distribution also includes vendored code with a retained
@@ -182,6 +93,6 @@ inputs, source URLs and license notices are recorded in the
 
 ## License and third-party materials
 
-Project-authored code and documentation use [GPL-3.0-or-later](LICENSE). Dependencies retain their own licenses, including WebWallGL/WeScene and CodeMirror (MIT), and Mediabunny (MPL-2.0). See the [dependency inventory](Resources/ThirdParty/README.md).
+Project-authored code and documentation use [GPL-3.0-or-later](LICENSE). Dependencies retain their own licenses, including WebWallGL/WeScene (MIT), and Mediabunny (MPL-2.0). See the [dependency inventory](Resources/ThirdParty/README.md).
 
 The controlled media runtime includes the locked corresponding sources, patches, per-component notices and measured build records. The [distribution manifest](Resources/ThirdParty/distribution-status.json) covers the retained material inventory. Historical IINA binaries are not used by the current build. Signing status and functional acceptance are recorded separately in the release notes.

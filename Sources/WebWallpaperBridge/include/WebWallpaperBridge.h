@@ -2,7 +2,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 @class DWWebPage;
-typedef void (^DWEditorCommandCompletion)(NSDictionary<NSString*, id>* _Nullable reply, NSError* _Nullable error);
 
 /// Call before SwiftUI/NSApplication startup. This does not load or initialize CEF.
 NS_SWIFT_UI_ACTOR FOUNDATION_EXPORT void DWWebCreateApplication(void);
@@ -26,10 +25,6 @@ NS_SWIFT_UI_ACTOR @interface DWWebRuntime : NSObject
 - (nullable DWWebPage *)scenePageWithProjectRoot:(NSString *)root runtimeRoot:(NSString *)runtimeRoot
     entry:(NSString *)entry representation:(NSString *)representation sceneID:(NSString *)sceneID
     generation:(uint64_t)generation size:(NSSize)size scale:(CGFloat)scale
-    error:(NSError * _Nullable * _Nullable)error;
-/// Used only by the separately installed Editor process; supplies an interactive native CEF child view.
-- (nullable DWWebPage *)editorPageWithProjectRoot:(NSString *)root runtimeRoot:(NSString *)runtimeRoot
-    configuration:(NSDictionary<NSString*, id>*)configuration size:(NSSize)size
     error:(NSError * _Nullable * _Nullable)error;
 /// Only legal after every page has actually closed. No forced-close success path.
 - (BOOL)shutdownWithError:(NSError * _Nullable * _Nullable)error;
@@ -65,14 +60,6 @@ NS_SWIFT_UI_ACTOR @interface DWWebPage : NSObject
 /// Data-only actual renderer artwork failure: message and mediaRevision.
 /// Metadata remains valid; the owner exposes the error and an explicit artwork retry.
 @property(nonatomic, copy, nullable) void (^onSceneMediaArtworkError)(NSDictionary<NSString*, id>* issue);
-@property(nonatomic, copy, nullable) void (^onEditorDirty)(BOOL dirty);
-/// Payload-free snapshot request from an Editor page; scene pages cannot emit this event.
-@property(nonatomic, copy, nullable) void (^onEditorPreview)(void);
-/// Fixed workspace resource requests; the owning Editor supplies the storage implementation.
-@property(nonatomic, copy, nullable) void (^onEditorResource)(NSDictionary<NSString*, id>* request);
-/// Fixed data commands; replies are paired with unpredictable native request IDs.
-- (void)requestEditorCommand:(NSDictionary<NSString*, id>*)command
-    completion:(DWEditorCommandCompletion)completion;
 - (void)start;
 - (BOOL)setOutputGain:(double)gain error:(NSError * _Nullable * _Nullable)error;
 - (BOOL)setFrameRate:(NSUInteger)frameRate error:(NSError * _Nullable * _Nullable)error;

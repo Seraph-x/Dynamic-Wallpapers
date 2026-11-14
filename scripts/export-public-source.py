@@ -1,9 +1,18 @@
 #!/usr/bin/env python3
-"""Export a reviewed source allowlist without development history or local caches."""
+"""Export reviewed source inputs without development history or local caches.
+
+The distribution manifest binds required build materials to their SHA-256 hashes.
+The publication policy pins unchanged upstream notices/archives before permitting
+their copyright email addresses. Public upstream path examples and a TLS parser
+marker require archive, member and exact occurrence hashes; all other paths and
+credential formats remain checked, including archive metadata. The current
+machine's home directory cannot be exempted.
+"""
 
 import argparse
 import ctypes
 import hashlib
+import json
 import os
 from pathlib import Path, PurePosixPath
 import re
@@ -15,21 +24,23 @@ import tarfile
 import tempfile
 
 
-ROOT_FILES = frozenset({'.gitignore', 'Package.swift', 'PUBLIC_README.md', 'BUILDING.md',
-                        'Editor/ThirdParty/WebWallGL-Editor-LICENSE', 'docs/editor-install.md',
+POLICY_PATH = 'scripts/public-source-policy.json'
+MATERIAL_MANIFEST = 'Resources/ThirdParty/distribution-status.json'
+ROOT_FILES = frozenset({'.gitignore', '.gitattributes', 'Package.swift', 'PUBLIC_README.md', 'BUILDING.md',
+                        POLICY_PATH, MATERIAL_MANIFEST,
                         'Resources/AppIcon.icns', 'Resources/Info.plist',
                         'Resources/ScreenSaver/Info.plist',
                         *(f'Resources/ScreenSaver/{language}.lproj/Localizable.strings'
                           for language in ('zh-Hans', 'en', 'ja', 'fr', 'es'))})
-SOURCE_TREES = ('Sources/', 'Tests/', 'Editor/', 'scripts/', 'Resources/ThirdParty/', 'docs/help/')
+SOURCE_TREES = ('Sources/', 'Tests/', 'scripts/', 'Resources/SceneScript/', 'Resources/ThirdParty/', 'docs/help/')
 SOURCE_SUFFIXES = frozenset({'.swift', '.py', '.sh', '.mm', '.html', '.md', '.cpp',
                              '.js', '.json', '.hpp', '.h', '.strings', '.mjs',
-                             '.css', '.plist', '.m', '.txt'})
+                             '.css', '.plist', '.m', '.txt', '.c'})
 MATERIAL_SUFFIXES = frozenset({'.md', '.txt', '.json', '.sh', '.h', '.html', '.gz'})
-IGNORED_LOCAL_NAMES = frozenset({'__pycache__', '.DS_Store', '.build', '.swiftpm'})
+IGNORED_LOCAL_NAMES = frozenset({'__pycache__', '.DS_Store', '.build', '.swiftpm', 'node_modules', 'dist'})
 PERSONAL_PATHS = (
     re.compile(rb'/Users/[A-Za-z0-9._-]+/'),
-    re.compile(rb'/home/[A-Za-z0-9._-]+/'),
+    re.compile(rb'(?<![A-Za-z0-9_./-])(?:file://)?/home/[A-Za-z0-9._-]+/'),
     re.compile(rb'[A-Za-z]:\\Users\\[A-Za-z0-9._-]+\\'),
 )
 EMAIL = re.compile(rb'(?<![A-Za-z0-9._%+-])[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}')
@@ -41,18 +52,16 @@ SECRETS = (
     re.compile(rb'xox[baprs]-[A-Za-z0-9-]{20,}'),
 )
 HOST_HOME_PREFIX = os.fsencode(str(Path.home().resolve()) + '/')
-BINARY_SUFFIXES = ('.icns', '.jpg', '.jpeg', '.png', '.gif', '.pdf', '.tar.gz')
+BINARY_SUFFIXES = ('.icns', '.jpg', '.jpeg', '.png', '.gif', '.pdf')
 METADATA_MARKERS = (b'Exif\x00\x00', b'eXIf', b'tEXt', b'zTXt', b'iTXt',
                     b'GPSLatitude', b'GPSLongitude', b'<x:xmpmeta')
-THIRD_PARTY_EMAIL_EXCEPTION = 'Resources/ThirdParty/CEF/CREDITS.html'
-PINNED_SOURCE_ARCHIVE = 'Resources/ThirdParty/FFmpeg/ffmpeg-n9.0.1-source.tar.gz'
-PINNED_SOURCE_ARCHIVE_SHA256 = '195d54bebe1a27f84d77f4b989d193466f305b355da92292766a69f16880b18a'
+ARCHIVE_SUFFIXES = ('.tar.gz', '.tar.xz', '.tar.bz2')
 PROJECT_LICENSE_SOURCE = 'Resources/ThirdParty/MPV/COPYING.GPLv3'
 PROJECT_LICENSE_SHA256 = '8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903'
 
 
-def allowed(relative):
-    if relative in ROOT_FILES:
+def allowed(relative, material_paths=(), additional_paths=()):
+    if relative in ROOT_FILES or relative in material_paths or relative in additional_paths:
         return True
     path = PurePosixPath(relative)
     if any(part.startswith('.') for part in path.parts):
@@ -63,18 +72,99 @@ def allowed(relative):
             and any(relative.startswith(prefix) for prefix in SOURCE_TREES))
 
 
+def unique_pairs(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError('Duplicate public source policy or manifest key')
+        result[key] = value
+    return result
+
+
+def checked_relative(value):
+    if (not isinstance(value, str) or not value or not value.isascii() or '\\' in value
+            or PurePosixPath(value).is_absolute() or '..' in PurePosixPath(value).parts
+            or PurePosixPath(value).as_posix() != value):
+        raise ValueError('Invalid public source policy or manifest path')
+    return value
+
+
+def checked_digest(value):
+    if not isinstance(value, str) or not re.fullmatch('[0-9a-f]{64}', value):
+        raise ValueError('Invalid public source policy or manifest digest')
+    return value
+
+
+def load_policy(root):
+    document = json.loads((Path(root) / POLICY_PATH).read_text(), object_pairs_hook=unique_pairs)
+    if (not isinstance(document, dict) or set(document) != {'schema_version', 'additional_source_files', 'upstream_files'}
+            or type(document['schema_version']) is not int or document['schema_version'] != 1
+            or not isinstance(document['additional_source_files'], list)
+            or not isinstance(document['upstream_files'], dict)):
+        raise ValueError('Invalid public source policy')
+    for relative in document['additional_source_files']:
+        checked_relative(relative)
+    for relative, entry in document['upstream_files'].items():
+        checked_relative(relative)
+        if (not relative.startswith('Resources/ThirdParty/') or not isinstance(entry, dict)
+                or entry.get('kind') not in ('notice', 'archive') or not entry.get('reason')):
+            raise ValueError('Invalid upstream privacy policy entry')
+        checked_digest(entry.get('sha256'))
+        for member, exception in entry.get('members', {}).items():
+            checked_relative(member)
+            checked_digest(exception.get('sha256'))
+            if not exception.get('reason') or not isinstance(exception.get('matches'), list):
+                raise ValueError('Invalid upstream member exception')
+            for match in exception['matches']:
+                if (match.get('category') not in ('personal-path', 'private-key-marker')
+                        or type(match.get('offset')) is not int or match['offset'] < 0):
+                    raise ValueError('Invalid upstream occurrence exception')
+                checked_digest(match.get('match_sha256'))
+    return document
+
+
+def material_hashes(root):
+    document = json.loads((Path(root) / MATERIAL_MANIFEST).read_text(), object_pairs_hook=unique_pairs)
+    if (not isinstance(document, dict) or type(document.get('schema_version')) is not int
+            or document['schema_version'] != 1 or not isinstance(document.get('files'), list)):
+        raise ValueError('Invalid public source material manifest')
+    result = {}
+    for entry in document['files']:
+        relative = 'Resources/ThirdParty/' + checked_relative(entry.get('path'))
+        if relative in result:
+            raise ValueError('Duplicate public source material path')
+        result[relative] = checked_digest(entry.get('sha256'))
+    return result
+
+
 def tracked_files(root):
     output = subprocess.check_output(['git', '-C', str(root), 'ls-files', '--cached', '-z'])
     return {os.fsdecode(value) for value in output.split(b'\0') if value}
 
 
-def inventory(root, tracked_paths):
+def regular_source(root, relative):
+    path = Path(root)
+    for part in PurePosixPath(relative).parts:
+        path /= part
+        if path.is_symlink():
+            raise ValueError(f'Symlink in public source input: {relative}')
+    if not path.is_file():
+        raise ValueError(f'Missing public source input: {relative}')
+    return path
+
+
+def inventory(root, tracked_paths, *, policy=None, materials=None):
     root = Path(root)
+    policy = load_policy(root) if policy is None else policy
+    materials = material_hashes(root) if materials is None else materials
+    tracked = set(tracked_paths)
+    for relative in tracked:
+        if IGNORED_LOCAL_NAMES.intersection(PurePosixPath(relative).parts) or relative.endswith(('.pyc', '.pyo')):
+            raise ValueError(f'Tracked build cache is not a public source input: {relative}')
     actual = set()
-    for relative in ROOT_FILES:
-        path = root / relative
-        if path.is_symlink() or not path.is_file():
-            raise ValueError(f'Missing or symlinked public source input: {relative}')
+    additional = set(policy['additional_source_files'])
+    for relative in ROOT_FILES | additional | set(materials):
+        regular_source(root, relative)
         actual.add(relative)
     for prefix in SOURCE_TREES:
         tree = root / prefix
@@ -83,11 +173,12 @@ def inventory(root, tracked_paths):
         for directory, folders, files in os.walk(tree, followlinks=False):
             parent = Path(directory)
             for name in list(folders):
+                if name in IGNORED_LOCAL_NAMES:
+                    folders.remove(name)
+                    continue
                 child = parent / name
                 if child.is_symlink():
                     raise ValueError(f'Symlink in public source tree: {child.relative_to(root)}')
-                if name in IGNORED_LOCAL_NAMES:
-                    folders.remove(name)
             for name in files:
                 path = parent / name
                 if path.is_symlink():
@@ -99,61 +190,72 @@ def inventory(root, tracked_paths):
                 actual.add(path.relative_to(root).as_posix())
     for relative in actual:
         path = PurePosixPath(relative)
-        if (not allowed(relative) or path.is_absolute() or '..' in path.parts
+        if (not allowed(relative, materials, additional) or path.is_absolute() or '..' in path.parts
                 or not relative.isascii()):
             raise ValueError(f'Public source path outside allowlist: {relative}')
         check_sensitive_bytes(relative.encode('ascii'), relative)
         check_email_bytes(relative.encode('ascii'), relative)
-    tracked = set(tracked_paths)
     unexpected = actual - tracked
-    missing = {path for path in tracked if allowed(path)} - actual
+    missing = {path for path in tracked if allowed(path, materials, additional)} - actual
     if unexpected or missing:
         raise ValueError(f'Public source allowlist differs from tracked inputs: '
                          f'untracked={sorted(unexpected)} missing={sorted(missing)}')
     return tuple(sorted(actual))
 
 
-def scan_file(path, relative):
+def scan_file(path, relative, *, policy=None, expected_hash=None):
     data = path.read_bytes()
+    upstream = (policy or {}).get('upstream_files', {}).get(relative)
+    digest = hashlib.sha256(data).hexdigest()
+    if expected_hash is not None and digest != expected_hash:
+        raise ValueError(f'Public source material hash mismatch: {relative}')
+    if upstream and digest != upstream['sha256']:
+        raise ValueError(f'Public source upstream hash mismatch: {relative}')
     check_sensitive_bytes(data, relative)
-    if relative.endswith('.tar.gz'):
-        check_email_bytes(gzip_header_fields(data), relative)
-        trusted_upstream = (relative == PINNED_SOURCE_ARCHIVE
-                            and hashlib.sha256(data).hexdigest() == PINNED_SOURCE_ARCHIVE_SHA256)
-        scan_archive(path, relative, trusted_upstream=trusted_upstream)
+    if relative.endswith(ARCHIVE_SUFFIXES):
+        if relative.endswith('.tar.gz'):
+            header = gzip_header_fields(data)
+            check_sensitive_bytes(header, relative)
+            check_email_bytes(header, relative)
+            if any(marker in header for marker in METADATA_MARKERS):
+                raise ValueError(f'Public source binary metadata found: {relative} gzip header')
+        scan_archive(path, relative, upstream=upstream if upstream and upstream['kind'] == 'archive' else None)
+        return
     binary_asset = relative.endswith(BINARY_SUFFIXES)
-    if relative != THIRD_PARTY_EMAIL_EXCEPTION and not binary_asset:
+    if not (upstream and upstream['kind'] == 'notice') and not binary_asset:
         check_email_bytes(data, relative)
     if binary_asset:
         if any(marker in data for marker in METADATA_MARKERS):
             raise ValueError(f'Public source binary metadata found: {relative}')
 
 
-def check_sensitive_bytes(data, relative):
-    for expression in PERSONAL_PATHS:
-        if expression.search(data):
-            raise ValueError(f'Public source privacy path found: {relative}')
-    for expression in SECRETS:
-        if expression.search(data):
-            raise ValueError(f'Public source secret found: {relative}')
+def check_sensitive_bytes(data, relative, *, exceptions=()):
+    if HOST_HOME_PREFIX in data:
+        raise ValueError(f'Public source privacy path found: {relative}')
+    approved = {(entry['category'], entry['offset'], entry['match_sha256']) for entry in exceptions}
+    observed = set()
+    patterns = [(pattern, 'personal-path', 'privacy path') for pattern in PERSONAL_PATHS]
+    patterns += [(pattern, 'private-key-marker' if index == 0 else 'secret', 'secret')
+                 for index, pattern in enumerate(SECRETS)]
+    for expression, category, label in patterns:
+        for match in expression.finditer(data):
+            occurrence = (category, match.start(), hashlib.sha256(match.group()).hexdigest())
+            if occurrence in approved:
+                observed.add(occurrence)
+                continue
+            raise ValueError(f'Public source {label} found: {relative}')
+    if approved != observed:
+        raise ValueError(f'Upstream privacy exception no longer matches: {relative}')
 
 
 def check_email_bytes(data, relative):
     for match in EMAIL.finditer(data):
-        if not match.group().lower().endswith((b'.invalid', b'.example')):
+        domain = match.group().rsplit(b'@', 1)[-1].lower()
+        reserved = (domain.endswith((b'.invalid', b'.example', b'.test'))
+                    or any(domain == example or domain.endswith(b'.' + example)
+                           for example in (b'example.com', b'example.net', b'example.org')))
+        if not reserved:
             raise ValueError(f'Public source privacy email found: {relative}')
-
-
-def check_upstream_source_bytes(data, relative):
-    # The byte-pinned upstream archive contains illustrative absolute paths in its docs.
-    # Scan its contents for this machine's home path and token formats; the upstream
-    # TLS implementation contains a literal PEM delimiter, not a private key.
-    # Member metadata is scanned more broadly.
-    if HOST_HOME_PREFIX in data:
-        raise ValueError(f'Public source privacy path found: {relative}')
-    for expression in SECRETS[1:]:
-        if expression.search(data):
-            raise ValueError(f'Public source secret found: {relative}')
 
 
 def gzip_header_fields(data):
@@ -181,8 +283,10 @@ def gzip_header_fields(data):
     return b'\n'.join(fields)
 
 
-def scan_archive(path, relative, *, trusted_upstream=False):
-    with tarfile.open(path, 'r:gz') as archive:
+def scan_archive(path, relative, *, upstream=None):
+    members = upstream.get('members', {}) if upstream else {}
+    observed_members = set()
+    with tarfile.open(path, 'r:*') as archive:
         for index, member in enumerate(archive):
             location = f'{relative} member #{index}'
             metadata = (member.name, member.linkname, member.uname, member.gname,
@@ -197,14 +301,17 @@ def scan_archive(path, relative, *, trusted_upstream=False):
             if stream is None:
                 raise ValueError(f'Unreadable public source archive member: {relative}')
             with stream:
-                previous = b''
-                while chunk := stream.read(1024 * 1024):
-                    if trusted_upstream:
-                        check_upstream_source_bytes(previous + chunk, location)
-                    else:
-                        check_sensitive_bytes(previous + chunk, location)
-                        check_email_bytes(previous + chunk, location)
-                    previous = chunk[-512:]
+                data = stream.read()
+            exception = members.get(member.name)
+            if exception:
+                if hashlib.sha256(data).hexdigest() != exception['sha256']:
+                    raise ValueError(f'Upstream member exception hash mismatch: {location}')
+                observed_members.add(member.name)
+            check_sensitive_bytes(data, location, exceptions=exception['matches'] if exception else ())
+            if not upstream:
+                check_email_bytes(data, location)
+    if observed_members != set(members):
+        raise ValueError(f'Upstream privacy exception member missing: {relative}')
 
 
 def publish_directory(source, destination):
@@ -225,7 +332,9 @@ def export(root, destination, *, tracked_paths=None):
     destination = destination.parent.resolve() / destination.name
     if destination.exists():
         raise FileExistsError(f'Public source destination already exists: {destination}')
-    files = inventory(root, tracked_files(root) if tracked_paths is None else tracked_paths)
+    policy, materials = load_policy(root), material_hashes(root)
+    files = inventory(root, tracked_files(root) if tracked_paths is None else tracked_paths,
+                      policy=policy, materials=materials)
     if PROJECT_LICENSE_SOURCE not in files:
         raise ValueError(f'Missing project license text: {PROJECT_LICENSE_SOURCE}')
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -235,10 +344,10 @@ def export(root, destination, *, tracked_paths=None):
             target_relative = 'README.md' if relative == 'PUBLIC_README.md' else relative
             target = stage / target_relative
             target.parent.mkdir(parents=True, exist_ok=True)
-            source = root / relative
+            source = regular_source(root, relative)
             shutil.copyfile(source, target)
             target.chmod(0o755 if source.stat().st_mode & stat.S_IXUSR else 0o644)
-            scan_file(target, target_relative)
+            scan_file(target, target_relative, policy=policy, expected_hash=materials.get(relative))
         license_path = stage / 'LICENSE'
         shutil.copyfile(stage / PROJECT_LICENSE_SOURCE, license_path)
         if hashlib.sha256(license_path.read_bytes()).hexdigest() != PROJECT_LICENSE_SHA256:
@@ -261,7 +370,7 @@ def main():
     root = Path(__file__).resolve().parents[1]
     files = export(root, options.output)
     print(f'PUBLIC SOURCE CANDIDATE: {len(files)} files; no Git history copied; '
-          'third-party distribution review remains incomplete')
+          'source bytes and pinned upstream materials scanned')
 
 
 if __name__ == '__main__':

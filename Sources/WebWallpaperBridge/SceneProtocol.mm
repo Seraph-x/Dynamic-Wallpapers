@@ -397,45 +397,4 @@ void SceneSession::retire() {
   std::lock_guard lock(mutex);
   retired = true; issueTransfer.reset(); completedIssueTransfers.clear(); events.clear();
 }
-bool EditorSession::receive(const std::string& body) { @autoreleasepool {
-  NSData* data = [NSData dataWithBytes:body.data() length:body.size()];
-  id value = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-  if (![value isKindOfClass:NSDictionary.class]) throw std::runtime_error("Editor event must be an object");
-  NSDictionary* object = value;
-  if (![object[@"session"] isEqual:@(session.c_str())] || !integer(object[@"generation"], 1, 9007199254740991ULL) ||
-      [object[@"generation"] unsignedLongLongValue] != generation || !text(object[@"type"], 32))
-    throw std::runtime_error("Stale or invalid Editor event identity");
-  NSString* type = object[@"type"];
-  NSMutableSet* keys = [NSMutableSet setWithArray:@[@"type", @"session", @"generation"]];
-  EditorEvent event{type.UTF8String, {}, {}, false};
-  if ([type isEqual:@"preview"]) { /* Payload-free native snapshot request. */ }
-  else if ([type isEqual:@"ready"] && integer(object[@"frame"], 1, 9007199254740991ULL)) [keys addObject:@"frame"];
-  else if ([type isEqual:@"dirty"] && [object[@"dirty"] isKindOfClass:NSNumber.class] &&
-           CFGetTypeID((__bridge CFTypeRef)object[@"dirty"]) == CFBooleanGetTypeID()) {
-    [keys addObject:@"dirty"]; event.dirty = [object[@"dirty"] boolValue];
-  } else if ([type isEqual:@"reply"] && text(object[@"id"], 128) && [object[@"payload"] isKindOfClass:NSDictionary.class]) {
-    [keys addObjectsFromArray:@[@"id", @"payload"]]; event.id = [object[@"id"] UTF8String];
-    NSData* payload = [NSJSONSerialization dataWithJSONObject:object[@"payload"] options:0 error:nil];
-    event.payload.assign(static_cast<const char*>(payload.bytes), payload.length);
-  } else if ([type isEqual:@"resource"] && text(object[@"id"], 128)) {
-    [keys addObjectsFromArray:@[@"id", @"action"]]; event.id = [object[@"id"] UTF8String];
-    if ([object[@"action"] isEqual:@"stage"] && [object[@"data"] isKindOfClass:NSString.class]) {
-      NSString* encoded = object[@"data"];
-      NSData* bytes = [[NSData alloc] initWithBase64EncodedString:encoded options:0];
-      if (!bytes || ![[bytes base64EncodedStringWithOptions:0] isEqual:encoded]) throw std::runtime_error("Invalid Editor resource base64");
-      [keys addObject:@"data"];
-    } else if ([object[@"action"] isEqual:@"read"] && [object[@"version"] isKindOfClass:NSString.class] && [object[@"version"] length] == 64 &&
-        [object[@"version"] rangeOfString:@"^[a-f0-9]{64}$" options:NSRegularExpressionSearch].location != NSNotFound) {
-      [keys addObject:@"version"];
-    } else if (![object[@"action"] isEqual:@"list"]) throw std::runtime_error("Invalid Editor resource request");
-    NSData* payload = [NSJSONSerialization dataWithJSONObject:object options:0 error:nil];
-    event.payload.assign(static_cast<const char*>(payload.bytes), payload.length);
-  } else if ([type isEqual:@"error"] && text(object[@"message"], 2048)) {
-    [keys addObject:@"message"]; event.payload = [object[@"message"] UTF8String];
-  } else throw std::runtime_error("Invalid Editor event payload");
-  if (![keys isEqual:[NSSet setWithArray:object.allKeys]]) throw std::runtime_error("Unknown Editor event fields");
-  std::lock_guard lock(mutex);
-  if (retired) return false;
-  events.push_back(std::move(event)); return true;
-} }
 }  // namespace dw

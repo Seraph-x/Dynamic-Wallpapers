@@ -3,11 +3,11 @@
   "version": "9.0.1 (n9.0.1)",
   "source_sha256": "195d54bebe1a27f84d77f4b989d193466f305b355da92292766a69f16880b18a",
   "build_script_sha256": "c3855753df4544932d29f860c12f5f0e47c7adb87a18645c9f4359ac2e917460",
-  "sdk_version": "27.0",
-  "toolchain_version": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "sdk_version": "27.2",
+  "toolchain_version": "Apple clang version 21.0.0 (clang-2100.4.1.1)",
   "tools": {
-    "ffmpeg": "84243b0dc96d9177eea20d73bf20e4dfdd67039c748138b4ac96e0ef26d1310d",
-    "ffprobe": "1e8de479be52ae43c87f4a99d4de7fed55c60e85da359a2fa99472d2b89ec148"
+    "ffmpeg": "a9252a7ebac1fd4491e5ac90765f40d61a95af723e56649e849fbb9487934a3a",
+    "ffprobe": "81c49a9164cba71cd787bd469c66c80423e3143eb8e1f4885d3581c704e96120"
   },
   "build_inputs": {
     "Resources/ThirdParty/MPV/sources/dav1d-1.5.3.tar.bz2": "e099f53253f6c247580c554d53a13f1040638f2066edc3c740e4c2f15174ce22",
@@ -60,8 +60,8 @@
     "--enable-zlib",
     "--enable-bzlib"
   ],
-  "config_h_sha256": "4c5194258acdc89a17528c5cc1609ac41b67c1cee0e43486a6567a6ff47589ee",
+  "config_h_sha256": "e7d0bd183e1eb5d07d404d30549213f246d87bdd5e6fe27679646e36750c5d9f",
   "license_output_sha256": "a0abd25510978f275a835fce3f90affce1d580efdc7b37edc17b7a57b2e9e9fd",
-  "configuration_output_sha256": "6021968c6e6af016f58c7345ba166b7b13431ec3dbb772110de7929c00e2f811",
+  "configuration_output_sha256": "355948369ab81eeea174b0aafa5b6691affae3f7214cfbf3e0ac1665f966573e",
   "normalization": "Only occurrences of actual build-prefix and SDK path values use named tokens; raw output hashes and all other actual options are retained."
 }

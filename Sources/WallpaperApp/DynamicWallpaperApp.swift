@@ -149,8 +149,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 let url = pendingEditorURLs.removeFirst()
                 do {
                     if try await model.receiveEditorLink(url) { model.mainWindow.open() }
-                    else if let failure = model.failure { model.presentEditorFailure(failure) }
-                } catch { model.presentEditorFailure(error) }
+                    else if let failure = model.failure { model.presentSceneImportFailure(failure) }
+                } catch { model.presentSceneImportFailure(error) }
             }
         }
     }

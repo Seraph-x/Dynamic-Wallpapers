@@ -33,6 +33,8 @@ final class NativePlaybackTests: XCTestCase {
 
     func testRealVideoPixelsAndAudioPolicyStopWithTheSession() async throws {
         let f = try await RuntimeFixture(test: self)
+        // AVPlayerLayer can retain its last displayed buffer while the host is occluded.
+        f.window.orderFrontRegardless()
         let url = try await RuntimeVideoFixture.makeVideo()
         addTeardownBlock { try FileManager.default.removeItem(at: url) }
         try await f.publishVideo(url)

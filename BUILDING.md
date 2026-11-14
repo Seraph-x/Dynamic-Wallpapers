@@ -47,11 +47,11 @@ git archive HEAD | tar -x -C "$RELEASE_SOURCE"
 cd "$RELEASE_SOURCE"
 python3 scripts/prepare-public-build.py
 python3 scripts/verify-current-media.py
-bash scripts/build-app.sh --output dist/DynamicWallpaper-1.1.0.app
+bash scripts/build-app.sh --output dist/DynamicWallpaper-1.1.1.app
 python3 scripts/create-local-release.py \
-  --app dist/DynamicWallpaper-1.1.0.app \
-  --output dist/releases/1.1.0 \
-  --notes docs/releases/1.1.0/RELEASE_NOTES.md
+  --app dist/DynamicWallpaper-1.1.1.app \
+  --output dist/releases/1.1.1 \
+  --notes docs/releases/1.1.1/RELEASE_NOTES.md
 ```
 
 Do not reuse prepared CEF wrapper or FFmpeg products from a personal source
@@ -63,22 +63,33 @@ upstream copyright and license notices intact. Local receipts and diagnostic
 logs may contain absolute paths and are not release attachments.
 
 Ship `SHA256SUMS.txt` alongside the DMG/ZIP and the five installation notes in
-`docs/releases/1.1.0`. The DMG contains the app and those notes; it must be
+`docs/releases/1.1.1`. The DMG contains the app and those notes; it must be
 mounted read-only and the contained app re-verified after image creation. Source
 archives contain tracked files without Git history, local libraries, caches or
 validation logs. A clean privacy scan and a valid ad-hoc signature do not imply
 Apple notarization or replace review of the retained third-party sources and license notices.
 
-## Independent Editor
+## Tests
 
-Editor has its own version and release tag; it is not bundled with Main:
+For the complete Swift regression suite, use the toolchain's default build system
+so each XCTest bundle receives its application metadata. The synthetic test
+fixtures also require an FFmpeg executable with libx264, libvpx-vp9, libopus and
+libmp3lame encoders; set `FFMPEG` explicitly if it is not on your PATH:
 
 ```sh
-python3 scripts/build-editor-app.py --output 'dist/editor/Dynamic Wallpaper Editor.app' --zip
+FFMPEG=ffmpeg bash scripts/feasibility/mpv/fixtures.sh
+python3 scripts/swift_sdk.py build --build-tests --disable-sandbox
+python3 scripts/test.py --skip-build
 ```
 
-The builder recompiles its CEF wrapper and Swift modules in a neutral directory,
-checks the offline resource provenance and all five localizations, scans packaged
-files for personal paths, verifies Mach-O closure and strict signatures, then
-checks ZIP extraction. Editor does not include mpv or FFmpeg. See
-[installation and removal](docs/editor-install.md).
+The existing fixture script generates owned 320×180, 24 fps test patterns and
+sine audio under `.build/dependencies/mpv/fixtures`; no private media is needed.
+These test inputs have different specifications from the retained media-release
+acceptance fixtures. The deprecated native SwiftPM build system combines tests
+into a bundle without the identifier required by screen-saver host tests.
+
+## Independent Editor
+
+Wallpaper Editor builds from its own repository and ships its own CEF runtime. Main builds and tests without an Editor checkout. See the [Editor repository](https://github.com/Seraph-x/Wallpaper-Editor) and its [build instructions](https://github.com/Seraph-x/Wallpaper-Editor/blob/main/BUILDING.md) for that application.
+
+To check Main’s package ownership and independently generated Scene fixtures, run `python3 scripts/test-main-standalone.py`. `python3 scripts/test-export-public-source.py` verifies that source exports retain shared SceneScript modules and exclude Editor sources.

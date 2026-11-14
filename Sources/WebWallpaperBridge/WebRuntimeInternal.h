@@ -20,5 +20,4 @@ static inline NSError* DWWebError(NSString* message) {
 - (void)tick;
 @property(nonatomic, readonly) NSUInteger lifecycleTickCount;
 @property(nonatomic, readonly) BOOL hasLifecycleDeadline;
-- (BOOL)configureEditorRuntimeRoot:(NSString*)root configuration:(NSDictionary*)configuration error:(NSError**)error;
 @end

@@ -14,10 +14,11 @@
     "duration" : 2.083333333333333,
     "renderWidth" : 64,
     "hardwareDecoder" : "no",
+    "pixelBufferAllocations" : 5,
     "renderHeight" : 36
   },
   "audioOutput" : "coreaudio",
-  "frameCount" : 25,
+  "frameCount" : 26,
   "firstFrameMetadata" : {
     "height" : 90,
     "controlQueueLabel" : "local.dynamicwallpaper.mpv.control",
@@ -28,6 +29,7 @@
     "duration" : 2.083333333333333,
     "renderWidth" : 64,
     "hardwareDecoder" : "no",
+    "pixelBufferAllocations" : 2,
     "renderHeight" : 36
   },
   "lastRGBAFile" : "mpeg4-mp3.avi-last.rgba",
@@ -38,8 +40,8 @@
   "firstRGBAFile" : "mpeg4-mp3.avi-first.rgba",
   "videoCodec" : "mpeg4",
   "hardwareDecoder" : "no",
-  "maximumAudioPTS" : 1.7287092920000013,
-  "distinctPixelHashes" : 23,
+  "maximumAudioPTS" : 1.7816490013333346,
+  "distinctPixelHashes" : 24,
   "loops" : 1,
   "settingsReadbacks" : {
     "pauseAndResumeVerified" : true,

@@ -119,8 +119,8 @@
     },
     {
       "path": "FFmpeg/BUILD-RECORD.json",
-      "sha256": "812c118a0c146700811eaa931f1ae07264915d1b2e4d11b189cac380a344a760",
-      "size": 3460
+      "sha256": "430cc8e0683b08edd73e27e8b96b98b13d8044e47f2ed8b6fddce7a3e589ef9b",
+      "size": 3459
     },
     {
       "path": "FFmpeg/COPYING.GPLv2",
@@ -154,7 +154,7 @@
     },
     {
       "path": "FFmpeg/acceptance/software-transcode.json",
-      "sha256": "882c5f709e2fcc7a9fbf021e90bab7e5529a448a15e8aa477565ba686c2e24e4",
+      "sha256": "0c1c72a77547f8d5361906f104b1c6c4f50f47d51e7f5d848b404b274182e2db",
       "size": 6679
     },
     {
@@ -209,8 +209,8 @@
     },
     {
       "path": "MPV/BUILD-RECORD.json",
-      "sha256": "ec9f23c0aaef0291d55ead4951ee23d1cef2908d239f302dbc52190bb60adb0b",
-      "size": 10514
+      "sha256": "c90fe688705ff4b24f010ff644c70cbf1e583231e252904b9d7fea587b2c7f43",
+      "size": 10513
     },
     {
       "path": "MPV/CODEC-AUDIT.json",
@@ -249,8 +249,8 @@
     },
     {
       "path": "MPV/acceptance/acceptance.json",
-      "sha256": "b3ae7a395592a88b3413203df2f8ad7a52d09771d7d1c9b40eda7ceaca2e65b7",
-      "size": 16256
+      "sha256": "5123ebb24b5a042b20e6de366eb2dd97911f60303ca1acb41a458ed3d0d625ee",
+      "size": 16721
     },
     {
       "path": "MPV/acceptance/av1-opus.mkv-first.rgba",
@@ -264,8 +264,8 @@
     },
     {
       "path": "MPV/acceptance/av1-opus.mkv.json",
-      "sha256": "9ae35d45b0a9440a8302ed4d2928d0c78429c3fc539edee58c696c0e13b1c020",
-      "size": 1752
+      "sha256": "4cee237a0408eefd0f3348e3c7af69bf5d295c64c8cb79223ffb9923814ab96a",
+      "size": 1820
     },
     {
       "path": "MPV/acceptance/av1-opus.webm-first.rgba",
@@ -279,8 +279,8 @@
     },
     {
       "path": "MPV/acceptance/av1-opus.webm.json",
-      "sha256": "01ff71c06ff80653a350e5706767cbe3ca5c4a477d2d9e0e2150e73a4d03598f",
-      "size": 1755
+      "sha256": "9d5c2f162067a450362c8f2e53883b21cf8196a59ef71e62141be95d43e6e8f8",
+      "size": 1823
     },
     {
       "path": "MPV/acceptance/fixtures/av1-opus.mkv",
@@ -324,13 +324,13 @@
     },
     {
       "path": "MPV/acceptance/h264-aac.mkv-last.rgba",
-      "sha256": "d15010feead0412e877ba4f64d33de58560c4b6792602010a423115a12fcc256",
+      "sha256": "e89372c35c7e9c1f159160741019af1f1d140bf51b149e1f921f0769ae7e30e3",
       "size": 9216
     },
     {
       "path": "MPV/acceptance/h264-aac.mkv.json",
-      "sha256": "5e80a0ac83d75a094920929064d340c9ce2b5559ff5f236cc790f03f5e19fa67",
-      "size": 1862
+      "sha256": "de480af3e60858c5d5df41d034f2efbd5b02aa8bfc527fb33d62399c09839d72",
+      "size": 1929
     },
     {
       "path": "MPV/acceptance/mpeg4-mp3.avi-first.rgba",
@@ -339,13 +339,13 @@
     },
     {
       "path": "MPV/acceptance/mpeg4-mp3.avi-last.rgba",
-      "sha256": "fd0566090549077db2c41ccd6f2a43bc7cce2e72d9ca85c8ce7874750ad87f36",
+      "sha256": "23e29d53ee5a248c7a061eb8181aaf315daa8765ffda32bb1ce055faa0550681",
       "size": 9216
     },
     {
       "path": "MPV/acceptance/mpeg4-mp3.avi.json",
-      "sha256": "4ce0130b8ded5a0c4de0f475e5f43678988e43035e01ae253a719cc7b0edef1c",
-      "size": 1775
+      "sha256": "ef4f4533aa9fe8a4f8c61859782456a030dc2b99f3a733cb89a37d09c4a4ebbf",
+      "size": 1843
     },
     {
       "path": "MPV/acceptance/vp9-opus.webm-first.rgba",
@@ -359,8 +359,8 @@
     },
     {
       "path": "MPV/acceptance/vp9-opus.webm.json",
-      "sha256": "31e373a75e95a279f4f45a3f720ede04b540c8f58e87b58a59ee16853b69384b",
-      "size": 1781
+      "sha256": "15ac7efb19ada6dd91abd2085a5ac69c32ecf842068956227532e41b91fcd72e",
+      "size": 1849
     },
     {
       "path": "MPV/acceptance/zmbv-mp3.avi-first.rgba",
@@ -369,13 +369,13 @@
     },
     {
       "path": "MPV/acceptance/zmbv-mp3.avi-last.rgba",
-      "sha256": "61e452a5745a7a8084fa37dcfc02cb8c6875fa628ecd483723e30f5e4112ec79",
+      "sha256": "5a37dc309f59e0f7d5f9d5891c76bb58adba51b03b2accb65a38855a176ff8a3",
       "size": 9216
     },
     {
       "path": "MPV/acceptance/zmbv-mp3.avi.json",
-      "sha256": "43a19298b4c9ad5d8e4cc0accc0d1b773bad2a3e38418e049babc19531eb5fd8",
-      "size": 1781
+      "sha256": "a2926e8b9be777546e027504c7e1372a31b858d116a8f85197a47ff97749ff5a",
+      "size": 1849
     },
     {
       "path": "MPV/historical/iina-1.4.0-binary-manifest.json",
@@ -714,7 +714,7 @@
     },
     {
       "path": "README.md",
-      "sha256": "1aea5cdd782c5244228783b1b3637bb6900f5c31b941448472dc329fd9f9bc6e",
+      "sha256": "42dc78a7ec730daad93f863419e2e7d03cd2a079de0b613a864f7a96dfb57341",
       "size": 2729
     },
     {
