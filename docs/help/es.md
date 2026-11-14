@@ -1,6 +1,6 @@
 # Ayuda de Dynamic Wallpaper
 
-**v1.1.0 · Compilación 5 · Guía sin conexión**
+**v1.1.1 · Compilación 6 · Guía sin conexión**
 
 <!-- help-languages -->
 Idioma de la guía: [简体中文](zh-Hans.md) · [English](en.md) · [日本語](ja.md) · [Français](fr.md) · [Español](es.md)
@@ -186,17 +186,19 @@ Importa solo proyectos de confianza, ya que sus scripts pueden ejecutarse. Los m
 
 Usa duraciones fijas. La pausa conserva el reloj de la escena y reanuda la misma instancia. Se aplican los ajustes de volumen, silencio, encuadre y frecuencia web. Activa la interacción y sus permisos para movimientos del ratón y clics izquierdos en el escritorio vacío. La vista previa acepta el ratón directamente.
 
-Main ofrece los ajustes por fondo descritos más abajo; Editor se instala por separado. Las escenas siguen sin admitirse en el salvapantallas nativo. La compatibilidad depende de la versión fijada de WebWallGL; los fallos de carga o renderizado muestran errores. Algunos efectos o scripts incompatibles pueden generar solo avisos, registrados en el log de CEF. No se sustituye la escena por una imagen o vídeo.
+Main ofrece los ajustes por fondo descritos más abajo. Las escenas siguen sin admitirse en el salvapantallas nativo. La compatibilidad depende de la versión fijada de WebWallGL; los fallos de carga o renderizado muestran errores. Algunos efectos o scripts incompatibles pueden generar solo avisos, registrados en el log de CEF. No se sustituye la escena por una imagen o vídeo.
 
-Activa « Respuesta al audio del sistema » en Ajustes → General → Sonido (macOS 14.2 o posterior; desactivada por defecto). Permite la grabación del audio del sistema cuando se solicite. Solo las escenas en reproducción comparten un servicio de captura; las miniaturas no lo inician. Silenciar el fondo no desactiva la respuesta. El audio se analiza en memoria, excluyendo el sonido de esta app, sin grabarlo, subirlo ni usar el micrófono. La captura se detiene al pausar o cerrar todas las escenas o desactivar el ajuste. Un error de captura o dispositivo borra el espectro y muestra el error sin detener la animación; reintenta tras resolverlo. Editor es una aplicación independiente y opcional que se instala por separado. Tras instalarlo por separado, abre Editor directamente desde Aplicaciones. En Editor, Archivo → Abrir en Dynamic Wallpaper importa una copia guardada a la biblioteca sin aplicarla ni añadirla a una lista. Eliminar Editor conserva los proyectos y la reproducción habitual.
+Activa « Respuesta al audio del sistema » en Ajustes → General → Sonido (macOS 14.2 o posterior; desactivada por defecto). Permite la grabación del audio del sistema cuando se solicite. Solo las escenas en reproducción comparten un servicio de captura; las miniaturas no lo inician. Silenciar el fondo no desactiva la respuesta. El audio se analiza en memoria, excluyendo el sonido de esta app, sin grabarlo, subirlo ni usar el micrófono. La captura se detiene al pausar o cerrar todas las escenas o desactivar el ajuste. Un error de captura o dispositivo borra el espectro y muestra el error sin detener la animación; reintenta tras resolverlo.
+
+La creación de escenas se mantiene en el repositorio independiente Wallpaper Editor: `https://github.com/Seraph-x/Wallpaper-Editor`. Ambas aplicaciones se compilan y ejecutan de forma independiente. En Editor, Archivo → Abrir en Dynamic Wallpaper importa una copia guardada a la biblioteca de Main sin aplicarla ni añadirla a una lista. También puedes importar directamente la carpeta del proyecto loose JSON/PKG guardado. Eliminar Editor no afecta a las escenas importadas ni a su reproducción.
 
 ### 3.12 Conectar las escenas en reproducción con Music o Spotify {#system-media}
 
 Abre **Ajustes → General → Información y controles multimedia**. Elige Desactivado, Music o Spotify; el valor inicial es Desactivado. La selección se guarda sin solicitar consentimiento. Abre tú mismo el reproductor elegido y pulsa el botón de autorización para solicitar el permiso Automatización de macOS. Úsalo solo con escenas de confianza: las escenas en reproducción pueden leer título, artista, álbum, posición, duración y carátula disponible, y enviar reproducir, pausar, alternar reproducción, siguiente y anterior. Una autorización explícita puede comprobar el reproductor incluso sin escenas activas; las escenas inactivas, preparándose o en pausa no reciben información multimedia.
 
-No hay una fuente global « En reproducción » ni compatibilidad con otros reproductores. La falta de permiso, el reproductor cerrado, la ausencia de un elemento y los errores del proveedor tienen estados diferentes. Corrige el acceso en **Ajustes del Sistema → Privacidad y seguridad → Automatización**, o abre el reproductor, y reintenta la información multimedia. La carátula tiene su propio reintento y sus fallos no eliminan los metadatos. Las letras y los colores derivados de la carátula no están disponibles. Desactivar borra la información de las escenas y detiene las órdenes; pausar o cerrar la última escena detiene las lecturas periódicas. La vista previa de Editor recibe información vacía y no solicita acceso al reproductor.
+No hay una fuente global « En reproducción » ni compatibilidad con otros reproductores. La falta de permiso, el reproductor cerrado, la ausencia de un elemento y los errores del proveedor tienen estados diferentes. Corrige el acceso en **Ajustes del Sistema → Privacidad y seguridad → Automatización**, o abre el reproductor, y reintenta la información multimedia. La carátula tiene su propio reintento y sus fallos no eliminan los metadatos. Las letras y los colores derivados de la carátula no están disponibles. Desactivar borra la información de las escenas y detiene las órdenes; pausar o cerrar la última escena detiene las lecturas periódicas.
 
-Main también permite editar propiedades compatibles en el inspector de Main, guardar y aplicar, restaurar los valores del autor o recargar. Los valores se guardan en la entrada de biblioteca de ese fondo, sin reescribir el proyecto original. Editor ofrece una línea de tiempo de propiedades, edición de esqueleto, pesos y clips, horneado FK/IK y un espacio Script sin conexión. Los scripts integrados y los de recursos compatibles de materiales o partículas permiten comprobar, aplicar, revertir, deshacer, guardar y exportar. Se ejecutan en una ventana de vista previa independiente; los errores reales enlazan al código capturado. El lienzo de edición no ejecuta scripts. Los datos no compatibles no se convierten silenciosamente.
+Main también permite editar propiedades compatibles en el inspector de Main, guardar y aplicar, restaurar los valores del autor o recargar. Los valores se guardan en la entrada de biblioteca de ese fondo, sin reescribir el proyecto original.
 
 ## 4. Referencia de ajustes {#settings}
 
@@ -308,7 +310,7 @@ Usa esta acción únicamente si la app indica expresamente que no puede leer la 
 | Elemento | Información |
 | --- | --- |
 | App | Dynamic Wallpaper |
-| Versión | v1.1.0, compilación 5 |
+| Versión | v1.1.1, compilación 6 |
 | Alcance de la guía | Operaciones, ajustes, efectos sobre los datos y solución de problemas de la app actual |
 
 Consulta **Ajustes → Acerca de** para comprobar la versión instalada. Esta guía se incluye en la app y funciona sin conexión.

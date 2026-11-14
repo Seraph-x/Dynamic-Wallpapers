@@ -85,8 +85,13 @@ struct WallpaperImportView: View {
                     }
                 }
                 if kind == .scene {
-                    Text(l10n("支持本地 loose JSON 和 PKG 场景，按作者默认设置播放。场景编辑请使用菜单栏的 Editor。"))
-                        .font(.caption).foregroundStyle(.secondary)
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(l10n("支持本地 loose JSON 和 PKG 场景，按作者默认设置播放。场景编辑请使用独立的 Wallpaper Editor。"))
+                            .font(.caption).foregroundStyle(.secondary)
+                        Link(l10n("Wallpaper Editor 项目与下载"),
+                             destination: URL(string: "https://github.com/Seraph-x/Wallpaper-Editor")!)
+                            .font(.caption)
+                    }
                 }
             }
             if let failure { FailureNotice(failure: failure) }

@@ -14,10 +14,11 @@
     "duration" : 2.008,
     "renderWidth" : 64,
     "hardwareDecoder" : "videotoolbox-copy",
+    "pixelBufferAllocations" : 5,
     "renderHeight" : 36
   },
   "audioOutput" : "coreaudio",
-  "frameCount" : 27,
+  "frameCount" : 25,
   "firstFrameMetadata" : {
     "height" : 90,
     "controlQueueLabel" : "local.dynamicwallpaper.mpv.control",
@@ -28,6 +29,7 @@
     "duration" : 2.008,
     "renderWidth" : 64,
     "hardwareDecoder" : "videotoolbox-copy",
+    "pixelBufferAllocations" : 2,
     "renderHeight" : 36
   },
   "lastRGBAFile" : "vp9-opus.webm-last.rgba",
@@ -38,7 +40,7 @@
   "firstRGBAFile" : "vp9-opus.webm-first.rgba",
   "videoCodec" : "vp9",
   "hardwareDecoder" : "videotoolbox-copy",
-  "maximumAudioPTS" : 1.7166488773333346,
+  "maximumAudioPTS" : 1.6719041676666679,
   "distinctPixelHashes" : 23,
   "loops" : 1,
   "settingsReadbacks" : {

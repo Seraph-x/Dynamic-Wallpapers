@@ -10,7 +10,13 @@ enum WindowCompositorCapture {
         XCTAssertTrue(window.isVisible)
         let screen = try XCTUnwrap(window.screen)
         let screenID = try XCTUnwrap(screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID)
-        let content = try await SCShareableContent.excludingDesktopWindows(true, onScreenWindowsOnly: false)
+        let content: SCShareableContent
+        if #available(macOS 14.4, *) {
+            // Only the test window and its display are needed to construct the compositor capture.
+            content = try await SCShareableContent.currentProcess
+        } else {
+            content = try await SCShareableContent.excludingDesktopWindows(true, onScreenWindowsOnly: false)
+        }
         let display = try XCTUnwrap(content.displays.first { $0.displayID == screenID })
         _ = try XCTUnwrap(content.windows.first { $0.windowID == CGWindowID(window.windowNumber) })
         let frame = window.frame

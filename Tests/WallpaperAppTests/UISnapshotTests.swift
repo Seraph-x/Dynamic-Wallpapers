@@ -224,10 +224,12 @@ final class UISnapshotTests: XCTestCase {
         try await capture(window, to: output.appendingPathComponent("web-playlist-window.png"))
         // A tall inspector makes the timing section inspectable without pretending
         // that the current backend can already render or preview this webpage.
+        // Detach the library's window chrome before the standalone inspector computes its minimum size.
+        window.contentView = nil
+        window.toolbar = nil
+        window.styleMask.remove(.fullSizeContentView)
         window.contentView = NSHostingView(rootView: (InspectorView(model: model).tint(AppColors.brandAccent).frame(width: 400, height: 1000)).environment(\.locale, Locale(identifier: "zh-Hans")))
         try await Task.sleep(for: .milliseconds(200))
-        // Let SwiftUI remove the library toolbar/titlebar configuration before
-        // sizing the replacement; those changes alter AppKit's content area.
         window.setContentSize(NSSize(width: 400, height: 1000))
         window.contentView?.layoutSubtreeIfNeeded()
         XCTAssertEqual(window.contentView?.bounds.size, NSSize(width: 400, height: 1000))

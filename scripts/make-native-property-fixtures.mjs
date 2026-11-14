@@ -2,7 +2,7 @@
 // Authored properties and independent GPU oracles shared with browser acceptance.
 import {mkdir, writeFile} from 'node:fs/promises';
 import {resolve, join} from 'node:path';
-import {propertiesDocument} from '../Editor/Web/preview-properties-fixture.mjs';
+import {propertiesDocument} from './scene-properties-fixture.mjs';
 
 const output = resolve(process.argv[2]);
 await mkdir(output);

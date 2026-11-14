@@ -22,7 +22,7 @@ class WebClient final : public CefClient, public CefLifeSpanHandler, public CefR
   explicit WebClient(std::shared_ptr<DWWebPageState> state) : state_(std::move(state)) {}
   ~WebClient() override { state_->clientDestroyed = true; state_->notifyChanged(); }
   CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override { return this; }
-  CefRefPtr<CefRenderHandler> GetRenderHandler() override { return state_->editor ? nullptr : this; }
+  CefRefPtr<CefRenderHandler> GetRenderHandler() override { return this; }
   CefRefPtr<CefLoadHandler> GetLoadHandler() override { return this; }
   CefRefPtr<CefDisplayHandler> GetDisplayHandler() override { return this; }
   CefRefPtr<CefRequestHandler> GetRequestHandler() override { return this; }
@@ -30,7 +30,7 @@ class WebClient final : public CefClient, public CefLifeSpanHandler, public CefR
   CefRefPtr<CefDownloadHandler> GetDownloadHandler() override { return this; }
   CefRefPtr<CefJSDialogHandler> GetJSDialogHandler() override { return this; }
   CefRefPtr<CefDialogHandler> GetDialogHandler() override { return this; }
-  CefRefPtr<CefAudioHandler> GetAudioHandler() override { return state_->editor ? nullptr : this; }
+  CefRefPtr<CefAudioHandler> GetAudioHandler() override { return this; }
   bool GetAudioParameters(CefRefPtr<CefBrowser>, CefAudioParameters& parameters) override {
     parameters.sample_rate = DWWebAudioBuffer::sampleRate;
     parameters.channel_layout = CEF_CHANNEL_LAYOUT_STEREO;
@@ -59,10 +59,6 @@ class WebClient final : public CefClient, public CefLifeSpanHandler, public CefR
     fprintf(stderr, "DWWEB after-created origin=%s closing=%d\n", state_->host.c_str(), int(state_->closing.load()));
     state_->browser = browser;
     state_->notifyChanged();
-    if (state_->editor) {
-      browser->GetHost()->SetAudioMuted(true);
-      state_->attachNative(browser->GetHost()->GetWindowHandle());
-    }
     // Alloy finishes accessing its platform delegate after this callback.
     // Closing inline can destroy that delegate before creation returns.
     if (state_->closing && !CefPostTask(TID_UI, new CloseCreatedPage(state_)))
@@ -72,15 +68,6 @@ class WebClient final : public CefClient, public CefLifeSpanHandler, public CefR
   void OnBeforeClose(CefRefPtr<CefBrowser>) override {
     fprintf(stderr, "DWWEB before-close origin=%s\n", state_->host.c_str());
     state_->browser = nullptr; state_->browserClosed = true; state_->notifyChanged();
-  }
-  bool DoClose(CefRefPtr<CefBrowser> browser) override {
-    if (!state_->editor) return false;
-    fprintf(stderr, "DWWEB editor-native-close origin=%s\n", state_->host.c_str());
-    // Alloy's default performClose: targets the containing NSWindow. The Editor
-    // keeps that window/session until OnBeforeClose and all resources retire.
-    // Tear down only CEF's native child, after leaving this callback stack.
-    state_->detachNative(browser->GetHost()->GetWindowHandle());
-    return true;
   }
   void GetViewRect(CefRefPtr<CefBrowser>, CefRect& rect) override { rect = CefRect(0, 0, state_->width, state_->height); }
   bool GetScreenInfo(CefRefPtr<CefBrowser>, CefScreenInfo& info) override {
@@ -101,7 +88,7 @@ class WebClient final : public CefClient, public CefLifeSpanHandler, public CefR
     if (status != 200) { state_->fail("Main document returned HTTP " + std::to_string(status)); return; }
     state_->loaded = true;
     state_->notifyChanged();
-    if (!state_->editor) browser->GetHost()->Invalidate(PET_VIEW);
+    browser->GetHost()->Invalidate(PET_VIEW);
   }
   void OnLoadError(CefRefPtr<CefBrowser>, CefRefPtr<CefFrame>, ErrorCode code,
                    const CefString& message, const CefString& url) override {
@@ -111,7 +98,7 @@ class WebClient final : public CefClient, public CefLifeSpanHandler, public CefR
   bool OnBeforeBrowse(CefRefPtr<CefBrowser>, CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request, bool, bool) override {
     try {
       auto path = dw::localWebPath(request->GetURL(), state_->host);
-      if ((state_->scene || state_->editor) && (!frame->IsMain() || path != "__runtime/index.html" || request->GetMethod() != "GET"))
+      if (state_->scene && (!frame->IsMain() || path != "__runtime/index.html" || request->GetMethod() != "GET"))
         throw std::runtime_error("Scene navigation outside trusted entry is denied");
       return false;
     }

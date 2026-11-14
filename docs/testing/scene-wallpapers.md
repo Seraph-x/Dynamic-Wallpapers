@@ -1,5 +1,7 @@
 # Scene wallpaper validation
 
+This page records the original scene-playback milestone. Its observed results are historical, not verification of the repository split or the current release. Current playback features and limits are described in the [user guide](../help/en.md); scene authoring is maintained in [Wallpaper Editor](https://github.com/Seraph-x/Wallpaper-Editor).
+
 The four dependent PRs add local JSON/PKG scene import, an offline pinned
 WebWallGL/CEF renderer, retained scene pause/resume and playback controls, and
 five-language import UI/help. Author property defaults are used. System audio

@@ -55,7 +55,10 @@ final class ScenePropertyIntegrationTests: XCTestCase {
         XCTAssertEqual(editor.catalog?.rows.count, 5)
         XCTAssertNil(editor.failure)
         _ = NSApplication.shared
-        XCTAssertTrue(NSApp.setActivationPolicy(.regular))
+        if NSApp.activationPolicy() != .regular {
+            XCTAssertTrue(NSApp.setActivationPolicy(.regular))
+        }
+        XCTAssertEqual(NSApp.activationPolicy(), .regular)
         NSApp.finishLaunching()
         let window = NSWindow(contentRect: CGRect(x: 90, y: 90, width: 480, height: 760),
                               styleMask: [.titled, .closable], backing: .buffered, defer: false)

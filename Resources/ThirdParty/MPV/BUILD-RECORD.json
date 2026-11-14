@@ -1,11 +1,11 @@
 {
   "environment": {
-    "clang": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+    "clang": "Apple clang version 21.0.0 (clang-2100.4.1.1)",
     "cmake": "cmake version 4.4.5",
     "make": "GNU Make 3.81",
     "pkg-config": "3.0.10",
     "python": "3.15.2 (main, Oct 25 2026, 16:57:51) [Clang 21.0.0 (clang-2100.3.34.2)]",
-    "sdk": "27.0",
+    "sdk": "27.2",
     "source_build_tools": {
       "jinja": "git b08cd4bc64bb980df86ed2876978ae5735572280",
       "markupsafe": "git c0254f0cfe51720ecc9e72e8896022af29af5b44",
@@ -44,8 +44,8 @@
         "/System/Library/Frameworks/CoreText.framework/Versions/A/CoreText"
       ],
       "minimum_macos": "14.0",
-      "sdk": "27.0",
-      "sha256": "a95c576ba62deb65363c664d5c956e2e8f9f2274b5666fc58d4479d06cda2455"
+      "sdk": "27.2",
+      "sha256": "ffcd27785612f552c6fbfc4c931e40193f51becb7a29e98e3cf52457829fc02c"
     },
     "libavcodec.61.dylib": {
       "architecture": [
@@ -66,8 +66,8 @@
         "/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices"
       ],
       "minimum_macos": "14.0",
-      "sdk": "27.0",
-      "sha256": "59c85e64cc47243ab9619e86e8acee2dc63e80840e523f604227737e89a13038"
+      "sdk": "27.2",
+      "sha256": "cac0d1dc2ff134b46479e1568f86f5545c58400a75c8a338790f728b06481867"
     },
     "libavfilter.10.dylib": {
       "architecture": [
@@ -92,8 +92,8 @@
         "/System/Library/Frameworks/AudioToolbox.framework/Versions/A/AudioToolbox"
       ],
       "minimum_macos": "14.0",
-      "sdk": "27.0",
-      "sha256": "94148643d36f9afa1cba8c564ba67c2950703d56e2e46c3563806d67446f097c"
+      "sdk": "27.2",
+      "sha256": "3ba33620edcf5d7b2cfd9e59d5768b81aa525abccf2e7ae6a744d542d7b8404f"
     },
     "libavformat.61.dylib": {
       "architecture": [
@@ -116,8 +116,8 @@
         "/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices"
       ],
       "minimum_macos": "14.0",
-      "sdk": "27.0",
-      "sha256": "e37c2960ed6c753b4eea145e985339f2eee616099b633063ba0190ea98ce41ce"
+      "sdk": "27.2",
+      "sha256": "2e08b24dee3bc254004ad6c75eefecec55d9056bf4127be661981f54b2db6659"
     },
     "libavutil.59.dylib": {
       "architecture": [
@@ -132,8 +132,8 @@
         "/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices"
       ],
       "minimum_macos": "14.0",
-      "sdk": "27.0",
-      "sha256": "4709e041d8d240fdb21fd35e99d80b56b4da215470729cc85bd60187d79b0d9a"
+      "sdk": "27.2",
+      "sha256": "55f321af5eb8c231c0734df721a8f37a67e0d4700429eda6827ccc99cdd82dec"
     },
     "libdav1d.7.dylib": {
       "architecture": [
@@ -143,8 +143,8 @@
         "/usr/lib/libSystem.B.dylib"
       ],
       "minimum_macos": "14.0",
-      "sdk": "27.0",
-      "sha256": "623b86377e4c723dbc7d518439a9904acb29db9317240f23a0659078fec12a89"
+      "sdk": "27.2",
+      "sha256": "6a72dbf5019bbc18ba7d18a1120450209081284041e8553b89b31761007b7000"
     },
     "libfreetype.6.dylib": {
       "architecture": [
@@ -154,8 +154,8 @@
         "/usr/lib/libSystem.B.dylib"
       ],
       "minimum_macos": "14.0",
-      "sdk": "27.0",
-      "sha256": "71f4999203876f2da670ae2f1b704f2a124a82e859f9e23ccd83e1c4e91be249"
+      "sdk": "27.2",
+      "sha256": "6935c46d7c8926f5618a105499f83e2e7d38ec28787fca49472fc00f1b9c0e88"
     },
     "libfribidi.0.dylib": {
       "architecture": [
@@ -165,8 +165,8 @@
         "/usr/lib/libSystem.B.dylib"
       ],
       "minimum_macos": "14.0",
-      "sdk": "27.0",
-      "sha256": "c7d3ad3c073c73c8f42279f3ec87a464ff5fc6d55685a15ac471d2c1baf5e6f1"
+      "sdk": "27.2",
+      "sha256": "7de519cce6d7d0c2592dacae09d386e3067f051df4eec96b2f18d251e5c48e3d"
     },
     "libharfbuzz.0.dylib": {
       "architecture": [
@@ -177,8 +177,8 @@
         "@rpath/libfreetype.6.dylib"
       ],
       "minimum_macos": "14.0",
-      "sdk": "27.0",
-      "sha256": "c7276d98787271691eade22eee5b358b8312bf263022129a9fa39d21db399394"
+      "sdk": "27.2",
+      "sha256": "85080c171dd3c844a1fd55e34c82c0511ef92a1936d7eebe349df16d71ee0f21"
     },
     "liblzma.5.dylib": {
       "architecture": [
@@ -188,8 +188,8 @@
         "/usr/lib/libSystem.B.dylib"
       ],
       "minimum_macos": "14.0",
-      "sdk": "27.0",
-      "sha256": "1f8b0e38974e9faf37015ce57f8bf4d5873a2ee1981eff971b8053b9c03c7214"
+      "sdk": "27.2",
+      "sha256": "463b1f6d458e375c08a7539241b884b2ee933eeff5ab7ceae50e61b8f02b10a1"
     },
     "libmpv.2.dylib": {
       "architecture": [
@@ -213,8 +213,8 @@
         "/System/Library/Frameworks/AudioToolbox.framework/Versions/A/AudioToolbox"
       ],
       "minimum_macos": "14.0",
-      "sdk": "27.0",
-      "sha256": "4dc9ef57355774a8628f8c40eda93e73220c5ff1a9fc6bdad86d1e6cb1d7e661"
+      "sdk": "27.2",
+      "sha256": "521bb0f0a69dfe46389fe16ee19a6afe1fddf4dabb3c7774551472241adfd145"
     },
     "libplacebo.338.dylib": {
       "architecture": [
@@ -225,8 +225,8 @@
         "/usr/lib/libc++.1.dylib"
       ],
       "minimum_macos": "14.0",
-      "sdk": "27.0",
-      "sha256": "efdd22bf42bc4029824f95fec6af180cb3871e06f0fe92b2a8693860e5ad88d8"
+      "sdk": "27.2",
+      "sha256": "464a4407ab445b9e402acf1b9141ef9deaa4e698f48847e1f4b58b2f42cf04de"
     },
     "libswresample.5.dylib": {
       "architecture": [
@@ -242,8 +242,8 @@
         "/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices"
       ],
       "minimum_macos": "14.0",
-      "sdk": "27.0",
-      "sha256": "dbfd82dd43d5188ea7c821394935edbbae21bc1947e6bfb94eb12a43d9355bb7"
+      "sdk": "27.2",
+      "sha256": "eb1959245a246a133cfaf29e5a5ea3f9de4133af3fcaa4ef507bebfadd995ff4"
     },
     "libswscale.8.dylib": {
       "architecture": [
@@ -259,8 +259,8 @@
         "/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices"
       ],
       "minimum_macos": "14.0",
-      "sdk": "27.0",
-      "sha256": "200c53444c4b86ba12af6d14d3f200cbe7c51056360b99874435faa565bf5a95"
+      "sdk": "27.2",
+      "sha256": "2ba35603f54a738de46eae5491b01f99d5f0a652d156b60fcf6e7b57ea037238"
     }
   },
   "schema_version": 1

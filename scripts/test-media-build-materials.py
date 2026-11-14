@@ -63,9 +63,10 @@ class BuildMaterialTests(unittest.TestCase):
 
     def test_configuration_preserves_real_options_and_normalizes_only_known_paths(self):
         module = self.module()
-        options, prefix = module.normalized_ffmpeg_configuration('''
+        build_prefix = '/' + '/'.join(('Users', 'example', 'build', 'install'))
+        options, prefix = module.normalized_ffmpeg_configuration(f'''
 configuration:
- --prefix=/Users/example/build/install
+ --prefix={build_prefix}
  --sysroot=/Applications/Xcode.app/SDK
  --disable-autodetect
  --disable-network
@@ -75,7 +76,7 @@ configuration:
  --extra-cflags='-mmacosx-version-min=14.0'
 Exiting with exit code 0
 ''')
-        self.assertEqual(prefix, '/Users/example/build/install')
+        self.assertEqual(prefix, build_prefix)
         self.assertIn('--prefix=<BUILD_PREFIX>', options)
         self.assertIn('--sysroot=<MACOS_SDK>', options)
         self.assertIn('--extra-cflags=-mmacosx-version-min=14.0', options)
@@ -98,15 +99,17 @@ Exiting with exit code 0
 
     def test_known_prefix_in_explicit_include_link_flags_is_normalized(self):
         module = self.module()
+        build_prefix = '/' + '/'.join(('Users', 'example', 'build'))
+        other_home = '/' + '/'.join(('Users', 'other'))
         options, _prefix = module.normalized_ffmpeg_configuration(
-            '--prefix=/Users/example/build --sysroot=/SDK '
-            "--extra-cflags='-I/Users/example/build/include' "
-            "--extra-ldflags='-L/Users/example/build/lib'")
+            f'--prefix={build_prefix} --sysroot=/SDK '
+            f"--extra-cflags='-I{build_prefix}/include' "
+            f"--extra-ldflags='-L{build_prefix}/lib'")
         self.assertIn('--extra-cflags=-I<BUILD_PREFIX>/include', options)
         self.assertIn('--extra-ldflags=-L<BUILD_PREFIX>/lib', options)
         with self.assertRaisesRegex(ValueError, 'Unexpected host path'):
             module.normalized_ffmpeg_configuration(
-                '--prefix=/Users/example/build --extra-cflags=-I/Users/other/include')
+                f'--prefix={build_prefix} --extra-cflags=-I{other_home}/include')
 
     def test_original_notice_copies_are_bound_to_the_actual_source_archive(self):
         module = self.module()

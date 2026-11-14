@@ -1,0 +1,479 @@
+{
+  "schema_version": 1,
+  "additional_source_files": [
+    "scripts/scene-runtime-build/.gitignore",
+    "Tests/Fixtures/SceneAnimatedPackage/scene.pkg",
+    "Tests/MediaAutomationHarness/Fixtures/owned-artwork.png",
+    "docs/testing/main-app-performance.md",
+    "docs/releases/1.1.1/INSTALL-en.md",
+    "docs/releases/1.1.1/INSTALL-es.md",
+    "docs/releases/1.1.1/INSTALL-fr.md",
+    "docs/releases/1.1.1/INSTALL-ja.md",
+    "docs/releases/1.1.1/INSTALL-zh-Hans.md",
+    "docs/releases/1.1.1/README.md",
+    "docs/releases/1.1.1/RELEASE_NOTES.md"
+  ],
+  "upstream_files": {
+    "Resources/ThirdParty/CEF/CREDITS.html": {
+      "sha256": "c8563b78af9d71ccd5b9ecf0f56e789d3e3fb426e1389f82771a05c75c0188ea",
+      "kind": "notice",
+      "reason": "Original upstream copyright, contributor attribution or patch authorship retained unchanged"
+    },
+    "Resources/ThirdParty/FFmpeg/ffmpeg-n9.0.1-source.tar.gz": {
+      "sha256": "195d54bebe1a27f84d77f4b989d193466f305b355da92292766a69f16880b18a",
+      "kind": "archive",
+      "reason": "Unchanged corresponding source verified against the source lock and distribution manifest",
+      "members": {
+        "FFmpeg-n9.0.1/doc/faq.texi": {
+          "sha256": "88bbf6e78d9e9effabdafc095a1194502e09e2cf4a3534fd16f2d6acfa224487",
+          "reason": "Existing public upstream documentation or build-command example",
+          "matches": [
+            {
+              "category": "personal-path",
+              "offset": 3785,
+              "match_sha256": "9c1db200d6946643f74027045b8f6cfa9567b5cea3638c46f70e2e56af010072"
+            },
+            {
+              "category": "personal-path",
+              "offset": 3818,
+              "match_sha256": "9c1db200d6946643f74027045b8f6cfa9567b5cea3638c46f70e2e56af010072"
+            }
+          ]
+        },
+        "FFmpeg-n9.0.1/doc/fate.texi": {
+          "sha256": "07b49cf2c33b20d04b828166ce569f6d7d57e4b2791b113bcd6b134e7960ecba",
+          "reason": "Existing path literal in the unchanged public upstream source/build automation",
+          "matches": [
+            {
+              "category": "personal-path",
+              "offset": 7131,
+              "match_sha256": "7f1527bf896573c07bd996aa00c9f09a5a384ed1ca3d759a160c4b04ffa793ae"
+            },
+            {
+              "category": "personal-path",
+              "offset": 7314,
+              "match_sha256": "7f1527bf896573c07bd996aa00c9f09a5a384ed1ca3d759a160c4b04ffa793ae"
+            },
+            {
+              "category": "personal-path",
+              "offset": 7450,
+              "match_sha256": "7f1527bf896573c07bd996aa00c9f09a5a384ed1ca3d759a160c4b04ffa793ae"
+            }
+          ]
+        },
+        "FFmpeg-n9.0.1/libavformat/tls_openssl.c": {
+          "sha256": "0567d5c8204c80a61074065a5044abea1f972694d41b60cbcd03dd89d05b677f",
+          "reason": "Upstream TLS parser string marker; this occurrence contains no private key body",
+          "matches": [
+            {
+              "category": "private-key-marker",
+              "offset": 10608,
+              "match_sha256": "3021d90eb9437b2d8f30e8363695c4418b5e5f1870801b5c317e9398ee0f572d"
+            }
+          ]
+        },
+        "FFmpeg-n9.0.1/tests/ref/fate/mxf-probe-dnxhd": {
+          "sha256": "81450516787402623fd44344f6dab7c9f8ac80cedcc127ec72bd7fb9688b5a85",
+          "reason": "Existing public upstream test expectation or path fixture",
+          "matches": [
+            {
+              "category": "personal-path",
+              "offset": 4925,
+              "match_sha256": "23ef3276dd3b08b727cd21c8fcda2ef2d2963aa8b634d12e066cc935e507a29b"
+            }
+          ]
+        }
+      }
+    },
+    "Resources/ThirdParty/MPV/notices/freetype/docs/FTL.TXT": {
+      "sha256": "08c135755dd589039470f1fdbb400daaabaaa50d0b366d19cebff4d22986baa1",
+      "kind": "notice",
+      "reason": "Original upstream copyright, contributor attribution or patch authorship retained unchanged"
+    },
+    "Resources/ThirdParty/MPV/notices/fribidi/AUTHORS": {
+      "sha256": "cb173f55c9514c8f38f4647ac3fedd5f8611358d331e65ab955da931e826861c",
+      "kind": "notice",
+      "reason": "Original upstream copyright, contributor attribution or patch authorship retained unchanged"
+    },
+    "Resources/ThirdParty/MPV/patches/mpv-v0.38.0-plus18.patch": {
+      "sha256": "1fa2e49039ef322c4a071c273c8ea8b579bae6d1517ea19e8a9caf81c588176c",
+      "kind": "notice",
+      "reason": "Original upstream copyright, contributor attribution or patch authorship retained unchanged"
+    },
+    "Resources/ThirdParty/MPV/sources/dav1d-1.5.3.tar.bz2": {
+      "sha256": "e099f53253f6c247580c554d53a13f1040638f2066edc3c740e4c2f15174ce22",
+      "kind": "archive",
+      "reason": "Unchanged corresponding source verified against the source lock and distribution manifest",
+      "members": {}
+    },
+    "Resources/ThirdParty/MPV/sources/fast_float-2b2395f9ac836ffca6404424bcc252bff7aa80e4.tar.gz": {
+      "sha256": "230d20e4e4ac1f6a9df92c4d746c6ec536cdb0c085bc8635d4b88cead5dc22cb",
+      "kind": "archive",
+      "reason": "Unchanged corresponding source verified against the source lock and distribution manifest",
+      "members": {}
+    },
+    "Resources/ThirdParty/MPV/sources/ffmpeg-7.0.1.tar.xz": {
+      "sha256": "bce9eeb0f17ef8982390b1f37711a61b4290dc8c2a0c1a37b5857e85bfb0e4ff",
+      "kind": "archive",
+      "reason": "Unchanged corresponding source verified against the source lock and distribution manifest",
+      "members": {
+        "ffmpeg-7.0.1/doc/faq.texi": {
+          "sha256": "88bbf6e78d9e9effabdafc095a1194502e09e2cf4a3534fd16f2d6acfa224487",
+          "reason": "Existing public upstream documentation or build-command example",
+          "matches": [
+            {
+              "category": "personal-path",
+              "offset": 3785,
+              "match_sha256": "9c1db200d6946643f74027045b8f6cfa9567b5cea3638c46f70e2e56af010072"
+            },
+            {
+              "category": "personal-path",
+              "offset": 3818,
+              "match_sha256": "9c1db200d6946643f74027045b8f6cfa9567b5cea3638c46f70e2e56af010072"
+            }
+          ]
+        },
+        "ffmpeg-7.0.1/doc/fate.texi": {
+          "sha256": "a9841c1c90aa998b1d17a93cc1fcb626d570b86a95c7971763bb879eb544d888",
+          "reason": "Existing path literal in the unchanged public upstream source/build automation",
+          "matches": [
+            {
+              "category": "personal-path",
+              "offset": 6891,
+              "match_sha256": "7f1527bf896573c07bd996aa00c9f09a5a384ed1ca3d759a160c4b04ffa793ae"
+            },
+            {
+              "category": "personal-path",
+              "offset": 7074,
+              "match_sha256": "7f1527bf896573c07bd996aa00c9f09a5a384ed1ca3d759a160c4b04ffa793ae"
+            },
+            {
+              "category": "personal-path",
+              "offset": 7210,
+              "match_sha256": "7f1527bf896573c07bd996aa00c9f09a5a384ed1ca3d759a160c4b04ffa793ae"
+            }
+          ]
+        },
+        "ffmpeg-7.0.1/tests/ref/fate/mxf-probe-dnxhd": {
+          "sha256": "a640af50a58bf4a901347449135fd68b5e6963afcfdc3e47f116f99b29889a15",
+          "reason": "Existing public upstream test expectation or path fixture",
+          "matches": [
+            {
+              "category": "personal-path",
+              "offset": 4863,
+              "match_sha256": "23ef3276dd3b08b727cd21c8fcda2ef2d2963aa8b634d12e066cc935e507a29b"
+            }
+          ]
+        }
+      }
+    },
+    "Resources/ThirdParty/MPV/sources/freetype-42608f77f20749dd6ddc9e0536788eaad70ea4b5.tar.gz": {
+      "sha256": "68ce87bb59ea209eb7350f41a94a27519ce16b37011b475a1e62d4abee154b66",
+      "kind": "archive",
+      "reason": "Unchanged corresponding source verified against the source lock and distribution manifest",
+      "members": {
+        "freetype-42608f77f20749dd6ddc9e0536788eaad70ea4b5/docs/DEBUG": {
+          "sha256": "5fd0a333c62e06d5ac07bb9c30a943240e855544e78c09de96f79c3dea1bb34c",
+          "reason": "Existing public upstream documentation or build-command example",
+          "matches": [
+            {
+              "category": "personal-path",
+              "offset": 7449,
+              "match_sha256": "e555409ce1a002fc78b9a31c80ab8d30c1e655bf35dfada3aaeda0f1b9445919"
+            }
+          ]
+        },
+        "freetype-42608f77f20749dd6ddc9e0536788eaad70ea4b5/docs/release": {
+          "sha256": "b774dbfbe5b7d7a429c765eb8e6f5460f33763cb963f3cf1c29208033ba21880",
+          "reason": "Existing path literal in the unchanged public upstream source/build automation",
+          "matches": [
+            {
+              "category": "personal-path",
+              "offset": 4871,
+              "match_sha256": "9ea5c0ab3eb4c1c38401426e1c357378720c5172832e24125b0883b89d45bd9c"
+            },
+            {
+              "category": "personal-path",
+              "offset": 5031,
+              "match_sha256": "9ea5c0ab3eb4c1c38401426e1c357378720c5172832e24125b0883b89d45bd9c"
+            },
+            {
+              "category": "personal-path",
+              "offset": 5190,
+              "match_sha256": "9ea5c0ab3eb4c1c38401426e1c357378720c5172832e24125b0883b89d45bd9c"
+            },
+            {
+              "category": "personal-path",
+              "offset": 5618,
+              "match_sha256": "9ea5c0ab3eb4c1c38401426e1c357378720c5172832e24125b0883b89d45bd9c"
+            }
+          ]
+        }
+      }
+    },
+    "Resources/ThirdParty/MPV/sources/fribidi-68162babff4f39c4e2dc164a5e825af93bda9983.tar.gz": {
+      "sha256": "fa34a057a414c85f7e1f3c0fd717bc93d74d370ed474ef2feca90868b4938f72",
+      "kind": "archive",
+      "reason": "Unchanged corresponding source verified against the source lock and distribution manifest",
+      "members": {}
+    },
+    "Resources/ThirdParty/MPV/sources/harfbuzz-a1d9bfe62818ef0fa9cf63b6e6d51436b1c93cbc.tar.gz": {
+      "sha256": "63a962b9fbeda16663197c2b0b129bd5d711e831b4d189803dbb7d42a5668195",
+      "kind": "archive",
+      "reason": "Unchanged corresponding source verified against the source lock and distribution manifest",
+      "members": {}
+    },
+    "Resources/ThirdParty/MPV/sources/jinja-b08cd4bc64bb980df86ed2876978ae5735572280.tar.gz": {
+      "sha256": "9a20bab550a760ccb9b38a45d4fe76be92649206ee04633c646d0935a1872b0e",
+      "kind": "archive",
+      "reason": "Unchanged corresponding source verified against the source lock and distribution manifest",
+      "members": {
+        "jinja-b08cd4bc64bb980df86ed2876978ae5735572280/artwork/jinjalogo.svg": {
+          "sha256": "74f03d4b375c3412a7d52887ab0d8d70ce106de7d711c6f9f7cd139ff451ff8f",
+          "reason": "Existing metadata in the unchanged public upstream artwork source",
+          "matches": [
+            {
+              "category": "personal-path",
+              "offset": 665,
+              "match_sha256": "65b6ebb94f9195dfec0fb432426edabc4a7ed51acdf5a429e352f4b174c6ec73"
+            },
+            {
+              "category": "personal-path",
+              "offset": 775,
+              "match_sha256": "65b6ebb94f9195dfec0fb432426edabc4a7ed51acdf5a429e352f4b174c6ec73"
+            }
+          ]
+        }
+      }
+    },
+    "Resources/ThirdParty/MPV/sources/libass-e46aedea0a0d17da4c4ef49d84b94a7994664ab5.tar.gz": {
+      "sha256": "e953d018db99436a9bf7aa907bbd80c1be2024ba46cf2bec5fbaa6f844438d70",
+      "kind": "archive",
+      "reason": "Unchanged corresponding source verified against the source lock and distribution manifest",
+      "members": {
+        "libass-e46aedea0a0d17da4c4ef49d84b94a7994664ab5/.github/workflows/ghci.yml": {
+          "sha256": "59e3c59bc4aff7115ca44cccfb7f5f4b6c5bd3e3010eac18d013d11ad7877597",
+          "reason": "Existing path literal in the unchanged public upstream source/build automation",
+          "matches": [
+            {
+              "category": "personal-path",
+              "offset": 3422,
+              "match_sha256": "0d9f74285dfd125ba0536fc6f1719fc58502de65ba596ef1700a01005ea0f42c"
+            },
+            {
+              "category": "personal-path",
+              "offset": 3440,
+              "match_sha256": "0d9f74285dfd125ba0536fc6f1719fc58502de65ba596ef1700a01005ea0f42c"
+            }
+          ]
+        }
+      }
+    },
+    "Resources/ThirdParty/MPV/sources/libplacebo-64c1954570f1cd57f8570a57e51fb0249b57bb90.tar.gz": {
+      "sha256": "3144bb66bc9e286da37f17f71886d65a6d1baf9e45e4efa5ac8bd61ffa935487",
+      "kind": "archive",
+      "reason": "Unchanged corresponding source verified against the source lock and distribution manifest",
+      "members": {}
+    },
+    "Resources/ThirdParty/MPV/sources/lua-5.2.4.tar.gz": {
+      "sha256": "b9e2e4aad6789b3b63a056d442f7b39f0ecfca3ae0f1fc0ae4e9614401b69f4b",
+      "kind": "archive",
+      "reason": "Unchanged corresponding source verified against the source lock and distribution manifest",
+      "members": {}
+    },
+    "Resources/ThirdParty/MPV/sources/markupsafe-c0254f0cfe51720ecc9e72e8896022af29af5b44.tar.gz": {
+      "sha256": "1826c5d89cc1aa0b3088f538726d339e0c5cd69fbe03f7b8f9a3f880474d1120",
+      "kind": "archive",
+      "reason": "Unchanged corresponding source verified against the source lock and distribution manifest",
+      "members": {}
+    },
+    "Resources/ThirdParty/MPV/sources/meson-751b09390996163348612f0b106114256305ee40.tar.gz": {
+      "sha256": "63ab20b443443efbb7e89f38bb98432acfafef7d2268ce0ee0af907858006566",
+      "kind": "archive",
+      "reason": "Unchanged corresponding source verified against the source lock and distribution manifest",
+      "members": {
+        "meson-751b09390996163348612f0b106114256305ee40/docs/markdown/Configuring-a-build-directory.md": {
+          "sha256": "49e833c179526146548221e400fe86d5660fd8785f40d5e9bfd0a26b4649708c",
+          "reason": "Existing public upstream documentation or build-command example",
+          "matches": [
+            {
+              "category": "personal-path",
+              "offset": 639,
+              "match_sha256": "251a1ec52ad2ef63bcb145ef55ee6e3c42cdbb47ad38b23705bd84898daeaad1"
+            },
+            {
+              "category": "personal-path",
+              "offset": 689,
+              "match_sha256": "251a1ec52ad2ef63bcb145ef55ee6e3c42cdbb47ad38b23705bd84898daeaad1"
+            }
+          ]
+        },
+        "meson-751b09390996163348612f0b106114256305ee40/docs/markdown/Tutorial.md": {
+          "sha256": "8ef3a14a736e07d6fbe0cfbe54bee339999fc3e52dd8968f6179f3dc28cd9997",
+          "reason": "Existing public upstream documentation or build-command example",
+          "matches": [
+            {
+              "category": "personal-path",
+              "offset": 2122,
+              "match_sha256": "251a1ec52ad2ef63bcb145ef55ee6e3c42cdbb47ad38b23705bd84898daeaad1"
+            },
+            {
+              "category": "personal-path",
+              "offset": 2166,
+              "match_sha256": "251a1ec52ad2ef63bcb145ef55ee6e3c42cdbb47ad38b23705bd84898daeaad1"
+            },
+            {
+              "category": "personal-path",
+              "offset": 5240,
+              "match_sha256": "251a1ec52ad2ef63bcb145ef55ee6e3c42cdbb47ad38b23705bd84898daeaad1"
+            },
+            {
+              "category": "personal-path",
+              "offset": 5284,
+              "match_sha256": "251a1ec52ad2ef63bcb145ef55ee6e3c42cdbb47ad38b23705bd84898daeaad1"
+            }
+          ]
+        },
+        "meson-751b09390996163348612f0b106114256305ee40/docs/yaml/functions/include_directories.yaml": {
+          "sha256": "56324ab605482f5f97c6fcf76d36941d564eab9bf46ddee7552bad67c157baa2",
+          "reason": "Existing public upstream documentation or build-command example",
+          "matches": [
+            {
+              "category": "personal-path",
+              "offset": 981,
+              "match_sha256": "768d8e132161678a3434401db0b60a6497856a93891b95d7852d3b79f6fae087"
+            }
+          ]
+        },
+        "meson-751b09390996163348612f0b106114256305ee40/graphics/wrap_logo.svg": {
+          "sha256": "788404a7903081273c3ef47267c62e3606d4a67931db8212375952116300850f",
+          "reason": "Existing metadata in the unchanged public upstream artwork source",
+          "matches": [
+            {
+              "category": "personal-path",
+              "offset": 4321,
+              "match_sha256": "251a1ec52ad2ef63bcb145ef55ee6e3c42cdbb47ad38b23705bd84898daeaad1"
+            }
+          ]
+        },
+        "meson-751b09390996163348612f0b106114256305ee40/packaging/createpkg.py": {
+          "sha256": "ff5a6df6a1d221cff6dd8fa6a9e45a9dd955438491f5724e29ebde9ff80ae5e2",
+          "reason": "Existing path literal in the unchanged public upstream source/build automation",
+          "matches": [
+            {
+              "category": "personal-path",
+              "offset": 1092,
+              "match_sha256": "f5e5a2203951ffd03a0122fa79dd69c70c02e35ada594fcbb210bce7319c0d81"
+            }
+          ]
+        },
+        "meson-751b09390996163348612f0b106114256305ee40/tools/build_website.py": {
+          "sha256": "ce47e1ff1bf625d726743c18ddfc132ea25c140a5d15e351a4ed3e92be769977",
+          "reason": "Existing path literal in the unchanged public upstream source/build automation",
+          "matches": [
+            {
+              "category": "personal-path",
+              "offset": 931,
+              "match_sha256": "251a1ec52ad2ef63bcb145ef55ee6e3c42cdbb47ad38b23705bd84898daeaad1"
+            }
+          ]
+        },
+        "meson-751b09390996163348612f0b106114256305ee40/unittests/internaltests.py": {
+          "sha256": "95683ffb070f52346cf1a916bf963a5a9f5d9d1b2dba6ddf89d590f9c5b0ee0b",
+          "reason": "Existing public upstream test expectation or path fixture",
+          "matches": [
+            {
+              "category": "personal-path",
+              "offset": 51028,
+              "match_sha256": "89aa4b15701313d158975e88aafccd0f65edce3714ed7ed3180b45867e9cf3fa"
+            },
+            {
+              "category": "personal-path",
+              "offset": 51102,
+              "match_sha256": "89aa4b15701313d158975e88aafccd0f65edce3714ed7ed3180b45867e9cf3fa"
+            },
+            {
+              "category": "personal-path",
+              "offset": 51185,
+              "match_sha256": "89aa4b15701313d158975e88aafccd0f65edce3714ed7ed3180b45867e9cf3fa"
+            },
+            {
+              "category": "personal-path",
+              "offset": 51317,
+              "match_sha256": "89aa4b15701313d158975e88aafccd0f65edce3714ed7ed3180b45867e9cf3fa"
+            },
+            {
+              "category": "personal-path",
+              "offset": 51373,
+              "match_sha256": "89aa4b15701313d158975e88aafccd0f65edce3714ed7ed3180b45867e9cf3fa"
+            },
+            {
+              "category": "personal-path",
+              "offset": 51456,
+              "match_sha256": "89aa4b15701313d158975e88aafccd0f65edce3714ed7ed3180b45867e9cf3fa"
+            },
+            {
+              "category": "personal-path",
+              "offset": 51600,
+              "match_sha256": "89aa4b15701313d158975e88aafccd0f65edce3714ed7ed3180b45867e9cf3fa"
+            },
+            {
+              "category": "personal-path",
+              "offset": 51644,
+              "match_sha256": "89aa4b15701313d158975e88aafccd0f65edce3714ed7ed3180b45867e9cf3fa"
+            },
+            {
+              "category": "personal-path",
+              "offset": 51727,
+              "match_sha256": "89aa4b15701313d158975e88aafccd0f65edce3714ed7ed3180b45867e9cf3fa"
+            },
+            {
+              "category": "personal-path",
+              "offset": 51871,
+              "match_sha256": "89aa4b15701313d158975e88aafccd0f65edce3714ed7ed3180b45867e9cf3fa"
+            },
+            {
+              "category": "personal-path",
+              "offset": 51915,
+              "match_sha256": "89aa4b15701313d158975e88aafccd0f65edce3714ed7ed3180b45867e9cf3fa"
+            },
+            {
+              "category": "personal-path",
+              "offset": 52002,
+              "match_sha256": "89aa4b15701313d158975e88aafccd0f65edce3714ed7ed3180b45867e9cf3fa"
+            }
+          ]
+        }
+      }
+    },
+    "Resources/ThirdParty/MPV/sources/mpv-c0dd2b32d52c66b9efa85a7ee69965569503f6b8.tar.gz": {
+      "sha256": "ef0875555f18a5f07ec6151a2416cb08accd1fc4f5507292c9842751eb16375e",
+      "kind": "archive",
+      "reason": "Unchanged corresponding source verified against the source lock and distribution manifest",
+      "members": {}
+    },
+    "Resources/ThirdParty/MPV/sources/ninja-79feac0f3e3bc9da9effc586cd5fea41e7550051.tar.gz": {
+      "sha256": "608566b235f0d97106c09ce4cbf4778c8d5082db0377df544754ee1586d4ffba",
+      "kind": "archive",
+      "reason": "Unchanged corresponding source verified against the source lock and distribution manifest",
+      "members": {}
+    },
+    "Resources/ThirdParty/MPV/sources/vulkan_headers-d732b2de303ce505169011d438178191136bfb00.tar.gz": {
+      "sha256": "570f9ae1e65466dbaf5fcab667abd079dd0a61c4ab86cf535efd492bf70a5b74",
+      "kind": "archive",
+      "reason": "Unchanged corresponding source verified against the source lock and distribution manifest",
+      "members": {}
+    },
+    "Resources/ThirdParty/MPV/sources/xz-a522a226545730551f7e7c2685fab27cf567746c.tar.gz": {
+      "sha256": "d85e28de5141805efc8ee3b50fffef0b83c81a630a85bbc77ea69791fa1ff712",
+      "kind": "archive",
+      "reason": "Unchanged corresponding source verified against the source lock and distribution manifest",
+      "members": {}
+    },
+    "Resources/ThirdParty/WebWallGL/LICENSE": {
+      "sha256": "857432ca4f48930e6079aca25164c27b791576ee2a7d3e3c9d6a92a089fe4948",
+      "kind": "notice",
+      "reason": "Original upstream copyright, contributor attribution or patch authorship retained unchanged"
+    }
+  }
+}
