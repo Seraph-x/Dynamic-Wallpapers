@@ -70,3 +70,9 @@ the repository's 60-second timeout. The retained local mpv libraries and headers
 were checked against their build-record hashes before restoring their expected
 ignored build-directory link. This is source/test validation, not a newly
 packaged or installed release.
+
+## Six-stage follow-up: 1. Shared thumbnail requests
+
+Same-source concurrent consumers now share one decode. Source metadata participates in cache validity; name/favorite edits do not. The last subscriber cancels the decode, while deletion and shutdown still await actual cleanup and retain release failures.
+
+Validation: 31 thumbnail/inspector/managed-media tests passed. Regression evidence includes overlap (2 callers → 1 decode), independent cancellation, late old-source completion, and one release-error notification with both removal/shutdown still failing. Logs: `.build/verification/main-performance-six/1-{red,green}.log`. No whole-process CPU/RSS improvement is inferred from these counts.
