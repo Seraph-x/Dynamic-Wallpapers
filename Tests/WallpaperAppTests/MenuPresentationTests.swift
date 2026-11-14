@@ -19,6 +19,10 @@ final class MenuPresentationTests: XCTestCase {
             XCTAssertTrue(fixture.contains(title), "Missing playlist menu: \(language)")
             let l10n = fixture.model.localizer
             XCTAssertTrue(fixture.contains(l10n("网页交互")))
+            XCTAssertTrue(fixture.contains(l10n("打开素材库")))
+            XCTAssertTrue(fixture.contains(l10n("退出")))
+            XCTAssertFalse(fixture.contains(l10n("Editor")))
+            XCTAssertFalse(fixture.contains(l10n("打开 \(ProductMetadataTestSupport.product.displayName)")))
             XCTAssertFalse(fixture.contains(l10n.webInteractionStatus(fixture.model.webInteractionStatus)))
             XCTAssertFalse(fixture.contains("Playlists · Apply to All Displays"))
         }

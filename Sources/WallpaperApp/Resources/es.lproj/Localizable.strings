@@ -243,7 +243,7 @@
 "显示方式" = "Ajuste de imagen";
 "暂不退出" = "Seguir ejecutando";
 "暂停与恢复" = "Pausa y reanudación";
-"暂停播放" = "Pausar reproducción";
+"暂停播放" = "Pausar";
 "暂停时保留画面，继续播放时重新载入网页。" = "La pausa mantiene la imagen; al reanudar se recarga la página web.";
 "更换目录…" = "Cambiar carpeta…";
 "未完成的任务将被取消，清理临时文件后退出；已完成的文件会保留，取消的任务需重新开始。" = "Se cancelarán las tareas pendientes y se limpiarán los archivos temporales antes de salir. Los archivos terminados se conservan; las tareas canceladas deberán reiniciarse.";
@@ -270,6 +270,9 @@
 "正在退出，网页交互已停止" = "Saliendo; interacción web detenida";
 "此单张壁纸已停止或更换，请重新选择。" = "Este fondo se ha detenido o cambiado. Vuelve a seleccionarlo.";
 "此项声音" = "Audio del elemento";
+"打开素材库" = "Abrir biblioteca";
+"壁纸声音…" = "Audio del fondo…";
+"退出" = "Salir";
 "当前壁纸声音" = "Audio del fondo actual";
 "无法保存当前壁纸声音设置" = "No se pudo guardar el audio del fondo actual";
 "当前壁纸已切换，无法保存声音设置。" = "El fondo actual ha cambiado; no se pudieron guardar los ajustes de audio.";
@@ -330,7 +333,7 @@
 "素材库无法读取，编辑已停用。" = "No se puede leer la biblioteca. La edición está desactivada.";
 "素材库无法读取，语言编辑已停用。" = "No se puede leer la biblioteca. El cambio de idioma está desactivado.";
 "素材库格式版本" = "Versión del formato de biblioteca";
-"继续播放" = "Reanudar reproducción";
+"继续播放" = "Reanudar";
 "缩略图加载失败" = "Error al cargar la miniatura";
 "网页" = "Web";
 "网页交互" = "Interacción web";

@@ -270,6 +270,9 @@
 "正在退出，网页交互已停止" = "Fermeture ; interaction web arrêtée";
 "此单张壁纸已停止或更换，请重新选择。" = "Ce fond a été arrêté ou remplacé. Sélectionnez-le à nouveau.";
 "此项声音" = "Audio de l’élément";
+"打开素材库" = "Ouvrir la bibliothèque";
+"壁纸声音…" = "Son du fond…";
+"退出" = "Quitter";
 "当前壁纸声音" = "Audio du fond actuel";
 "无法保存当前壁纸声音设置" = "Impossible d’enregistrer le son du fond actuel";
 "当前壁纸已切换，无法保存声音设置。" = "Le fond actuel a changé ; impossible d’enregistrer les réglages audio.";
@@ -330,7 +333,7 @@
 "素材库无法读取，编辑已停用。" = "La bibliothèque est illisible. La modification est désactivée.";
 "素材库无法读取，语言编辑已停用。" = "La bibliothèque est illisible. Le changement de langue est désactivé.";
 "素材库格式版本" = "Version du format de bibliothèque";
-"继续播放" = "Reprendre la lecture";
+"继续播放" = "Reprendre";
 "缩略图加载失败" = "Échec du chargement de la miniature";
 "网页" = "Web";
 "网页交互" = "Interaction web";
