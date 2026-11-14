@@ -22,7 +22,7 @@ struct DWWebPageState {
   std::shared_ptr<dw::EditorSession> editor;
   uint64_t committedPaints = 0, engineReadyAfterPaint = 0;
   bool engineReady = false;
-  std::function<bool(const void*, int, int)> paint;
+  std::function<bool(const void*, int, int, const CefRenderHandler::RectList&)> paint;
   std::function<void(void*)> attachNative;
   std::function<void(void*)> detachNative;
   std::function<void(int, const std::string&, const std::string&, int)> consoleDiagnostic;

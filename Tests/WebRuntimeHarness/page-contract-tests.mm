@@ -15,7 +15,8 @@ void testPaintCommit(bool committed) {
   const std::array<unsigned char, 4> pixel{0, 255, 0, 255};
   int paintCalls = 0;
   state->loaded = true;
-  state->paint = [&](const void* buffer, int width, int height) -> bool {
+  state->paint = [&](const void* buffer, int width, int height, const CefRenderHandler::RectList& dirty) -> bool {
+    require(dirty.size() == 1 && dirty[0] == CefRect(0, 0, 1, 1), "Damage must reach frame storage unchanged");
     ++paintCalls;
     require(buffer == pixel.data() && width == 1 && height == 1,
             "OnPaint must pass the actual frame to the commit callback");

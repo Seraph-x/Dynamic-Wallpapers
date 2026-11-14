@@ -46,10 +46,10 @@ window/notification access. Keep logs in `.build/verification/main-performance-s
 - [x] Record allocation counts under repeated same-size frames; review; commit `perf: reuse released mpv frame buffers`.
 
 ## 5. Reduce web-frame copying
-- [ ] Add native damage/copy tests for first frame, partial damage, unchanged frames, retained images, resize and invalid input.
-- [ ] Wire dirty rectangles from `WebClient.cpp` to frame storage and `WebPage.mm`; preserve image snapshots and frame-ready accounting.
-- [ ] Run native Web/scene frame and thumbnail/readiness/close checks; record copied-byte counts on known damage patterns.
-- [ ] Review; commit `perf: reduce web wallpaper frame copies`.
+- [x] Add native damage/copy tests for first frame, partial damage, unchanged frames, retained images, resize and invalid input.
+- [x] Wire dirty rectangles from `WebClient.cpp` to frame storage and `WebPage.mm`; preserve image snapshots and frame-ready accounting.
+- [x] Run native Web/scene frame and thumbnail/readiness/close checks; record copied-byte counts on known damage patterns.
+- [x] Review; commit `perf: reduce web wallpaper frame copies`.
 
 ## 6. Schedule background work by demand
 - [ ] Add tests for enabled interaction with no eligible target, paused/resumed targets, preview demand, and fresh menu evidence before clicks.

@@ -87,10 +87,10 @@ class WebClient final : public CefClient, public CefLifeSpanHandler, public CefR
     info.rect = info.available_rect = CefRect(0, 0, state_->width, state_->height);
     return true;
   }
-  void OnPaint(CefRefPtr<CefBrowser>, PaintElementType type, const RectList&,
+  void OnPaint(CefRefPtr<CefBrowser>, PaintElementType type, const RectList& dirty,
                const void* buffer, int width, int height) override {
     if (type != PET_VIEW || state_->closing || !state_->loaded) return;
-    if (state_->paint(buffer, width, height)) {
+    if (state_->paint(buffer, width, height, dirty)) {
       state_->painted = true; ++state_->committedPaints;
     }
   }

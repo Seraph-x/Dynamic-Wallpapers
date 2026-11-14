@@ -1,6 +1,7 @@
 #import "WebRuntimeInternal.h"
 #import <QuartzCore/QuartzCore.h>
 #include "WebPageState.hpp"
+#include "WebFrameStorage.hpp"
 #import "WebAudioOutput.h"
 #include "include/cef_parser.h"
 #include <filesystem>
@@ -42,6 +43,7 @@ std::string entryURL(const std::string& host, const char* entry) {
   NSView* _view;
   DWWebAudioOutput* _audioOutput;
   std::unique_ptr<PageResources> _resources;
+  dw::WebFrameStorage _frames;
   BOOL _started;
   BOOL _ready;
   BOOL _closed;
@@ -187,7 +189,9 @@ std::string entryURL(const std::string& host, const char* entry) {
     _resources->state = std::make_shared<DWWebPageState>([_origin substringFromIndex:8].UTF8String,
         int(std::ceil(size.width)), int(std::ceil(size.height)), float(scale));
     __weak DWWebPage* weakSelf = self;
-    _resources->state->paint = [weakSelf](const void* buffer, int width, int height) { return bool([weakSelf commitFrame:buffer width:width height:height]); };
+    _resources->state->paint = [weakSelf](const void* buffer, int width, int height, const CefRenderHandler::RectList& dirty) {
+      return bool([weakSelf commitFrame:buffer width:width height:height dirty:dirty]);
+    };
     _resources->state->consoleDiagnostic = [weakSelf](int severity, const std::string& message, const std::string& source, int line) {
       NSDictionary* diagnostic = @{@"level": severity >= LOGSEVERITY_ERROR ? @"error" : @"warn",
           @"message": @(message.c_str()), @"source": @(source.c_str()), @"line": @(line)};
@@ -436,15 +440,25 @@ std::string entryURL(const std::string& host, const char* entry) {
     _resources->state->browser->GetHost()->SetWindowlessFrameRate(static_cast<int>(frameRate));
   return YES;
 }
-- (BOOL)commitFrame:(const void*)buffer width:(int)width height:(int)height {
+- (BOOL)commitFrame:(const void*)buffer width:(int)width height:(int)height dirty:(const CefRenderHandler::RectList&)dirty {
   DWRequireWebMainThread();
   auto state = _resources->state;
   if (state->closing) return NO;
-  if (!buffer || width <= 0 || height <= 0 || size_t(width) > SIZE_MAX / 4 / size_t(height)) {
-    state->fail("CEF supplied an invalid webpage frame"); return NO;
-  }
-  CFDataRef bytes = CFDataCreate(nullptr, static_cast<const UInt8*>(buffer), size_t(width) * height * 4);
-  CGDataProviderRef provider = bytes ? CGDataProviderCreateWithCFData(bytes) : nullptr;
+  std::shared_ptr<const dw::WebFrame> pixels;
+  CGDataProviderRef provider = nullptr;
+  try {
+    std::vector<dw::FrameRect> rectangles;
+    rectangles.reserve(dirty.size());
+    for (const auto& rect : dirty) rectangles.push_back({rect.x, rect.y, rect.width, rect.height});
+    pixels = _frames.copy(buffer, width, height, rectangles);
+    auto retained = std::make_unique<std::shared_ptr<const dw::WebFrame>>(pixels);
+    provider = CGDataProviderCreateWithData(retained.get(), pixels->bytes.get(), pixels->size,
+      [](void* owner, const void*, size_t) {
+        const std::unique_ptr<std::shared_ptr<const dw::WebFrame>> release(
+            static_cast<std::shared_ptr<const dw::WebFrame>*>(owner));
+      });
+    if (provider) retained.release();
+  } catch (const std::exception& error) { state->fail(error.what()); return NO; }
   CGColorSpaceRef colors = CGColorSpaceCreateDeviceRGB();
   CGImageRef frame = provider ? CGImageCreate(width, height, 8, 32, size_t(width) * 4, colors,
       CGBitmapInfo(kCGBitmapByteOrder32Little) | CGBitmapInfo(kCGImageAlphaPremultipliedFirst),
@@ -455,7 +469,6 @@ std::string entryURL(const std::string& host, const char* entry) {
     [CATransaction commit]; CGImageRelease(frame);
   } else state->fail("Could not allocate the webpage frame");
   if (provider) CGDataProviderRelease(provider);
-  if (bytes) CFRelease(bytes);
   CGColorSpaceRelease(colors);
   return frame != nullptr;
 }
@@ -532,6 +545,7 @@ std::string entryURL(const std::string& host, const char* entry) {
   [_completions addObject:[completion copy]];
   auto state = _resources->state;
   if (state->closing.exchange(true)) return;
+  _frames.stop();
   [_audioOutput close];
   if (state->scene) state->scene->retire();
   if (state->editor) { std::lock_guard lock(state->editor->mutex); state->editor->retired = true; state->editor->events.clear(); }

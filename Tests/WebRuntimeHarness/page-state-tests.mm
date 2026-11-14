@@ -43,6 +43,7 @@ void requireBackgroundThreadRejection(void (^operation)(void), const char* messa
 @interface DWWebPage (StateContractTests)
 - (void)testCloseTimeoutRemainsTerminal:(DWPageStateRuntime*)runtime;
 - (void)testReadyErrorRevokesReadiness;
+- (void)testRetainedFramePixels;
 - (void)testIntentionalAudioDisconnect:(DWPageStateRuntime*)runtime;
 - (void)testUnexpectedAudioError:(BOOL)duringClose;
 - (void)testActiveAudioStreamRestart;
@@ -154,9 +155,30 @@ void requireBackgroundThreadRejection(void (^operation)(void), const char* messa
                    "late resource release must not convert a timed-out close into success");
 }
 
+- (void)testRetainedFramePixels {
+  std::array<unsigned char, 64> pixels; pixels.fill(17);
+  requirePageState([self commitFrame:pixels.data() width:4 height:4 dirty:{CefRect(0, 0, 4, 4)}], "initial frame");
+  id retained = self.view.layer.contents;
+  for (int index = 0; index < 16; ++index) {
+    pixels[index * 4] = 99;
+    requirePageState([self commitFrame:pixels.data() width:4 height:4 dirty:{CefRect(index % 4, index / 4, 1, 1)}],
+                     "partial damage frame");
+  }
+  CFDataRef current = CGDataProviderCopyData(CGImageGetDataProvider((__bridge CGImageRef)self.view.layer.contents));
+  const bool complete = CFDataGetLength(current) == 64 && std::memcmp(CFDataGetBytePtr(current), pixels.data(), 64) == 0;
+  CFRelease(current);
+  requirePageState(complete, "CGImage must contain all accumulated updates");
+  [self closeWithCompletion:^(NSError* error) { requirePageState(error == nil, "frame page close"); }];
+  CFDataRef old = CGDataProviderCopyData(CGImageGetDataProvider((__bridge CGImageRef)retained));
+  const bool immutable = CFDataGetLength(old) == 64 && std::all_of(CFDataGetBytePtr(old), CFDataGetBytePtr(old) + 64,
+      [](unsigned char value) { return value == 17; });
+  CFRelease(old);
+  requirePageState(immutable, "retained CGImage pixels must survive newer frames and close unchanged");
+}
+
 - (void)testReadyErrorRevokesReadiness {
   const std::array<unsigned char, 4> pixel{0, 255, 0, 255};
-  requirePageState([self commitFrame:pixel.data() width:1 height:1],
+  requirePageState([self commitFrame:pixel.data() width:1 height:1 dirty:{CefRect(0, 0, 1, 1)}],
                    "readiness fixture must commit a real image");
   id committedFrame = self.view.layer.contents;
   requirePageState(committedFrame != nil, "committed frame must exist on the real view layer");
@@ -215,6 +237,7 @@ void DWRunPageStateTests() {
   run("close-timeout-terminal", [](DWWebPage* page, DWPageStateRuntime* runtime) {
     [page testCloseTimeoutRemainsTerminal:runtime];
   });
+  run("retained-frame-pixels", [](DWWebPage* page, DWPageStateRuntime*) { [page testRetainedFramePixels]; });
   run("ready-error-terminal", [](DWWebPage* page, DWPageStateRuntime*) {
     [page testReadyErrorRevokesReadiness];
   });
