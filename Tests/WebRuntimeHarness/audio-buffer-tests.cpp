@@ -69,7 +69,27 @@ static void deviceBufferFitsBeforeFirstPlayout() {
   require(audio.render(left.data(), right.data(), 100, 10 + delay), "large-quantum output render");
   for (auto sample : left) require(sample == .5, "large-quantum output remains real signal");
 }
+static void lifecycleNotificationsAvoidNormalAudioCallbacks() {
+  unsigned notices = 0;
+  DWWebAudioBuffer audio(.05, [&] { ++notices; });
+  audio.streamStarted(48000, 2, 480);
+  require(audio.setGain(.5, 10), "notification setup");
+  std::array<float, 480> signal; signal.fill(1);
+  const float* packet[] = {signal.data(), signal.data()};
+  audio.push(packet, 480, 10000);
+  std::array<float, 100> left{}, right{};
+  require(audio.render(left.data(), right.data(), 100, 10.05), "notification render");
+  require(notices == 0, "normal PCM production and rendering must not wake page lifecycle");
+  audio.fail(DWWebAudioError::deviceChanged);
+  audio.fail(DWWebAudioError::deviceChanged);
+  require(notices == 1, "first audio failure must notify once");
+  audio.beginClose(10.06);
+  audio.render(left.data(), right.data(), 100, 10.07);
+  require(notices == 2, "finishing a closing output callback must notify its release waiter");
+  audio.streamStopped(10.08);
+  require(notices == 3, "stream retirement must notify its release waiter");
+}
 int main() {
-  try { gatesAndGain(); errorsRemainVisibleAndSilent(); deviceBufferFitsBeforeFirstPlayout(); std::puts("WEB_AUDIO_BUFFER PASS functional-gates gain stale-output close invalid-pcm device-capacity"); }
+  try { lifecycleNotificationsAvoidNormalAudioCallbacks(); gatesAndGain(); errorsRemainVisibleAndSilent(); deviceBufferFitsBeforeFirstPlayout(); std::puts("WEB_AUDIO_BUFFER PASS functional-gates gain stale-output close invalid-pcm device-capacity"); }
   catch (const std::exception& error) { std::fprintf(stderr, "WEB_AUDIO_BUFFER FAIL %s\n", error.what()); return 1; }
 }

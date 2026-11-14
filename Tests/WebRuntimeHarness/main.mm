@@ -1,5 +1,6 @@
 #import <AppKit/AppKit.h>
 #import "WebWallpaperBridge.h"
+#import "WebRuntimeInternal.h"
 #include <cstdio>
 #include <stdexcept>
 
@@ -61,6 +62,12 @@ int main(int argc, char** argv) {
         const bool green = bytes[offset] == 0 && bytes[offset + 1] == 255 && bytes[offset + 2] == 0;
         CFRelease(pixels);
         require(green, "actual Canvas pixels were not delivered through the product bridge");
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:.25]];
+        const NSUInteger idleTicks = page.lifecycleTickCount;
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:.4]];
+        require(page.lifecycleTickCount == idleTicks && !page.hasLifecycleDeadline,
+                "ready idle page must not run periodic lifecycle scans or deadlines");
+        fprintf(stderr, "WEB_RUNTIME idleLifecycleTicks=0 intervalSeconds=0.4\n");
         NSView* frozenView = page.view;
         [page closeWithCompletion:^(NSError* value) { failure = value; closed = true; }];
         waitUntil(^{ return BOOL(closed); }, 5, "page close completion timed out");

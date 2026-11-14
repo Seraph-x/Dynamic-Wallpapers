@@ -10,6 +10,82 @@ final class DesktopInteractionRoutingTests: XCTestCase {
         width: 320, height: 180, backend: .web,
         webProject: WebProjectReference(root: URL(fileURLWithPath: "/finder-click-test"), entry: "index.html"))
 
+    func testClickObservationRunsOnlyWhileAnInteractiveTargetExists() async throws {
+        _ = NSApplication.shared
+        let screen = try XCTUnwrap(NSScreen.main), observer = ObservationRecorder()
+        let id = try XCTUnwrap(screen.wallpaperID)
+        let factory = RecordingFactory()
+        let coordinator = DesktopCoordinator(surfaceFactory: factory, screenProvider: { [id: screen] },
+            makeClickObserver: { _ in observer })
+        coordinator.setWebInteractionEnabled(true)
+        coordinator.reconcile(.empty)
+        coordinator.refreshWebInteractionStatus()
+        XCTAssertEqual(observer.starts, 0, "Enabling the setting alone must not start background AX work")
+        coordinator.setPaused(true)
+        let preview = try coordinator.previews.makeSession(id: UUID(), item: item,
+            target: DesktopPreviewTarget(displayID: id, fit: .fill), onError: { XCTFail($0.localizedDescription) })
+        try await preview.prepare(); try await preview.start()
+        XCTAssertEqual(observer.starts, 1, "A live preview is eligible even when desktop playback is paused")
+        try await preview.beginClose().value
+        XCTAssertFalse(observer.isRunning)
+        XCTAssertEqual(observer.stops, 1)
+        coordinator.refreshWebInteractionStatus()
+        XCTAssertEqual(observer.starts, 1)
+        coordinator.shutdown(); try await coordinator.waitForShutdown()
+    }
+
+    func testPausingAndResumingDesktopRecreatesClickObservation() async throws {
+        _ = NSApplication.shared
+        let screen = try XCTUnwrap(NSScreen.main), observer = ObservationRecorder()
+        let id = try XCTUnwrap(screen.wallpaperID)
+        let factory = RecordingFactory()
+        let coordinator = DesktopCoordinator(surfaceFactory: factory, screenProvider: { [id: screen] },
+            makeClickObserver: { _ in observer })
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let entry = directory.appendingPathComponent("index.html")
+        try Data("<html>test</html>".utf8).write(to: entry)
+        let playingItem = MediaItem(url: entry, kind: .web, width: 320, height: 180, backend: .web,
+            webProject: WebProjectReference(root: directory, entry: "index.html"))
+        var library = Library.empty
+        library.media = [playingItem]
+        library.displays = [DisplayBinding(id: id, source: .media(playingItem.id, audio: AudioSettings()))]
+        let displayed = expectation(description: "displayed")
+        coordinator.onCommit = { _, _ in displayed.fulfill() }
+        coordinator.onError = { XCTFail($0.localizedDescription) }
+        coordinator.setWebInteractionEnabled(true)
+        coordinator.reconcile(library)
+        await fulfillment(of: [displayed], timeout: 2)
+        XCTAssertTrue(observer.isRunning)
+        coordinator.setPaused(true)
+        XCTAssertFalse(observer.isRunning)
+        let starts = observer.starts
+        coordinator.setPaused(false)
+        let deadline = ContinuousClock.now + .seconds(2)
+        while !observer.isRunning && ContinuousClock.now < deadline { await Task.yield() }
+        XCTAssertTrue(observer.isRunning)
+        XCTAssertEqual(observer.starts, starts + 1)
+        coordinator.setWebInteractionEnabled(false)
+        XCTAssertFalse(observer.isRunning)
+        coordinator.shutdown(); try await coordinator.waitForShutdown()
+    }
+
+    private final class ObservationRecorder: FinderClickObserving {
+        var starts = 0, stops = 0
+        var isRunning = false
+        var status = WebInteractionStatus("test observer")
+        var onStatus: ((WebInteractionStatus) -> Void)?
+        var onClick: ((CGPoint, Int, FinderClickTarget) throws -> Bool)?
+        var onPointer: ((CGPoint, String, FinderClickTarget) throws -> Void)?
+        func start() throws { guard !isRunning else { return }; starts += 1; isRunning = true; onStatus?(status) }
+        func stop(reason: String, diagnostics: String?) {
+            if isRunning { stops += 1 }; isRunning = false
+            onStatus?(WebInteractionStatus(reason, diagnostics: diagnostics))
+        }
+        func refreshStatus() {}
+    }
+
     func testWebPreviewOnAnUnboundDisplayHasItsOwnClickTarget() async throws {
         _ = NSApplication.shared
         let screen = try XCTUnwrap(NSScreen.main)

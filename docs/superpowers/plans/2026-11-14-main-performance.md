@@ -52,10 +52,10 @@ window/notification access. Keep logs in `.build/verification/main-performance-s
 - [x] Review; commit `perf: reduce web wallpaper frame copies`.
 
 ## 6. Schedule background work by demand
-- [ ] Add tests for enabled interaction with no eligible target, paused/resumed targets, preview demand, and fresh menu evidence before clicks.
-- [ ] Reconcile click-observer demand in `Playback/DesktopCoordinator.swift` and reduce page lifecycle scans separately from `WebRuntime.mm` message pumping.
-- [ ] Verify prepare/error/close completion and idle behavior using native and Swift lifecycle tests.
-- [ ] Review; commit `perf: schedule wallpaper background work on demand`.
+- [x] Add tests for enabled interaction with no eligible target, paused/resumed targets, preview demand, and fresh menu evidence before clicks.
+- [x] Reconcile click-observer demand in `Playback/DesktopCoordinator.swift` and reduce page lifecycle scans separately from `WebRuntime.mm` message pumping.
+- [x] Verify prepare/error/close completion and idle behavior using native and Swift lifecycle tests.
+- [x] Review; commit `perf: schedule wallpaper background work on demand`.
 
 ## Completion
-- [ ] Run cross-stage regression checks once after stage 6, inspect six commits and final status, and record exact results and limitations.
+- [x] Run cross-stage regression checks once after stage 6, inspect six commits and final status, and record exact results and limitations.

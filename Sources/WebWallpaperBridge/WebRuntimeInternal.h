@@ -18,5 +18,7 @@ static inline NSError* DWWebError(NSString* message) {
 - (void)configureSceneRuntimeRoot:(NSString*)root entry:(NSString*)entry representation:(NSString*)representation
                          sceneID:(NSString*)sceneID generation:(uint64_t)generation;
 - (void)tick;
+@property(nonatomic, readonly) NSUInteger lifecycleTickCount;
+@property(nonatomic, readonly) BOOL hasLifecycleDeadline;
 - (BOOL)configureEditorRuntimeRoot:(NSString*)root configuration:(NSDictionary*)configuration error:(NSError**)error;
 @end

@@ -2,6 +2,7 @@
 #import "../../Sources/WebWallpaperBridge/WebPage.mm"
 #import <dispatch/dispatch.h>
 #include <array>
+#include <thread>
 #include <stdexcept>
 
 namespace {
@@ -44,6 +45,9 @@ void requireBackgroundThreadRejection(void (^operation)(void), const char* messa
 - (void)testCloseTimeoutRemainsTerminal:(DWPageStateRuntime*)runtime;
 - (void)testReadyErrorRevokesReadiness;
 - (void)testRetainedFramePixels;
+- (void)testLifecycleSignals;
+- (void)testAutomaticPrepareDeadline;
+- (void)testAutomaticCloseDeadline;
 - (void)testIntentionalAudioDisconnect:(DWPageStateRuntime*)runtime;
 - (void)testUnexpectedAudioError:(BOOL)duringClose;
 - (void)testActiveAudioStreamRestart;
@@ -51,6 +55,60 @@ void requireBackgroundThreadRejection(void (^operation)(void), const char* messa
 @end
 
 @implementation DWWebPage (StateContractTests)
+- (void)testLifecycleSignals {
+  auto state = _resources->state;
+  state->loaded = true; state->painted = true;
+  __block bool ready = false, failed = false;
+  self.onReady = ^{ ready = true; };
+  self.onError = ^(NSError*) { failed = true; };
+  for (int index = 0; index < 1000; ++index) state->notifyChanged();
+  const auto wait = [&](const auto& predicate) {
+    const double deadline = NSProcessInfo.processInfo.systemUptime + 1;
+    while (!predicate() && NSProcessInfo.processInfo.systemUptime < deadline)
+      [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:.001]];
+    requirePageState(predicate(), "lifecycle notification did not arrive");
+  };
+  wait(^{ return ready; });
+  requirePageState(self.lifecycleTickCount == 1 && !self.hasLifecycleDeadline,
+                   "coalesced readiness must need no idle timer");
+  const auto ticks = self.lifecycleTickCount;
+  [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:.08]];
+  requirePageState(self.lifecycleTickCount == ticks, "idle page ticked without demand");
+  state->audio = std::make_shared<DWWebAudioBuffer>(0.05, state->changed);
+  auto audio = state->audio;
+  std::thread worker([audio] { audio->fail(DWWebAudioError::deviceChanged); });
+  worker.join();
+  wait(^{ return failed; });
+  requirePageState(!self.ready && !self.hasLifecycleDeadline, "audio error must revoke readiness without polling");
+}
+- (void)testAutomaticPrepareDeadline {
+  __block NSError* failure = nil;
+  self.onError = ^(NSError* error) { failure = error; };
+  _started = YES; _prepareDeadline = NSProcessInfo.processInfo.systemUptime + .02;
+  [self scheduleLifecycleDeadline];
+  const double deadline = NSProcessInfo.processInfo.systemUptime + 1;
+  while (!failure && NSProcessInfo.processInfo.systemUptime < deadline)
+    [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:.001]];
+  requirePageState([failure.localizedDescription containsString:@"preparation exceeded"], "prepare deadline was not delivered");
+  requirePageState(!self.hasLifecycleDeadline, "failed preparation kept a periodic deadline");
+  [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:.02]];
+  const auto settledTicks = self.lifecycleTickCount;
+  [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:.04]];
+  requirePageState(self.lifecycleTickCount == settledTicks, "prepare timeout kept notifying itself after failure");
+}
+- (void)testAutomaticCloseDeadline {
+  _resources->state->clientDestroyed = false;
+  __block NSError* failure = nil;
+  [self closeWithCompletion:^(NSError* error) { failure = error; }];
+  _closeDeadline = NSProcessInfo.processInfo.systemUptime + .02;
+  [self scheduleLifecycleDeadline];
+  const double deadline = NSProcessInfo.processInfo.systemUptime + 1;
+  while (!failure && NSProcessInfo.processInfo.systemUptime < deadline)
+    [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:.001]];
+  requirePageState([failure.localizedDescription containsString:@"close exceeded"], "close deadline was not delivered");
+  requirePageState(!self.closed && !self.hasLifecycleDeadline, "failed close must retain ownership without polling");
+}
+
 - (void)testActiveAudioStreamRestart {
   auto state = _resources->state;
   state->audio = std::make_shared<DWWebAudioBuffer>(0.05);
@@ -234,6 +292,9 @@ void DWRunPageStateTests() {
       }
     }
   };
+  run("event-driven-lifecycle", [](DWWebPage* page, DWPageStateRuntime*) { [page testLifecycleSignals]; });
+  run("automatic-prepare-deadline", [](DWWebPage* page, DWPageStateRuntime*) { [page testAutomaticPrepareDeadline]; });
+  run("automatic-close-deadline", [](DWWebPage* page, DWPageStateRuntime*) { [page testAutomaticCloseDeadline]; });
   run("close-timeout-terminal", [](DWWebPage* page, DWPageStateRuntime* runtime) {
     [page testCloseTimeoutRemainsTerminal:runtime];
   });

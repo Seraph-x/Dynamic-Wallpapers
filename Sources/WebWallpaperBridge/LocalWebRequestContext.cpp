@@ -176,6 +176,7 @@ class LocalRequestPolicy final : public CefResourceRequestHandler {
             reporter_({"editor-event-retired", request->GetURL(), "Editor event cancelled after close"});
           if (scene_ && !scene_->receive(body))
             reporter_({"scene-event-retired", request->GetURL(), "In-flight event delivered after page cancellation; not dispatched"});
+          reporter_({"protocol-event", request->GetURL(), "Queued scene/editor event"});
           return memoryResponse(200, "application/json", "{}");
         }
         files = route.mount == SceneMount::runtime ? runtime_ : files_;

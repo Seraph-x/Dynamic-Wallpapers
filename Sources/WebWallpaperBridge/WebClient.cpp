@@ -20,7 +20,7 @@ class WebClient final : public CefClient, public CefLifeSpanHandler, public CefR
     public CefAudioHandler {
  public:
   explicit WebClient(std::shared_ptr<DWWebPageState> state) : state_(std::move(state)) {}
-  ~WebClient() override { state_->clientDestroyed = true; }
+  ~WebClient() override { state_->clientDestroyed = true; state_->notifyChanged(); }
   CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override { return this; }
   CefRefPtr<CefRenderHandler> GetRenderHandler() override { return state_->editor ? nullptr : this; }
   CefRefPtr<CefLoadHandler> GetLoadHandler() override { return this; }
@@ -58,6 +58,7 @@ class WebClient final : public CefClient, public CefLifeSpanHandler, public CefR
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
     fprintf(stderr, "DWWEB after-created origin=%s closing=%d\n", state_->host.c_str(), int(state_->closing.load()));
     state_->browser = browser;
+    state_->notifyChanged();
     if (state_->editor) {
       browser->GetHost()->SetAudioMuted(true);
       state_->attachNative(browser->GetHost()->GetWindowHandle());
@@ -70,7 +71,7 @@ class WebClient final : public CefClient, public CefLifeSpanHandler, public CefR
   }
   void OnBeforeClose(CefRefPtr<CefBrowser>) override {
     fprintf(stderr, "DWWEB before-close origin=%s\n", state_->host.c_str());
-    state_->browser = nullptr; state_->browserClosed = true;
+    state_->browser = nullptr; state_->browserClosed = true; state_->notifyChanged();
   }
   bool DoClose(CefRefPtr<CefBrowser> browser) override {
     if (!state_->editor) return false;
@@ -92,12 +93,14 @@ class WebClient final : public CefClient, public CefLifeSpanHandler, public CefR
     if (type != PET_VIEW || state_->closing || !state_->loaded) return;
     if (state_->paint(buffer, width, height, dirty)) {
       state_->painted = true; ++state_->committedPaints;
+      if (state_->needsPaintNotification) state_->notifyChanged();
     }
   }
   void OnLoadEnd(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, int status) override {
     if (!frame->IsMain() || state_->closing) return;
     if (status != 200) { state_->fail("Main document returned HTTP " + std::to_string(status)); return; }
     state_->loaded = true;
+    state_->notifyChanged();
     if (!state_->editor) browser->GetHost()->Invalidate(PET_VIEW);
   }
   void OnLoadError(CefRefPtr<CefBrowser>, CefRefPtr<CefFrame>, ErrorCode code,
