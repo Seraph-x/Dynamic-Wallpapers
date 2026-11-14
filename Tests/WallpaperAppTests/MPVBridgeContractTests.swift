@@ -13,6 +13,33 @@ final class MPVBridgeContractTests: XCTestCase {
         repositoryRoot.appendingPathComponent(".build/dependencies/mpv/fixtures/h264-aac.mkv")
     }
 
+    func testRetainedFrameRemainsImmutableThroughPlaybackAndClose() async throws {
+        let bridge = DWMPVBridge(width: 64, height: 64, fill: false)
+        let closed = expectation(description: "played and closed")
+        var retained: Data?
+        var original: [UInt8] = []
+        var frames = 0
+        bridge.startPath(fixture.path, frame: { pixels, _ in
+            frames += 1
+            if retained == nil {
+                retained = pixels
+                original = Array(pixels)
+                do { try bridge.setPaused(false) }
+                catch { XCTFail(error.localizedDescription); bridge.close { closed.fulfill() } }
+            } else {
+                XCTAssertEqual(Array(retained!), original, "A retained frame cannot be reused by the renderer")
+            }
+            if frames == 20 { bridge.close { closed.fulfill() } }
+        }, failure: { error in
+            XCTFail(error.localizedDescription)
+            bridge.close { closed.fulfill() }
+        })
+        await fulfillment(of: [closed], timeout: 10)
+        await close(bridge)
+        XCTAssertGreaterThanOrEqual(frames, 20)
+        XCTAssertEqual(Array(try XCTUnwrap(retained)), original)
+    }
+
     func testFirstFrameCarriesActualDecodedFrameProvenance() async throws {
         let outcome = await firstOutcome(at: fixture)
         let metadata = try XCTUnwrap(outcome).get()

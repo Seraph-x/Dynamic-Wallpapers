@@ -40,10 +40,10 @@ window/notification access. Keep logs in `.build/verification/main-performance-s
 - [x] Run core/library/selection tests and record a fixed large-library workload; review; commit `perf: index library validation and reuse filtered media`.
 
 ## 4. Reuse extended-video frame storage
-- [ ] Add native buffer ownership/reuse tests that hold old frames across newer renders and resize.
-- [ ] Introduce frame storage owned by actual consumers in `Sources/MPVBridge`; integrate allocation reuse into `MPVBridge.mm`.
-- [ ] Preserve update consumption, failure drain, queue ownership and close behavior; run pending-frame/source and Swift extended-playback acceptance.
-- [ ] Record allocation counts under repeated same-size frames; review; commit `perf: reuse released mpv frame buffers`.
+- [x] Add native buffer ownership/reuse tests that hold old frames across newer renders and resize.
+- [x] Introduce frame storage owned by actual consumers in `Sources/MPVBridge`; integrate allocation reuse into `MPVBridge.mm`.
+- [x] Preserve update consumption, failure drain, queue ownership and close behavior; run pending-frame/source and Swift extended-playback acceptance.
+- [x] Record allocation counts under repeated same-size frames; review; commit `perf: reuse released mpv frame buffers`.
 
 ## 5. Reduce web-frame copying
 - [ ] Add native damage/copy tests for first frame, partial damage, unchanged frames, retained images, resize and invalid input.
