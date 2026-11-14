@@ -276,17 +276,19 @@ public struct Library: Codable, Equatable, Sendable {
                 throw WallpaperError("素材元数据无效：\(item.name)。")
             }
         }
-        let mediaIDs = Set(media.map(\.id))
+        // Duplicate IDs have been rejected before constructing unique-key indexes.
+        let mediaByID = Dictionary(uniqueKeysWithValues: media.map { ($0.id, $0) })
+        var entryIDsByPlaylist: [UUID: Set<UUID>] = [:]
         for list in playlists {
             guard !list.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
                   list.transition.isFinite, list.transition >= 0 else { throw WallpaperError("播放列表名称或过渡时间无效。") }
             try unique(list.entries.map(\.id))
+            entryIDsByPlaylist[list.id] = Set(list.entries.map(\.id))
             try EntryTiming.validateClockDuration(list.transition)
             for entry in list.entries {
-                guard mediaIDs.contains(entry.mediaID) else { throw WallpaperError("播放列表引用了不存在的素材。") }
+                guard let item = mediaByID[entry.mediaID] else { throw WallpaperError("播放列表引用了不存在的素材。") }
                 try entry.timing.validate()
                 try entry.audio.validate()
-                let item = media.first { $0.id == entry.mediaID }!
                 guard (item.kind != .web && item.kind != .scene) || entry.timing.mode == .seconds else {
                     throw WallpaperError("网页和场景壁纸仅支持固定停留时长。")
                 }
@@ -296,13 +298,13 @@ public struct Library: Codable, Equatable, Sendable {
         for binding in displays {
             switch binding.source {
             case .playlist(let playlistID):
-                guard let list = playlists.first(where: { $0.id == playlistID }),
-                      binding.currentEntryID.map({ id in list.entries.contains { $0.id == id } }) ?? true else {
+                guard let entryIDs = entryIDsByPlaylist[playlistID],
+                      binding.currentEntryID.map(entryIDs.contains) ?? true else {
                     throw WallpaperError("显示器绑定引用了不存在的播放列表或条目。")
                 }
             case .media(let mediaID, let audio):
                 guard version >= 3 else { throw WallpaperError("旧版素材库不能包含直接应用的壁纸。") }
-                guard mediaIDs.contains(mediaID) else { throw WallpaperError("显示器绑定引用了不存在的壁纸。") }
+                guard mediaByID[mediaID] != nil else { throw WallpaperError("显示器绑定引用了不存在的壁纸。") }
                 guard binding.currentEntryID == nil else { throw WallpaperError("单张壁纸不能包含播放列表进度。") }
                 try audio.validate()
             }

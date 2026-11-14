@@ -4,21 +4,18 @@ import WallpaperCore
 
 struct ThumbnailView: View {
     let item: MediaItem
-    @ObservedObject var lifetime: ThumbnailLifetime
+    let lifetime: ThumbnailLifetime
     @State private var image: NSImage?
     @State private var error: String?
     var body: some View {
-        ThumbnailContent(item: item, image: image ?? lifetime.cachedImage(for: item.id), error: error)
-            .task(id: item.id) {
+        ThumbnailContent(item: item, image: image, error: error)
+            .task(id: item) {
                 image = nil; error = nil
-                if let cached = lifetime.cachedImage(for: item.id) {
-                    image = cached
-                    return
-                }
                 do { image = try await lifetime.load(item) }
                 catch is CancellationError { }
                 catch { self.error = PresentedFailure(error, context: .inspection).localizedDescription }
             }
+            .onDisappear { image = nil }
     }
 }
 

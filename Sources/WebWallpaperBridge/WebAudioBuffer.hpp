@@ -1,6 +1,7 @@
 #pragma once
 #include "TimedAudioRing.hpp"
 #include <atomic>
+#include <functional>
 
 enum class DWWebAudioError { none, format, invalidPacket, overflow, control, render, stream, deviceChanged };
 
@@ -9,7 +10,8 @@ enum class DWWebAudioError { none, format, invalidPacket, overflow, control, ren
 class DWWebAudioBuffer {
  public:
   static constexpr int sampleRate = 48000, packetFrames = 480;
-  explicit DWWebAudioBuffer(double delay) : delaySeconds(delay), ring_(sampleRate, delay, capacityForDelay(delay)) {}
+  explicit DWWebAudioBuffer(double delay, std::function<void()> changed = {})
+      : delaySeconds(delay), ring_(sampleRate, delay, capacityForDelay(delay)), changed_(std::move(changed)) {}
   const double delaySeconds;
   std::atomic<uint64_t> streamStarts{0}, streamStops{0}, packets{0}, droppedAfterClose{0};
   std::atomic<unsigned> activeCallbacks{0}, activeRenders{0};
@@ -17,7 +19,7 @@ class DWWebAudioBuffer {
 
   void fail(DWWebAudioError error) {
     auto expected = DWWebAudioError::none;
-    error_.compare_exchange_strong(expected, error);
+    if (error_.compare_exchange_strong(expected, error)) notifyChanged();
   }
   DWWebAudioError errorCode() const { return error_.load(); }
   bool setGain(float gain, double host) {
@@ -45,6 +47,7 @@ class DWWebAudioBuffer {
   // stream has a fresh timeline even when the page's desired gain is unchanged.
   void streamStopped(double host) {
     ++streamStops;
+    struct Notify { DWWebAudioBuffer& owner; ~Notify() { owner.notifyChanged(); } } notify{*this};
     if (!streamActive_.exchange(false)) { fail(DWWebAudioError::stream); return; }
     const float gain = desiredGain_;
     if (!setGain(0, host)) return;
@@ -52,7 +55,7 @@ class DWWebAudioBuffer {
   }
   void push(const float** data, int frames, int64_t pts) {
     ++activeCallbacks;
-    struct Leave { std::atomic<unsigned>& count; ~Leave() { --count; } } leave{activeCallbacks};
+    CallbackExit leave{*this, activeCallbacks};
     ++packets;
     if (closing_) { ++droppedAfterClose; return; }
     if (errorCode() != DWWebAudioError::none) return;
@@ -68,7 +71,7 @@ class DWWebAudioBuffer {
   }
   bool render(float* left, float* right, unsigned frames, double host) {
     ++activeRenders;
-    struct Leave { std::atomic<unsigned>& count; ~Leave() { --count; } } leave{activeRenders};
+    CallbackExit leave{*this, activeRenders};
     if (!left || !right) { fail(DWWebAudioError::render); return false; }
     const bool valid = ring_.render(left, right, frames, host);
     if (!valid) fail(DWWebAudioError::render);
@@ -86,6 +89,12 @@ class DWWebAudioBuffer {
   AudioRingStats stats() const { return ring_.stats(); }
 
  private:
+  void notifyChanged() const { if (changed_) changed_(); }
+  struct CallbackExit {
+    DWWebAudioBuffer& owner;
+    std::atomic<unsigned>& count;
+    ~CallbackExit() { --count; if (owner.closing_) owner.notifyChanged(); }
+  };
   static size_t capacityForDelay(double delay) {
     const double frames = std::ceil(delay * sampleRate) + 4 * packetFrames;
     if (!std::isfinite(delay) || delay < 0 || !std::isfinite(frames) ||
@@ -94,6 +103,7 @@ class DWWebAudioBuffer {
     return std::max<size_t>(16384, size_t(frames));
   }
   TimedAudioRing<> ring_;
+  const std::function<void()> changed_;
   std::atomic<DWWebAudioError> error_{DWWebAudioError::none};
   std::atomic<bool> closing_{false}, streamActive_{false};
   bool enabled_ = false;

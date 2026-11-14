@@ -47,10 +47,13 @@ final class DesktopCoordinator {
     private var reconcileTask: Task<Void, Never>?
     private var retirementTasks: [String: Task<Void, Error>] = [:]
     private var latestLibrary: Library?
+    private var audioEdit: (target: AudioEditTarget, audio: AudioSettings)?
     private var paused = false
     private var isShuttingDown = false
     private var webInteractionEnabled = false
-    private var clickObserver: FinderDesktopClickObserver?
+    private var clickObserver: (any FinderClickObserving)?
+    private var clickObservationRequested = false
+    private let makeClickObserver: @MainActor (@escaping FinderDesktopClickObserver.TargetProvider) -> any FinderClickObserving
     private var interactionStatus = WebInteractionStatus("网页交互已关闭")
     private var publishedInteractionStatus: WebInteractionStatus?
     private var finderObservers: [NSObjectProtocol] = []
@@ -69,7 +72,11 @@ final class DesktopCoordinator {
          }, mirrorFrameRate: @escaping @MainActor () -> WallpaperMirrorFrameRate = { .hz30 },
          systemWallpaperSource: DesktopWallpaperSource? = nil,
          mirrorStreamFactory: (@MainActor (NSWindow, WallpaperMirrorView) async throws -> WallpaperMirrorStream)? = nil,
-         snapshotWindow: (@MainActor (NSWindow) async throws -> CGImage)? = nil) {
+         snapshotWindow: (@MainActor (NSWindow) async throws -> CGImage)? = nil,
+         makeClickObserver: @escaping @MainActor (@escaping FinderDesktopClickObserver.TargetProvider) -> any FinderClickObserving = {
+             FinderDesktopClickObserver(targetAtPoint: $0)
+         }) {
+        self.makeClickObserver = makeClickObserver
         self.surfaceFactory = surfaceFactory
         self.screenProvider = screenProvider
         self.mirrorFrameRate = mirrorFrameRate
@@ -162,9 +169,34 @@ final class DesktopCoordinator {
         return mirror
     }
 
+    func updateAudio(_ audio: AudioSettings, target: AudioEditTarget) {
+        audioEdit = (target, audio)
+        applyAudio(audio, target: target)
+    }
+
+    func finishAudioEdit() { audioEdit = nil }
+
+    private func applyAudio(_ audio: AudioSettings, target: AudioEditTarget) {
+        for (groupID, session) in sessions {
+            switch target.id {
+            case .playlist(let playlistID, let entryID):
+                if configurations[groupID]?.sourceID == .playlist(playlistID) {
+                    session.updateAudio(audio, entryID: entryID)
+                }
+            case .direct(let targetGroup):
+                if groupID == targetGroup, configurations[groupID]?.sourceID == .media(target.mediaID) {
+                    session.updateAudio(audio, entryID: target.mediaID)
+                }
+            }
+        }
+    }
+
     func reconcile(_ library: Library) {
         guard !isShuttingDown else { return }
-        defer { publishWebInteractionStatus(); wallpaperSourceChanges.send() }
+        defer {
+            if let audioEdit { applyAudio(audioEdit.audio, target: audioEdit.target) }
+            publishWebInteractionStatus(); wallpaperSourceChanges.send()
+        }
         latestLibrary = library
         // Sound controls must apply even while structural reconciliation waits for a transition.
         windows.values.forEach { $0.setGlobalMute(library.settings.isMuted) }
@@ -312,6 +344,7 @@ final class DesktopCoordinator {
     }
 
     func beginRemovingMedia(_ ids: Set<UUID>) -> Task<Void, Error> {
+        defer { publishWebInteractionStatus() }
         let groups = sessions.filter { !$0.value.referencedMediaIDs.isDisjoint(with: ids) }.map(\.key)
         var displays = Set(groups.flatMap { configurations[$0]?.screenIDs ?? [] })
         displays.formUnion(windows.filter { !$0.value.referencedMediaIDs.isDisjoint(with: ids) }.map(\.key))
@@ -345,12 +378,11 @@ final class DesktopCoordinator {
         defer { publishWebInteractionStatus() }
         webInteractionEnabled = enabled
         guard enabled else {
-            clickObserver?.stop()
             interactionStatus = WebInteractionStatus("网页交互已关闭")
             return
         }
         if clickObserver == nil {
-            let observer = FinderDesktopClickObserver { [weak self] point in self?.desktopClickTarget(at: point) }
+            let observer = makeClickObserver { [weak self] point in self?.desktopClickTarget(at: point) }
             observer.onStatus = { [weak self] status in
                 self?.interactionStatus = status
                 self?.publishWebInteractionStatus()
@@ -369,10 +401,26 @@ final class DesktopCoordinator {
             clickObserver = observer
             observeFinderLifecycle()
         }
-        startClickObserver()
+        reconcileClickObservation()
+    }
+
+    private var hasInteractiveTarget: Bool {
+        Set(windows.keys).union(previews.visibleDisplayIDs).contains {
+            isStableForClicks($0) && wallpaperWindow(on: $0)?.desktopClickTarget(screenID: $0) != nil
+        }
+    }
+
+    private func reconcileClickObservation() {
+        let needed = webInteractionEnabled && !isShuttingDown && hasInteractiveTarget
+        guard needed != clickObservationRequested else { return }
+        // Set demand before synchronous observer status callbacks can reenter publication.
+        clickObservationRequested = needed
+        if needed { startClickObserver() }
+        else { clickObserver?.stop(reason: isShuttingDown ? "正在退出，网页交互已停止" : "网页交互暂不可用：没有可交互的网页壁纸。") }
     }
 
     private func startClickObserver() {
+        guard clickObservationRequested, !isShuttingDown else { return }
         do {
             try clickObserver?.start()
             interactionStatus = clickObserver?.status ?? WebInteractionStatus("网页交互不可用")
@@ -398,6 +446,8 @@ final class DesktopCoordinator {
     }
 
     func refreshWebInteractionStatus() {
+        reconcileClickObservation()
+        if clickObservationRequested, clickObserver?.isRunning != true { startClickObserver() }
         clickObserver?.refreshStatus()
         publishWebInteractionStatus()
     }
@@ -436,14 +486,12 @@ final class DesktopCoordinator {
     }
 
     private func publishWebInteractionStatus() {
+        reconcileClickObservation()
         let value: WebInteractionStatus
         if !webInteractionEnabled { value = WebInteractionStatus("网页交互已关闭") }
         else if isShuttingDown { value = WebInteractionStatus("正在退出，网页交互已停止") }
-        else if clickObserver?.isRunning != true { value = interactionStatus }
         else if paused, previews.visibleDisplayIDs.isEmpty { value = WebInteractionStatus("网页交互暂不可用：壁纸已暂停。") }
-        else if !Set(windows.keys).union(previews.visibleDisplayIDs).contains(where: {
-            isStableForClicks($0) && wallpaperWindow(on: $0)?.desktopClickTarget(screenID: $0) != nil
-        }) {
+        else if !hasInteractiveTarget {
             value = WebInteractionStatus("网页交互暂不可用：没有可交互的网页壁纸。")
         } else { value = interactionStatus }
         guard value != publishedInteractionStatus else { return }
@@ -461,6 +509,7 @@ final class DesktopCoordinator {
         isShuttingDown = true
         wallpaperMirrors.values.forEach { $0.session.beginClose() }
         previews.shutdown()
+        clickObservationRequested = false
         clickObserver?.stop(reason: "正在退出，网页交互已停止")
         for observer in finderObservers { NSWorkspace.shared.notificationCenter.removeObserver(observer) }
         finderObservers.removeAll()

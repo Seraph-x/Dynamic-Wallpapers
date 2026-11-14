@@ -243,7 +243,7 @@
 "显示方式" = "Scaling";
 "暂不退出" = "Keep Running";
 "暂停与恢复" = "Pause & Resume";
-"暂停播放" = "Pause Playback";
+"暂停播放" = "Pause";
 "暂停时保留画面，继续播放时重新载入网页。" = "Pausing keeps the current image. Resuming reloads the web page.";
 "更换目录…" = "Change Folder…";
 "未完成的任务将被取消，清理临时文件后退出；已完成的文件会保留，取消的任务需重新开始。" = "Unfinished jobs will be cancelled and temporary files cleaned up before quitting. Completed files are kept; cancelled jobs must be restarted.";
@@ -270,6 +270,9 @@
 "正在退出，网页交互已停止" = "Quitting; web interaction stopped";
 "此单张壁纸已停止或更换，请重新选择。" = "This wallpaper has stopped or changed. Select it again.";
 "此项声音" = "Item Audio";
+"打开素材库" = "Open Library";
+"壁纸声音…" = "Wallpaper Audio…";
+"退出" = "Quit";
 "当前壁纸声音" = "Current Wallpaper Audio";
 "无法保存当前壁纸声音设置" = "Could Not Save Current Wallpaper Audio";
 "当前壁纸已切换，无法保存声音设置。" = "The current wallpaper changed, so its audio settings could not be saved.";
@@ -330,7 +333,7 @@
 "素材库无法读取，编辑已停用。" = "The library cannot be read. Editing is disabled.";
 "素材库无法读取，语言编辑已停用。" = "The library cannot be read. Language editing is disabled.";
 "素材库格式版本" = "Library format version";
-"继续播放" = "Resume Playback";
+"继续播放" = "Resume";
 "缩略图加载失败" = "Thumbnail Failed to Load";
 "网页" = "Web";
 "网页交互" = "Web Interaction";

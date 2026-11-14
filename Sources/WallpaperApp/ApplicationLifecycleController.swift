@@ -37,6 +37,7 @@ final class ApplicationLifecycleController {
         self.power.onChange = { [weak self] reasons in
             guard let self, !self.isShuttingDown else { return }
             self.powerPauseReasons = reasons
+            self.fullScreenMonitor.setSuspended(!reasons.isEmpty)
             self.publishPauseReasons()
         }
         self.fullScreenMonitor.onChange = { [weak self] _ in self?.publishPauseReasons() }

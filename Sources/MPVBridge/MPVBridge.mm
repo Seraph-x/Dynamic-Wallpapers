@@ -1,4 +1,5 @@
 #import "MPVBridge.h"
+#include "FrameBufferPool.hpp"
 #include <mpv/client.h>
 #include <mpv/render.h>
 #include <atomic>
@@ -6,6 +7,11 @@
 #include <cstring>
 #include <initializer_list>
 #include <sys/stat.h>
+
+static NSData *MPVPixelData(std::shared_ptr<dw::FrameBuffer> pixels) {
+    return [[NSData alloc] initWithBytesNoCopy:pixels->bytes.get() length:pixels->size
+        deallocator:^(void *, NSUInteger) { (void)pixels; }];
+}
 
 static NSError *MPVError(int code, NSString *operation) {
     return [NSError errorWithDomain:@"DynamicWallpaper.MPV" code:code userInfo:@{
@@ -33,6 +39,7 @@ static const mpv_node *MPVNodeField(const mpv_node *node, const char *name) {
     BOOL _fill;
     NSDictionary *_lastControlMetadata, *_renderMetadata, *_pendingMetadata;
     NSData *_pendingPixels;
+    dw::FrameBufferPool _pixelPool;
     DWMPVBridge *_callbackLifetime;
     DWMPVFrameHandler _frame;
     DWMPVErrorHandler _failure;
@@ -270,14 +277,19 @@ static void WakeRender(void *context) {
         [self fail:MPVError(MPV_ERROR_INVALID_PARAMETER, @"Render allocation overflow")];
         [self discardPendingFrame]; return;
     }
-    void *memory = calloc((size_t)size[1], stride);
-    if (!memory) {
+    std::shared_ptr<dw::FrameBuffer> storage;
+    try { storage = _pixelPool.acquire(stride * size[1]); }
+    catch (const std::bad_alloc&) {
         [self fail:MPVError(MPV_ERROR_NOMEM, @"Allocate render pixels")];
         [self discardPendingFrame]; return;
     }
-    NSMutableData *pixels = [[NSMutableData alloc] initWithBytesNoCopy:memory length:stride * size[1] freeWhenDone:YES];
+    NSData *pixels = MPVPixelData(storage);
+    if (!pixels) {
+        [self fail:MPVError(MPV_ERROR_NOMEM, @"Retain render pixels")];
+        [self discardPendingFrame]; return;
+    }
     mpv_render_param params[] = {{MPV_RENDER_PARAM_SW_SIZE, size}, {MPV_RENDER_PARAM_SW_FORMAT, (void *)"rgba"},
-        {MPV_RENDER_PARAM_SW_STRIDE, &stride}, {MPV_RENDER_PARAM_SW_POINTER, pixels.mutableBytes}, {MPV_RENDER_PARAM_INVALID, nullptr}};
+        {MPV_RENDER_PARAM_SW_STRIDE, &stride}, {MPV_RENDER_PARAM_SW_POINTER, storage->bytes.get()}, {MPV_RENDER_PARAM_INVALID, nullptr}};
     if (![self check:mpv_render_context_render(_render, params) operation:@"Render RGBA frame"]) return;
     if (!_firstDecodedFrameFlags && (info.flags & MPV_RENDER_FRAME_INFO_PRESENT) &&
         !(info.flags & (MPV_RENDER_FRAME_INFO_REDRAW | MPV_RENDER_FRAME_INFO_REPEAT))) _firstDecodedFrameFlags = info.flags;
@@ -288,6 +300,7 @@ static void WakeRender(void *context) {
     metadata[@"renderQueueLabel"] = @(dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL));
     if (_pendingPixels) _coalescedFrameCount++;
     metadata[@"coalescedFrameCount"] = @(_coalescedFrameCount);
+    metadata[@"pixelBufferAllocations"] = @(_pixelPool.allocationCount());
     _pendingPixels = pixels; _pendingMetadata = [metadata copy];
     [self deliverPendingFrame];
 }
@@ -360,6 +373,7 @@ static void WakeRender(void *context) {
                 mpv_render_context_free(self->_render); self->_render = nullptr;
             }
             self->_pendingPixels = nil; self->_pendingMetadata = nil; self->_renderMetadata = nil;
+            self->_pixelPool.stop();
             dispatch_source_cancel(self->_renderSignal);
         });
         if (self->_mpv) { mpv_terminate_destroy(self->_mpv); self->_mpv = nullptr; }

@@ -236,9 +236,29 @@ struct MenuContent: View {
             }
         }
         Divider()
+        playbackControls
+        Divider()
+        wallpaperControls
+        Divider()
+        managementControls
+        Divider()
+        Button(l10n("退出")) { NSApplication.shared.terminate(nil) }.keyboardShortcut("q")
+    }
+
+    @ViewBuilder private var playbackControls: some View {
+        Button(model.userPaused ? l10n("继续播放") : l10n("暂停播放"), action: model.togglePause)
+        Button(l10n("下一张壁纸")) { model.next() }.disabled(!model.canAdvance())
+        Menu(l10n("播放列表")) {
+            ForEach(model.library.playlists) { list in
+                Button(list.name) { model.applyPlaylist(list.id, displayID: nil, fit: .fill) }.disabled(list.entries.isEmpty)
+            }
+        }
+    }
+
+    @ViewBuilder private var wallpaperControls: some View {
         GlobalMuteToggle(model: model, showMenuError: true)
         if !model.currentWallpaperAudioTargets.isEmpty {
-            Button(l10n("当前壁纸声音")) {
+            Button(l10n("壁纸声音…")) {
                 let location = NSEvent.mouseLocation
                 // The menu must finish tracking before the panel takes keyboard focus.
                 DispatchQueue.main.async { audioPanel.show(model: model, near: location) }
@@ -259,22 +279,12 @@ struct MenuContent: View {
                     summary: l10n.webInteractionStatus(model.webInteractionStatus), diagnostics: diagnostics), localizer: l10n)
             }
         }
-        Button(model.userPaused ? l10n("继续播放") : l10n("暂停播放"), action: model.togglePause)
-        Button(l10n("下一张壁纸")) { model.next() }.disabled(!model.canAdvance())
-        Menu(l10n("播放列表")) {
-            ForEach(model.library.playlists) { list in
-                Button(list.name) { model.applyPlaylist(list.id, displayID: nil, fit: .fill) }.disabled(list.entries.isEmpty)
-            }
-        }
-        Divider()
-        Button(l10n("打开 \(product.displayName)")) {
+    }
+
+    @ViewBuilder private var managementControls: some View {
+        Button(l10n("打开素材库")) {
             model.mainWindow.open()
         }
-        Button(l10n("Editor")) {
-            DispatchQueue.main.async {
-                Task { @MainActor in do { try await model.openEditor() } catch { model.presentEditorFailure(error) } }
-            }
-        }.disabled(model.isShuttingDown)
         Button(l10n("转码任务")) {
             openWindow(id: "transcode"); NSApplication.shared.activate(ignoringOtherApps: true)
         }
@@ -283,7 +293,6 @@ struct MenuContent: View {
             model.activateManagementInterface()
         }
         Button(l10n("帮助文档")) { AppHelp.open(localizer: model.localizer, product: product) }
-        Button(l10n("退出 \(product.displayName)")) { NSApplication.shared.terminate(nil) }.keyboardShortcut("q")
     }
 
     private func setWebInteractionEnabled(_ enabled: Bool) {

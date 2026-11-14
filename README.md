@@ -50,9 +50,8 @@ Metadata and artwork errors remain visible with separate retry actions. Lyrics a
 
 The [scene Editor](Editor/README.md) is an independent application with its own
 version, process, projects and runtime. It is never installed with the wallpaper
-app. The menu-bar **Editor** action opens it when installed; otherwise it asks
-**Download Editor** or **Cancel**, with no automatic installation. Download opens
-the official releases page. Download the independent Editor 0.1.0 release separately from
+app. Open it directly from Applications after installing it separately.
+Download the independent Editor 0.1.0 release from
 [its release page](https://github.com/Seraph-x/Dynamic-Wallpapers/releases/tag/editor-v0.1.0). Independent preview
 windows support optional [system audio response](docs/editor-preview-audio.md)
 on macOS 14.2+, with a separate default-off Editor setting.

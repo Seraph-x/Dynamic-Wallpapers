@@ -33,10 +33,10 @@ double playoutBufferDuration() {
   id _configurationObserver;
   BOOL _closed;
 }
-- (instancetype)initWithError:(NSError**)error {
+- (instancetype)initWithChangeCallback:(std::function<void()>)changed error:(NSError**)error {
   DWRequireWebMainThread();
   if (!(self = [super init])) return nil;
-  try { _buffer = std::make_shared<DWWebAudioBuffer>(playoutBufferDuration()); }
+  try { _buffer = std::make_shared<DWWebAudioBuffer>(playoutBufferDuration(), std::move(changed)); }
   catch (const std::exception& failure) { if (error) *error = DWWebError(@(failure.what())); return nil; }
   _engine = [[AVAudioEngine alloc] init];
   AVAudioFormat* format = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:DWWebAudioBuffer::sampleRate channels:2];

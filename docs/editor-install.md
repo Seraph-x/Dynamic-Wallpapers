@@ -9,9 +9,7 @@ Download the separate Editor ZIP and compare its SHA-256 with the accompanying
 Applications. This release is ad-hoc signed and not notarized;
 macOS may require approval in **System Settings → Privacy & Security** before
 opening a trusted download. Dynamic Wallpaper does not install it automatically.
-Choose **Editor** in the wallpaper menu bar to open it; when absent, that action
-offers **Download Editor** or **Cancel**. The download button opens the official
-release page; installation remains a separate, explicit step.
+After installing it, open **Dynamic Wallpaper Editor** directly from Applications.
 
 Use **File → Open in Dynamic Wallpaper** to import a saved scene into the
 wallpaper library. Apply it there when ready. Quit either app independently.
@@ -24,8 +22,7 @@ does not affect normal wallpaper playback. Neither app needs the other to run.
 单独下载 Editor ZIP，并对照附带的 `SHA256SUMS.txt` 文件核验 SHA-256。解压后将
 **Dynamic Wallpaper Editor.app** 拖入“应用程序”。此发布包使用临时签名，
 尚未公证；macOS 可能要求在“系统设置 → 隐私与安全性”中批准可信下载。
-壁纸应用不会自动安装 Editor。菜单栏 **Editor** 在已安装时直接打开；未安装时
-仅询问“下载 Editor”或“取消”。下载按钮打开官方发布页，安装仍需用户手动完成。
+壁纸应用不会自动安装 Editor。安装后，从“应用程序”直接打开 **Dynamic Wallpaper Editor**。
 
 通过“文件 → 在 Dynamic Wallpaper 中打开”将已保存场景导入壁纸库，再自行应用。
 两个应用可以独立退出。卸载时退出 Editor，只移除 `.app`；已保存工程保留在
@@ -38,9 +35,8 @@ Editor の ZIP を別途ダウンロードし、付属の `SHA256SUMS.txt` と S
 展開して **Dynamic Wallpaper Editor.app** をアプリケーションへ移動します。
 このリリースはアドホック署名で、公証されていません。信頼できるダウンロードを
 開くには「システム設定 → プライバシーとセキュリティ」で許可が必要な場合があります。
-自動インストールは行いません。壁紙のメニューバー **Editor** は、インストール済みなら
-直接起動し、未導入ならダウンロードとキャンセルのみを表示します。ダウンロードは
-公式リリースページを開きます。インストールは手動です。
+自動インストールは行いません。インストール後、アプリケーションから
+**Dynamic Wallpaper Editor** を直接開いてください。
 
 「ファイル → Dynamic Wallpaper で開く」で保存済みシーンをライブラリへ取り込み、
 壁紙側で適用します。それぞれ独立して終了できます。削除は Editor を終了し `.app`
@@ -53,10 +49,8 @@ Téléchargez le ZIP Editor séparément et comparez son SHA-256 au fichier
 `SHA256SUMS.txt` fourni. Décompressez-le puis placez **Dynamic Wallpaper Editor.app**
 dans Applications. Cette version porte une signature ad hoc et
 n’est pas notarié ; macOS peut demander une autorisation dans **Réglages Système
-→ Confidentialité et sécurité** pour un téléchargement fiable. Aucune installation
-automatique : **Editor** dans la barre des menus ouvre l’app installée, ou propose
-uniquement de télécharger Editor ou d’annuler. Le téléchargement ouvre la page
-officielle des versions ; l’installation reste manuelle.
+→ Confidentialité et sécurité** pour un téléchargement fiable. L’installation reste
+manuelle. Ensuite, ouvrez **Dynamic Wallpaper Editor** directement depuis Applications.
 
 **Fichier → Ouvrir dans Dynamic Wallpaper** importe une scène enregistrée dans
 la bibliothèque ; appliquez-la ensuite vous-même. Chaque app se ferme séparément.
@@ -71,9 +65,7 @@ Descarga el ZIP de Editor por separado y compara su SHA-256 con el archivo
 Aplicaciones. Esta versión tiene firma ad hoc y no está
 notarizado; macOS puede pedir autorización en **Ajustes del Sistema → Privacidad
 y seguridad** para abrir una descarga de confianza. No se instala automáticamente.
-**Editor** en la barra de menús abre la app instalada o muestra solo descargar
-Editor y cancelar. Descargar abre la página oficial de versiones; la instalación
-sigue siendo manual.
+Tras instalarlo, abre **Dynamic Wallpaper Editor** directamente desde Aplicaciones.
 
 **Archivo → Abrir en Dynamic Wallpaper** importa una escena guardada a la
 biblioteca; aplícala después desde la app de fondos. Las apps se cierran de forma

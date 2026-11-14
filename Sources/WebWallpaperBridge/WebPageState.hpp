@@ -17,12 +17,14 @@ struct DWWebPageState {
   std::atomic<unsigned> opened{0}, released{0};
   std::atomic<unsigned> shutdownDisconnects{0};
   std::atomic<unsigned> resourceWarnings{0};
-  bool loaded = false, painted = false;
+  bool loaded = false, painted = false, needsPaintNotification = true;
+  std::function<void()> changed; // Installed before CEF/audio callbacks start; immutable thereafter.
+  void notifyChanged() const { if (changed) changed(); }
   std::shared_ptr<dw::SceneSession> scene;
   std::shared_ptr<dw::EditorSession> editor;
   uint64_t committedPaints = 0, engineReadyAfterPaint = 0;
   bool engineReady = false;
-  std::function<bool(const void*, int, int)> paint;
+  std::function<bool(const void*, int, int, const CefRenderHandler::RectList&)> paint;
   std::function<void(void*)> attachNative;
   std::function<void(void*)> detachNative;
   std::function<void(int, const std::string&, const std::string&, int)> consoleDiagnostic;
@@ -32,14 +34,17 @@ struct DWWebPageState {
   std::unordered_set<std::string> optionalResourceURLs;
   DWWebPageState(std::string value, int w, int h, float s) : host(std::move(value)), width(w), height(h), scale(s) {}
   void fail(const std::string& message, FailureScope scope = FailureScope::operation) {
-    if (audio) audio->fail(DWWebAudioError::stream);
     fprintf(stderr, "DWWEB ERROR origin=%s closing=%d %s\n", host.c_str(), int(closing.load()), message.c_str());
-    std::lock_guard lock(errorMutex);
-    // Content callbacks may arrive after close starts. Their actual error stays
-    // visible as a page failure; only teardown failures own the close outcome.
-    auto& destination = scope == FailureScope::page ? error : (closing ? closeError : error);
-    if (destination.empty()) destination = message;
+    {
+      std::lock_guard lock(errorMutex);
+      // Content callbacks after close remain page failures; only teardown errors own close.
+      auto& destination = scope == FailureScope::page ? error : (closing ? closeError : error);
+      if (destination.empty()) destination = message;
+    }
+    if (audio) audio->fail(DWWebAudioError::stream);
+    notifyChanged();
   }
+
   std::string failure(bool duringClose) {
     std::lock_guard lock(errorMutex); return duringClose ? closeError : error;
   }
@@ -74,6 +79,7 @@ struct DWWebPageState {
     else if (event.kind == "resource-error" || event.kind == "file-error" || event.kind == "context-error" ||
              event.kind == "resource-denied" || event.kind == "request-denied" || event.kind == "protocol-denied")
       fail(event.kind + ": " + event.url + ": " + event.detail);
+    notifyChanged();
   }
 };
 

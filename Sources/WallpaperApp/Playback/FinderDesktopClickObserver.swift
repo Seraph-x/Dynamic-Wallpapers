@@ -38,9 +38,25 @@ private final class FinderTapResources {
     deinit { stop() }
 }
 
+@MainActor
+protocol FinderClickObserving: AnyObject {
+    var isRunning: Bool { get }
+    var status: WebInteractionStatus { get }
+    var onStatus: ((WebInteractionStatus) -> Void)? { get set }
+    var onClick: ((CGPoint, Int, FinderClickTarget) throws -> Bool)? { get set }
+    var onPointer: ((CGPoint, String, FinderClickTarget) throws -> Void)? { get set }
+    func start() throws
+    func stop(reason: String, diagnostics: String?)
+    func refreshStatus()
+}
+
+extension FinderClickObserving {
+    func stop(reason: String = "网页交互已关闭") { stop(reason: reason, diagnostics: nil) }
+}
+
 /// Observes the original delivery without consuming or posting any system event.
 @MainActor
-final class FinderDesktopClickObserver {
+final class FinderDesktopClickObserver: FinderClickObserving {
     typealias TargetProvider = (CGPoint) -> FinderClickTarget?
     var onStatus: ((WebInteractionStatus) -> Void)?
     var onClick: ((CGPoint, Int, FinderClickTarget) throws -> Bool)?

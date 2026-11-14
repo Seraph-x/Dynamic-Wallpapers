@@ -12,8 +12,6 @@
 - (void)schedulePumpAt:(NSTimeInterval)deadline;
 - (void)performMessagePumpWork;
 - (void)scheduleMaintenancePump;
-- (void)startPageLifecycleTimerIfNeeded;
-- (void)stopPageLifecycleTimerIfIdle;
 @end
 
 @interface DWWebApplication : NSApplication <CefAppProtocol>
@@ -43,7 +41,6 @@ namespace {
 // Match the locked CEF external-pump example. The callback is not a complete
 // wake-up source: work discovered inside CEF's time slice can remain pending.
 constexpr NSTimeInterval maximumPumpInterval = 33.0 / 1000.0;
-constexpr NSTimeInterval pageLifecycleInterval = 1.0 / 30.0;
 bool processHasAttemptedCEF = false;  // A failed initialization also forbids any later CEF initialization.
 class RuntimeApp final : public CefApp, public CefBrowserProcessHandler {
  public:
@@ -71,7 +68,6 @@ class RuntimeApp final : public CefApp, public CefBrowserProcessHandler {
   NSString* _helperExecutable;
   NSString* _cacheDirectory;
   NSMutableSet<DWWebPage*>* _pages;
-  NSTimer* _timer;
   NSTimer* _pumpTimer;
   BOOL _pumping;
   BOOL _pumpAgain;
@@ -159,22 +155,6 @@ class RuntimeApp final : public CefApp, public CefBrowserProcessHandler {
   fprintf(stderr, "DWWEB runtime-started sandboxRequested=1 externalPump=1\n");
   return YES;
 }
-- (void)startPageLifecycleTimerIfNeeded {
-  DWRequireWebMainThread();
-  if (!_started || _terminated || _timer || !_pages.count) return;
-  __weak DWWebRuntime* weakSelf = self;
-  _timer = [NSTimer timerWithTimeInterval:pageLifecycleInterval repeats:YES block:^(NSTimer*) {
-    DWWebRuntime* owner = weakSelf;
-    if (!owner || !owner->_started) return;
-    for (DWWebPage* page in owner->_pages.allObjects) [page tick];
-  }];
-  [NSRunLoop.mainRunLoop addTimer:_timer forMode:NSRunLoopCommonModes];
-}
-- (void)stopPageLifecycleTimerIfIdle {
-  DWRequireWebMainThread();
-  if (_pages.count) return;
-  [_timer invalidate]; _timer = nil;
-}
 - (void)schedulePumpAt:(NSTimeInterval)deadline {
   DWRequireWebMainThread();
   // Initialization can itself service an AppKit loop (for example a system
@@ -232,7 +212,6 @@ class RuntimeApp final : public CefApp, public CefBrowserProcessHandler {
   }
   DWWebPage* page = [[DWWebPage alloc] initWithRuntime:self root:root entry:entry size:size scale:scale];
   [_pages addObject:page];
-  [self startPageLifecycleTimerIfNeeded];
   [self scheduleMaintenancePump];
   return page;
 }
@@ -265,7 +244,6 @@ class RuntimeApp final : public CefApp, public CefBrowserProcessHandler {
 - (void)retirePage:(DWWebPage*)page {
   DWRequireWebMainThread();
   [_pages removeObject:page];
-  [self stopPageLifecycleTimerIfIdle];
 }
 - (DWWebPage*)editorPageWithProjectRoot:(NSString*)root runtimeRoot:(NSString*)runtimeRoot
     configuration:(NSDictionary*)configuration size:(NSSize)size error:(NSError**)error {
@@ -292,7 +270,6 @@ class RuntimeApp final : public CefApp, public CefBrowserProcessHandler {
   _terminated = YES;
   [_pumpTimer invalidate]; _pumpTimer = nil; _pumpAgain = NO;
   if (_started) {
-    [_timer invalidate]; _timer = nil;
     fprintf(stderr, "DWWEB before-runtime-shutdown\n");
     CefShutdown();
     fprintf(stderr, "DWWEB after-runtime-shutdown\n");
@@ -310,7 +287,6 @@ class RuntimeApp final : public CefApp, public CefBrowserProcessHandler {
 }
 - (void)dealloc {
   if (_started || _pages.count) fprintf(stderr, "DWWEB ERROR runtime owner released before successful shutdown\n");
-  [_timer invalidate];
   [_pumpTimer invalidate];
 }
 @end

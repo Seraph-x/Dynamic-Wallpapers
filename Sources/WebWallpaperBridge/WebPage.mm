@@ -1,6 +1,7 @@
 #import "WebRuntimeInternal.h"
 #import <QuartzCore/QuartzCore.h>
 #include "WebPageState.hpp"
+#include "WebFrameStorage.hpp"
 #import "WebAudioOutput.h"
 #include "include/cef_parser.h"
 #include <filesystem>
@@ -42,6 +43,10 @@ std::string entryURL(const std::string& host, const char* entry) {
   NSView* _view;
   DWWebAudioOutput* _audioOutput;
   std::unique_ptr<PageResources> _resources;
+  dw::WebFrameStorage _frames;
+  dispatch_source_t _lifecycleSignal;
+  NSTimer* _deadlineTimer;
+  NSUInteger _lifecycleTickCount;
   BOOL _started;
   BOOL _ready;
   BOOL _closed;
@@ -119,6 +124,7 @@ std::string entryURL(const std::string& host, const char* entry) {
   if (resourceReply) [_editorResourceRequests removeObject:payload[@"requestID"]];
   _editorCompletions[identifier] = [completion copy];
   _editorDeadlines[identifier] = @(NSProcessInfo.processInfo.systemUptime + 30);
+  [self scheduleLifecycleDeadline];
   NSString* script = [NSString stringWithFormat:@"window.__dynamicWallpaperEditor.command(%@);", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]];
   state->browser->GetMainFrame()->ExecuteJavaScript(script.UTF8String, "https://" + state->host + "/__runtime/index.html", 0);
 }
@@ -187,7 +193,14 @@ std::string entryURL(const std::string& host, const char* entry) {
     _resources->state = std::make_shared<DWWebPageState>([_origin substringFromIndex:8].UTF8String,
         int(std::ceil(size.width)), int(std::ceil(size.height)), float(scale));
     __weak DWWebPage* weakSelf = self;
-    _resources->state->paint = [weakSelf](const void* buffer, int width, int height) { return bool([weakSelf commitFrame:buffer width:width height:height]); };
+    _lifecycleSignal = dispatch_source_create(DISPATCH_SOURCE_TYPE_DATA_ADD, 0, 0, dispatch_get_main_queue());
+    dispatch_source_set_event_handler(_lifecycleSignal, ^{ [weakSelf tick]; });
+    const dispatch_source_t signal = _lifecycleSignal;
+    _resources->state->changed = [signal] { dispatch_source_merge_data(signal, 1); };
+    dispatch_resume(_lifecycleSignal);
+    _resources->state->paint = [weakSelf](const void* buffer, int width, int height, const CefRenderHandler::RectList& dirty) {
+      return bool([weakSelf commitFrame:buffer width:width height:height dirty:dirty]);
+    };
     _resources->state->consoleDiagnostic = [weakSelf](int severity, const std::string& message, const std::string& source, int line) {
       NSDictionary* diagnostic = @{@"level": severity >= LOGSEVERITY_ERROR ? @"error" : @"warn",
           @"message": @(message.c_str()), @"source": @(source.c_str()), @"line": @(line)};
@@ -231,6 +244,7 @@ std::string entryURL(const std::string& host, const char* entry) {
   NSString* json = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
   _sceneCompletions[identifier] = [completion copy];
   _sceneDeadlines[identifier] = @(NSProcessInfo.processInfo.systemUptime + 5);
+  [self scheduleLifecycleDeadline];
   // Only this fixed entry point executes; all arguments are JSON-serialized data.
   NSString* script = [NSString stringWithFormat:@"window.__dynamicWallpaperScene.command(%@);", json];
   state->browser->GetMainFrame()->ExecuteJavaScript(script.UTF8String,
@@ -436,15 +450,25 @@ std::string entryURL(const std::string& host, const char* entry) {
     _resources->state->browser->GetHost()->SetWindowlessFrameRate(static_cast<int>(frameRate));
   return YES;
 }
-- (BOOL)commitFrame:(const void*)buffer width:(int)width height:(int)height {
+- (BOOL)commitFrame:(const void*)buffer width:(int)width height:(int)height dirty:(const CefRenderHandler::RectList&)dirty {
   DWRequireWebMainThread();
   auto state = _resources->state;
   if (state->closing) return NO;
-  if (!buffer || width <= 0 || height <= 0 || size_t(width) > SIZE_MAX / 4 / size_t(height)) {
-    state->fail("CEF supplied an invalid webpage frame"); return NO;
-  }
-  CFDataRef bytes = CFDataCreate(nullptr, static_cast<const UInt8*>(buffer), size_t(width) * height * 4);
-  CGDataProviderRef provider = bytes ? CGDataProviderCreateWithCFData(bytes) : nullptr;
+  std::shared_ptr<const dw::WebFrame> pixels;
+  CGDataProviderRef provider = nullptr;
+  try {
+    std::vector<dw::FrameRect> rectangles;
+    rectangles.reserve(dirty.size());
+    for (const auto& rect : dirty) rectangles.push_back({rect.x, rect.y, rect.width, rect.height});
+    pixels = _frames.copy(buffer, width, height, rectangles);
+    auto retained = std::make_unique<std::shared_ptr<const dw::WebFrame>>(pixels);
+    provider = CGDataProviderCreateWithData(retained.get(), pixels->bytes.get(), pixels->size,
+      [](void* owner, const void*, size_t) {
+        const std::unique_ptr<std::shared_ptr<const dw::WebFrame>> release(
+            static_cast<std::shared_ptr<const dw::WebFrame>*>(owner));
+      });
+    if (provider) retained.release();
+  } catch (const std::exception& error) { state->fail(error.what()); return NO; }
   CGColorSpaceRef colors = CGColorSpaceCreateDeviceRGB();
   CGImageRef frame = provider ? CGImageCreate(width, height, 8, 32, size_t(width) * 4, colors,
       CGBitmapInfo(kCGBitmapByteOrder32Little) | CGBitmapInfo(kCGImageAlphaPremultipliedFirst),
@@ -455,7 +479,6 @@ std::string entryURL(const std::string& host, const char* entry) {
     [CATransaction commit]; CGImageRelease(frame);
   } else state->fail("Could not allocate the webpage frame");
   if (provider) CGDataProviderRelease(provider);
-  if (bytes) CFRelease(bytes);
   CGColorSpaceRelease(colors);
   return frame != nullptr;
 }
@@ -482,12 +505,14 @@ std::string entryURL(const std::string& host, const char* entry) {
   auto state = _resources->state;
   if (_started || state->closing || _closed) { state->fail("This page cannot be started again"); return; }
   _started = YES; _prepareDeadline = NSProcessInfo.processInfo.systemUptime + 10;
+  [self scheduleLifecycleDeadline];
   try {
     NSError* audioError = nil;
     if (!state->editor) {
-      _audioOutput = [[DWWebAudioOutput alloc] initWithError:&audioError];
+      _audioOutput = [[DWWebAudioOutput alloc] initWithChangeCallback:state->changed error:&audioError];
       if (!_audioOutput) throw std::runtime_error(audioError.localizedDescription.UTF8String);
       state->audio = _audioOutput.buffer;
+      state->notifyChanged();
     }
     const std::string url = (state->scene || state->editor) ? "https://" + state->host + "/__runtime/index.html" : entryURL(state->host, _entry.UTF8String);
     _resources->files = std::make_shared<dw::ProjectFiles>(_root.fileSystemRepresentation,
@@ -532,6 +557,7 @@ std::string entryURL(const std::string& host, const char* entry) {
   [_completions addObject:[completion copy]];
   auto state = _resources->state;
   if (state->closing.exchange(true)) return;
+  _frames.stop();
   [_audioOutput close];
   if (state->scene) state->scene->retire();
   if (state->editor) { std::lock_guard lock(state->editor->mutex); state->editor->retired = true; state->editor->events.clear(); }
@@ -542,7 +568,39 @@ std::string entryURL(const std::string& host, const char* entry) {
   if (state->browser) state->browser->GetHost()->CloseBrowser(true);
   [self tick];
 }
+- (NSUInteger)lifecycleTickCount { DWRequireWebMainThread(); return _lifecycleTickCount; }
+- (BOOL)hasLifecycleDeadline { DWRequireWebMainThread(); return _deadlineTimer != nil; }
+- (void)scheduleLifecycleDeadline {
+  DWRequireWebMainThread();
+  [_deadlineTimer invalidate]; _deadlineTimer = nil;
+  if (_closed || _closeFailure) { dispatch_source_cancel(_lifecycleSignal); return; }
+  std::optional<double> deadline;
+  const auto earlier = [&](double value) { if (!deadline || value < *deadline) deadline = value; };
+  if (_resources->state->closing) earlier(_closeDeadline);
+  else {
+    if (_started && !_ready && !_reportedFailure) earlier(_prepareDeadline);
+    for (NSNumber* value in _sceneDeadlines.allValues) earlier(value.doubleValue);
+    for (NSNumber* value in _editorDeadlines.allValues) earlier(value.doubleValue);
+  }
+  if (!deadline) return;
+  __weak DWWebPage* weakSelf = self;
+  _deadlineTimer = [NSTimer timerWithTimeInterval:std::max(0.0, *deadline - NSProcessInfo.processInfo.systemUptime)
+      repeats:NO block:^(NSTimer* timer) {
+    DWWebPage* owner = weakSelf;
+    if (!owner || owner->_deadlineTimer != timer) return;
+    owner->_deadlineTimer = nil;
+    [owner tick];
+  }];
+  [NSRunLoop.mainRunLoop addTimer:_deadlineTimer forMode:NSRunLoopCommonModes];
+}
 - (void)tick {
+  DWRequireWebMainThread();
+  if (_closed || _closeFailure) return;
+  ++_lifecycleTickCount;
+  [self updateLifecycle];
+  [self scheduleLifecycleDeadline];
+}
+- (void)updateLifecycle {
   DWRequireWebMainThread();
   if (_closed || _closeFailure) return;
   auto state = _resources->state;
@@ -552,16 +610,18 @@ std::string entryURL(const std::string& host, const char* entry) {
     if (state->closing) { [self tick]; return; }
     if (state->audio && state->audio->errorCode() != DWWebAudioError::none && state->failure(false).empty())
       state->fail("Native webpage audio output failed (code " + std::to_string(int(state->audio->errorCode())) + ")");
-    if (_started && !_ready && NSProcessInfo.processInfo.systemUptime > _prepareDeadline)
+    if (_started && !_ready && !_reportedFailure && state->failure(false).empty() &&
+        NSProcessInfo.processInfo.systemUptime >= _prepareDeadline)
       state->fail("Webpage preparation exceeded its 10-second deadline");
     const auto failure = state->failure(false);
     if (!failure.empty()) {
-      _ready = NO;
+      _ready = NO; state->needsPaintNotification = false;
       [self failSceneCommands:DWWebError(@(failure.c_str()))];
       if (!_reportedFailure) { _reportedFailure = YES; if (self.onError) self.onError(DWWebError(@(failure.c_str()))); }
     } else if (state->loaded && !_ready && (state->editor ? state->engineReady :
         (state->painted && (!state->scene || (state->engineReady && state->committedPaints > state->engineReadyAfterPaint))))) {
       _ready = YES;
+      state->needsPaintNotification = false;
       if (self.onReady) self.onReady();
     }
     return;
@@ -582,5 +642,9 @@ std::string entryURL(const std::string& host, const char* entry) {
   fprintf(stderr, "DWWEB page-close origin=%s released=%d opened=%u closedFiles=%u failed=%d shutdownDisconnects=%u\n", _origin.UTF8String,
           int(released), state->opened.load(), state->released.load(), _closeFailure != nil, state->shutdownDisconnects.load());
   for (void (^callback)(NSError*) in callbacks) callback(_closeFailure);
+}
+- (void)dealloc {
+  [_deadlineTimer invalidate];
+  if (_lifecycleSignal) dispatch_source_cancel(_lifecycleSignal);
 }
 @end

@@ -18,6 +18,12 @@ final class CurrentWallpaperAudioPanel {
         let panel = AudioPanelWindow(contentRect: NSRect(origin: .zero, size: size),
                                      styleMask: [.borderless, .nonactivatingPanel],
                                      backing: .buffered, defer: false)
+        panel.onClose = {
+            guard !model.finishAudioEdit(), let failure = model.failure else { return }
+            model.failure = nil
+            FailureAlert.present(PresentedFailure(title: model.localizer("无法保存当前壁纸声音设置"),
+                summary: failure.summary, diagnostics: failure.diagnostics), localizer: model.localizer)
+        }
         panel.contentView = hostingView
         panel.backgroundColor = .clear
         panel.isOpaque = false
@@ -39,7 +45,18 @@ final class CurrentWallpaperAudioPanel {
     }
 }
 
-private final class AudioPanelWindow: NSPanel {
+final class AudioPanelWindow: NSPanel {
+    var onClose: (() -> Void)?
+    private var isClosing = false
+    override func close() {
+        guard !isClosing else { return }
+        isClosing = true
+        let callback = onClose
+        onClose = nil
+        super.close()
+        callback?()
+    }
+
     override var canBecomeKey: Bool { true }
 
     override func resignKey() {

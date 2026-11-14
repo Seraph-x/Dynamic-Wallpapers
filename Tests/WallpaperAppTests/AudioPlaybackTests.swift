@@ -41,6 +41,14 @@ final class AudioPlaybackTests: XCTestCase {
         let playingItem = player.currentItem
         XCTAssertFalse(player.isMuted)
         XCTAssertEqual(player.volume, 0.35, accuracy: 0.001)
+        let editTarget = AudioEditTarget(id: direct ? .direct(groupID: library.displays[0].groupID)
+            : .playlist(playlistID: library.playlists[0].id, entryID: library.playlists[0].entries[0].id), mediaID: item.id)
+        coordinator.updateAudio(AudioSettings(volume: 0.42), target: editTarget)
+        XCTAssertEqual(player.volume, 0.42, accuracy: 0.001)
+        XCTAssertTrue(player.currentItem === playingItem)
+        coordinator.reconcile(library)
+        XCTAssertEqual(player.volume, 0.42, accuracy: 0.001, "Reconciliation must preserve the active edit")
+        coordinator.finishAudioEdit()
         library.settings.isMuted = true
         coordinator.reconcile(library)
         XCTAssertTrue(player.isMuted)

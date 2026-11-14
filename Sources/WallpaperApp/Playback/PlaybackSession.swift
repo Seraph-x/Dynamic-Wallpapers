@@ -236,6 +236,12 @@ final class PlaybackSession {
         refreshAudio()
     }
 
+    func updateAudio(_ audio: AudioSettings, entryID: UUID) {
+        guard audioByEntry[entryID] != nil else { return }
+        audioByEntry[entryID] = audio
+        refreshAudio()
+    }
+
     private func refreshAudio() {
         endpoints.forEach { $0.updateAudio(audioByEntry) }
     }

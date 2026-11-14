@@ -8,50 +8,57 @@ struct CurrentWallpaperAudioMenu: View {
 
     var body: some View {
         let targets = model.currentWallpaperAudioTargets
-        if let target = selectedTarget(in: targets) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text(l10n("当前壁纸声音")).font(.headline)
-                if targets.count > 1 {
-                    Picker(l10n("当前壁纸声音"), selection: Binding(
-                        get: { Optional(target.id) },
-                        set: { selectedTargetID = $0 })) {
-                        ForEach(targets) { candidate in
-                            Text(title(for: candidate)).tag(Optional(candidate.id))
+        Group {
+            if let target = selectedTarget(in: targets) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(l10n("当前壁纸声音")).font(.headline)
+                    if targets.count > 1 {
+                        Picker(l10n("当前壁纸声音"), selection: Binding(
+                            get: { Optional(target.id) },
+                            set: { if finish() { selectedTargetID = $0 } })) {
+                            ForEach(targets) { candidate in
+                                Text(title(for: candidate)).tag(Optional(candidate.id))
+                            }
                         }
+                        .labelsHidden()
+                    } else {
+                        Text(title(for: target)).font(.caption).foregroundStyle(.secondary)
                     }
-                    .labelsHidden()
-                } else {
-                    Text(title(for: target)).font(.caption).foregroundStyle(.secondary)
+                    controls(for: target)
+                        .id(target.editTarget)
                 }
-                controls(for: target)
+                .onAppear { selectedTargetID = target.id }
+                .onChange(of: targets.map(\.id)) { _, ids in
+                    if selectedTargetID.map({ ids.contains($0) }) != true { selectedTargetID = ids.first }
+                }
+                .disabled(model.loadFailed || model.isShuttingDown)
             }
-            .onAppear { selectedTargetID = target.id }
-            .onChange(of: targets.map(\.id)) { _, ids in
-                if selectedTargetID.map({ ids.contains($0) }) != true { selectedTargetID = ids.first }
-            }
-            .disabled(model.loadFailed || model.isShuttingDown)
         }
+        .onChange(of: targets.map(\.editTarget)) { _, _ in _ = finish() }
     }
 
     @ViewBuilder
     private func controls(for target: CurrentWallpaperAudioTarget) -> some View {
         Toggle(l10n("此项静音"), isOn: Binding(
-            get: { currentTarget(target.id)?.audio.isMuted ?? target.audio.isMuted },
+            get: { audio(for: target).isMuted },
             set: { muted in
-                var audio = currentTarget(target.id)?.audio ?? target.audio
-                audio.isMuted = muted
-                update(audio, targetID: target.id)
+                var audio = audio(for: target); audio.isMuted = muted
+                update(audio, target: target)
+                _ = finish()
             })).toggleStyle(.checkbox)
         Slider(value: Binding(
-            get: { currentTarget(target.id)?.audio.volume ?? target.audio.volume },
+            get: { audio(for: target).volume },
             set: { volume in
-                var audio = currentTarget(target.id)?.audio ?? target.audio
-                audio.volume = volume
-                update(audio, targetID: target.id)
-            }), in: 0...1, step: 0.01)
+                var audio = audio(for: target); audio.volume = volume
+                update(audio, target: target)
+            }), in: 0...1, step: 0.01, onEditingChanged: { if !$0 { _ = finish() } })
             .labelsHidden()
             .frame(maxWidth: .infinity)
             .accessibilityLabel(l10n("音量"))
+    }
+
+    private func audio(for target: CurrentWallpaperAudioTarget) -> AudioSettings {
+        model.audioEdits.value(for: target.editTarget, persisted: target.audio)
     }
 
     private func selectedTarget(in targets: [CurrentWallpaperAudioTarget]) -> CurrentWallpaperAudioTarget? {
@@ -62,13 +69,18 @@ struct CurrentWallpaperAudioMenu: View {
         "\(target.playlistName ?? l10n("单张壁纸")) · \(target.mediaName)"
     }
 
-    private func currentTarget(_ id: CurrentWallpaperAudioTarget.ID) -> CurrentWallpaperAudioTarget? {
-        model.currentWallpaperAudioTargets.first { $0.id == id }
+    private func update(_ audio: AudioSettings, target: CurrentWallpaperAudioTarget) {
+        if !model.editAudio(audio, target: target.editTarget) { presentFailure() }
     }
 
-    private func update(_ audio: AudioSettings, targetID: CurrentWallpaperAudioTarget.ID) {
-        guard !model.updateCurrentWallpaperAudio(audio, targetID: targetID),
-              let failure = model.failure else { return }
+    private func finish() -> Bool {
+        let saved = model.finishAudioEdit()
+        if !saved { presentFailure() }
+        return saved
+    }
+
+    private func presentFailure() {
+        guard let failure = model.failure else { return }
         model.failure = nil
         FailureAlert.present(PresentedFailure(title: l10n("无法保存当前壁纸声音设置"),
             summary: failure.summary, diagnostics: failure.diagnostics), localizer: l10n)
