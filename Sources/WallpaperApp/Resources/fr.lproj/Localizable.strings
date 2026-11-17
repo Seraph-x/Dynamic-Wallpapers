@@ -531,6 +531,7 @@
 "系统安装" = "Installation système";
 "安装或更新屏保…" = "Installer ou mettre à jour…";
 "重新检查安装状态" = "Revérifier l’installation";
+"打开系统设置" = "Ouvrir Réglages Système";
 "安装状态尚未确认" = "État d’installation non confirmé";
 "尚未安装匹配的屏保" = "Économiseur correspondant non installé";
 "找到多个同标识屏保，请检查安装目录" = "Plusieurs économiseurs portant le même identifiant ont été trouvés. Vérifiez les dossiers d’installation.";

@@ -531,6 +531,7 @@
 "系统安装" = "Instalación del sistema";
 "安装或更新屏保…" = "Instalar o actualizar…";
 "重新检查安装状态" = "Volver a comprobar instalación";
+"打开系统设置" = "Abrir Ajustes del Sistema";
 "安装状态尚未确认" = "Estado de instalación no confirmado";
 "尚未安装匹配的屏保" = "Salvapantallas correspondiente no instalado";
 "找到多个同标识屏保，请检查安装目录" = "Se encontraron varios salvapantallas con el mismo identificador. Comprueba las carpetas de instalación.";
