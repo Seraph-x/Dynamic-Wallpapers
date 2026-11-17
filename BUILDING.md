@@ -47,11 +47,11 @@ git archive HEAD | tar -x -C "$RELEASE_SOURCE"
 cd "$RELEASE_SOURCE"
 python3 scripts/prepare-public-build.py
 python3 scripts/verify-current-media.py
-bash scripts/build-app.sh --output dist/DynamicWallpaper-1.1.1.app
+bash scripts/build-app.sh --output dist/DynamicWallpaper-1.1.2.app
 python3 scripts/create-local-release.py \
-  --app dist/DynamicWallpaper-1.1.1.app \
-  --output dist/releases/1.1.1 \
-  --notes docs/releases/1.1.1/RELEASE_NOTES.md
+  --app dist/DynamicWallpaper-1.1.2.app \
+  --output dist/releases/1.1.2 \
+  --notes docs/releases/1.1.2/RELEASE_NOTES.md
 ```
 
 Do not reuse prepared CEF wrapper or FFmpeg products from a personal source
@@ -63,7 +63,7 @@ upstream copyright and license notices intact. Local receipts and diagnostic
 logs may contain absolute paths and are not release attachments.
 
 Ship `SHA256SUMS.txt` alongside the DMG/ZIP and the five installation notes in
-`docs/releases/1.1.1`. The DMG contains the app and those notes; it must be
+`docs/releases/1.1.2`. The DMG contains the app and those notes; it must be
 mounted read-only and the contained app re-verified after image creation. Source
 archives contain tracked files without Git history, local libraries, caches or
 validation logs. A clean privacy scan and a valid ad-hoc signature do not imply

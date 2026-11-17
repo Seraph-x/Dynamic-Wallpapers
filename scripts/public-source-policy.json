@@ -11,7 +11,14 @@
     "docs/releases/1.1.1/INSTALL-ja.md",
     "docs/releases/1.1.1/INSTALL-zh-Hans.md",
     "docs/releases/1.1.1/README.md",
-    "docs/releases/1.1.1/RELEASE_NOTES.md"
+    "docs/releases/1.1.1/RELEASE_NOTES.md",
+    "docs/releases/1.1.2/INSTALL-en.md",
+    "docs/releases/1.1.2/INSTALL-es.md",
+    "docs/releases/1.1.2/INSTALL-fr.md",
+    "docs/releases/1.1.2/INSTALL-ja.md",
+    "docs/releases/1.1.2/INSTALL-zh-Hans.md",
+    "docs/releases/1.1.2/README.md",
+    "docs/releases/1.1.2/RELEASE_NOTES.md"
   ],
   "upstream_files": {
     "Resources/ThirdParty/CEF/CREDITS.html": {

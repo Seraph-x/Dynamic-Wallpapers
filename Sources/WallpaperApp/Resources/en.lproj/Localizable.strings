@@ -531,6 +531,7 @@
 "系统安装" = "System Installation";
 "安装或更新屏保…" = "Install or Update Screen Saver…";
 "重新检查安装状态" = "Check Installation Again";
+"打开系统设置" = "Open System Settings";
 "安装状态尚未确认" = "Installation Status Not Yet Confirmed";
 "尚未安装匹配的屏保" = "Matching Screen Saver Not Installed";
 "找到多个同标识屏保，请检查安装目录" = "Multiple screen savers with the same identifier were found. Check the installation folders.";
